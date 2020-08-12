@@ -24,10 +24,6 @@ class Program(object):
         self.argv   = argv
 
 
-    def __str__(self):
-        return self.binary.__str__()
-
-
     def get_entry_point(self):
         return self.binary.entrypoint
 

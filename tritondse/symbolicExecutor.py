@@ -6,6 +6,7 @@ import logging
 import time
 
 from triton                 import *
+from tritondse.abi          import ABI
 from tritondse.config       import Config
 from tritondse.loaders      import ELFLoader
 from tritondse.processState import ProcessState
@@ -18,12 +19,12 @@ class SymbolicExecutor(object):
     This class is used to represent the symbolic execution.
     """
     def __init__(self, config : Config, program : Program, pstate : ProcessState, seed : Seed = None):
-        self.program        = program
-        self.pstate         = pstate
-        self.config         = config
-        self.seed           = seed
-        self.loader         = ELFLoader(config, program, pstate)
-        self.stop_execution = False
+        self.program = program
+        self.pstate  = pstate
+        self.config  = config
+        self.seed    = seed
+        self.loader  = ELFLoader(config, program, pstate)
+        self.abi     = ABI(self.pstate)
 
 
     def __init_arch__(self):
@@ -46,13 +47,9 @@ class SymbolicExecutor(object):
 
 
     def __init_stack__(self):
-        # TODO abi
-        #self.ctx.setConcreteRegisterValue(self.abi.getBasePointerRegister(), self.BASE_STACK)
-        #self.ctx.setConcreteRegisterValue(self.abi.getStackPointerRegister(), self.BASE_STACK)
-        #self.ctx.setConcreteRegisterValue(self.abi.getStackPointerRegister(), self.BASE_STACK)
-        self.pstate.tt_ctx.setConcreteRegisterValue(self.pstate.tt_ctx.registers.rsp, self.pstate.BASE_STACK)
-        self.pstate.tt_ctx.setConcreteRegisterValue(self.pstate.tt_ctx.registers.rbp, self.pstate.BASE_STACK)
-        self.pstate.tt_ctx.setConcreteRegisterValue(self.pstate.tt_ctx.registers.rip, self.program.binary.entrypoint)
+        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.getBasePointerRegister(), self.pstate.BASE_STACK)
+        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.getStackPointerRegister(), self.pstate.BASE_STACK)
+        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.getPcRegister(), self.program.binary.entrypoint)
 
 
     def __schedule_thread__(self):
@@ -60,8 +57,7 @@ class SymbolicExecutor(object):
             # Reset the counter and save its context
             self.pstate.threads[self.pstate.tid].count = self.config.thread_scheduling
             self.pstate.threads[self.pstate.tid].save(self.pstate.tt_ctx)
-            # Get a random thread id to execute
-            #self.pstate.tid = random.choice(list(self.pstate.threads.keys()))
+            # Schedule to the next thread
             while True:
                 self.pstate.tid = (self.pstate.tid + 1) % len(self.pstate.threads.keys())
                 try:
@@ -75,13 +71,12 @@ class SymbolicExecutor(object):
 
 
     def __emulate__(self):
-        while not self.stop_execution and self.pstate.threads:
+        while not self.pstate.stop and self.pstate.threads:
             # Schedule thread if it's time
             self.__schedule_thread__()
 
             # Fetch opcodes
-            #pc = self.ctx.getConcreteRegisterValue(self.getPcRegister()) # TODO ABI
-            pc = self.pstate.tt_ctx.getConcreteRegisterValue(self.pstate.tt_ctx.registers.rip)
+            pc = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.getPcRegister())
             opcodes = self.pstate.tt_ctx.getConcreteMemoryAreaValue(pc, 16)
 
             if (self.pstate.tid and pc == 0) or self.pstate.threads[self.pstate.tid].killed:
