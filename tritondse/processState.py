@@ -56,3 +56,7 @@ class ProcessState(object):
 
         # Thread mutext init magic number
         self.PTHREAD_MUTEX_INIT_MAGIC = 0xdead
+
+        # Mutex and semaphore
+        self.mutex_locked = False
+        self.semaphore_locked = False

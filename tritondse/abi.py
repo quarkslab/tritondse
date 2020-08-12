@@ -13,7 +13,7 @@ class ABI(object):
         self.pstate = pstate
 
 
-    def getReturnRegister(self):
+    def get_ret_register(self):
         """ Return the appropriate return register according to the arch """
         if self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
             return self.pstate.tt_ctx.registers.x0
@@ -27,7 +27,7 @@ class ABI(object):
         raise Exception('Architecture not supported')
 
 
-    def getPcRegister(self):
+    def get_pc_register(self):
         """ Return the appropriate pc register according to the arch """
         if self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
             return self.pstate.tt_ctx.registers.pc
@@ -41,7 +41,7 @@ class ABI(object):
         raise Exception('Architecture not supported')
 
 
-    def getBasePointerRegister(self):
+    def get_bp_register(self):
         """ Return the appropriate base pointer register according to the arch """
         if self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
             return self.pstate.tt_ctx.registers.sp
@@ -55,7 +55,7 @@ class ABI(object):
         raise Exception('Architecture not supported')
 
 
-    def getStackPointerRegister(self):
+    def get_sp_register(self):
         """ Return the appropriate stack pointer register according to the arch """
         if self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
             return self.pstate.tt_ctx.registers.sp
@@ -69,7 +69,7 @@ class ABI(object):
         raise Exception('Architecture not supported')
 
 
-    def getSyscallIdRegister(self):
+    def get_sys_register(self):
         """ Return the appropriate syscall id register according to the arch """
         if self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
             return self.pstate.tt_ctx.registers.x8
@@ -83,7 +83,7 @@ class ABI(object):
         raise Exception('Architecture not supported')
 
 
-    def getArgumentRegister(self, i):
+    def get_arg_register(self, i):
         """ Return the appropriate register according to the arch """
         if self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
             aarch64 = {

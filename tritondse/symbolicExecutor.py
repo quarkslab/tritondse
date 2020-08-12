@@ -12,6 +12,7 @@ from tritondse.loaders      import ELFLoader
 from tritondse.processState import ProcessState
 from tritondse.program      import Program
 from tritondse.seed         import Seed
+from tritondse.routines     import *
 
 
 class SymbolicExecutor(object):
@@ -47,9 +48,9 @@ class SymbolicExecutor(object):
 
 
     def __init_stack__(self):
-        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.getBasePointerRegister(), self.pstate.BASE_STACK)
-        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.getStackPointerRegister(), self.pstate.BASE_STACK)
-        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.getPcRegister(), self.program.binary.entrypoint)
+        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_bp_register(), self.pstate.BASE_STACK)
+        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_sp_register(), self.pstate.BASE_STACK)
+        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), self.program.binary.entrypoint)
 
 
     def __schedule_thread__(self):
@@ -76,7 +77,7 @@ class SymbolicExecutor(object):
             self.__schedule_thread__()
 
             # Fetch opcodes
-            pc = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.getPcRegister())
+            pc = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_pc_register())
             opcodes = self.pstate.tt_ctx.getConcreteMemoryAreaValue(pc, 16)
 
             if (self.pstate.tid and pc == 0) or self.pstate.threads[self.pstate.tid].killed:
@@ -137,8 +138,8 @@ class SymbolicExecutor(object):
             #        if lea is not None and lea.isSymbolized():
             #            self.symbolicLea(instruction, lea)
 
-            ## Simulate routines
-            #self.routinesHandler(instruction)
+            # Simulate routines
+            self.routines_handler(instruction)
 
             ## Simulate syscalls
             #if instruction.getType() == OPCODE.X86.SYSCALL:
@@ -148,6 +149,61 @@ class SymbolicExecutor(object):
         # Used for metric
         #self.totalInstructions += count
         return
+
+
+    def __handle_external_return__(self, ret):
+        """ Symbolize or concretize return values of external functions """
+        if ret is not None:
+            if ret[0] == Enums.CONCRETIZE:
+                self.ctx.concretizeRegister(self.get_ret_register())
+                self.ctx.setConcreteRegisterValue(self.get_ret_register(), ret[1])
+            elif ret[0] == Enums.SYMBOLIZE:
+                self.ctx.setConcreteRegisterValue(self.get_ret_register(), ret[1].getAst().evaluate())
+                self.ctx.assignSymbolicExpressionToRegister(ret[1], self.get_ret_register())
+        return
+
+
+    def routines_handler(self, instruction):
+        pc = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_pc_register())
+        if pc in self.loader.routines_table:
+            # Emulate the routine and the return value
+            ret = self.loader.routines_table[pc](self)
+            self.__handle_external_return__(ret)
+
+            # Do not continue the execution if we are in a locked mutex
+            if self.pstate.mutex_locked:
+                self.pstate.mutex_locked = False
+                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), instruction.getAddress())
+                # It's locked, so switch to another thread
+                self.pstate.threads[self.pstate.tid].count = 0
+                return
+
+            # Do not continue the execution if we are in a locked semaphore
+            if self.pstate.semaphore_locked:
+                self.pstate.semaphore_locked = False
+                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), instruction.getAddress())
+                # It's locked, so switch to another thread
+                self.pstate.threads[self.pstate.tid].count = 0
+                return
+
+            if self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
+                # Get the return address
+                if self.loader.routines_table[pc] == rtn_libc_start_main:
+                    ret_addr = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_pc_register())
+                else:
+                    ret_addr = self.pstate.tt_ctx.getConcreteRegisterValue(self.pstate.tt_ctx.registers.x30)
+
+            elif self.pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
+                # Get the return address
+                ret_addr = self.pstate.tt_ctx.getConcreteMemoryValue(MemoryAccess(self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_sp_register()), CPUSIZE.QWORD))
+                # Restore RSP (simulate the ret)
+                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_sp_register(), self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_sp_register()) + CPUSIZE.QWORD)
+
+            else:
+                raise Exception("Architecture not supported")
+
+            # Hijack RIP to skip the call
+            self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), ret_addr)
 
 
     def run(self):
