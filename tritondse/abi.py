@@ -110,3 +110,20 @@ class ABI(object):
             return x86_64[i]
 
         raise Exception('Architecture or id not supported')
+
+
+    def get_memory_string_from_addr(self, addr):
+        """ Returns a string from a memory address """
+        s = str()
+        index = 0
+
+        while self.pstate.tt_ctx.getConcreteMemoryValue(addr+index):
+            c = chr(self.pstate.tt_ctx.getConcreteMemoryValue(addr+index))
+            s += c
+            index += 1
+
+        return s
+
+
+    def get_string_argument(self, i):
+        return self.get_memory_string_from_addr(self.pstate.tt_ctx.getConcreteRegisterValue(self.get_arg_register(0)))
