@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from triton import *
+import sys
+
+from triton             import *
+from tritondse.enums    import Enums
 
 
 def rtn_exit(se):
@@ -10,7 +13,15 @@ def rtn_exit(se):
 
 
 def rtn_puts(se):
-    raise(Exception('todo'))
+    logging.debug('puts hooked')
+
+    # Get arguments
+    arg0 = se.abi.get_string_argument(0)
+    sys.stdout.write(arg0 + '\n')
+    sys.stdout.flush()
+
+    # Return value
+    return Enums.CONCRETIZE, len(arg0) + 1
 
 
 def rtn_libc_start_main(se):

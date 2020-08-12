@@ -12,6 +12,7 @@ from tritondse.loaders      import ELFLoader
 from tritondse.processState import ProcessState
 from tritondse.program      import Program
 from tritondse.seed         import Seed
+from tritondse.enums        import Enums
 from tritondse.routines     import *
 
 
@@ -109,34 +110,6 @@ class SymbolicExecutor(object):
                 break
 
             print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
-            #for se in instruction.getSymbolicExpressions():
-            #    print(se)
-            #print("")
-            #if instruction.isSymbolized():
-            #    print("idc.set_color(0x%x, idc.CIC_ITEM, 0x024022)" %(instruction.getAddress()))
-
-            #if self.modes.LIMIT_INST and count >= self.modes.LIMIT_INST:
-            #    logging.info('Limit of executed instructions reached')
-            #    self.stop = True
-            #    break
-
-            #if self.modes.STOP_ADDR and instruction.getAddress() == self.modes.STOP_ADDR:
-            #    logging.info('Instruction address reached')
-            #    self.stop = True
-            #    break
-
-            #if self.modes.TARGET_ADDR and instruction.getAddress() == self.modes.TARGET_ADDR:
-            #    logging.info('Instruction address reached')
-            #    self.stop = True
-            #    self.success = True
-            #    break
-
-            ## Symbolize LEA of option is enabled
-            #for op in instruction.getOperands():
-            #    if op.getType() == OPERAND.MEM:
-            #        lea = op.getLeaAst()
-            #        if lea is not None and lea.isSymbolized():
-            #            self.symbolicLea(instruction, lea)
 
             # Simulate routines
             self.routines_handler(instruction)
@@ -155,11 +128,11 @@ class SymbolicExecutor(object):
         """ Symbolize or concretize return values of external functions """
         if ret is not None:
             if ret[0] == Enums.CONCRETIZE:
-                self.ctx.concretizeRegister(self.get_ret_register())
-                self.ctx.setConcreteRegisterValue(self.get_ret_register(), ret[1])
+                self.pstate.tt_ctx.concretizeRegister(self.abi.get_ret_register())
+                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1])
             elif ret[0] == Enums.SYMBOLIZE:
-                self.ctx.setConcreteRegisterValue(self.get_ret_register(), ret[1].getAst().evaluate())
-                self.ctx.assignSymbolicExpressionToRegister(ret[1], self.get_ret_register())
+                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1].getAst().evaluate())
+                self.pstate.tt_ctx.assignSymbolicExpressionToRegister(ret[1], self.abi.get_ret_register())
         return
 
 

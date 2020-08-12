@@ -10,3 +10,4 @@ from .seed             import Seed
 from .symbolicExecutor import SymbolicExecutor
 from .threadContext    import ThreadContext
 from .routines         import *
+from .enums            import Enums
