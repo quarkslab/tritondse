@@ -7,7 +7,6 @@ import os
 import logging
 
 
-
 class Program(object):
     """
     This class is used to represent a program.
