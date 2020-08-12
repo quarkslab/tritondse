@@ -9,7 +9,10 @@ from tritondse.enums    import Enums
 
 
 def rtn_exit(se):
-    raise(Exception('todo'))
+    logging.debug('exit hooked')
+    arg = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.getArgumentRegister(0))
+    se.pstate.stop = True
+    return Enums.CONCRETIZE, arg
 
 
 def rtn_puts(se):
