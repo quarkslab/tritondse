@@ -4,6 +4,8 @@
 from tritondse import *
 
 config  = Config()
+#print(config)
+
 pstate  = ProcessState(config)
 seed    = Seed(b'salut')
 program = Program('./samples/crackme_xor', [b'./samples/crackme_xor', b'salut'])
