@@ -8,6 +8,7 @@ import time
 from triton                 import *
 from tritondse.abi          import ABI
 from tritondse.config       import Config
+from tritondse.coverage     import Coverage
 from tritondse.loaders      import ELFLoader
 from tritondse.processState import ProcessState
 from tritondse.program      import Program
@@ -21,12 +22,13 @@ class SymbolicExecutor(object):
     This class is used to represent the symbolic execution.
     """
     def __init__(self, config : Config, program : Program, pstate : ProcessState, seed : Seed = None):
-        self.program = program
-        self.pstate  = pstate
-        self.config  = config
-        self.seed    = seed
-        self.loader  = ELFLoader(config, program, pstate)
-        self.abi     = ABI(self.pstate)
+        self.program    = program
+        self.pstate     = pstate
+        self.config     = config
+        self.seed       = seed
+        self.loader     = ELFLoader(config, program, pstate)
+        self.abi        = ABI(self.pstate)
+        self.coverage   = Coverage()
 
 
     def __init_arch__(self):
@@ -109,6 +111,8 @@ class SymbolicExecutor(object):
                 logging.error('Instruction not supported: %s' % (str(instruction)))
                 break
 
+            self.coverage.add_instruction(pc)
+
             print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
 
             # Simulate routines
@@ -119,8 +123,11 @@ class SymbolicExecutor(object):
             #    # TODO: aarch64?
             #    self.syscallsHandler()
 
-        # Used for metric
-        #self.totalInstructions += count
+            # Check timeout of the execution
+            if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:
+                logging.info('Timeout of an execution reached')
+                break
+
         return
 
 
@@ -191,4 +198,7 @@ class SymbolicExecutor(object):
         self.__emulate__()
         self.endTime = time.time()
         logging.info('Emulation done')
+        logging.info('Instructions covered: %d' % (self.coverage.number_of_instructions_covered()))
+        logging.info('Instructions executed: %d' % (self.coverage.number_of_instructions_executed()))
+        logging.info('Symbolic condition: %d' % (len(self.pstate.tt_ctx.getPathConstraints())))
         logging.info('Time of execution: %f seconds' % (self.endTime - self.startTime))
