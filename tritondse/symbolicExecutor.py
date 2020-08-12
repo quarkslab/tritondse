@@ -198,6 +198,7 @@ class SymbolicExecutor(object):
         self.__emulate__()
         self.endTime = time.time()
         logging.info('Emulation done')
+        logging.info('Return value: %#x' % (self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_ret_register())))
         logging.info('Instructions covered: %d' % (self.coverage.number_of_instructions_covered()))
         logging.info('Instructions executed: %d' % (self.coverage.number_of_instructions_executed()))
         logging.info('Symbolic condition: %d' % (len(self.pstate.tt_ctx.getPathConstraints())))
