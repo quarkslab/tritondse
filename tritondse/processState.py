@@ -26,6 +26,9 @@ class ProcessState(object):
         # The Triton's context
         self.tt_ctx = TritonContext()
 
+        # Used to define that the process must exist
+        self.stop = False
+
         # Signals table used by raise(), signal(), etc.
         self.signals_table = dict()
 
