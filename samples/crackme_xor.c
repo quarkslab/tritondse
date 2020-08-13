@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 char *serial = "\x31\x3e\x3d\x26\x31";
 
@@ -19,11 +20,11 @@ int check(char *ptr)
 int main(int ac, char **av)
 {
   int ret;
+  char buff[32];
 
-  if (ac != 2)
-    return -1;
+  read(0, buff, sizeof(buff) - 1);
 
-  ret = check(av[1]);
+  ret = check(buff);
   if (ret == 0)
     printf("Win\n");
   else

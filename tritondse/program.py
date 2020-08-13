@@ -11,7 +11,7 @@ class Program(object):
     """
     This class is used to represent a program.
     """
-    def __init__(self, path : str, argv : list):
+    def __init__(self, path : str):
         lief.Logger.disable()
 
         if not os.path.isfile(path):
@@ -20,15 +20,10 @@ class Program(object):
 
         self.path   = path
         self.binary = lief.parse(self.path)
-        self.argv   = argv
 
 
     def get_entry_point(self):
         return self.binary.entrypoint
-
-
-    def get_argc(self):
-        return len(self.argv)
 
 
     def get_path(sefl):

@@ -26,6 +26,7 @@ class ELFLoader(object):
             ['__libc_start_main',       rtn_libc_start_main,        None],
             ['exit',                    rtn_exit,                   None],
             ['puts',                    rtn_puts,                   None],
+            ['read',                    rtn_read,                   None],
         ]
         self.gvariables = {
             'stderr': 2,
