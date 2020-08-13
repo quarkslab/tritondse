@@ -21,7 +21,7 @@ class SymbolicExecutor(object):
     """
     This class is used to represent the symbolic execution.
     """
-    def __init__(self, config : Config, program : Program, pstate : ProcessState, seed : Seed = None):
+    def __init__(self, config : Config, pstate : ProcessState, program : Program, seed : Seed = None):
         self.program    = program
         self.pstate     = pstate
         self.config     = config
@@ -48,6 +48,7 @@ class SymbolicExecutor(object):
         self.pstate.tt_ctx.setMode(MODE.ALIGNED_MEMORY, True)
         self.pstate.tt_ctx.setMode(MODE.ONLY_ON_SYMBOLIZED, True)
         self.pstate.tt_ctx.setMode(MODE.AST_OPTIMIZATIONS, True)
+        self.pstate.tt_ctx.setSolverTimeout(self.config.smt_timeout)
 
 
     def __init_stack__(self):
