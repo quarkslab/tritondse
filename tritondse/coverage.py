@@ -19,8 +19,6 @@ class Coverage(object):
 
     def merge(self, other):
         """ Merge an other instance of Coverage into this instance"""
-        if type(other) != 'Coverage':
-            raise Exception('Must be a Coverage type')
         for k, v in other.instructions.items():
             self.add_instruction(k, v)
 

@@ -9,7 +9,7 @@ config.symbolize_stdin = True
 
 pstate  = ProcessState(config)
 program = Program('./samples/crackme_xor')
-seed    = Seed(b'toto')
-se      = SymbolicExecutor(config, pstate, program, seed)
+seed    = Seed(b'salut')
+dse     = SymbolicExplorator(config, pstate, program, seed)
 
-se.run()
+dse.explore()
