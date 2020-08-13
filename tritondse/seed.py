@@ -14,7 +14,7 @@ class Seed(object):
 
 
     def __eq__(self, other):
-        return self.get_hash() == other.get_hash()
+        return self.content == other.content
 
 
     def get_size(self):
