@@ -19,6 +19,7 @@ class Config(object):
         self.corpus_dir             = './corpus'    # The corpus directory
         self.crash_dir              = './crash'     # The crash directory
         self.worklist_dir           = './worklist'  # The worklist directory
+        self.data_dir               = './data'      # The data directory. Contains some data like code already covered, constrains already asked, etc.
         self.program_argv           = list()        # The program arguments (ex. argv[0], argv[1], etc.). List of Bytes.
 
         logging.basicConfig(format="%(threadName)s\033[0m [%(levelname)s] %(message)s", level=logging.DEBUG if self.debug else logging.INFO)
@@ -35,5 +36,6 @@ class Config(object):
         s += f'corpus_dir           = {self.corpus_dir}\n'
         s += f'crash_dir            = {self.crash_dir}\n'
         s += f'worklist_dir         = {self.worklist_dir}\n'
+        s += f'data_dir             = {self.data_dir}\n'
         s += f'program_argv         = {self.program_argv}'
         return s

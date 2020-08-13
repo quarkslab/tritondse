@@ -51,29 +51,40 @@ class SymbolicExplorator(object):
 
 
     def __init_dirs__(self):
+        # --------- Initialize DATA ------------------------------------------
+        if not os.path.isdir(self.config.data_dir):
+            logging.debug('Creating the %s directory' %(self.config.data_dir))
+            os.mkdir(self.config.data_dir)
+        else:
+            logging.debug('Checking the existing data directory from %s' %(self.config.worklist_dir))
+            # TODO loading coverage and constraints_asked
+
+        # --------- Initialize WORKLIST --------------------------------------
         if not os.path.isdir(self.config.worklist_dir):
             logging.debug('Creating the %s directory' %(self.config.worklist_dir))
             os.mkdir(self.config.worklist_dir)
         else:
             logging.debug('Checking the existing worklist directory from %s' %(self.config.worklist_dir))
             for path in glob.glob('%s/*.cov' %(self.config.worklist_dir)):
-                self.__load_seed_from_file__(path)
+                self.worklist.append(self.__load_seed_from_file__(path))
 
+        # --------- Initialize CORPUS ----------------------------------------
         if not os.path.isdir(self.config.corpus_dir):
             logging.debug('Creating the %s directory' %(self.config.corpus_dir))
             os.mkdir(self.config.corpus_dir)
         else:
             logging.debug('Checking the existing corpus directory from %s' %(self.config.corpus_dir))
             for path in glob.glob('%s/*.cov' %(self.config.corpus_dir)):
-                self.__load_seed_from_file__(path)
+                self.corpus.append(self.__load_seed_from_file__(path))
 
+        # --------- Initialize CRASH -----------------------------------------
         if not os.path.isdir(self.config.crash_dir):
             logging.debug('Creating the %s directory' %(self.config.crash_dir))
             os.mkdir(self.config.crash_dir)
         else:
             logging.debug('Checking the existing crash directory from %s' %(self.config.crash_dir))
             for path in glob.glob('%s/*.cov' %(self.config.crash_dir)):
-                self.__load_seed_from_file__(path)
+                self.crash.append(self.__load_seed_from_file__(path))
 
 
     def __time_delta__(self):
