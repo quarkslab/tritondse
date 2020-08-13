@@ -44,10 +44,10 @@ def rtn_libc_start_main(se):
         se.pstate.tt_ctx.concretizeMemory(ret2main)
         se.pstate.tt_ctx.setConcreteMemoryValue(ret2main, main)
 
-    # Define concrete value
+    # Define concrete value of argc
     se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_arg_register(0), se.program.get_argc())
 
-    # Define argc / argv
+    # Define argv
     base = se.pstate.BASE_ARGV
     addrs = list()
 

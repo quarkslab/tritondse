@@ -5,5 +5,7 @@ from enum import Enum, auto
 
 
 class Enums(Enum):
-    SYMBOLIZE  = auto()
+    ARGV       = auto()
     CONCRETIZE = auto()
+    STDIN      = auto()
+    SYMBOLIZE  = auto()

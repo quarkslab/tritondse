@@ -3,11 +3,11 @@
 
 from tritondse import *
 
-config  = Config()
+config = Config()
 config.symbolize_argv = True
 
 pstate  = ProcessState(config)
 program = Program('./samples/crackme_xor', [b'./samples/crackme_xor', b'salut'])
-se      = SymbolicExecutor(config, program, pstate)
+se      = SymbolicExecutor(config, pstate, program)
 
 se.run()
