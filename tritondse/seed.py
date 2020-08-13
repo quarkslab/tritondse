@@ -13,10 +13,6 @@ class Seed(object):
         self.content = bytes(content)
 
 
-    def __hash__(self):
-        return int(self.get_hash(), 16)
-
-
     def __eq__(self, other):
         return self.get_hash() == other.get_hash()
 
