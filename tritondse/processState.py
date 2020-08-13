@@ -44,7 +44,7 @@ class ProcessState(object):
         self.mallocBase = self.BASE_ALLOC
 
         # Unique thread id incrementation
-        self.utid = 1
+        self.utid = 0
 
         # Current thread id
         self.tid = self.utid

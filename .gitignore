@@ -1,2 +1,5 @@
 *.pyc
 *.swp
+corpus
+crash
+worklist

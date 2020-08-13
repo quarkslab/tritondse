@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import hashlib
+
 
 class Seed(object):
     """
@@ -16,3 +18,11 @@ class Seed(object):
         Returns the size of the seed.
         """
         return len(self.content)
+
+
+    def get_hash(self):
+        """
+        Returns the md5 hash of the content
+        """
+        m = hashlib.md5(self.content)
+        return m.hexdigest()

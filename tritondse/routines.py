@@ -39,10 +39,11 @@ def rtn_libc_start_main(se):
     for argv in se.config.program_argv:
         addrs.append(base)
         se.pstate.tt_ctx.setConcreteMemoryAreaValue(base, argv+b'\x00')
-        for indexCell in range(len(argv)):
-            if se.config.symbolize_argv:
-                var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(base+indexCell, CPUSIZE.BYTE))
-                var.setAlias('argv[%d][%d]' %(index, indexCell))
+        # TODO
+        #for indexCell in range(len(argv)):
+        #    if se.config.symbolize_argv:
+        #        var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(base+indexCell, CPUSIZE.BYTE))
+        #        var.setAlias('argv[%d][%d]' %(index, indexCell))
         logging.debug('argv[%d] = %s' %(index, repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(base, len(argv)))))
         base += len(argv)+1
         index += 1
