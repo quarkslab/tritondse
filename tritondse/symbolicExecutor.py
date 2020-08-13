@@ -4,6 +4,7 @@
 import lief
 import logging
 import time
+import random
 
 from triton                 import *
 from tritondse.abi          import ABI
@@ -118,11 +119,6 @@ class SymbolicExecutor(object):
 
             # Simulate routines
             self.routines_handler(instruction)
-
-            ## Simulate syscalls
-            #if instruction.getType() == OPCODE.X86.SYSCALL:
-            #    # TODO: aarch64?
-            #    self.syscallsHandler()
 
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:
