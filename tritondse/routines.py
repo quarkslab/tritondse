@@ -85,9 +85,10 @@ def rtn_read(se):
     fd   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     buff = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    minsize = min(len(se.seed.content), size)
 
     if fd == 0 and se.config.symbolize_stdin:
-        for index in range(size):
+        for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
             if se.seed:
@@ -95,8 +96,9 @@ def rtn_read(se):
                     se.pstate.tt_ctx.setConcreteVariableValue(var, se.seed.content[index])
                 except:
                     pass
-        logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, size))))
-        return Enums.CONCRETIZE, size
+        logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
+        # TODO: Could return the read value as a symbolic one
+        return Enums.CONCRETIZE, minsize
 
     if fd in se.pstate.fd_table:
         if fd == 0:

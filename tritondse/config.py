@@ -8,14 +8,14 @@ class Config(object):
     """
     Data class holding tritondse configurations
     """
-    def __init__(self):
-        self.symbolize_argv         = False         # not symbolized by default
+    def __init__(self, debug : bool = True):
+        self.symbolize_argv         = False         # Not symbolized by default
         self.symbolize_stdin        = False         # Not symbolized by default
         self.smt_timeout            = 10000         # 10 seconds by default
-        self.execution_timeout      = 0             # unlimited by default
-        self.exploration_timeout    = 0             # unlimited by default
+        self.execution_timeout      = 0             # Unlimited by default
+        self.exploration_timeout    = 0             # Unlimited by default
         self.thread_scheduling      = 200           # Number of instructions executed by thread before scheduling
-        self.debug                  = True          # Enable debug info by default
+        self.debug                  = debug         # Enable debug info by default
         self.corpus_dir             = './corpus'    # The corpus directory
         self.crash_dir              = './crash'     # The crash directory
         self.worklist_dir           = './worklist'  # The worklist directory
