@@ -55,10 +55,15 @@ class SymbolicExplorator(object):
             logging.debug('Loading the existing metadata directory from %s' %(self.config.metadata_dir))
             # Loading coverage
             with open(f'{self.config.metadata_dir}/coverage', 'w+') as fd:
-                self.coverage.instructions = fd.read()
+                coverage = fd.read()
             # Loading constraints
             with open(f'{self.config.metadata_dir}/constraints', 'w+') as fd:
-                self.constraints_asked = fd.read()
+                constraints = fd.read()
+            # Eval Python objects
+            if len(coverage):
+                self.coverage.instructions = eval(coverage)
+            if len(constraints):
+                self.constraints_asked = eval(constraints)
 
         # --------- Initialize WORKLIST --------------------------------------
         if not os.path.isdir(self.config.worklist_dir):
