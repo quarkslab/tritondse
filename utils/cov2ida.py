@@ -1,5 +1,13 @@
 #!/usr/bin/env python
-## -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+#
+# This util is used to covert a metadata/coverage file into an IDA plugin.
+#
+# Usage:
+#
+#   $ ./cov2ida.py ./metadata/coverage
+#
+# Then, load idacov.py into IDA.
 
 import sys
 
