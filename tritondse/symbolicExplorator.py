@@ -13,7 +13,7 @@ from tritondse.config           import Config
 from tritondse.coverage         import Coverage
 from tritondse.processState     import ProcessState
 from tritondse.program          import Program
-from tritondse.seed             import Seed
+from tritondse.seed             import Seed, SeedFile
 from tritondse.enums            import Enums
 from tritondse.symbolicExecutor import SymbolicExecutor
 
@@ -28,9 +28,9 @@ class SymbolicExplorator(object):
         self.config             = config
         self.initial_seed       = seed
         self.coverage           = Coverage()
-        self.worklist           = list()
-        self.corpus             = list()
-        self.crash              = list()
+        self.worklist           = set()
+        self.corpus             = set()
+        self.crash              = set()
         self.stop               = False
         self.total_exec         = 0
         self.ts                 = time.time()
@@ -39,15 +39,12 @@ class SymbolicExplorator(object):
         self.__init_dirs__()
 
         # Define the first seed
-        self.worklist.append(self.initial_seed)
+        self.worklist.add(self.initial_seed)
 
 
     def __load_seed_from_file__(self, path):
         logging.debug('Loading %s' %(path))
-        fd = open(path, 'rb')
-        raw = fd.read()
-        fd.close()
-        return Seed(raw)
+        return SeedFile(path)
 
 
     def __init_dirs__(self):
@@ -56,7 +53,7 @@ class SymbolicExplorator(object):
             logging.debug('Creating the %s directory' %(self.config.data_dir))
             os.mkdir(self.config.data_dir)
         else:
-            logging.debug('Checking the existing data directory from %s' %(self.config.worklist_dir))
+            logging.debug('Checking the existing data directory from %s' %(self.config.data_dir))
             # TODO loading coverage and constraints_asked
 
         # --------- Initialize WORKLIST --------------------------------------
@@ -66,7 +63,7 @@ class SymbolicExplorator(object):
         else:
             logging.debug('Checking the existing worklist directory from %s' %(self.config.worklist_dir))
             for path in glob.glob('%s/*.cov' %(self.config.worklist_dir)):
-                self.worklist.append(self.__load_seed_from_file__(path))
+                self.worklist.add(self.__load_seed_from_file__(path))
 
         # --------- Initialize CORPUS ----------------------------------------
         if not os.path.isdir(self.config.corpus_dir):
@@ -75,7 +72,7 @@ class SymbolicExplorator(object):
         else:
             logging.debug('Checking the existing corpus directory from %s' %(self.config.corpus_dir))
             for path in glob.glob('%s/*.cov' %(self.config.corpus_dir)):
-                self.corpus.append(self.__load_seed_from_file__(path))
+                self.corpus.add(self.__load_seed_from_file__(path))
 
         # --------- Initialize CRASH -----------------------------------------
         if not os.path.isdir(self.config.crash_dir):
@@ -84,7 +81,7 @@ class SymbolicExplorator(object):
         else:
             logging.debug('Checking the existing crash directory from %s' %(self.config.crash_dir))
             for path in glob.glob('%s/*.cov' %(self.config.crash_dir)):
-                self.crash.append(self.__load_seed_from_file__(path))
+                self.crash.add(self.__load_seed_from_file__(path))
 
 
     def __time_delta__(self):
@@ -99,7 +96,7 @@ class SymbolicExplorator(object):
         #   - rand
         #   - lifo
         #   - fifo
-        return self.worklist.pop(0)
+        return self.worklist.pop()
 
 
     def __save_corpus__(self, seed):
@@ -112,7 +109,7 @@ class SymbolicExplorator(object):
         f.close()
 
         # Add the seed to the current corpus
-        self.corpus.append(seed)
+        self.corpus.add(seed)
 
         return name
 
@@ -197,7 +194,7 @@ class SymbolicExplorator(object):
         inputs = self.__get_new_input__(execution)
         for m in inputs:
             if m not in self.corpus and m not in self.worklist and m not in self.crash:
-                self.worklist.append(m)
+                self.worklist.add(m)
 
         logging.info('Worklist size: %d' % (len(self.worklist)))
         logging.info('Corpus size: %d' % (len(self.corpus)))
