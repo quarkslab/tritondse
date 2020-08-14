@@ -131,11 +131,56 @@ def rtn_stack_chk_fail(se):
     return None
 
 
+def rtn_clock_gettime(se):
+    logging.debug('clock_gettime hooked')
+
+    # Get arguments
+    clockid = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    tp      = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+
+    if tp == 0:
+        return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
+
+    t = time.time()
+    s = se.pstate.tt_ctx.getGprSize()
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp,   s), int(t))
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp+s, s), int(t * 1000000))
+
+    # Return value
+    return Enums.CONCRETIZE, 0
+
+
 def rtn_exit(se):
     logging.debug('exit hooked')
     arg = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     se.pstate.stop = True
     return Enums.CONCRETIZE, arg
+
+
+def rtn_fprintf(se):
+    logging.debug('fprintf hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
+    arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
+    arg5 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
+
+    arg1f = se.abi.get_format_string(arg1)
+    nbArgs = arg1f.count("{")
+    args = se.abi.get_format_arguments(arg1, [arg2, arg3, arg4, arg5][:nbArgs])
+    s = arg1f.format(*args)
+
+    if arg0 in se.pstate.fd_table:
+        se.pstate.fd_table[arg0].write(s)
+        se.pstate.fd_table[arg0].flush()
+    else:
+        return Enums.CONCRETIZE, 0
+
+    # Return value
+    return Enums.CONCRETIZE, len(s)
 
 
 def rtn_free(se):
@@ -625,6 +670,17 @@ def rtn_sem_wait(se):
     return Enums.CONCRETIZE, 0
 
 
+def rtn_sleep(se):
+    logging.debug('sleep hooked')
+
+    # Get arguments
+    t = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    #time.sleep(t)
+
+    # Return value
+    return Enums.CONCRETIZE, 0
+
+
 def rtn_sprintf(se):
     logging.debug('sprintf hooked')
 
@@ -648,6 +704,78 @@ def rtn_sprintf(se):
         index += 1
 
     return Enums.CONCRETIZE, len(s)
+
+
+def rtn_strcasecmp(se):
+    logging.debug('strcasecmp hooked')
+
+    s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    maxlen = max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
+
+    ast = se.pstate.tt_ctx.getAstContext()
+    res = ast.bv(0, 64)
+    for index in range(maxlen):
+        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1+index, 1))
+        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2+index, 1))
+        cells1 = ast.ite(ast.land([cells1 >= ord('a'), cells1 <= ord('z')]), cells1 - 32, cells1) # upper case
+        cells2 = ast.ite(ast.land([cells2 >= ord('a'), cells2 <= ord('z')]), cells2 - 32, cells2) # upper case
+        res = res + ast.ite(cells1 == cells2, ast.bv(0, 64), ast.bv(1, 64))
+
+    # create a new symbolic expression for this summary
+    expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strcasecmp summary")
+
+    return Enums.SYMBOLIZE, expr
+
+
+def rtn_strchr(se):
+    logging.debug('strchr hooked')
+
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    s = se.abi.get_memory_string(arg0)
+    c = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    r = s.find(chr(c))
+
+    if r == -1:
+        return Enums.CONCRETIZE, 0
+
+    return Enums.CONCRETIZE, arg0 + r
+
+
+def rtn_strcmp(se):
+    logging.debug('strcmp hooked')
+
+    s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    maxlen = max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
+
+    ast = se.pstate.tt_ctx.getAstContext()
+    res = ast.bv(0, 64)
+    for index in range(maxlen):
+        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1+index, 1))
+        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2+index, 1))
+        res = res + ast.ite(cells1 == cells2, ast.bv(0, 64), ast.bv(1, 64))
+
+    # create a new symbolic expression for this summary
+    expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strcmp summary")
+
+    return Enums.SYMBOLIZE, expr
+
+
+def rtn_strcpy(se):
+    logging.debug('strcpy hooked')
+
+    dst = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    for index in range(len(se.abi.get_memory_string(src))):
+        dmem = MemoryAccess(dst + index, 1)
+        smem = MemoryAccess(src + index, 1)
+        cell = se.pstate.tt_ctx.getMemoryAst(smem)
+        expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "strcpy byte")
+        se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
+        se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
+
+    return Enums.CONCRETIZE, dst
 
 
 def rtn_strlen(se):
@@ -692,3 +820,31 @@ def rtn_strncpy(se):
             break
 
     return Enums.CONCRETIZE, dst
+
+
+def rtn_strtok_r(se):
+    logging.debug('strtok_r hooked')
+
+    string  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    delim   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    saveptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    saveMem = se.pstate.tt_ctx.getConcreteMemoryValue(MemoryAccess(saveptr, se.pstate.tt_ctx.getGprSize()))
+
+    if string == 0:
+        string = saveMem
+
+    # Iterate of all delimiters
+    for c in se.abi.get_memory_string(delim):
+        offset = se.abi.get_memory_string(string).find(c)
+        if offset == -1:
+            return Enums.CONCRETIZE, 0
+
+        # Init the \0 at the delimiter position
+        se.pstate.tt_ctx.setConcreteMemoryValue(string + offset, 0)
+
+        # Setup the saveptr
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(saveptr, se.pstate.tt_ctx.getGprSize()), string + offset + 1)
+
+        return Enums.CONCRETIZE, string
+
+    return Enums.CONCRETIZE, 0
