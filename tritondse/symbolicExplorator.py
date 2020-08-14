@@ -155,12 +155,25 @@ class SymbolicExplorator(object):
                             logging.info('Query to the solver (new path). Solving time: %f seconds' % (te - ts))
 
                             if model:
+                                # TODO Note: branch[] contains information that can help the SeedManager to classify its
+                                # seeds insertion:
+                                #
+                                #   - branch['srcAddr'] -> The location of the branch instruction
+                                #   - branch['dstAddr'] -> The destination of the jump if and only if branch['isTaken'] is True.
+                                #                          Otherwise, the destination address is the next linear instruction.
+
+                                # The seed size is the number of symbolic variables.
                                 symvars = execution.pstate.tt_ctx.getSymbolicVariables()
                                 content = bytearray(len(symvars))
+                                # For each byte of the seed, we assign the value provided by the solver.
+                                # If the solver provide no model for some bytes of the seed, their value
+                                # stay unmodified.
                                 for k, v in model.items():
                                     content[k] = v.getValue()
+                                # Create the Seed object and assign the new model
                                 seed = Seed(bytes(content))
                                 inputs.append(seed)
+                                # Save the constraint as already asked.
                                 self.constraints_asked.add(constraint.getHash())
 
             # Update the previous constraints with true branch to keep a good path.
@@ -193,7 +206,7 @@ class SymbolicExplorator(object):
         logging.info('Getting models, please wait...')
         inputs = self.__get_new_input__(execution)
         for m in inputs:
-            if m not in self.corpus and m not in self.worklist and m not in self.crash:
+            if m not in self.corpus and m and m not in self.crash:
                 self.worklist.add(m)
 
         logging.info('Worklist size: %d' % (len(self.worklist)))
