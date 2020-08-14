@@ -4,6 +4,7 @@
 import logging
 import sys
 import os
+import time
 
 from triton             import *
 from tritondse.enums    import Enums
@@ -149,6 +150,170 @@ def rtn_fwrite(se):
 
     # Return value
     return Enums.CONCRETIZE, size
+
+
+def rtn_gettimeofday(se):
+    logging.debug('gettimeofday hooked')
+
+    # Get arguments
+    tv = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    tz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+
+    if tv == 0:
+        return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
+
+    t = time.time()
+    s = se.pstate.tt_ctx.getGprSize()
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv,   s), int(t))
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv+s, s), int(t * 1000000))
+
+    # Return value
+    return Enums.CONCRETIZE, 0
+
+
+def rtn_memcmp(se):
+    logging.debug('memcmp hooked')
+
+    s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+
+    ast = se.pstate.tt_ctx.getAstContext()
+    res = ast.bv(0, 64)
+
+    # TODO: What if size is symbolic ?
+    for index in range(size):
+        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1+index, 1))
+        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2+index, 1))
+        res = res + ast.ite(
+                        cells1 == cells2,
+                        ast.bv(0, 64),
+                        ast.ite(
+                            cells1 < cells2,
+                            ast.bv(0xffffffffffffffff, 64),
+                            ast.bv(1, 64)
+                        )
+                    )
+
+    # create a new symbolic expression for this summary
+    expr = se.pstate.tt_ctx.newSymbolicExpression(res, "memcmp summary")
+
+    return Enums.SYMBOLIZE, expr
+
+
+def rtn_memcpy(se):
+    logging.debug('memcpy hooked')
+
+    dst = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    cnt = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+
+    # TODO: What if cnt is symbolic ?
+    for index in range(cnt):
+        dmem  = MemoryAccess(dst + index, 1)
+        smem  = MemoryAccess(src + index, 1)
+        cell = se.pstate.tt_ctx.getMemoryAst(smem)
+        expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "memcpy byte")
+        se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
+        se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
+
+    return Enums.CONCRETIZE, dst
+
+
+def rtn_memmove(se):
+    logging.debug('memmove hooked')
+
+    dst = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    cnt = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+
+    # TODO: What if cnt is symbolic ?
+    for index in range(cnt):
+        dmem  = MemoryAccess(dst + index, 1)
+        smem  = MemoryAccess(src + index, 1)
+        cell = se.pstate.tt_ctx.getMemoryAst(smem)
+        expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "memmove byte")
+        se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
+        se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
+
+    return Enums.CONCRETIZE, dst
+
+
+def rtn_memset(se):
+    logging.debug('memset hooked')
+
+    dst = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+
+    # TODO: What if size is symbolic ?
+    for index in range(size):
+        dmem = MemoryAccess(dst + index, CPUSIZE.BYTE)
+        cell = se.pstate.tt_ctx.getAstContext().extract(7, 0, se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(1)))
+        se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
+        expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "memset byte")
+        se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
+
+    return Enums.CONCRETIZE, dst
+
+
+def rtn_pthread_mutex_destroy(se):
+    logging.debug('pthread_mutex_destroy hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *restrict mutex
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize()), se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
+
+    # Return value
+    return Enums.CONCRETIZE, 0
+
+
+def rtn_pthread_mutex_init(se):
+    logging.debug('pthread_mutex_init hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *restrict mutex
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # const pthread_mutexattr_t *restrict attr)
+
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize()), se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
+
+    # Return value
+    return Enums.CONCRETIZE, 0
+
+
+def rtn_pthread_mutex_lock(se):
+    logging.debug('pthread_mutex_lock hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *mutex
+    mem = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
+    mutex = se.pstate.tt_ctx.getConcreteMemoryValue(mem)
+
+    # If the thread has been initialized and unused, define the tid has lock
+    if mutex == se.pstate.PTHREAD_MUTEX_INIT_MAGIC:
+        logging.debug('mutex unlocked')
+        se.pstate.tt_ctx.setConcreteMemoryValue(mem, se.pstate.tid)
+
+    # The mutex is locked and we are not allowed to continue the execution
+    elif mutex != se.pstate.tid:
+        logging.debug('mutex locked')
+        se.pstate.mutex_locked = True
+
+    # Return value
+    return Enums.CONCRETIZE, 0
+
+
+def rtn_pthread_mutex_unlock(se):
+    logging.debug('pthread_mutex_unlock hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *mutex
+    mem = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
+
+    se.pstate.tt_ctx.setConcreteMemoryValue(mem, se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
+
+    # Return value
+    return Enums.CONCRETIZE, 0
 
 
 def rtn_puts(se):
