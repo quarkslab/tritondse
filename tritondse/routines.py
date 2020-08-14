@@ -66,6 +66,15 @@ def rtn_ctype_b_loc(se):
     return Enums.CONCRETIZE, ptable
 
 
+def rtn_errno_location(se):
+    logging.debug('__errno_location hooked')
+
+    errno = 0xdeadbeaf
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(errno, CPUSIZE.QWORD), 0)
+
+    return Enums.CONCRETIZE, errno
+
+
 def rtn_libc_start_main(se):
     logging.debug('__libc_start_main hooked')
 
@@ -113,6 +122,12 @@ def rtn_libc_start_main(se):
     # Concrete value
     se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_arg_register(1), argv)
 
+    return None
+
+
+def rtn_stack_chk_fail(se):
+    logging.debug('__stack_chk_fail hooked')
+    self.pstate.stop = True
     return None
 
 

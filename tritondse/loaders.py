@@ -24,7 +24,9 @@ class ELFLoader(object):
         self.routines_table = dict()
         self.plt = [
             ['__ctype_b_loc',           rtn_ctype_b_loc,            None],
+            ['__errno_location',        rtn_errno_location,         None],
             ['__libc_start_main',       rtn_libc_start_main,        None],
+            ['__stack_chk_fail',        rtn_stack_chk_fail,         None],
             ['exit',                    rtn_exit,                   None],
             ['fwrite',                  rtn_fwrite,                 None],
             ['gettimeofday',            rtn_gettimeofday,           None],
