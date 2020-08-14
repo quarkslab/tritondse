@@ -89,6 +89,8 @@ class SymbolicExecutor(object):
                 logging.info('End of thread: %d' % self.pstate.tid)
                 if pc == 0 and self.pstate.threads[self.pstate.tid].killed == False:
                     logging.warning('PC=0, is it normal?')
+                    # TODO: Exit for debug
+                    sys.exit(-1)
                 del self.pstate.threads[self.pstate.tid]
                 self.pstate.tid = random.choice(list(self.pstate.threads.keys()))
                 self.pstate.threads[self.pstate.tid].count = self.config.thread_scheduling
