@@ -4,3 +4,4 @@ corpus
 crash
 worklist
 metadata
+idacov.py
