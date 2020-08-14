@@ -8,19 +8,22 @@ class Config(object):
     """
     Data class holding tritondse configurations
     """
-    def __init__(self, debug : bool = True):
+    def __init__(self, **args):
         self.symbolize_argv         = False         # Not symbolized by default
         self.symbolize_stdin        = False         # Not symbolized by default
         self.smt_timeout            = 10000         # 10 seconds by default
         self.execution_timeout      = 0             # Unlimited by default
         self.exploration_timeout    = 0             # Unlimited by default
         self.thread_scheduling      = 200           # Number of instructions executed by thread before scheduling
-        self.debug                  = debug         # Enable debug info by default
+        self.debug                  = True          # Enable debug info by default
         self.corpus_dir             = './corpus'    # The corpus directory
         self.crash_dir              = './crash'     # The crash directory
         self.worklist_dir           = './worklist'  # The worklist directory
         self.data_dir               = './data'      # The data directory. Contains some data like code already covered, constrains already asked, etc.
         self.program_argv           = list()        # The program arguments (ex. argv[0], argv[1], etc.). List of Bytes.
+
+        if 'debug' in args:
+            self.debug = args['debug']
 
         logging.basicConfig(format="%(threadName)s\033[0m [%(levelname)s] %(message)s", level=logging.DEBUG if self.debug else logging.INFO)
 
