@@ -23,6 +23,23 @@ class ELFLoader(object):
         # Mapping of the .plt and .got to the Python routines
         self.routines_table = dict()
         self.plt = [
+            # TODO:
+            #   - __cxa_finalize
+            #   - atoi
+            #   - closedir
+            #   - fseek
+            #   - mkdir
+            #   - opendir
+            #   - readdir
+            #   - remove
+            #   - rename
+            #   - rmdir
+            #   - strncasecmp
+            #   - strncmp
+            #   - strstr
+            #   - strtoul
+            #   - tolower
+            #   - toupper
             ['__ctype_b_loc',           rtn_ctype_b_loc,            None],
             ['__errno_location',        rtn_errno_location,         None],
             ['__libc_start_main',       rtn_libc_start_main,        None],

@@ -230,6 +230,7 @@ class SymbolicExplorator(object):
 
         logging.info('Worklist size: %d' % (len(self.worklist)))
         logging.info('Corpus size: %d' % (len(self.corpus)))
+        logging.info('Total of instructions covered: %d' % (self.coverage.number_of_instructions_covered()))
         logging.info('Total time: %f seconds' % (self.__time_delta__()))
 
 
