@@ -6,8 +6,9 @@ import sys
 import os
 import time
 
-from triton             import *
-from tritondse.enums    import Enums
+from triton                  import *
+from tritondse.enums         import Enums
+from tritondse.threadContext import ThreadContext
 
 
 def rtn_ctype_b_loc(se):
@@ -255,6 +256,80 @@ def rtn_memset(se):
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
 
     return Enums.CONCRETIZE, dst
+
+
+def rtn_pthread_create(se):
+    logging.debug('pthread_create hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0)) # pthread_t *thread
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1)) # const pthread_attr_t *attr
+    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2)) # void *(*start_routine) (void *)
+    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3)) # void *arg
+
+    tid = se.pstate.get_unique_thread_id()
+    thread = ThreadContext(se.config, tid)
+    thread.save(se.pstate.tt_ctx)
+
+    # Concretize pc
+    if se.abi.get_pc_register().getId() in thread.sregs:
+        del thread.sregs[se.abi.get_pc_register().getId()]
+
+    # Concretize bp
+    if se.abi.get_bp_register().getId() in thread.sregs:
+        del thread.sregs[se.abi.get_bp_register().getId()]
+
+    # Concretize sp
+    if se.abi.get_sp_register().getId() in thread.sregs:
+        del thread.sregs[se.abi.get_sp_register().getId()]
+
+    # Concretize arg0
+    if se.abi.get_arg_register(0).getId() in thread.sregs:
+        del thread.sregs[se.abi.get_arg_register(0).getId()]
+
+    thread.cregs[se.abi.get_pc_register().getId()] = arg2
+    thread.cregs[se.abi.get_arg_register(0).getId()] = arg3
+    thread.cregs[se.abi.get_bp_register().getId()] = (se.pstate.BASE_STACK - ((1 << 28) * tid))
+    thread.cregs[se.abi.get_sp_register().getId()] = (se.pstate.BASE_STACK - ((1 << 28) * tid))
+
+    se.pstate.threads.update({tid: thread})
+
+    # Save out the thread id
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize()), tid)
+
+    # Return value
+    return Enums.CONCRETIZE, 0
+
+
+def rtn_pthread_exit(se):
+    logging.debug('pthread_exit hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+
+    # Kill the thread
+    se.pstate.threads[se.pstate.tid].killed = True
+
+    # Return value
+    return None
+
+
+def rtn_pthread_join(se):
+    logging.debug('pthread_join hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+
+    if arg0 in se.pstate.threads:
+        se.pstate.threads[se.pstate.tid].joined = arg0
+        logging.info('Thread id %d joined thread id %d' % (se.pstate.tid, arg0))
+    else:
+        se.pstate.threads[se.pstate.tid].joined = None
+        logging.debug('Thread id %d already destroyed' % arg0)
+
+    # Return value
+    return Enums.CONCRETIZE, 0
 
 
 def rtn_pthread_mutex_destroy(se):
@@ -508,6 +583,31 @@ def rtn_sem_wait(se):
 
     # Return success
     return Enums.CONCRETIZE, 0
+
+
+def rtn_sprintf(se):
+    logging.debug('sprintf hooked')
+
+    # Get arguments
+    buf  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
+    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
+    arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
+
+    arg0f = se.abi.get_format_string(arg0)
+    nbArgs = arg0f.count("{")
+    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4][:nbArgs])
+    s = arg0f.format(*args)
+
+    index = 0
+    for c in s:
+        se.pstate.tt_ctx.concretizeMemory(buf + index)
+        se.pstate.tt_ctx.setConcreteMemoryValue(buf + index, ord(c))
+        index += 1
+
+    return Enums.CONCRETIZE, len(s)
 
 
 def rtn_strncpy(se):
