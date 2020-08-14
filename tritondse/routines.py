@@ -127,7 +127,7 @@ def rtn_libc_start_main(se):
 
 def rtn_stack_chk_fail(se):
     logging.debug('__stack_chk_fail hooked')
-    self.pstate.stop = True
+    se.pstate.stop = True
     return None
 
 
@@ -136,6 +136,12 @@ def rtn_exit(se):
     arg = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     se.pstate.stop = True
     return Enums.CONCRETIZE, arg
+
+
+def rtn_free(se):
+    logging.debug('free hooked')
+    # TODO: MemoryAllocator, save this pointer as freed. Useful for Sanitizers.
+    return None
 
 
 def rtn_fwrite(se):
@@ -185,6 +191,25 @@ def rtn_gettimeofday(se):
 
     # Return value
     return Enums.CONCRETIZE, 0
+
+
+def rtn_malloc(se):
+    logging.debug('malloc hooked')
+
+    # Get arguments
+    size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+
+    if se.pstate.mallocBase + size > se.pstate.mallocMaxAllocation:
+        logging.debug('malloc failed: out of memory')
+        sys.exit(-1)
+
+    area = se.pstate.mallocBase
+    se.pstate.mallocBase += size
+
+    # TODO: MemoryAllocator, save this pointer as allocated. Useful for Sanitizers.
+
+    # Return value
+    return Enums.CONCRETIZE, area
 
 
 def rtn_memcmp(se):
