@@ -49,6 +49,7 @@ class ELFLoader(object):
             ['sem_trywait',             rtn_sem_trywait,            None],
             ['sem_wait',                rtn_sem_wait,               None],
             ['sprintf',                 rtn_sprintf,                None],
+            ['strlen',                  rtn_strlen,                 None],
             ['strncpy',                 rtn_strncpy,                None],
         ]
         self.gvariables = {

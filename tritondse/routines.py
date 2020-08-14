@@ -58,10 +58,10 @@ def rtn_ctype_b_loc(se):
     table  = (size * 2) + (se.pstate.BASE_CTYPE)
     otable = table + 256
 
-    se.pstate.ctx_tt.setConcreteMemoryValue(MemoryAccess(ptable + 0x00, size), otable)
-    se.pstate.ctx_tt.setConcreteMemoryValue(MemoryAccess(ptable + size, size), 0)
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(ptable + 0x00, size), otable)
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(ptable + size, size), 0)
 
-    se.pstate.ctx_tt.setConcreteMemoryAreaValue(table, ctype)
+    se.pstate.tt_ctx.setConcreteMemoryAreaValue(table, ctype)
 
     return Enums.CONCRETIZE, ptable
 
@@ -608,6 +608,30 @@ def rtn_sprintf(se):
         index += 1
 
     return Enums.CONCRETIZE, len(s)
+
+
+def rtn_strlen(se):
+    logging.debug('strlen hooked')
+
+    # Get arguments
+    s = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+
+    ast = se.pstate.tt_ctx.getAstContext()
+    def rec(res, s, deep, maxdeep):
+        if deep == maxdeep:
+            return res
+        cell = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s + deep, 1))
+        res  = ast.ite(cell == 0x00, ast.bv(deep, 64), rec(res, s, deep+1, maxdeep))
+        return res
+
+    sze = len(se.abi.get_memory_string(s))
+    res = ast.bv(sze, 64)
+    res = rec(res, s, 0, sze)
+
+    # create a new symbolic expression for this summary
+    expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strlen summary")
+
+    return Enums.SYMBOLIZE, expr
 
 
 def rtn_strncpy(se):
