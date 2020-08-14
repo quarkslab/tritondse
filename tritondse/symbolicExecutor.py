@@ -117,7 +117,7 @@ class SymbolicExecutor(object):
 
             self.coverage.add_instruction(pc)
 
-            print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
+            #print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
 
             # Simulate routines
             self.routines_handler(instruction)

@@ -131,6 +131,41 @@ def rtn_stack_chk_fail(se):
     return None
 
 
+def rtn_xstat(se):
+    logging.debug('__xstat hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+
+    if os.path.isfile(se.abi.get_memory_string(arg1)):
+        stat = os.stat(se.abi.get_memory_string(arg1))
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x00, CPUSIZE.QWORD), stat.st_dev)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x08, CPUSIZE.QWORD), stat.st_ino)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x10, CPUSIZE.QWORD), stat.st_nlink)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x18, CPUSIZE.DWORD), stat.st_mode)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x1c, CPUSIZE.DWORD), stat.st_uid)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x20, CPUSIZE.DWORD), stat.st_gid)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x24, CPUSIZE.DWORD), 0)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x28, CPUSIZE.QWORD), stat.st_rdev)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x30, CPUSIZE.QWORD), stat.st_size)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x38, CPUSIZE.QWORD), stat.st_blksize)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x40, CPUSIZE.QWORD), stat.st_blocks)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x48, CPUSIZE.QWORD), 0)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x50, CPUSIZE.QWORD), 0)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x58, CPUSIZE.QWORD), 0)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x60, CPUSIZE.QWORD), 0)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x68, CPUSIZE.QWORD), 0)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x70, CPUSIZE.QWORD), 0)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x78, CPUSIZE.QWORD), 0)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x80, CPUSIZE.QWORD), 0)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x88, CPUSIZE.QWORD), 0)
+        return Enums.CONCRETIZE, 0
+
+    return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
+
+
 def rtn_clock_gettime(se):
     logging.debug('clock_gettime hooked')
 
@@ -157,6 +192,37 @@ def rtn_exit(se):
     return Enums.CONCRETIZE, arg
 
 
+def rtn_fclose(se):
+    logging.debug('fclose hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+
+    if arg0 in se.pstate.fd_table:
+        fd = se.pstate.fd_table[arg0].close()
+        del se.pstate.fd_table[arg0]
+    else:
+        return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
+
+    # Return value
+    return Enums.CONCRETIZE, 0
+
+
+def rtn_fopen(se):
+    logging.debug('fopen hooked')
+
+    # Get arguments
+    arg0 = se.abi.get_memory_string(se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0)))
+    arg1 = se.abi.get_memory_string(se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1)))
+
+    fd = open(arg0, arg1)
+    fdId = len(se.pstate.fd_table)
+    se.pstate.fd_table.update({fdId : fd})
+
+    # Return value
+    return Enums.CONCRETIZE, fdId
+
+
 def rtn_fprintf(se):
     logging.debug('fprintf hooked')
 
@@ -181,6 +247,77 @@ def rtn_fprintf(se):
 
     # Return value
     return Enums.CONCRETIZE, len(s)
+
+
+def rtn_fputc(se):
+    logging.debug('fputc hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+
+    if arg1 in se.pstate.fd_table:
+        if arg1 == 0:
+            return Enums.CONCRETIZE, 0
+        elif arg1 == 1:
+            sys.stdout.write(chr(arg0))
+            sys.stdout.flush()
+        elif arg1 == 2:
+            sys.stderr.write(chr(arg0))
+            sys.stderr.flush()
+        else:
+            fd = open(se.pstate.fd_table[arg1], 'wb+')
+            fd.write(chr(arg0))
+    else:
+        return Enums.CONCRETIZE, 0
+
+    # Return value
+    return Enums.CONCRETIZE, 1
+
+
+def rtn_fputs(se):
+    logging.debug('fputs hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+
+    if arg1 in se.pstate.fd_table:
+        if arg1 == 0:
+            return Enums.CONCRETIZE, 0
+        elif arg1 == 1:
+            sys.stdout.write(se.abi.get_memory_string(arg0))
+            sys.stdout.flush()
+        elif arg1 == 2:
+            sys.stderr.write(se.abi.get_memory_string(arg0))
+            sys.stderr.flush()
+        else:
+            fd = open(se.pstate.fd_table[arg1], 'wb+')
+            fd.write(se.abi.get_memory_string(arg0))
+    else:
+        return Enums.CONCRETIZE, 0
+
+    # Return value
+    return Enums.CONCRETIZE, len(se.abi.get_memory_string(arg0))
+
+
+def rtn_fread(se):
+    logging.debug('fread hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
+
+    if arg3 in se.pstate.fd_table:
+        data = se.pstate.fd_table[arg3].read(arg1 * arg2)
+        se.pstate.tt_ctx.setConcreteMemoryAreaValue(arg0, data)
+    else:
+        return Enums.CONCRETIZE, 0
+
+    # Return value
+    return Enums.CONCRETIZE, len(data)
 
 
 def rtn_free(se):

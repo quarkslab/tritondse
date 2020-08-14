@@ -3,7 +3,7 @@
 
 from tritondse import *
 
-config = Config()
+config = Config(False)
 config.program_argv = [
     b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
     b'wlp0s20f3',
