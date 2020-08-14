@@ -32,6 +32,9 @@ class ELFLoader(object):
             ['memcpy',                  rtn_memcpy,                 None],
             ['memmove',                 rtn_memmove,                None],
             ['memset',                  rtn_memset,                 None],
+            ['pthread_create',          rtn_pthread_create,         None],
+            ['pthread_exit',            rtn_pthread_exit,           None],
+            ['pthread_join',            rtn_pthread_join,           None],
             ['pthread_mutex_destroy',   rtn_pthread_mutex_destroy,  None],
             ['pthread_mutex_init',      rtn_pthread_mutex_init,     None],
             ['pthread_mutex_lock',      rtn_pthread_mutex_lock,     None],
@@ -45,6 +48,7 @@ class ELFLoader(object):
             ['sem_timedwait',           rtn_sem_timedwait,          None],
             ['sem_trywait',             rtn_sem_trywait,            None],
             ['sem_wait',                rtn_sem_wait,               None],
+            ['sprintf',                 rtn_sprintf,                None],
             ['strncpy',                 rtn_strncpy,                None],
         ]
         self.gvariables = {

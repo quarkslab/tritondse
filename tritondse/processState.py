@@ -60,3 +60,8 @@ class ProcessState(object):
         # Mutex and semaphore
         self.mutex_locked = False
         self.semaphore_locked = False
+
+
+    def get_unique_thread_id(self):
+        self.utid += 1
+        return self.utid

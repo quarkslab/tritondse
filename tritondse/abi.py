@@ -112,7 +112,7 @@ class ABI(object):
         raise Exception('Architecture or id not supported')
 
 
-    def get_memory_string_from_addr(self, addr):
+    def get_memory_string(self, addr):
         """ Returns a string from a memory address """
         s = str()
         index = 0
@@ -126,4 +126,34 @@ class ABI(object):
 
 
     def get_string_argument(self, i):
-        return self.get_memory_string_from_addr(self.pstate.tt_ctx.getConcreteRegisterValue(self.get_arg_register(0)))
+        return self.get_memory_string(self.pstate.tt_ctx.getConcreteRegisterValue(self.get_arg_register(0)))
+
+
+    def get_format_string(self, addr):
+        """ Returns a formatted string from a memory address """
+        return self.get_memory_string(addr)                                             \
+               .replace("%s", "{}").replace("%d", "{}").replace("%#02x", "{:#02x}")     \
+               .replace("%#x", "{:#x}").replace("%x", "{:x}").replace("%02X", "{:02x}") \
+               .replace("%c", "{:c}").replace("%02x", "{:02x}").replace("%ld", "{}")    \
+               .replace("%*s", "").replace("%lX", "{:x}").replace("%08x", "{:08x}")     \
+               .replace("%u", "{}").replace("%lu", "{}").replace("%zu", "{}")           \
+
+
+    def find_string_format(self, s):
+        pos = 0
+        postString = list()
+        frmtString = [i for i, letter in enumerate(s) if letter == '%']
+
+        for i in frmtString:
+            if s[i+1] == 's':
+                postString.append(pos)
+            pos += 1
+
+        return postString
+
+
+    def get_format_arguments(self, s, args):
+        postString = self.find_string_format(self.get_memory_string(s))
+        for p in postString:
+            args[p] = self.get_memory_string(args[p])
+        return args
