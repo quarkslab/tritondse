@@ -17,6 +17,10 @@ class Seed(object):
         return self.content == other.content
 
 
+    def __hash__(self):
+        return hash(self.content)
+
+
     def get_size(self):
         """
         Returns the size of the seed.
@@ -30,3 +34,13 @@ class Seed(object):
         """
         m = hashlib.md5(self.content)
         return m.hexdigest()
+
+
+class SeedFile(Seed):
+    """
+    This class is used to represent a seed input form a file.
+    """
+    def __init__(self, path):
+        Seed.__init__(self)
+        with open(path,'rb') as f:
+            self.content = f.read()
