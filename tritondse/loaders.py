@@ -23,10 +23,20 @@ class ELFLoader(object):
         # Mapping of the .plt and .got to the Python routines
         self.routines_table = dict()
         self.plt = [
+            ['__ctype_b_loc',           rtn_ctype_b_loc,            None],
             ['__libc_start_main',       rtn_libc_start_main,        None],
             ['exit',                    rtn_exit,                   None],
+            ['fwrite',                  rtn_fwrite,                 None],
             ['puts',                    rtn_puts,                   None],
             ['read',                    rtn_read,                   None],
+            ['sem_destroy',             rtn_sem_destroy,            None],
+            ['sem_getvalue',            rtn_sem_getvalue,           None],
+            ['sem_init',                rtn_sem_init,               None],
+            ['sem_post',                rtn_sem_post,               None],
+            ['sem_timedwait',           rtn_sem_timedwait,          None],
+            ['sem_trywait',             rtn_sem_trywait,            None],
+            ['sem_wait',                rtn_sem_wait,               None],
+            ['strncpy',                 rtn_strncpy,                None],
         ]
         self.gvariables = {
             'stderr': 2,
@@ -74,9 +84,9 @@ class ELFLoader(object):
 
         for k, v in self.gvariables.items():
             try:
-                vaddr = self.program.binary.binary.get_symbol(k).value
+                vaddr = self.program.binary.get_symbol(k).value
                 logging.debug('Hooking %s at %#x' % (k, vaddr))
-                self.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(vaddr, self.ctx.getGprSize()), 2)
+                self.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(vaddr, self.pstate.tt_ctx.getGprSize()), 2)
             except:
                 logging.debug('Cannot find the symbol %s' %(k))
 
