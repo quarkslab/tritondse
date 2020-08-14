@@ -19,7 +19,7 @@ class Config(object):
         self.corpus_dir             = './corpus'    # The corpus directory
         self.crash_dir              = './crash'     # The crash directory
         self.worklist_dir           = './worklist'  # The worklist directory
-        self.data_dir               = './data'      # The data directory. Contains some data like code already covered, constrains already asked, etc.
+        self.metadata_dir           = './metadata'  # The metadata directory. Contains some data like code already covered, constrains already asked, etc.
         self.program_argv           = list()        # The program arguments (ex. argv[0], argv[1], etc.). List of Bytes.
 
         if 'debug' in args:

@@ -14,9 +14,8 @@ config.program_argv = [
 ]
 config.symbolize_stdin = True
 
-pstate  = ProcessState(config)
 program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
 seed    = SeedFile('../programme_etalon_final/micro_http_server/private/frame.seed')
-dse     = SymbolicExplorator(config, pstate, program, seed)
+dse     = SymbolicExplorator(config, program, seed)
 
 dse.explore()

@@ -22,9 +22,8 @@ class SymbolicExplorator(object):
     """
     This class is used to represent the symbolic exploration.
     """
-    def __init__(self, config : Config, pstate : ProcessState, program : Program, seed : Seed = Seed()):
+    def __init__(self, config : Config, program : Program, seed : Seed = Seed()):
         self.program            = program
-        self.pstate             = pstate
         self.config             = config
         self.initial_seed       = seed
         self.coverage           = Coverage()
@@ -48,13 +47,18 @@ class SymbolicExplorator(object):
 
 
     def __init_dirs__(self):
-        # --------- Initialize DATA ------------------------------------------
-        if not os.path.isdir(self.config.data_dir):
-            logging.debug('Creating the %s directory' %(self.config.data_dir))
-            os.mkdir(self.config.data_dir)
+        # --------- Initialize METADATA --------------------------------------
+        if not os.path.isdir(self.config.metadata_dir):
+            logging.debug('Creating the %s directory' %(self.config.metadata_dir))
+            os.mkdir(self.config.metadata_dir)
         else:
-            logging.debug('Checking the existing data directory from %s' %(self.config.data_dir))
-            # TODO loading coverage and constraints_asked
+            logging.debug('Loading the existing metadata directory from %s' %(self.config.metadata_dir))
+            # Loading coverage
+            with open(f'{self.config.metadata_dir}/coverage', 'w+') as fd:
+                self.coverage.instructions = fd.read()
+            # Loading constraints
+            with open(f'{self.config.metadata_dir}/constraints', 'w+') as fd:
+                self.constraints_asked = fd.read()
 
         # --------- Initialize WORKLIST --------------------------------------
         if not os.path.isdir(self.config.worklist_dir):
@@ -99,19 +103,26 @@ class SymbolicExplorator(object):
         return self.worklist.pop()
 
 
-    def __save_corpus__(self, seed):
+    def __save_seed_on_disk__(self, directory, seed):
         # Init the mangling
-        name = f'{seed.get_hash()}.00000000.tritondse.cov'
+        name = f'{directory}/{seed.get_hash()}.00000000.tritondse.cov'
 
         # Save it to the disk
-        f = open("%s/%s" % (self.config.corpus_dir, name), "wb+")
-        f.write(seed.content)
-        f.close()
+        with open(name, 'wb+') as fd:
+            fd.write(seed.content)
 
         # Add the seed to the current corpus
         self.corpus.add(seed)
 
         return name
+
+
+    def __save_metadata_on_disk__(self):
+        # Save coverage
+        self.coverage.save_on_disk(self.config.metadata_dir)
+        # Save constraints
+        with open(f'{self.config.metadata_dir}/constraints', 'w+') as fd:
+            fd.write(repr(self.constraints_asked))
 
 
     def __get_new_input__(self, execution):
@@ -193,14 +204,14 @@ class SymbolicExplorator(object):
             return
 
         # Execute the binary with seeds
-        execution = SymbolicExecutor(self.config, copy.copy(self.pstate), self.program, seed)
+        execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed)
         execution.run()
 
         # Update instructions covered
         self.coverage.merge(execution.coverage)
 
         # Save the current seed into the corpus directory
-        logging.info('Corpus dumped into %s/%s' % (self.config.corpus_dir, self.__save_corpus__(seed)))
+        logging.info('Corpus dumped into %s' % (self.__save_seed_on_disk__(self.config.corpus_dir, seed)))
 
         # Generate new inputs
         logging.info('Getting models, please wait...')
@@ -208,6 +219,9 @@ class SymbolicExplorator(object):
         for m in inputs:
             if m not in self.corpus and m and m not in self.crash:
                 self.worklist.add(m)
+
+        # Save metadata on disk
+        self.__save_metadata_on_disk__()
 
         logging.info('Worklist size: %d' % (len(self.worklist)))
         logging.info('Corpus size: %d' % (len(self.corpus)))
@@ -231,5 +245,8 @@ class SymbolicExplorator(object):
                 t.join()
             except KeyboardInterrupt:
                 logging.warning("keyboard interrupt, stop symbolic exploration")
-                # TODO: Save the worklist, corpus and crash into disk
                 self.stop = True
+
+        # Whatever happens, save worklist on disk
+        for seed in self.worklist:
+            logging.info('Save seed from the worklist into %s' % (self.__save_seed_on_disk__(self.config.worklist_dir, seed)))

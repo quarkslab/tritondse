@@ -32,3 +32,8 @@ class Coverage(object):
         for k, v in self.instructions.items():
             count += v
         return count
+
+
+    def save_on_disk(self, directory):
+        with open(f'{directory}/coverage', 'w+') as fd:
+            fd.write(repr(self.instructions))
