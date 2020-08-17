@@ -25,7 +25,6 @@ class ELFLoader(object):
         self.plt = [
             # TODO:
             #   - __cxa_finalize
-            #   - atoi
             #   - closedir
             #   - fseek
             #   - mkdir
@@ -45,6 +44,7 @@ class ELFLoader(object):
             ['__libc_start_main',       rtn_libc_start_main,        None],
             ['__stack_chk_fail',        rtn_stack_chk_fail,         None],
             ['__xstat',                 rtn_xstat,                  None],
+            ['atoi',                    rtn_atoi,                   None],
             ['clock_gettime',           rtn_clock_gettime,          None],
             ['exit',                    rtn_exit,                   None],
             ['fclose',                  rtn_fclose,                 None],

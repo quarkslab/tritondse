@@ -166,6 +166,81 @@ def rtn_xstat(se):
     return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
 
 
+def rtn_atoi(se):
+    """ Simulate the atoi() function """
+    logging.debug('atoi hooked')
+
+    ast = se.pstate.tt_ctx.getAstContext()
+    arg = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+
+    cells = {
+        0: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+0, 1)),
+        1: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+1, 1)),
+        2: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+2, 1)),
+        3: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+3, 1)),
+        4: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+4, 1)),
+        5: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+5, 1)),
+        6: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+6, 1)),
+        7: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+7, 1)),
+        8: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+8, 1)),
+        9: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+9, 1))
+    }
+
+    def multiply(ast, cells, index):
+        n = ast.bv(0, 32)
+        for i in range(index):
+            n = n * 10 + (ast.zx(24, cells[i]) - 0x30)
+        return n
+
+    res = ast.ite(
+              ast.lnot(ast.land([cells[0] >= 0x30, cells[0] <= 0x39])),
+              multiply(ast, cells, 0),
+              ast.ite(
+                  ast.lnot(ast.land([cells[1] >= 0x30, cells[1] <= 0x39])),
+                  multiply(ast, cells, 1),
+                  ast.ite(
+                      ast.lnot(ast.land([cells[2] >= 0x30, cells[2] <= 0x39])),
+                      multiply(ast, cells, 2),
+                      ast.ite(
+                          ast.lnot(ast.land([cells[3] >= 0x30, cells[3] <= 0x39])),
+                          multiply(ast, cells, 3),
+                          ast.ite(
+                              ast.lnot(ast.land([cells[4] >= 0x30, cells[4] <= 0x39])),
+                              multiply(ast, cells, 4),
+                              ast.ite(
+                                  ast.lnot(ast.land([cells[5] >= 0x30, cells[5] <= 0x39])),
+                                  multiply(ast, cells, 5),
+                                  ast.ite(
+                                      ast.lnot(ast.land([cells[6] >= 0x30, cells[6] <= 0x39])),
+                                      multiply(ast, cells, 6),
+                                      ast.ite(
+                                          ast.lnot(ast.land([cells[7] >= 0x30, cells[7] <= 0x39])),
+                                          multiply(ast, cells, 7),
+                                          ast.ite(
+                                              ast.lnot(ast.land([cells[8] >= 0x30, cells[8] <= 0x39])),
+                                              multiply(ast, cells, 8),
+                                              ast.ite(
+                                                  ast.lnot(ast.land([cells[9] >= 0x30, cells[9] <= 0x39])),
+                                                  multiply(ast, cells, 9),
+                                                  multiply(ast, cells, 9)
+                                              )
+                                          )
+                                      )
+                                  )
+                              )
+                          )
+                      )
+                  )
+              )
+          )
+    res = ast.sx(32, res)
+
+    # create a new symbolic expression for this summary
+    expr = se.pstate.tt_ctx.newSymbolicExpression(res, "atoi summary")
+
+    return Enums.SYMBOLIZE, expr
+
+
 def rtn_clock_gettime(se):
     logging.debug('clock_gettime hooked')
 

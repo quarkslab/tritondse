@@ -4,6 +4,7 @@
 from tritondse import *
 
 config = Config(debug=True)
+config.symbolize_stdin = True
 config.program_argv = [
     b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
     b'wlp0s20f3',
@@ -12,7 +13,6 @@ config.program_argv = [
     b'255.255.255.0',
     b'192.168.1.255'
 ]
-config.symbolize_stdin = True
 
 program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
 seed    = SeedFile('../programme_etalon_final/micro_http_server/private/frame.seed')
