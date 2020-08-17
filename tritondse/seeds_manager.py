@@ -130,7 +130,7 @@ class SeedsManager:
         previousConstraints = astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())
 
         # Go through the path constraints
-        for pc in pco:
+        for pc in pco[:self.config.smt_queries_limit]:
 
             # If there is a condition
             if pc.isMultipleBranches():
