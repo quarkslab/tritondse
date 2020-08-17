@@ -99,10 +99,14 @@ class SeedsManager:
         with open(name, 'wb+') as fd:
             fd.write(seed.content)
 
-        # Add the seed to the current corpus
-        self.corpus.add(seed)
-
         return name
+
+
+    def __remove_seed_on_disk(self, directory, seed):
+        # Init the mangling
+        name = f'{directory}/{seed.get_hash()}.%08x.tritondse.cov' %(seed.get_size())
+        if os.path.exists(name):
+            os.remove(name)
 
 
     def __save_metadata_on_disk(self):
@@ -146,7 +150,7 @@ class SeedsManager:
                             ts = time.time()
                             model = execution.pstate.tt_ctx.getModel(constraint)
                             te = time.time()
-                            logging.info('Query to the solver (new path). Solving time: %f seconds' % (te - ts))
+                            logging.info('Query to the solver. Solving time: %f seconds' % (te - ts))
 
                             if model:
                                 # TODO Note: branch[] contains information that can help the SeedManager to classify its
@@ -191,15 +195,23 @@ class SeedsManager:
         # Update instructions covered
         self.coverage.merge(execution.coverage)
 
+        # Add the seed to the current corpus
+        self.corpus.add(seed)
+
         # Save the current seed into the corpus directory
         logging.info('Corpus dumped into %s' % (self.__save_seed_on_disk(self.config.corpus_dir, seed)))
+
+        # Remove the seed from the worklist directory
+        self.__remove_seed_on_disk(self.config.worklist_dir, seed)
 
         # Generate new inputs
         logging.info('Getting models, please wait...')
         inputs = self.__get_new_inputs(execution)
         for m in inputs:
+            # Check if we already have executed this new seed
             if m not in self.corpus and m and m not in self.crash:
                 self.worklist.add(m)
+                logging.info('Seed dumped into %s' % (self.__save_seed_on_disk(self.config.worklist_dir, m)))
 
         # Save metadata on disk
         self.__save_metadata_on_disk()
