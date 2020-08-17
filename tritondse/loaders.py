@@ -92,7 +92,7 @@ class ELFLoader(object):
         }
 
 
-    def __loading__(self):
+    def __loading(self):
         phdrs = self.program.binary.segments
         for phdr in phdrs:
             size  = phdr.physical_size
@@ -102,7 +102,7 @@ class ELFLoader(object):
                 self.pstate.tt_ctx.setConcreteMemoryAreaValue(vaddr, phdr.content)
 
 
-    def __dynamic_relocation__(self, vaddr : int = 0):
+    def __dynamic_relocation(self, vaddr : int = 0):
         # Initialize our routines table
         for index in range(len(self.plt)):
             self.plt[index][2] = self.pstate.BASE_PLT + index
@@ -143,5 +143,5 @@ class ELFLoader(object):
 
 
     def ld(self):
-        self.__loading__()
-        self.__dynamic_relocation__()
+        self.__loading()
+        self.__dynamic_relocation()
