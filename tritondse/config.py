@@ -15,6 +15,7 @@ class Config(object):
         self.execution_timeout      = 0             # Unlimited by default (seconds)
         self.exploration_timeout    = 0             # Unlimited by default (seconds)
         self.thread_scheduling      = 200           # Number of instructions executed by thread before scheduling
+        self.smt_queries_limit      = 2000          # Limit of SMT queries by execution
         self.debug                  = True          # Enable debug info by default
         self.corpus_dir             = './corpus'    # The corpus directory
         self.crash_dir              = './crash'     # The crash directory
@@ -35,6 +36,7 @@ class Config(object):
         s += f'execution_timeout    = {self.execution_timeout}\n'
         s += f'exploration_timeout  = {self.exploration_timeout}\n'
         s += f'thread_scheduling    = {self.thread_scheduling}\n'
+        s += f'smt_queries_limit    = {self.smt_queries_limit}\n'
         s += f'debug                = {self.debug}\n'
         s += f'corpus_dir           = {self.corpus_dir}\n'
         s += f'crash_dir            = {self.crash_dir}\n'
