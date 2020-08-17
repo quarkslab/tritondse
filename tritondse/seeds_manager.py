@@ -93,7 +93,7 @@ class SeedsManager:
 
     def __save_seed_on_disk(self, directory, seed):
         # Init the mangling
-        name = f'{directory}/{seed.get_hash()}.00000000.tritondse.cov'
+        name = f'{directory}/{seed.get_hash()}.%08x.tritondse.cov' %(seed.get_size())
 
         # Save it to the disk
         with open(name, 'wb+') as fd:
