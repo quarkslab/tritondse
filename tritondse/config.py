@@ -11,9 +11,9 @@ class Config(object):
     def __init__(self, **args):
         self.symbolize_argv         = False         # Not symbolized by default
         self.symbolize_stdin        = False         # Not symbolized by default
-        self.smt_timeout            = 10000         # 10 seconds by default
-        self.execution_timeout      = 0             # Unlimited by default
-        self.exploration_timeout    = 0             # Unlimited by default
+        self.smt_timeout            = 10000         # 10 seconds by default (milliseconds)
+        self.execution_timeout      = 0             # Unlimited by default (seconds)
+        self.exploration_timeout    = 0             # Unlimited by default (seconds)
         self.thread_scheduling      = 200           # Number of instructions executed by thread before scheduling
         self.debug                  = True          # Enable debug info by default
         self.corpus_dir             = './corpus'    # The corpus directory
