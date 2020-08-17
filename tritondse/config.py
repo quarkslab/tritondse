@@ -41,6 +41,6 @@ class Config(object):
         s += f'corpus_dir           = {self.corpus_dir}\n'
         s += f'crash_dir            = {self.crash_dir}\n'
         s += f'worklist_dir         = {self.worklist_dir}\n'
-        s += f'data_dir             = {self.data_dir}\n'
+        s += f'metadata_dir         = {self.metadata_dir}\n'
         s += f'program_argv         = {self.program_argv}'
         return s
