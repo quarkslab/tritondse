@@ -3,9 +3,9 @@
 
 import sys
 
-from triton                  import TritonContext
-from tritondse.threadContext import ThreadContext
-from tritondse.config        import Config
+from triton                   import TritonContext
+from tritondse.thread_context import ThreadContext
+from tritondse.config         import Config
 
 
 class ProcessState(object):

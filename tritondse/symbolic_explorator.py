@@ -8,14 +8,14 @@ import glob
 import threading
 import copy
 
-from triton                     import *
-from tritondse.config           import Config
-from tritondse.coverage         import Coverage
-from tritondse.processState     import ProcessState
-from tritondse.program          import Program
-from tritondse.seed             import Seed, SeedFile
-from tritondse.enums            import Enums
-from tritondse.symbolicExecutor import SymbolicExecutor
+from triton                      import *
+from tritondse.config            import Config
+from tritondse.coverage          import Coverage
+from tritondse.process_state     import ProcessState
+from tritondse.program           import Program
+from tritondse.seed              import Seed, SeedFile
+from tritondse.enums             import Enums
+from tritondse.symbolic_executor import SymbolicExecutor
 
 
 class SymbolicExplorator(object):
