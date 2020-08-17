@@ -4,11 +4,11 @@
 import logging
 import lief
 
-from triton                 import *
-from tritondse.config       import Config
-from tritondse.processState import ProcessState
-from tritondse.program      import Program
-from tritondse.routines     import *
+from triton                  import *
+from tritondse.config        import Config
+from tritondse.process_state import ProcessState
+from tritondse.program       import Program
+from tritondse.routines      import *
 
 
 class ELFLoader(object):

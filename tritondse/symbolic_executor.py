@@ -7,16 +7,16 @@ import time
 import random
 import os
 
-from triton                 import *
-from tritondse.abi          import ABI
-from tritondse.config       import Config
-from tritondse.coverage     import Coverage
-from tritondse.loaders      import ELFLoader
-from tritondse.processState import ProcessState
-from tritondse.program      import Program
-from tritondse.seed         import Seed
-from tritondse.enums        import Enums
-from tritondse.routines     import *
+from triton                  import *
+from tritondse.abi           import ABI
+from tritondse.config        import Config
+from tritondse.coverage      import Coverage
+from tritondse.loaders       import ELFLoader
+from tritondse.process_state import ProcessState
+from tritondse.program       import Program
+from tritondse.seed          import Seed
+from tritondse.enums         import Enums
+from tritondse.routines      import *
 
 
 class SymbolicExecutor(object):
@@ -48,8 +48,9 @@ class SymbolicExecutor(object):
 
     def __init_optimization__(self):
         self.pstate.tt_ctx.setMode(MODE.ALIGNED_MEMORY, True)
-        self.pstate.tt_ctx.setMode(MODE.ONLY_ON_SYMBOLIZED, True)
         self.pstate.tt_ctx.setMode(MODE.AST_OPTIMIZATIONS, True)
+        self.pstate.tt_ctx.setMode(MODE.CONSTANT_FOLDING, True)
+        self.pstate.tt_ctx.setMode(MODE.ONLY_ON_SYMBOLIZED, True)
         self.pstate.tt_ctx.setSolverTimeout(self.config.smt_timeout)
 
 

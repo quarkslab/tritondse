@@ -6,9 +6,9 @@ import sys
 import os
 import time
 
-from triton                  import *
-from tritondse.enums         import Enums
-from tritondse.threadContext import ThreadContext
+from triton                   import *
+from tritondse.enums          import Enums
+from tritondse.thread_context import ThreadContext
 
 
 def rtn_ctype_b_loc(se):
