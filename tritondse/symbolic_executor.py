@@ -33,7 +33,7 @@ class SymbolicExecutor(object):
         self.coverage   = Coverage()
 
 
-    def __init_arch__(self):
+    def __init_arch(self):
         if self.program.binary.header.machine_type == lief.ELF.ARCH.AARCH64:
             logging.debug('Loading an AArch64 binary')
             self.pstate.tt_ctx.setArchitecture(ARCH.AARCH64)
@@ -46,7 +46,7 @@ class SymbolicExecutor(object):
             raise(Exception('Architecture not supported'))
 
 
-    def __init_optimization__(self):
+    def __init_optimization(self):
         self.pstate.tt_ctx.setMode(MODE.ALIGNED_MEMORY, True)
         self.pstate.tt_ctx.setMode(MODE.AST_OPTIMIZATIONS, True)
         self.pstate.tt_ctx.setMode(MODE.CONSTANT_FOLDING, True)
@@ -54,13 +54,13 @@ class SymbolicExecutor(object):
         self.pstate.tt_ctx.setSolverTimeout(self.config.smt_timeout)
 
 
-    def __init_stack__(self):
+    def __init_stack(self):
         self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_bp_register(), self.pstate.BASE_STACK)
         self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_sp_register(), self.pstate.BASE_STACK)
         self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), self.program.binary.entrypoint)
 
 
-    def __schedule_thread__(self):
+    def __schedule_thread(self):
         if self.pstate.threads[self.pstate.tid].count <= 0:
             # Reset the counter and save its context
             self.pstate.threads[self.pstate.tid].count = self.config.thread_scheduling
@@ -78,10 +78,10 @@ class SymbolicExecutor(object):
             self.pstate.threads[self.pstate.tid].count -= 1
 
 
-    def __emulate__(self):
+    def __emulate(self):
         while not self.pstate.stop and self.pstate.threads:
             # Schedule thread if it's time
-            self.__schedule_thread__()
+            self.__schedule_thread()
 
             # Fetch opcodes
             pc = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_pc_register())
@@ -119,7 +119,7 @@ class SymbolicExecutor(object):
 
             self.coverage.add_instruction(pc)
 
-            print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
+            #print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
 
             # Simulate routines
             self.routines_handler(instruction)
@@ -132,7 +132,7 @@ class SymbolicExecutor(object):
         return
 
 
-    def __handle_external_return__(self, ret):
+    def __handle_external_return(self, ret):
         """ Symbolize or concretize return values of external functions """
         if ret is not None:
             if ret[0] == Enums.CONCRETIZE:
@@ -149,7 +149,7 @@ class SymbolicExecutor(object):
         if pc in self.loader.routines_table:
             # Emulate the routine and the return value
             ret = self.loader.routines_table[pc](self)
-            self.__handle_external_return__(ret)
+            self.__handle_external_return(ret)
 
             # Do not continue the execution if we are in a locked mutex
             if self.pstate.mutex_locked:
@@ -188,19 +188,18 @@ class SymbolicExecutor(object):
 
 
     def run(self):
-        self.__init_arch__()
-        self.__init_optimization__()
-        self.__init_stack__()
+        self.__init_arch()
+        self.__init_optimization()
+        self.__init_stack()
         self.loader.ld()
 
         # Let's emulate the binary from the entry point
         logging.info('Starting emulation')
         self.startTime = time.time()
-        self.__emulate__()
+        self.__emulate()
         self.endTime = time.time()
         logging.info('Emulation done')
         logging.info('Return value: %#x' % (self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_ret_register())))
-        logging.info('Instructions covered: %d' % (self.coverage.number_of_instructions_covered()))
         logging.info('Instructions executed: %d' % (self.coverage.number_of_instructions_executed()))
         logging.info('Symbolic condition: %d' % (len(self.pstate.tt_ctx.getPathConstraints())))
-        logging.info('Time of execution: %f seconds' % (self.endTime - self.startTime))
+        logging.info('Time of the execution: %f seconds' % (self.endTime - self.startTime))
