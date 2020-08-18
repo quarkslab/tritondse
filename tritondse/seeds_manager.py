@@ -160,6 +160,9 @@ class SeedsManager:
                                 # stay unmodified (with their current value).
                                 for k, v in model.items():
                                     content[k] = v.getValue()
+                                # Calling callback if user defined one
+                                if self.config.cb_post_model:
+                                    content = self.config.cb_post_model(execution, content)
                                 # Create the Seed object and assign the new model
                                 seed = Seed(bytes(content))
                                 inputs.append(seed)
