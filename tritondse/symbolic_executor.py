@@ -32,6 +32,10 @@ class SymbolicExecutor(object):
         self.abi        = ABI(self.pstate)
         self.coverage   = Coverage()
 
+        # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
+        #       avoid this (and so gain in speed) if a TritonContext could be forked from a
+        #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
+
 
     def __init_arch(self):
         if self.program.binary.header.machine_type == lief.ELF.ARCH.AARCH64:

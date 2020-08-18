@@ -37,3 +37,10 @@ class Coverage(object):
     def save_on_disk(self, directory):
         with open(f'{directory}/coverage', 'w+') as fd:
             fd.write(repr(self.instructions))
+
+
+    def load_from_disk(self, directory):
+        with open(f'{directory}/coverage', 'r') as fd:
+            data = fd.read()
+            if len(data):
+                self.instructions = eval(data)

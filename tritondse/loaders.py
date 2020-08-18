@@ -24,15 +24,6 @@ class ELFLoader(object):
         self.routines_table = dict()
         self.plt = [
             # TODO:
-            #   - __cxa_finalize
-            #   - closedir
-            #   - fseek
-            #   - mkdir
-            #   - opendir
-            #   - readdir
-            #   - remove
-            #   - rename
-            #   - rmdir
             #   - strncasecmp
             #   - strncmp
             #   - strstr

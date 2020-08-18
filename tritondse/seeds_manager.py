@@ -44,21 +44,10 @@ class SeedsManager:
             os.mkdir(self.config.metadata_dir)
         else:
             logging.debug('Loading the existing metadata directory from %s' %(self.config.metadata_dir))
-
             # Loading coverage
-            with open(f'{self.config.metadata_dir}/coverage', 'w+') as fd:
-                coverage = fd.read()
-
+            self.coverage.load_from_disk(self.config.metadata_dir);
             # Loading constraints
-            with open(f'{self.config.metadata_dir}/constraints', 'w+') as fd:
-                constraints = fd.read()
-
-            # Eval Python objects
-            if len(coverage):
-                self.coverage.instructions = eval(coverage)
-
-            if len(constraints):
-                self.constraints.hashes = eval(constraints)
+            self.constraints.load_from_disk(self.config.metadata_dir)
 
 
         # --------- Initialize WORKLIST --------------------------------------
@@ -192,7 +181,7 @@ class SeedsManager:
 
 
     def post_execution(self, execution, seed):
-        # Update instructions covered
+        # Update instructions covered from the last execution into our exploration coverage
         self.coverage.merge(execution.coverage)
 
         # Add the seed to the current corpus

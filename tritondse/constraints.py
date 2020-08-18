@@ -30,5 +30,12 @@ class Constraints(object):
             fd.write(repr(self.hashes))
 
 
+    def load_from_disk(self, directory):
+        with open(f'{directory}/constraints', 'r') as fd:
+            data = fd.read()
+            if len(data):
+                self.hashes = eval(data)
+
+
     def already_asked(self, constraint):
         return (True if constraint.getHash() in self.hashes else False)
