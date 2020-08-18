@@ -193,12 +193,6 @@ class SeedsManager:
         # Add the seed to the current corpus
         self.corpus.add(seed)
 
-        # Save the current seed into the corpus directory
-        logging.info('Corpus dumped into %s' % (self.__save_seed_on_disk(self.config.corpus_dir, seed)))
-
-        # Remove the seed from the worklist directory
-        self.__remove_seed_on_disk(self.config.worklist_dir, seed)
-
         # Generate new inputs
         logging.info('Getting models, please wait...')
         inputs = self.__get_new_inputs(execution)
@@ -207,6 +201,12 @@ class SeedsManager:
             if m not in self.corpus and m and m not in self.crash:
                 self.worklist.add(m)
                 logging.info('Seed dumped into %s' % (self.__save_seed_on_disk(self.config.worklist_dir, m)))
+
+        # Save the current seed into the corpus directory
+        logging.info('Corpus dumped into %s' % (self.__save_seed_on_disk(self.config.corpus_dir, seed)))
+
+        # Remove the seed from the worklist directory
+        self.__remove_seed_on_disk(self.config.worklist_dir, seed)
 
         # Save metadata on disk
         self.__save_metadata_on_disk()
