@@ -157,7 +157,7 @@ class SeedsManager:
                                     content[k] = execution.pstate.tt_ctx.getConcreteVariableValue(v)
                                 # For each byte of the seed, we assign the value provided by the solver.
                                 # If the solver provide no model for some bytes of the seed, their value
-                                # stay unmodified.
+                                # stay unmodified (with their current value).
                                 for k, v in model.items():
                                     content[k] = v.getValue()
                                 # Create the Seed object and assign the new model
