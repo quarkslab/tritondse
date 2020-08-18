@@ -152,6 +152,9 @@ class SeedsManager:
                                 # The seed size is the number of symbolic variables.
                                 symvars = execution.pstate.tt_ctx.getSymbolicVariables()
                                 content = bytearray(len(symvars))
+                                # Fill the content with the current values of the symbolic variables.
+                                for k, v in symvars.items():
+                                    content[k] = execution.pstate.tt_ctx.getConcreteVariableValue(v)
                                 # For each byte of the seed, we assign the value provided by the solver.
                                 # If the solver provide no model for some bytes of the seed, their value
                                 # stay unmodified.
