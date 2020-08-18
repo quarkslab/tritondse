@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+
 
 class Coverage(object):
     """
@@ -40,7 +42,8 @@ class Coverage(object):
 
 
     def load_from_disk(self, directory):
-        with open(f'{directory}/coverage', 'r') as fd:
-            data = fd.read()
-            if len(data):
-                self.instructions = eval(data)
+        if os.path.exists(f'{directory}/coverage'):
+            with open(f'{directory}/coverage', 'r') as fd:
+                data = fd.read()
+                if len(data):
+                    self.instructions = eval(data)

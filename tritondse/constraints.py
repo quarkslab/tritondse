@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+
 
 class Constraints(object):
     """
@@ -31,10 +33,11 @@ class Constraints(object):
 
 
     def load_from_disk(self, directory):
-        with open(f'{directory}/constraints', 'r') as fd:
-            data = fd.read()
-            if len(data):
-                self.hashes = eval(data)
+        if os.path.exists(f'{directory}/constraints'):
+            with open(f'{directory}/constraints', 'r') as fd:
+                data = fd.read()
+                if len(data):
+                    self.hashes = eval(data)
 
 
     def already_asked(self, constraint):

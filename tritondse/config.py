@@ -11,6 +11,7 @@ class Config(object):
     def __init__(self, **args):
         self.symbolize_argv         = False         # Not symbolized by default
         self.symbolize_stdin        = False         # Not symbolized by default
+        self.cb_post_model          = None          # Callback on new inputs generated before making them as new seeds
         self.smt_timeout            = 10000         # 10 seconds by default (milliseconds)
         self.execution_timeout      = 0             # Unlimited by default (seconds)
         self.exploration_timeout    = 0             # Unlimited by default (seconds)
@@ -32,6 +33,7 @@ class Config(object):
     def __str__(self):
         s  = f'symbolize_argv       = {self.symbolize_argv}\n'
         s += f'symbolize_stdin      = {self.symbolize_stdin}\n'
+        s += f'cb_post_model        = {self.cb_post_model}\n'
         s += f'smt_timeout          = {self.smt_timeout}\n'
         s += f'execution_timeout    = {self.execution_timeout}\n'
         s += f'exploration_timeout  = {self.exploration_timeout}\n'
