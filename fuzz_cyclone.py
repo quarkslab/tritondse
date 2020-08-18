@@ -13,7 +13,7 @@ def carry_around_add(a, b):
 def checksum_computation(execution, new_input_generated):
     base = 0
     for i in range(0x4): # number of packet with our initial seed
-        # TODO: TCP, IGMP, UDP, etc.
+        # TODO: TCP, IGMP, etc.
 
         # IPv4: 0x0800
         if new_input_generated[base+12] == 0x08 and new_input_generated[base+13] == 0x00:
@@ -38,6 +38,13 @@ def checksum_computation(execution, new_input_generated):
             checksum = ctypes.c_ushort(~checksum)
             new_input_generated[base+24] = checksum.value >> 8
             new_input_generated[base+25] = checksum.value & 0xff
+
+            # UDP: 0x11
+            if new_input_generated[base+23] == 0x11:
+                # UDP has a special case where 0x0000 is reserved for "no checksum computed"
+                new_input_generated[base+40] = 0x00 # clear the checksum.
+                new_input_generated[base+41] = 0x00 # clear the checksum
+
 
         base += 600 # the size of a packet in our fuzzing_driver
 
