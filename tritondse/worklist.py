@@ -31,12 +31,26 @@ class WorklistAddressToSet(object):
 
     def pick(self):
         default = None
+        to_remove = set()
+
         for k, v in self.worklist.items():
+            # If the set is empty remove the entry
+            if v is None:
+                to_remove.add(k)
+                continue
+
+            # If the address has never been executed, return the seed
             if k not in self.coverage.instructions:
-                if v:
-                    return v.pop()
-            elif v and not default:
+                return v.pop()
+
+            # If all adresses has been executed, just pick a random seed
+            elif not default:
                 default = v.pop()
+
+        # Garbage the worklist
+        for i in to_remove:
+            del self.worklist[i]
+
         return default
 
 
