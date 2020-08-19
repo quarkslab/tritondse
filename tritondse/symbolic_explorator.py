@@ -54,6 +54,7 @@ class SymbolicExplorator(object):
 
     def explore(self):
         # TODO: We could run several threads. Number of threads run may be defined in Config.
+        # Note: J'ai test, c'est pas forcement plus rapide... En Python ce n'est pas des vrais threads.
         while self.seeds_manager.worklist and not self.stop:
             # Take an input
             seed = self.seeds_manager.pick_seed()
