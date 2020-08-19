@@ -142,7 +142,7 @@ class SeedsManager:
                             logging.info('Query to the solver. Solving time: %f seconds' % (te - ts))
 
                             if model:
-                                # TODO Note: branch[] contains information that can help the SeedManager to classify its
+                                # TODO and Note: branch[] contains information that can help the SeedManager to classify its
                                 # seeds insertion:
                                 #
                                 #   - branch['srcAddr'] -> The location of the branch instruction
