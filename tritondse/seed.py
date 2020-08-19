@@ -10,7 +10,8 @@ class Seed(object):
     into stdin or argv according to the Triton DSE configuration.
     """
     def __init__(self, content = bytes()):
-        self.content = bytes(content)
+        self.content     = bytes(content)
+        self.target_addr = None
 
 
     def __eq__(self, other):

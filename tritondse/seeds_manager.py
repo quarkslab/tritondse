@@ -10,6 +10,7 @@ from tritondse.config      import Config
 from tritondse.seed        import Seed, SeedFile
 from tritondse.coverage    import Coverage
 from tritondse.constraints import Constraints
+from tritondse.worklist    import *
 
 
 
@@ -22,7 +23,7 @@ class SeedsManager:
         self.initial_seed   = seed
         self.coverage       = Coverage()
         self.constraints    = Constraints()
-        self.worklist       = set()
+        self.worklist       = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
         self.corpus         = set()
         self.crash          = set()
 
@@ -107,7 +108,7 @@ class SeedsManager:
 
     def __get_new_inputs(self, execution):
         # Set of new inputs
-        inputs = list()
+        inputs = set()
 
         # Get path constraints from the last execution
         pco = execution.pstate.tt_ctx.getPathConstraints()
@@ -142,13 +143,6 @@ class SeedsManager:
                             logging.info('Query to the solver. Solving time: %f seconds' % (te - ts))
 
                             if model:
-                                # TODO and Note: branch[] contains information that can help the SeedManager to classify its
-                                # seeds insertion:
-                                #
-                                #   - branch['srcAddr'] -> The location of the branch instruction
-                                #   - branch['dstAddr'] -> The destination of the jump if and only if branch['isTaken'] is True.
-                                #                          Otherwise, the destination address is the next linear instruction.
-
                                 # The seed size is the number of symbolic variables.
                                 symvars = execution.pstate.tt_ctx.getSymbolicVariables()
                                 content = bytearray(len(symvars))
@@ -165,7 +159,15 @@ class SeedsManager:
                                     content = self.config.cb_post_model(execution, content)
                                 # Create the Seed object and assign the new model
                                 seed = Seed(bytes(content))
-                                inputs.append(seed)
+                                # Note: branch[] contains information that can help the SeedManager to classify its
+                                # seeds insertion:
+                                #
+                                #   - branch['srcAddr'] -> The location of the branch instruction
+                                #   - branch['dstAddr'] -> The destination of the jump if and only if branch['isTaken'] is True.
+                                #                          Otherwise, the destination address is the next linear instruction.
+                                seed.target_addr = branch['dstAddr']
+                                # Add the seed to the set of new inputs
+                                inputs.add(seed)
                                 # Save the constraint as already asked.
                                 self.constraints.add_constraint(constraint)
 
@@ -176,14 +178,7 @@ class SeedsManager:
 
 
     def pick_seed(self):
-        # TODO: Définir ici toutes les strategies de recherche.
-        # Exemple:
-        #   - dfs
-        #   - bfs
-        #   - rand
-        #   - lifo
-        #   - fifo
-        return self.worklist.pop()
+        return self.worklist.pick()
 
 
     def post_execution(self, execution, seed):
