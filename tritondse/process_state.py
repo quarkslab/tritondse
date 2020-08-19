@@ -38,6 +38,8 @@ class ProcessState(object):
             1: sys.stdout,
             2: sys.stderr,
         }
+        # Unique file id incrementation
+        self.fd_id = len(self.fd_table)
 
         # Allocation information used by malloc()
         self.mallocMaxAllocation = 0x03ffffff
@@ -65,3 +67,8 @@ class ProcessState(object):
     def get_unique_thread_id(self):
         self.utid += 1
         return self.utid
+
+
+    def get_unique_file_id(self):
+        self.fd_id += 1
+        return self.fd_id

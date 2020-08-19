@@ -274,7 +274,7 @@ def rtn_fclose(se):
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
 
     if arg0 in se.pstate.fd_table:
-        fd = se.pstate.fd_table[arg0].close()
+        se.pstate.fd_table[arg0].close()
         del se.pstate.fd_table[arg0]
     else:
         return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
@@ -291,11 +291,11 @@ def rtn_fopen(se):
     arg1 = se.abi.get_memory_string(se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1)))
 
     fd = open(arg0, arg1)
-    fdId = len(se.pstate.fd_table)
-    se.pstate.fd_table.update({fdId : fd})
+    fd_id = se.pstate.get_unique_file_id()
+    se.pstate.fd_table.update({fd_id : fd})
 
     # Return value
-    return Enums.CONCRETIZE, fdId
+    return Enums.CONCRETIZE, fd_id
 
 
 def rtn_fprintf(se):
