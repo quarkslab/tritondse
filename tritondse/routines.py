@@ -830,6 +830,7 @@ def rtn_sem_timedwait(se):
     if value > 0:
         logging.debug('semaphore still not locked')
         se.pstate.tt_ctx.setConcreteMemoryValue(arg0m, value - 1)
+        se.pstate.semaphore_locked = False
     else:
         logging.debug('semaphore locked')
         se.pstate.semaphore_locked = True
@@ -851,9 +852,12 @@ def rtn_sem_trywait(se):
     if value > 0:
         logging.debug('semaphore still not locked')
         se.pstate.tt_ctx.setConcreteMemoryValue(mem, value - 1)
+        se.pstate.semaphore_locked = False
     else:
         logging.debug('semaphore locked')
-        return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
+        se.pstate.semaphore_locked = False
+        # Return EAGAIN
+        return Enums.CONCRETIZE, 3406
 
     # Return success
     return Enums.CONCRETIZE, 0
@@ -874,6 +878,7 @@ def rtn_sem_wait(se):
     if value > 0:
         logging.debug('semaphore still not locked')
         se.pstate.tt_ctx.setConcreteMemoryValue(mem, value - 1)
+        se.pstate.semaphore_locked = False
     else:
         logging.debug('semaphore locked')
         se.pstate.semaphore_locked = True
