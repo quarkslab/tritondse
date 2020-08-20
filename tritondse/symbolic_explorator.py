@@ -46,6 +46,11 @@ class SymbolicExplorator(object):
         execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed)
         execution.run()
 
+        if self.config.exploration_limit and self.total_exec >= self.config.exploration_limit:
+            logging.info('Exploration limit reached')
+            self.stop = True
+            return
+
         # Some analysis in post execution
         self.seeds_manager.post_execution(execution, seed)
 

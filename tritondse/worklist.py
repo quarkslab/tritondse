@@ -35,7 +35,7 @@ class WorklistAddressToSet(object):
 
         for k, v in self.worklist.items():
             # If the set is empty remove the entry
-            if v is None:
+            if not len(v):
                 to_remove.add(k)
                 continue
 
