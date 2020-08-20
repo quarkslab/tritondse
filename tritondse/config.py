@@ -15,6 +15,7 @@ class Config(object):
         self.smt_timeout            = 10000         # 10 seconds by default (milliseconds)
         self.execution_timeout      = 0             # Unlimited by default (seconds)
         self.exploration_timeout    = 0             # Unlimited by default (seconds)
+        self.exploration_limit      = 0             # Unlimited by default (number of traces)
         self.thread_scheduling      = 200           # Number of instructions executed by thread before scheduling
         self.smt_queries_limit      = 2000          # Limit of SMT queries by execution
         self.debug                  = True          # Enable debug info by default
@@ -37,6 +38,7 @@ class Config(object):
         s += f'smt_timeout          = {self.smt_timeout}\n'
         s += f'execution_timeout    = {self.execution_timeout}\n'
         s += f'exploration_timeout  = {self.exploration_timeout}\n'
+        s += f'exploration_limit    = {self.exploration_limit}\n'
         s += f'thread_scheduling    = {self.thread_scheduling}\n'
         s += f'smt_queries_limit    = {self.smt_queries_limit}\n'
         s += f'debug                = {self.debug}\n'
