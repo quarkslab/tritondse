@@ -133,10 +133,11 @@ class ABI(object):
         """ Returns a formatted string from a memory address """
         return self.get_memory_string(addr)                                             \
                .replace("%s", "{}").replace("%d", "{}").replace("%#02x", "{:#02x}")     \
-               .replace("%#x", "{:#x}").replace("%x", "{:x}").replace("%02X", "{:02x}") \
+               .replace("%#x", "{:#x}").replace("%x", "{:x}").replace("%02X", "{:02X}") \
                .replace("%c", "{:c}").replace("%02x", "{:02x}").replace("%ld", "{}")    \
-               .replace("%*s", "").replace("%lX", "{:x}").replace("%08x", "{:08x}")     \
+               .replace("%*s", "").replace("%lX", "{:X}").replace("%08x", "{:08x}")     \
                .replace("%u", "{}").replace("%lu", "{}").replace("%zu", "{}")           \
+               .replace("%02u", "{:02d}").replace("%03u", "{:03d}")
 
 
     def find_string_format(self, s):

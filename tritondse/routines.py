@@ -930,8 +930,9 @@ def rtn_strcasecmp(se):
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     maxlen = max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
 
+
     ast = se.pstate.tt_ctx.getAstContext()
-    res = ast.bv(0, 64)
+    res = ast.bv(0, se.pstate.tt_ctx.getGprBitSize())
     for index in range(maxlen):
         cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1+index, 1))
         cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2+index, 1))
