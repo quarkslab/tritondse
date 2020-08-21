@@ -54,6 +54,36 @@ class WorklistAddressToSet(object):
         return default
 
 
+
+class WorklistRand(object):
+    """
+    This worklist deals with seeds without any classification. It uses a Set
+    for insertion and pop (which is random) for picking seeds.
+    """
+    def __init__(self, config, coverage):
+        self.config   = config
+        self.coverage = coverage
+        self.worklist = set() # set(Seed)
+
+
+    def __len__(self):
+        return len(self.worklist)
+
+
+    def add(self, seed):
+        self.worklist.add(seed)
+
+
+    def pick(self):
+        """
+        The method pop() removes a random element from the set and returns
+        the removed element. Unlike, a stack a random element is popped off
+        the set.
+        """
+        return self.worklist.pop()
+
+
+
 # TODO
 class WorklistDSF(object):
     def __init__(self, config, coverage):
@@ -64,6 +94,7 @@ class WorklistDSF(object):
         pass
     def pick(self):
         pass
+
 
 
 # TODO
@@ -78,17 +109,6 @@ class WorklistBFS(object):
         pass
 
 
-# TODO
-class WorklistRand(object):
-    def __init__(self, config, coverage):
-        pass
-    def __len__(self):
-        pass
-    def add(self, seed):
-        pass
-    def pick(self):
-        pass
-
 
 # TODO
 class WorklistFifo(object):
@@ -100,6 +120,7 @@ class WorklistFifo(object):
         pass
     def pick(self):
         pass
+
 
 
 # TODO
