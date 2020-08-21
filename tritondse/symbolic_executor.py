@@ -121,6 +121,7 @@ class SymbolicExecutor(object):
                 logging.error('Instruction not supported: %s' % (str(instruction)))
                 break
 
+            # Update the coverage of the execution
             self.coverage.add_instruction(pc)
 
             #print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
