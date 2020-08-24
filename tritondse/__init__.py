@@ -15,4 +15,4 @@ from .symbolic_executor     import SymbolicExecutor
 from .symbolic_explorator   import SymbolicExplorator
 from .thread_context        import ThreadContext
 from .routines              import *
-from .worklist              import WorklistAddressToSet, WorklistDSF, WorklistBFS, WorklistRand, WorklistFifo, WorklistLifo
+from .worklist              import WorklistAddressToSet, WorklistDFS, WorklistBFS, WorklistRand, WorklistFifo, WorklistLifo
