@@ -85,7 +85,7 @@ class WorklistRand(object):
 
 
 # TODO
-class WorklistDSF(object):
+class WorklistDFS(object):
     def __init__(self, config, coverage):
         pass
     def __len__(self):

@@ -197,6 +197,8 @@ class SeedsManager:
                 self.worklist.add(m)
                 logging.info('Seed dumped into %s' % (self.__save_seed_on_disk(self.config.worklist_dir, m)))
 
+        # TODO: move
+
         # Save the current seed into the corpus directory
         logging.info('Corpus dumped into %s' % (self.__save_seed_on_disk(self.config.corpus_dir, seed)))
 
