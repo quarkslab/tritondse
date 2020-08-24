@@ -52,6 +52,7 @@ class ELFLoader(object):
             ['memcpy',                  rtn_memcpy,                 None],
             ['memmove',                 rtn_memmove,                None],
             ['memset',                  rtn_memset,                 None],
+            ['printf',                  rtn_printf,                 None],
             ['pthread_create',          rtn_pthread_create,         None],
             ['pthread_exit',            rtn_pthread_exit,           None],
             ['pthread_join',            rtn_pthread_join,           None],

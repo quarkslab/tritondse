@@ -457,8 +457,8 @@ def rtn_malloc(se):
     size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
 
     if se.pstate.mallocBase + size > se.pstate.mallocMaxAllocation:
-        logging.debug('malloc failed: out of memory')
-        sys.exit(-1)
+        logging.warning('malloc failed: out of memory')
+        os.exit(-1)
 
     area = se.pstate.mallocBase
     se.pstate.mallocBase += size
@@ -553,6 +553,29 @@ def rtn_memset(se):
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
 
     return Enums.CONCRETIZE, dst
+
+
+def rtn_printf(se):
+    logging.debug('printf hooked')
+
+    # Get arguments
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
+    arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
+    arg5 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
+
+    arg0f = se.abi.get_format_string(arg0)
+    nbArgs = arg0f.count("{")
+    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5][:nbArgs])
+    s = arg0f.format(*args)
+
+    se.pstate.fd_table[1].write(s)
+    se.pstate.fd_table[1].flush()
+
+    # Return value
+    return Enums.CONCRETIZE, len(s)
 
 
 def rtn_pthread_create(se):
