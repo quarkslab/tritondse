@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ## -*- coding: utf-8 -*-
 
 from tritondse import *
@@ -32,11 +32,11 @@ def checksum_computation(execution, new_input_generated):
 config = Config(debug=False)
 
 config.symbolize_stdin     = True
-config.execution_timeout   = 20
-config.thread_scheduling   = 800
+config.execution_timeout   = 0
+config.thread_scheduling   = 500
 config.cb_post_model       = checksum_computation
 config.program_argv        = [
-    b'./misc/micro_http_server_tt_fuzz_single_without_vuln',
+    b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
     b'wlp0s20f3',
     b'5c:80:b6:96:d7:3c',
     b'192.168.1.45',
@@ -44,9 +44,9 @@ config.program_argv        = [
     b'192.168.1.255'
 ]
 
-program = Program('./misc/micro_http_server_tt_fuzz_single_without_vuln')
+program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
 #seed    = SeedFile('./misc/frame.seed')
-seed     = SeedFile('./misc/frame.seed')
+seed     = SeedFile('../program_etalon_final/micro_http_server/misc/frame.seed')
 
 # Explore
 #dse     = SymbolicExplorator(config, program, seed)
