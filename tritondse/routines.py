@@ -5,6 +5,7 @@ import logging
 import sys
 import os
 import time
+import re
 
 from triton                   import *
 from tritondse.enums          import Enums
@@ -1074,18 +1075,19 @@ def rtn_strtok_r(se):
     if string == 0:
         string = saveMem
 
-    # Iterate of all delimiters
-    for c in se.abi.get_memory_string(delim):
-        offset = se.abi.get_memory_string(string).find(c)
-        if offset == -1:
-            return Enums.CONCRETIZE, 0
+    d = se.abi.get_memory_string(delim)
+    s = se.abi.get_memory_string(string)
 
-        # Init the \0 at the delimiter position
-        se.pstate.tt_ctx.setConcreteMemoryValue(string + offset, 0)
+    tokens = re.split('|'.join(d), s)
 
-        # Setup the saveptr
-        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(saveptr, se.pstate.tt_ctx.getGprSize()), string + offset + 1)
-
-        return Enums.CONCRETIZE, string
+    for token in tokens:
+        if token:
+            offset = s.find(token)
+            # Init the \0 at the delimiter position
+            se.pstate.tt_ctx.setConcreteMemoryValue(string + offset + len(token), 0)
+            # Save the pointer
+            se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(saveptr, se.pstate.tt_ctx.getGprSize()), string + offset + len(token) + 1)
+            # Return the token
+            return Enums.CONCRETIZE, string + offset
 
     return Enums.CONCRETIZE, 0
