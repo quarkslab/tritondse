@@ -38,15 +38,14 @@ config.cb_post_model       = checksum_computation
 config.program_argv        = [
     b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
     b'wlp0s20f3',
-    b'5c:80:b6:96:d7:3c',
-    b'192.168.1.45',
+    b'48:e2:44:f5:9b:01',
+    b'10.0.13.86',
     b'255.255.255.0',
-    b'192.168.1.255'
+    b'10.0.13.254'
 ]
 
 program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
-#seed    = SeedFile('./misc/frame.seed')
-seed     = SeedFile('../program_etalon_final/micro_http_server/misc/frame.seed')
+seed     = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
 
 # Explore
 #dse     = SymbolicExplorator(config, program, seed)
@@ -56,4 +55,3 @@ seed     = SeedFile('../program_etalon_final/micro_http_server/misc/frame.seed')
 ps = ProcessState(config)
 execution = SymbolicExecutor(config, ps, program, seed)
 execution.run()
-execution.coverage.save_on_disk('/tmp')
