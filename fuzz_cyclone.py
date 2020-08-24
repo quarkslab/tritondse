@@ -36,7 +36,7 @@ config.execution_timeout   = 20
 config.thread_scheduling   = 800
 config.cb_post_model       = checksum_computation
 config.program_argv        = [
-    b'./misc/micro_http_server_tt_fuzz_single_without_vuln',
+    b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
     b'wlp0s20f3',
     b'5c:80:b6:96:d7:3c',
     b'192.168.1.45',
@@ -44,8 +44,9 @@ config.program_argv        = [
     b'192.168.1.255'
 ]
 
-program = Program('./misc/micro_http_server_tt_fuzz_single_without_vuln')
-seed    = SeedFile('./misc/frame.seed')
+program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
+#seed    = SeedFile('./misc/frame.seed')
+seed     = SeedFile('/home/jonathan/Works/QuarksLab/Missions/pastis/utility-scripts/toto')
 
 # Explore
 #dse     = SymbolicExplorator(config, program, seed)
