@@ -33,9 +33,10 @@ config = Config(debug=False)
 
 config.symbolize_stdin     = True
 config.execution_timeout   = 20
+config.thread_scheduling   = 800
 config.cb_post_model       = checksum_computation
 config.program_argv        = [
-    b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
+    b'./misc/micro_http_server_tt_fuzz_single_without_vuln',
     b'wlp0s20f3',
     b'5c:80:b6:96:d7:3c',
     b'192.168.1.45',
@@ -43,8 +44,15 @@ config.program_argv        = [
     b'192.168.1.255'
 ]
 
-program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
-seed    = SeedFile('../programme_etalon_final/micro_http_server/private/frame.seed')
-dse     = SymbolicExplorator(config, program, seed)
+program = Program('./misc/micro_http_server_tt_fuzz_single_without_vuln')
+seed    = SeedFile('./misc/frame.seed')
 
-dse.explore()
+# Explore
+#dse     = SymbolicExplorator(config, program, seed)
+#dse.explore()
+
+# One execution
+ps = ProcessState(config)
+execution = SymbolicExecutor(config, ps, program, seed)
+execution.run()
+execution.coverage.save_on_disk('/tmp')
