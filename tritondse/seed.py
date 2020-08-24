@@ -33,7 +33,7 @@ class Seed(object):
         """
         Returns the md5 hash of the content
         """
-        # TODO
+        # Note
         #
         # HF mangling file : <crc64><crc64_reverse>.<size of seed in hexa>.honggfuzz.cov
         # It looks like there is no rule on the naming convention when providing a new seed to HF.
