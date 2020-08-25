@@ -9,7 +9,7 @@ class Seed(object):
     This class is used to represent a seed input. The seed will be injected
     into stdin or argv according to the Triton DSE configuration.
     """
-    def __init__(self, content = bytes()):
+    def __init__(self, content=bytes()):
         self.content     = bytes(content)
         self.target_addr = None
 
@@ -49,5 +49,5 @@ class SeedFile(Seed):
     """
     def __init__(self, path):
         Seed.__init__(self)
-        with open(path,'rb') as f:
+        with open(path, 'rb') as f:
             self.content = f.read()

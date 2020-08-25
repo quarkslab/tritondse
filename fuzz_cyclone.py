@@ -45,6 +45,8 @@ config.program_argv         = [
     b'10.0.13.254'
 ]
 
+print(config)
+
 program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
 seed    = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
 

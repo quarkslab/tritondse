@@ -19,7 +19,7 @@ class SymbolicExplorator(object):
     """
     This class is used to represent the symbolic exploration.
     """
-    def __init__(self, config : Config, program : Program, seed : Seed = Seed()):
+    def __init__(self, config: Config, program: Program, seed: Seed = Seed()):
         self.program       = program
         self.config        = config
         self.seeds_manager = SeedsManager(self.config, seed)

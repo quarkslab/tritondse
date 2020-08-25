@@ -87,7 +87,7 @@ def rtn_libc_start_main(se):
 
     elif se.pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
         # Push the return value to jump into the main() function
-        se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_sp_register(), se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_sp_register())-CPUSIZE.QWORD)
+        se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_sp_register(), se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_sp_register()) - CPUSIZE.QWORD)
 
         ret2main = MemoryAccess(se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_sp_register()), CPUSIZE.QWORD)
         se.pstate.tt_ctx.concretizeMemory(ret2main)
@@ -96,7 +96,7 @@ def rtn_libc_start_main(se):
     # Define concrete value of argc
     argc = len(se.config.program_argv)
     se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_arg_register(0), argc)
-    logging.debug('argc = %d' %(argc))
+    logging.debug('argc = %d' % (argc))
 
     # Define argv
     base = se.pstate.BASE_ARGV
@@ -105,14 +105,14 @@ def rtn_libc_start_main(se):
     index = 0
     for argv in se.config.program_argv:
         addrs.append(base)
-        se.pstate.tt_ctx.setConcreteMemoryAreaValue(base, argv+b'\x00')
+        se.pstate.tt_ctx.setConcreteMemoryAreaValue(base, argv + b'\x00')
         # TODO
         #for indexCell in range(len(argv)):
         #    if se.config.symbolize_argv:
         #        var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(base+indexCell, CPUSIZE.BYTE))
         #        var.setAlias('argv[%d][%d]' %(index, indexCell))
-        logging.debug('argv[%d] = %s' %(index, repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(base, len(argv)))))
-        base += len(argv)+1
+        logging.debug('argv[%d] = %s' % (index, repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(base, len(argv)))))
+        base += len(argv) + 1
         index += 1
 
     argv = base
@@ -175,16 +175,16 @@ def rtn_atoi(se):
     arg = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
 
     cells = {
-        0: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+0, 1)),
-        1: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+1, 1)),
-        2: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+2, 1)),
-        3: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+3, 1)),
-        4: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+4, 1)),
-        5: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+5, 1)),
-        6: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+6, 1)),
-        7: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+7, 1)),
-        8: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+8, 1)),
-        9: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg+9, 1))
+        0: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 0, 1)),
+        1: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 1, 1)),
+        2: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 2, 1)),
+        3: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 3, 1)),
+        4: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 4, 1)),
+        5: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 5, 1)),
+        6: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 6, 1)),
+        7: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 7, 1)),
+        8: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 8, 1)),
+        9: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 9, 1))
     }
 
     def multiply(ast, cells, index):
@@ -258,8 +258,8 @@ def rtn_clock_gettime(se):
         t = time.time()
 
     s = se.pstate.tt_ctx.getGprSize()
-    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp,   s), int(t))
-    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp+s, s), int(t * 1000000))
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp, s), int(t))
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp + s, s), int(t * 1000000))
 
     # Return value
     return Enums.CONCRETIZE, 0
@@ -297,7 +297,7 @@ def rtn_fopen(se):
 
     fd = open(arg0, arg1)
     fd_id = se.pstate.get_unique_file_id()
-    se.pstate.fd_table.update({fd_id : fd})
+    se.pstate.fd_table.update({fd_id: fd})
 
     # Return value
     return Enums.CONCRETIZE, fd_id
@@ -452,8 +452,8 @@ def rtn_gettimeofday(se):
         t = time.time()
 
     s = se.pstate.tt_ctx.getGprSize()
-    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv,   s), int(t))
-    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv+s, s), int(t * 1000000))
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv, s), int(t))
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv + s, s), int(t * 1000000))
 
     # Return value
     return Enums.CONCRETIZE, 0
@@ -490,8 +490,8 @@ def rtn_memcmp(se):
 
     # TODO: What if size is symbolic ?
     for index in range(size):
-        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1+index, 1))
-        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2+index, 1))
+        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
+        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
         res = res + ast.ite(
                         cells1 == cells2,
                         ast.bv(0, 64),
@@ -748,7 +748,7 @@ def rtn_read(se):
             if se.seed:
                 try:
                     se.pstate.tt_ctx.setConcreteVariableValue(var, se.seed.content[index])
-                except:
+                except Exception:
                     pass
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
         # TODO: Could return the read value as a symbolic one
@@ -968,8 +968,8 @@ def rtn_strcasecmp(se):
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, se.pstate.tt_ctx.getGprBitSize())
     for index in range(maxlen):
-        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1+index, 1))
-        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2+index, 1))
+        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
+        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
         cells1 = ast.ite(ast.land([cells1 >= ord('a'), cells1 <= ord('z')]), cells1 - 32, cells1) # upper case
         cells2 = ast.ite(ast.land([cells2 >= ord('a'), cells2 <= ord('z')]), cells2 - 32, cells2) # upper case
         res = res + ast.ite(cells1 == cells2, ast.bv(0, 64), ast.bv(1, 64))
@@ -1004,8 +1004,8 @@ def rtn_strcmp(se):
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, 64)
     for index in range(maxlen):
-        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1+index, 1))
-        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2+index, 1))
+        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
+        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
         res = res + ast.ite(cells1 == cells2, ast.bv(0, 64), ast.bv(1, 64))
 
     # create a new symbolic expression for this summary
@@ -1040,13 +1040,13 @@ def rtn_strlen(se):
 
     # Get arguments
     s = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-
     ast = se.pstate.tt_ctx.getAstContext()
+
     def rec(res, s, deep, maxdeep):
         if deep == maxdeep:
             return res
         cell = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s + deep, 1))
-        res  = ast.ite(cell == 0x00, ast.bv(deep, 64), rec(res, s, deep+1, maxdeep))
+        res  = ast.ite(cell == 0x00, ast.bv(deep, 64), rec(res, s, deep + 1, maxdeep))
         return res
 
     sze = len(se.abi.get_memory_string(s))
