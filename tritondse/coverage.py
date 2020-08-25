@@ -12,7 +12,7 @@ class Coverage(object):
         self.instructions = dict()
 
 
-    def add_instruction(self, address : int, inc : int = 1):
+    def add_instruction(self, address: int, inc: int = 1):
         if address in self.instructions:
             self.instructions[address] += inc
         else:

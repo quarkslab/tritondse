@@ -9,7 +9,7 @@ class ABI(object):
     """
     This class is used to represent the ABI.
     """
-    def __init__(self, pstate : ProcessState):
+    def __init__(self, pstate: ProcessState):
         self.pstate = pstate
 
 
@@ -117,8 +117,8 @@ class ABI(object):
         s = str()
         index = 0
 
-        while self.pstate.tt_ctx.getConcreteMemoryValue(addr+index):
-            c = chr(self.pstate.tt_ctx.getConcreteMemoryValue(addr+index))
+        while self.pstate.tt_ctx.getConcreteMemoryValue(addr + index):
+            c = chr(self.pstate.tt_ctx.getConcreteMemoryValue(addr + index))
             s += c
             index += 1
 
@@ -146,7 +146,7 @@ class ABI(object):
         frmtString = [i for i, letter in enumerate(s) if letter == '%']
 
         for i in frmtString:
-            if s[i+1] == 's':
+            if s[i + 1] == 's':
                 postString.append(pos)
             pos += 1
 

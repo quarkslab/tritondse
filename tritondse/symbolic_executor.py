@@ -23,7 +23,7 @@ class SymbolicExecutor(object):
     """
     This class is used to represent the symbolic execution.
     """
-    def __init__(self, config : Config, pstate : ProcessState, program : Program, seed : Seed = None):
+    def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = None):
         self.program    = program
         self.pstate     = pstate
         self.config     = config
@@ -76,7 +76,7 @@ class SymbolicExecutor(object):
                     self.pstate.threads[self.pstate.tid].count = self.config.thread_scheduling
                     self.pstate.threads[self.pstate.tid].restore(self.pstate.tt_ctx)
                     break
-                except:
+                except Exception:
                     continue
         else:
             self.pstate.threads[self.pstate.tid].count -= 1
@@ -93,7 +93,7 @@ class SymbolicExecutor(object):
 
             if (self.pstate.tid and pc == 0) or self.pstate.threads[self.pstate.tid].killed:
                 logging.info('End of thread: %d' % self.pstate.tid)
-                if pc == 0 and self.pstate.threads[self.pstate.tid].killed == False:
+                if pc == 0 and self.pstate.threads[self.pstate.tid].killed is False:
                     logging.warning('PC=0, is it normal?')
                     # TODO: Exit for debug
                     os._exit(-1)
