@@ -954,7 +954,6 @@ def rtn_strcasecmp(se):
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     maxlen = max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
 
-
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, se.pstate.tt_ctx.getGprBitSize())
     for index in range(maxlen):
@@ -1078,7 +1077,7 @@ def rtn_strtok_r(se):
     d = se.abi.get_memory_string(delim)
     s = se.abi.get_memory_string(string)
 
-    tokens = re.split('|'.join(d), s)
+    tokens = re.split('[' + re.escape(d) + ']', s)
 
     for token in tokens:
         if token:
