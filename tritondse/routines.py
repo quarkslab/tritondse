@@ -1006,15 +1006,20 @@ def rtn_strcmp(se):
 def rtn_strcpy(se):
     logging.debug('strcpy hooked')
 
-    dst = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    for index in range(len(se.abi.get_memory_string(src))):
+    dst  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    src  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    size = len(se.abi.get_memory_string(src))
+
+    for index in range(size):
         dmem = MemoryAccess(dst + index, 1)
         smem = MemoryAccess(src + index, 1)
         cell = se.pstate.tt_ctx.getMemoryAst(smem)
         expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "strcpy byte")
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
+
+    # including the terminating null byte ('\0')
+    se.pstate.tt_ctx.setConcreteMemoryValue(dst + size, 0x00)
 
     return Enums.CONCRETIZE, dst
 
@@ -1049,6 +1054,7 @@ def rtn_strncpy(se):
     dst = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     cnt = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+
     # TODO: What if the cnt is symbolic ?
     for index in range(cnt):
         dmem = MemoryAccess(dst + index, 1)
