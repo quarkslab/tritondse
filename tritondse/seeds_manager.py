@@ -82,6 +82,7 @@ class SeedsManager:
 
 
     def __save_seed_on_disk(self, directory, seed):
+        # TODO: handle honggfuzz.cov seed
         # Init the mangling
         name = f'{directory}/{seed.get_hash()}.%08x.tritondse.cov' %(seed.get_size())
 
@@ -93,6 +94,7 @@ class SeedsManager:
 
 
     def __remove_seed_on_disk(self, directory, seed):
+        # TODO: handle honggfuzz.cov seed
         # Init the mangling
         name = f'{directory}/{seed.get_hash()}.%08x.tritondse.cov' %(seed.get_size())
         if os.path.exists(name):
