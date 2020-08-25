@@ -126,7 +126,7 @@ class ABI(object):
 
 
     def get_string_argument(self, i):
-        return self.get_memory_string(self.pstate.tt_ctx.getConcreteRegisterValue(self.get_arg_register(0)))
+        return self.get_memory_string(self.pstate.tt_ctx.getConcreteRegisterValue(self.get_arg_register(i)))
 
 
     def get_format_string(self, addr):
