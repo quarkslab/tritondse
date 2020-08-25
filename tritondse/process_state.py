@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import time
 
 from triton                   import TritonContext
 from tritondse.thread_context import ThreadContext
@@ -62,6 +63,11 @@ class ProcessState(object):
         # Mutex and semaphore
         self.mutex_locked = False
         self.semaphore_locked = False
+
+        # The time when the ProcessState is instancied.
+        # It's used to provide a deterministic behavior when calling functions
+        # like gettimeofday(), clock_gettime(), etc.
+        self.time = time.time()
 
 
     def get_unique_thread_id(self):

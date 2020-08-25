@@ -31,11 +31,12 @@ def checksum_computation(execution, new_input_generated):
 
 config = Config(debug=False)
 
-config.symbolize_stdin     = True
-config.execution_timeout   = 0
-config.thread_scheduling   = 500
-config.cb_post_model       = checksum_computation
-config.program_argv        = [
+config.symbolize_stdin      = True
+config.execution_timeout    = 0
+config.thread_scheduling    = 500
+config.cb_post_model        = checksum_computation
+config.time_inc_coefficient = 0.00001
+config.program_argv         = [
     b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
     b'wlp0s20f3',
     b'48:e2:44:f5:9b:01',
@@ -45,7 +46,7 @@ config.program_argv        = [
 ]
 
 program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
-seed     = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
+seed    = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
 
 # Explore
 #dse     = SymbolicExplorator(config, program, seed)
