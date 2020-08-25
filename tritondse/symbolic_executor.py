@@ -124,7 +124,7 @@ class SymbolicExecutor(object):
             # Simulate that the time of an executed instruction is time_inc_coefficient.
             # For example, if time_inc_coefficient is 0.0001, it means that an instruction
             # takes 100us to be executed. Used to provide a deterministic behavior when
-            #calling time functions (e.g gettimeofday(), clock_gettime(), ...).
+            # calling time functions (e.g gettimeofday(), clock_gettime(), ...).
             self.pstate.time += self.config.time_inc_coefficient
 
             # Update the coverage of the execution
