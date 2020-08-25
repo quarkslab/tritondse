@@ -24,6 +24,10 @@ class Config(object):
         self.worklist_dir           = './worklist'  # The worklist directory
         self.metadata_dir           = './metadata'  # The metadata directory. Contains some data like code already covered, constrains already asked, etc.
         self.program_argv           = list()        # The program arguments (ex. argv[0], argv[1], etc.). List of Bytes.
+        self.time_inc_coefficient   = 0             # Time increment coefficient at each instruction to provide a deterministic
+                                                    # behavior when calling time functions (e.g gettimeofday(), clock_gettime(), ...).
+                                                    # For example, if 0.0001 is defined, each instruction will increment the time representation
+                                                    # of the execution by 100us.
 
         if 'debug' in args:
             self.debug = args['debug']
@@ -46,5 +50,6 @@ class Config(object):
         s += f'crash_dir            = {self.crash_dir}\n'
         s += f'worklist_dir         = {self.worklist_dir}\n'
         s += f'metadata_dir         = {self.metadata_dir}\n'
-        s += f'program_argv         = {self.program_argv}'
+        s += f'program_argv         = {self.program_argv}\n'
+        s += f'time_inc_coefficient = {self.time_inc_coefficient}'
         return s
