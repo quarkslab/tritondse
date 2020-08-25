@@ -252,7 +252,11 @@ def rtn_clock_gettime(se):
     if tp == 0:
         return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
 
-    t = time.time()
+    if se.config.time_inc_coefficient:
+        t = se.pstate.time
+    else:
+        t = time.time()
+
     s = se.pstate.tt_ctx.getGprSize()
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp,   s), int(t))
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp+s, s), int(t * 1000000))
@@ -442,7 +446,11 @@ def rtn_gettimeofday(se):
     if tv == 0:
         return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
 
-    t = time.time()
+    if se.config.time_inc_coefficient:
+        t = se.pstate.time
+    else:
+        t = time.time()
+
     s = se.pstate.tt_ctx.getGprSize()
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv,   s), int(t))
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv+s, s), int(t * 1000000))
