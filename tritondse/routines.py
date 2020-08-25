@@ -926,7 +926,7 @@ def rtn_sprintf(se):
     logging.debug('sprintf hooked')
 
     # Get arguments
-    buf  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    buff = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
     arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
@@ -940,9 +940,12 @@ def rtn_sprintf(se):
 
     index = 0
     for c in s:
-        se.pstate.tt_ctx.concretizeMemory(buf + index)
-        se.pstate.tt_ctx.setConcreteMemoryValue(buf + index, ord(c))
+        se.pstate.tt_ctx.concretizeMemory(buff + index)
+        se.pstate.tt_ctx.setConcreteMemoryValue(buff + index, ord(c))
         index += 1
+
+    # including the terminating null byte ('\0')
+    se.pstate.tt_ctx.setConcreteMemoryValue(buff + len(s), 0x00)
 
     return Enums.CONCRETIZE, len(s)
 
