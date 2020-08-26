@@ -24,8 +24,6 @@ class ELFLoader(object):
         self.routines_table = dict()
         self.plt = [
             # TODO:
-            #   - strncasecmp
-            #   - strncmp
             #   - strstr
             #   - strtoul
             #   - tolower
@@ -76,6 +74,8 @@ class ELFLoader(object):
             ['strcmp',                  rtn_strcmp,                 None],
             ['strcpy',                  rtn_strcpy,                 None],
             ['strlen',                  rtn_strlen,                 None],
+            ['strncasecmp',             rtn_strncasecmp,            None],
+            ['strncmp',                 rtn_strncmp,                None],
             ['strncpy',                 rtn_strncpy,                None],
             ['strtok_r',                rtn_strtok_r,               None],
         ]
