@@ -7,7 +7,7 @@ from tritondse.config   import Config
 
 class ThreadContext(object):
 
-    def __init__(self, config : Config, tid : int):
+    def __init__(self, config: Config, tid: int):
         self.cregs  = dict()                    # context of concrete registers
         self.sregs  = dict()                    # context of symbolic registers
         self.joined = None                      # joined thread id
@@ -16,7 +16,7 @@ class ThreadContext(object):
         self.count  = config.thread_scheduling  # Number of instructions executed until scheduling
 
 
-    def save(self, tt_ctx : TritonContext):
+    def save(self, tt_ctx: TritonContext):
         # Save symbolic registers
         self.sregs = tt_ctx.getSymbolicRegisters()
         # Save concrete registers
@@ -24,7 +24,7 @@ class ThreadContext(object):
             self.cregs.update({r.getId(): tt_ctx.getConcreteRegisterValue(r)})
 
 
-    def restore(self, tt_ctx : TritonContext):
+    def restore(self, tt_ctx: TritonContext):
         # Restore concrete registers
         for rid, v in self.cregs.items():
             tt_ctx.setConcreteRegisterValue(tt_ctx.getRegister(rid), v)

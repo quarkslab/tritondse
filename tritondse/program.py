@@ -11,11 +11,11 @@ class Program(object):
     """
     This class is used to represent a program.
     """
-    def __init__(self, path : str):
+    def __init__(self, path: str):
         lief.Logger.disable()
 
         if not os.path.isfile(path):
-            logging.error('%s not found' %(path))
+            logging.error('%s not found' % (path))
             sys.exit(-1)
 
         self.path   = path
@@ -30,5 +30,5 @@ class Program(object):
         return self.path
 
 
-    def set_path(sefl, path : str):
+    def set_path(sefl, path: str):
         self.path = path

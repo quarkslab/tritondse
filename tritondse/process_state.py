@@ -13,7 +13,7 @@ class ProcessState(object):
     """
     This class is used to represent the state of a process.
     """
-    def __init__(self, config : Config):
+    def __init__(self, config: Config):
         # Memory mapping
         self.BASE_PLT   = 0x01000000
         self.BASE_ARGV  = 0x02000000
