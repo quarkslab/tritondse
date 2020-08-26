@@ -1059,6 +1059,50 @@ def rtn_strlen(se):
     return Enums.SYMBOLIZE, expr
 
 
+def rtn_strncasecmp(se):
+    logging.debug('strncasecmp hooked')
+
+    s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    sz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    maxlen = min(sz, max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))))
+
+    ast = se.pstate.tt_ctx.getAstContext()
+    res = ast.bv(0, se.pstate.tt_ctx.getGprBitSize())
+    for index in range(maxlen):
+        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
+        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
+        cells1 = ast.ite(ast.land([cells1 >= ord('a'), cells1 <= ord('z')]), cells1 - 32, cells1) # upper case
+        cells2 = ast.ite(ast.land([cells2 >= ord('a'), cells2 <= ord('z')]), cells2 - 32, cells2) # upper case
+        res = res + ast.ite(cells1 == cells2, ast.bv(0, 64), ast.bv(1, 64))
+
+    # create a new symbolic expression for this summary
+    expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strncasecmp summary")
+
+    return Enums.SYMBOLIZE, expr
+
+
+def rtn_strncmp(se):
+    logging.debug('strncmp hooked')
+
+    s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    sz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    maxlen = min(sz, max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))))
+
+    ast = se.pstate.tt_ctx.getAstContext()
+    res = ast.bv(0, 64)
+    for index in range(maxlen):
+        cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
+        cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
+        res = res + ast.ite(cells1 == cells2, ast.bv(0, 64), ast.bv(1, 64))
+
+    # create a new symbolic expression for this summary
+    expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strncmp summary")
+
+    return Enums.SYMBOLIZE, expr
+
+
 def rtn_strncpy(se):
     logging.debug('strncpy hooked')
 
