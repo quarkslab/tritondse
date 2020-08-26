@@ -18,7 +18,7 @@ class SeedsManager:
     """
     This class is used to represent the seeds management.
     """
-    def __init__(self, config : Config, seed : Seed = Seed()):
+    def __init__(self, config: Config, seed: Seed = Seed()):
         self.config         = config
         self.initial_seed   = seed
         self.coverage       = Coverage()
@@ -34,57 +34,57 @@ class SeedsManager:
 
 
     def __load_seed_from_file(self, path):
-        logging.debug('Loading %s' %(path))
+        logging.debug('Loading %s' % (path))
         return SeedFile(path)
 
 
     def __init_dirs(self):
         # --------- Initialize METADATA --------------------------------------
         if not os.path.isdir(self.config.metadata_dir):
-            logging.debug('Creating the %s directory' %(self.config.metadata_dir))
+            logging.debug('Creating the %s directory' % (self.config.metadata_dir))
             os.mkdir(self.config.metadata_dir)
         else:
-            logging.debug('Loading the existing metadata directory from %s' %(self.config.metadata_dir))
+            logging.debug('Loading the existing metadata directory from %s' % (self.config.metadata_dir))
             # Loading coverage
-            self.coverage.load_from_disk(self.config.metadata_dir);
+            self.coverage.load_from_disk(self.config.metadata_dir)
             # Loading constraints
             self.constraints.load_from_disk(self.config.metadata_dir)
 
 
         # --------- Initialize WORKLIST --------------------------------------
         if not os.path.isdir(self.config.worklist_dir):
-            logging.debug('Creating the %s directory' %(self.config.worklist_dir))
+            logging.debug('Creating the %s directory' % (self.config.worklist_dir))
             os.mkdir(self.config.worklist_dir)
         else:
-            logging.debug('Checking the existing worklist directory from %s' %(self.config.worklist_dir))
-            for path in glob.glob('%s/*.cov' %(self.config.worklist_dir)):
+            logging.debug('Checking the existing worklist directory from %s' % (self.config.worklist_dir))
+            for path in glob.glob('%s/*.cov' % (self.config.worklist_dir)):
                 self.worklist.add(self.__load_seed_from_file(path))
 
 
         # --------- Initialize CORPUS ----------------------------------------
         if not os.path.isdir(self.config.corpus_dir):
-            logging.debug('Creating the %s directory' %(self.config.corpus_dir))
+            logging.debug('Creating the %s directory' % (self.config.corpus_dir))
             os.mkdir(self.config.corpus_dir)
         else:
-            logging.debug('Checking the existing corpus directory from %s' %(self.config.corpus_dir))
-            for path in glob.glob('%s/*.cov' %(self.config.corpus_dir)):
+            logging.debug('Checking the existing corpus directory from %s' % (self.config.corpus_dir))
+            for path in glob.glob('%s/*.cov' % (self.config.corpus_dir)):
                 self.corpus.add(self.__load_seed_from_file(path))
 
 
         # --------- Initialize CRASH -----------------------------------------
         if not os.path.isdir(self.config.crash_dir):
-            logging.debug('Creating the %s directory' %(self.config.crash_dir))
+            logging.debug('Creating the %s directory' % (self.config.crash_dir))
             os.mkdir(self.config.crash_dir)
         else:
-            logging.debug('Checking the existing crash directory from %s' %(self.config.crash_dir))
-            for path in glob.glob('%s/*.cov' %(self.config.crash_dir)):
+            logging.debug('Checking the existing crash directory from %s' % (self.config.crash_dir))
+            for path in glob.glob('%s/*.cov' % (self.config.crash_dir)):
                 self.crash.add(self.__load_seed_from_file(path))
 
 
     def __save_seed_on_disk(self, directory, seed):
         # TODO: handle honggfuzz.cov seed
         # Init the mangling
-        name = f'{directory}/{seed.get_hash()}.%08x.tritondse.cov' %(seed.get_size())
+        name = f'{directory}/{seed.get_hash()}.%08x.tritondse.cov' % (seed.get_size())
 
         # Save it to the disk
         with open(name, 'wb+') as fd:
@@ -96,7 +96,7 @@ class SeedsManager:
     def __remove_seed_on_disk(self, directory, seed):
         # TODO: handle honggfuzz.cov seed
         # Init the mangling
-        name = f'{directory}/{seed.get_hash()}.%08x.tritondse.cov' %(seed.get_size())
+        name = f'{directory}/{seed.get_hash()}.%08x.tritondse.cov' % (seed.get_size())
         if os.path.exists(name):
             os.remove(name)
 
@@ -138,7 +138,7 @@ class SeedsManager:
                         constraint = astCtxt.land([previousConstraints, branch['constraint']])
 
                         # Only ask for a model if the constraints has never been asked
-                        if self.constraints.already_asked(constraint) == False:
+                        if self.constraints.already_asked(constraint) is False:
                             ts = time.time()
                             model = execution.pstate.tt_ctx.getModel(constraint)
                             te = time.time()

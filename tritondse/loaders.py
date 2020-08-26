@@ -15,7 +15,7 @@ class ELFLoader(object):
     """
     This class is used to represent the ELF loader mechanism.
     """
-    def __init__(self, config : Config, program : Program, pstate : ProcessState):
+    def __init__(self, config: Config, program: Program, pstate: ProcessState):
         self.program = program
         self.pstate  = pstate
         self.config  = config
@@ -24,8 +24,6 @@ class ELFLoader(object):
         self.routines_table = dict()
         self.plt = [
             # TODO:
-            #   - strncasecmp
-            #   - strncmp
             #   - strstr
             #   - strtoul
             #   - tolower
@@ -76,6 +74,8 @@ class ELFLoader(object):
             ['strcmp',                  rtn_strcmp,                 None],
             ['strcpy',                  rtn_strcpy,                 None],
             ['strlen',                  rtn_strlen,                 None],
+            ['strncasecmp',             rtn_strncasecmp,            None],
+            ['strncmp',                 rtn_strncmp,                None],
             ['strncpy',                 rtn_strncpy,                None],
             ['strtok_r',                rtn_strtok_r,               None],
         ]
@@ -90,11 +90,11 @@ class ELFLoader(object):
             size  = phdr.physical_size
             vaddr = phdr.virtual_address
             if size:
-                logging.debug('Loading 0x%08x - 0x%08x' %(vaddr, vaddr+size))
+                logging.debug('Loading 0x%08x - 0x%08x' % (vaddr, vaddr + size))
                 self.pstate.tt_ctx.setConcreteMemoryAreaValue(vaddr, phdr.content)
 
 
-    def __dynamic_relocation(self, vaddr : int = 0):
+    def __dynamic_relocation(self, vaddr: int = 0):
         # Initialize our routines table
         for index in range(len(self.plt)):
             self.plt[index][2] = self.pstate.BASE_PLT + index
@@ -107,9 +107,9 @@ class ELFLoader(object):
                 symbolRelo = vaddr + rel.address
                 for crel in self.plt:
                     if symbolName == crel[0]:
-                        logging.debug('Hooking %s at %#x' %(symbolName, symbolRelo))
+                        logging.debug('Hooking %s at %#x' % (symbolName, symbolRelo))
                         self.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(symbolRelo, CPUSIZE.QWORD), crel[2])
-        except:
+        except Exception:
             logging.error('Something wrong with the pltgot relocations')
 
         try:
@@ -118,9 +118,9 @@ class ELFLoader(object):
                 symbolRelo = vaddr + rel.address
                 for crel in self.plt:
                     if symbolName == crel[0]:
-                        logging.debug('Hooking %s at %#x' %(symbolName, symbolRelo))
+                        logging.debug('Hooking %s at %#x' % (symbolName, symbolRelo))
                         self.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(symbolRelo, CPUSIZE.QWORD), crel[2])
-        except:
+        except Exception:
             logging.error('Something wrong with the dynamic relocations')
 
         for k, v in self.gvariables.items():
@@ -128,8 +128,8 @@ class ELFLoader(object):
                 vaddr = self.program.binary.get_symbol(k).value
                 logging.debug('Hooking %s at %#x' % (k, vaddr))
                 self.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(vaddr, self.pstate.tt_ctx.getGprSize()), 2)
-            except:
-                logging.debug('Cannot find the symbol %s' %(k))
+            except Exception:
+                logging.debug('Cannot find the symbol %s' % (k))
 
         return
 

@@ -12,7 +12,7 @@ class WorklistAddressToSet(object):
     def __init__(self, config, coverage):
         self.config   = config
         self.coverage = coverage
-        self.worklist = dict() # {addr : set(Seed)}
+        self.worklist = dict() # {addr: set(Seed)}
 
 
     def __len__(self):
@@ -26,7 +26,7 @@ class WorklistAddressToSet(object):
         if seed.target_addr in self.worklist:
             self.worklist[seed.target_addr].add(seed)
         else:
-            self.worklist.update({seed.target_addr : set({seed})})
+            self.worklist.update({seed.target_addr: set({seed})})
 
 
     def pick(self):
