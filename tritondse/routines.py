@@ -54,7 +54,7 @@ def rtn_ctype_b_loc(se):
     ctype += b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
     ctype += b"\x00\x00\x00\x00\x00\x00\x00\x00"
 
-    size   = se.pstate.tt_ctx.getGprSize()
+    size   = se.pstate.ptr_size
     ptable = se.pstate.BASE_CTYPE
     table  = (size * 2) + (se.pstate.BASE_CTYPE)
     otable = table + 256
@@ -164,7 +164,7 @@ def rtn_xstat(se):
         se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x88, CPUSIZE.QWORD), 0)
         return Enums.CONCRETIZE, 0
 
-    return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
+    return Enums.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
 
 
 def rtn_atoi(se):
@@ -250,14 +250,14 @@ def rtn_clock_gettime(se):
     tp      = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
 
     if tp == 0:
-        return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
+        return Enums.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
 
     if se.config.time_inc_coefficient:
         t = se.pstate.time
     else:
         t = time.time()
 
-    s = se.pstate.tt_ctx.getGprSize()
+    s = se.pstate.ptr_size
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp, s), int(t))
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp + s, s), int(t * 1000000))
 
@@ -282,7 +282,7 @@ def rtn_fclose(se):
         se.pstate.fd_table[arg0].close()
         del se.pstate.fd_table[arg0]
     else:
-        return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
+        return Enums.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
 
     # Return value
     return Enums.CONCRETIZE, 0
@@ -444,14 +444,14 @@ def rtn_gettimeofday(se):
     tz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
 
     if tv == 0:
-        return Enums.CONCRETIZE, ((1 << se.pstate.tt_ctx.getGprBitSize()) - 1)
+        return Enums.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
 
     if se.config.time_inc_coefficient:
         t = se.pstate.time
     else:
         t = time.time()
 
-    s = se.pstate.tt_ctx.getGprSize()
+    s = se.pstate.ptr_size
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv, s), int(t))
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv + s, s), int(t * 1000000))
 
@@ -624,7 +624,7 @@ def rtn_pthread_create(se):
     se.pstate.threads.update({tid: thread})
 
     # Save out the thread id
-    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize()), tid)
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.ptr_size), tid)
 
     # Return value
     return Enums.CONCRETIZE, 0
@@ -666,7 +666,7 @@ def rtn_pthread_mutex_destroy(se):
 
     # Get arguments
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *restrict mutex
-    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize()), se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.ptr_size), se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
     # Return value
     return Enums.CONCRETIZE, 0
@@ -679,7 +679,7 @@ def rtn_pthread_mutex_init(se):
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *restrict mutex
     arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # const pthread_mutexattr_t *restrict attr)
 
-    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize()), se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.ptr_size), se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
     # Return value
     return Enums.CONCRETIZE, 0
@@ -690,7 +690,7 @@ def rtn_pthread_mutex_lock(se):
 
     # Get arguments
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *mutex
-    mem = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
+    mem = MemoryAccess(arg0, se.pstate.ptr_size)
     mutex = se.pstate.tt_ctx.getConcreteMemoryValue(mem)
 
     # If the thread has been initialized and unused, define the tid has lock
@@ -712,7 +712,7 @@ def rtn_pthread_mutex_unlock(se):
 
     # Get arguments
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *mutex
-    mem = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
+    mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     se.pstate.tt_ctx.setConcreteMemoryValue(mem, se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
@@ -774,7 +774,7 @@ def rtn_sem_destroy(se):
 
     # Get arguments
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_ret_register(0))  # sem_t *sem
-    mem = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
+    mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # Destroy the semaphore with the value
     se.pstate.tt_ctx.setConcreteMemoryValue(mem, 0)
@@ -789,8 +789,8 @@ def rtn_sem_getvalue(se):
     # Get arguments
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
     arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # int *sval
-    memIn = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
-    memOut = MemoryAccess(arg1, se.pstate.tt_ctx.getGprSize())
+    memIn = MemoryAccess(arg0, se.pstate.ptr_size)
+    memOut = MemoryAccess(arg1, se.pstate.ptr_size)
     value = se.pstate.tt_ctx.getConcreteMemoryValue(memIn)
 
     # Set the semaphore's value into the output
@@ -807,7 +807,7 @@ def rtn_sem_init(se):
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
     arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # int pshared
     arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))  # unsigned int value
-    mem = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
+    mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # Init the semaphore with the value
     se.pstate.tt_ctx.setConcreteMemoryValue(mem, arg2)
@@ -820,7 +820,7 @@ def rtn_sem_post(se):
     logging.debug('sem_post hooked')
 
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
-    mem  = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
+    mem  = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # increments (unlocks) the semaphore pointed to by sem
     value = se.pstate.tt_ctx.getConcreteMemoryValue(mem)
@@ -835,9 +835,9 @@ def rtn_sem_timedwait(se):
     logging.debug('sem_timedwait hooked')
 
     arg0  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
-    arg0m = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
+    arg0m = MemoryAccess(arg0, se.pstate.ptr_size)
     arg1  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # const struct timespec *abs_timeout
-    arg1m = MemoryAccess(arg1, se.pstate.tt_ctx.getGprSize())
+    arg1m = MemoryAccess(arg1, se.pstate.ptr_size)
 
     # sem_timedwait() is the same as sem_wait(), except that abs_timeout specifies a limit
     # on the amount of time that the call should block if the decrement cannot be immediately
@@ -875,7 +875,7 @@ def rtn_sem_trywait(se):
     logging.debug('sem_trywait hooked')
 
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
-    mem = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
+    mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # sem_trywait()  is  the  same as sem_wait(), except that if the decrement
     # cannot be immediately performed, then call returns an error (errno set to
@@ -899,7 +899,7 @@ def rtn_sem_wait(se):
     logging.debug('sem_wait hooked')
 
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
-    mem = MemoryAccess(arg0, se.pstate.tt_ctx.getGprSize())
+    mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # decrements (locks) the semaphore pointed to by sem. If the semaphore's value
     # is greater than zero, then the decrement proceeds, and the function returns,
@@ -966,7 +966,7 @@ def rtn_strcasecmp(se):
     maxlen = max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
 
     ast = se.pstate.tt_ctx.getAstContext()
-    res = ast.bv(0, se.pstate.tt_ctx.getGprBitSize())
+    res = ast.bv(0, se.pstate.ptr_bit_size)
     for index in range(maxlen):
         cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
         cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
@@ -1068,7 +1068,7 @@ def rtn_strncasecmp(se):
     maxlen = min(sz, max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))))
 
     ast = se.pstate.tt_ctx.getAstContext()
-    res = ast.bv(0, se.pstate.tt_ctx.getGprBitSize())
+    res = ast.bv(0, se.pstate.ptr_bit_size)
     for index in range(maxlen):
         cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
         cells2 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
@@ -1130,7 +1130,7 @@ def rtn_strtok_r(se):
     string  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     delim   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     saveptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    saveMem = se.pstate.tt_ctx.getConcreteMemoryValue(MemoryAccess(saveptr, se.pstate.tt_ctx.getGprSize()))
+    saveMem = se.pstate.tt_ctx.getConcreteMemoryValue(MemoryAccess(saveptr, se.pstate.ptr_size))
 
     if string == 0:
         string = saveMem
@@ -1146,7 +1146,7 @@ def rtn_strtok_r(se):
             # Init the \0 at the delimiter position
             se.pstate.tt_ctx.setConcreteMemoryValue(string + offset + len(token), 0)
             # Save the pointer
-            se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(saveptr, se.pstate.tt_ctx.getGprSize()), string + offset + len(token) + 1)
+            se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(saveptr, se.pstate.ptr_size), string + offset + len(token) + 1)
             # Return the token
             return Enums.CONCRETIZE, string + offset
 
