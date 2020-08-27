@@ -133,7 +133,7 @@ class Program(object):
                 if seg.type == lief.ELF.SEGMENT_TYPES.LOAD:
                     content = seg.content
                     if seg.virtual_size != len(seg.content):  # pad with zeros (as it might be .bss)
-                        content += [0] * (seg.virtual_size-seg.physical_size)
+                        content += [0] * (seg.virtual_size - seg.physical_size)
                     yield seg.virtual_address, content
         else:
             raise NotImplementedError(f"memory segments not implemented for: {self.format.name}")
