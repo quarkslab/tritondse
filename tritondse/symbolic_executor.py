@@ -1,22 +1,21 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-import lief
+# built-in imports
 import logging
 import time
 import random
 import os
 
-from triton                  import *
+# third party imports
+from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess
+
+# local imports
 from tritondse.abi           import ABI
 from tritondse.config        import Config
 from tritondse.coverage      import Coverage
-from tritondse.loaders       import ELFLoader
 from tritondse.process_state import ProcessState
 from tritondse.program       import Program
 from tritondse.seed          import Seed
 from tritondse.enums         import Enums
-from tritondse.routines      import *
+from tritondse.routines      import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 
 
 class SymbolicExecutor(object):
@@ -28,26 +27,13 @@ class SymbolicExecutor(object):
         self.pstate     = pstate
         self.config     = config
         self.seed       = seed
-        self.loader     = ELFLoader(config, program, pstate)
         self.abi        = ABI(self.pstate)
         self.coverage   = Coverage()
+        self.routines_table = {}  # Addr -> Tuple[fname, routine]
 
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
-
-
-    def __init_arch(self):
-        if self.program.binary.header.machine_type == lief.ELF.ARCH.AARCH64:
-            logging.debug('Loading an AArch64 binary')
-            self.pstate.tt_ctx.setArchitecture(ARCH.AARCH64)
-
-        elif self.program.binary.header.machine_type == lief.ELF.ARCH.x86_64:
-            logging.debug('Loading an x86_64 binary')
-            self.pstate.tt_ctx.setArchitecture(ARCH.X86_64)
-
-        else:
-            raise(Exception('Architecture not supported'))
 
 
     def __init_optimization(self):
@@ -58,10 +44,10 @@ class SymbolicExecutor(object):
         self.pstate.tt_ctx.setSolverTimeout(self.config.smt_timeout)
 
 
-    def __init_stack(self):
+    def __init_registers(self):
         self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_bp_register(), self.pstate.BASE_STACK)
         self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_sp_register(), self.pstate.BASE_STACK)
-        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), self.program.binary.entrypoint)
+        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), self.program.entry_point)
 
 
     def __schedule_thread(self):
@@ -157,9 +143,11 @@ class SymbolicExecutor(object):
 
     def routines_handler(self, instruction):
         pc = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_pc_register())
-        if pc in self.loader.routines_table:
+        if pc in self.routines_table:
+            routine_name, routine = self.routines_table[pc]
+
             # Emulate the routine and the return value
-            ret = self.loader.routines_table[pc](self)
+            ret = routine(self)
             self.__handle_external_return(ret)
 
             # Do not continue the execution if we are in a locked mutex
@@ -180,7 +168,7 @@ class SymbolicExecutor(object):
 
             if self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
                 # Get the return address
-                if self.loader.routines_table[pc] == rtn_libc_start_main:
+                if routine_name == "__libc_start_main":
                     ret_addr = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_pc_register())
                 else:
                     ret_addr = self.pstate.tt_ctx.getConcreteRegisterValue(self.pstate.tt_ctx.registers.x30)
@@ -198,11 +186,52 @@ class SymbolicExecutor(object):
             self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), ret_addr)
 
 
+    def _apply_dynamic_relocations(self) -> None:
+        """
+        Apply dynamic relocations of imported functions and imported symbols
+        regardless of the architecture or executable format
+        .. FIXME: This function does not apply all possible relocations
+        :return: None
+        """
+        cur_linkage_address = self.pstate.BASE_PLT
+
+        # Link imported functions
+        for fname, rel_addr in self.program.imported_functions_relocations():
+            if fname in SUPPORTED_ROUTINES:  # if the routine name is supported
+                logging.debug(f"Hooking {fname} at {rel_addr:#x}#x")
+
+                # Add link to routine in table
+                self.routines_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
+
+                # Apply relocation to our custom address in process memory
+                self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
+
+                # Increment linkage address number
+                cur_linkage_address += 1
+            else:
+                logging.debug(f"function {fname} imported but unsupported")  # should be warning
+
+        # Link imported symbols
+        for sname, rel_addr in self.program.imported_variable_symbols_relocations():
+            if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
+                logging.debug(f"Hooking {sname} at {rel_addr:#x}#x")
+                # Apply relocation to our custom address in process memory
+                self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
+            else:
+                logging.debug(f"symbol {sname} imported but unsupported")  # should be warning
+
+
     def run(self):
-        self.__init_arch()
+        # Initialize the process_state architecture (at this point arch is sure to be supported)
+        logging.debug(f"Loading an {self.program.architecture.name} architecture")
+        self.pstate.architecture = self.program.architecture
+
         self.__init_optimization()
-        self.__init_stack()
-        self.loader.ld()
+        self.__init_registers()
+
+        # Load the program in process memory and apply dynamic relocations
+        self.pstate.load_program(self.program)
+        self._apply_dynamic_relocations()
 
         # Let's emulate the binary from the entry point
         logging.info('Starting emulation')

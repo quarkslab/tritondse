@@ -1,13 +1,16 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+# built-ins
 import sys
 import time
+import logging
 
-from triton                   import TritonContext
-from tritondse.config         import Config
-from tritondse.heap_allocator import HeapAllocator
+# third-party
+from triton import TritonContext, MemoryAccess
+
+# local imports
 from tritondse.thread_context import ThreadContext
+from tritondse.config         import Config
+from tritondse.program        import Program
+from tritondse.types          import Architecture, Addr, ByteSize, BitSize
 
 
 class ProcessState(object):
@@ -79,3 +82,56 @@ class ProcessState(object):
     def get_unique_file_id(self):
         self.fd_id += 1
         return self.fd_id
+
+
+    @property
+    def architecture(self) -> Architecture:
+        """ Return architecture of the current process state """
+        return Architecture(self.tt_ctx.getArchitecture())
+
+
+    @architecture.setter
+    def architecture(self, arch: Architecture) -> None:
+        """
+        Set the architecture of the process state.
+        Internal set it in the TritonContext
+        """
+        self.tt_ctx.setArchitecture(arch)
+
+
+    @property
+    def ptr_size(self) -> ByteSize:
+        """ Size of a pointer in bytes """
+        return self.tt_ctx.getGprSize()
+
+
+    @property
+    def ptr_bit_size(self) -> BitSize:
+        """ Size of a pointer in bits """
+        return self.tt_ctx.getGprBitSize()
+
+
+    def load_program(self, p: Program) -> None:
+        """
+        Load the given program in the process state memory
+        :param p: Program to load in the process memory
+        :return: True on whether loading succeeded or not
+        """
+        # Load memory areas in memory
+        for vaddr, data in p.memory_segments():
+            logging.debug(f"Loading {vaddr:#08x} - {vaddr+len(data):#08x}")
+            self.tt_ctx.setConcreteMemoryAreaValue(vaddr, data)
+
+
+    def write_memory(self, addr: Addr, size: ByteSize, data: int) -> None:
+        """
+        Write in the process memory the given data of the given size at
+        a specific address.
+        :param addr: address where to write data
+        :param size: size of data to write in bytes
+        :param data: data to write represented as an integer
+        :return: None
+
+        .. todo:: Adding a parameter to specify endianess if needed
+        """
+        self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, size), data)
