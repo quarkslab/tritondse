@@ -1212,6 +1212,9 @@ SUPPORTED_ROUTINES = {
             'strtok_r':                rtn_strtok_r,
         }
 
-SUPORTED_GVARIABLES = {'stdin':  0,
-                       'stdout': 1,
-                       'stderr': 2}
+
+SUPORTED_GVARIABLES = {
+    'stderr': 2,
+    'stdin':  0,
+    'stdout': 1
+}
