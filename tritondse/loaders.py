@@ -127,7 +127,7 @@ class ELFLoader(object):
             try:
                 vaddr = self.program.binary.get_symbol(k).value
                 logging.debug('Hooking %s at %#x' % (k, vaddr))
-                self.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(vaddr, self.pstate.tt_ctx.getGprSize()), 2)
+                self.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(vaddr, self.pstate.tt_ctx.getGprSize()), v)
             except Exception:
                 logging.debug('Cannot find the symbol %s' % (k))
 
