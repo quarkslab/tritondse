@@ -9,9 +9,6 @@ class AllocException(Exception):
 
 
 class HeapAllocator(object):
-    """
-    This class is used to represent the heap allocation manager.
-    """
     def __init__(self, start: int, end: int):
         '''
         This class is used to represent the heap allocation manager.
