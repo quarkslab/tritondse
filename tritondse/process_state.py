@@ -5,8 +5,9 @@ import sys
 import time
 
 from triton                   import TritonContext
-from tritondse.thread_context import ThreadContext
 from tritondse.config         import Config
+from tritondse.heap_allocator import HeapAllocator
+from tritondse.thread_context import ThreadContext
 
 
 class ProcessState(object):
@@ -17,10 +18,11 @@ class ProcessState(object):
         # Memory mapping
         self.BASE_PLT   = 0x01000000
         self.BASE_ARGV  = 0x02000000
-        self.BASE_ALLOC = 0x03000000
+        self.BASE_CTYPE = 0x03000000
+        self.BASE_HEAP  = 0x10000000
+        self.END_HEAP   = 0x6fffffff
         self.BASE_STACK = 0xefffffff
-        self.BASE_LIBC  = 0x04000000
-        self.BASE_CTYPE = 0x05000000
+        self.END_STACK  = 0x70000000
         self.START_MAP  = 0x01000000
         self.END_MAP    = 0xf0000000
 
@@ -43,8 +45,7 @@ class ProcessState(object):
         self.fd_id = len(self.fd_table)
 
         # Allocation information used by malloc()
-        self.mallocMaxAllocation = 0x03ffffff
-        self.mallocBase = self.BASE_ALLOC
+        self.heap_allocator = HeapAllocator(self.BASE_HEAP, self.END_HEAP)
 
         # Unique thread id incrementation
         self.utid = 0
