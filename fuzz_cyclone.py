@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-## -*- coding: utf-8 -*-
 
 from tritondse import *
 from scapy.all import Ether, IP, TCP, UDP
+import sys
 
 
 def checksum_computation(execution, new_input_generated):
@@ -45,12 +45,20 @@ config.program_argv         = [
     b'10.0.13.254'
 ]
 
-program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
-seed    = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
+try:
+    program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
+except FileNotFoundError as e:
+    print(e)
+    sys.exit(-1)
+
+seed = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
+
 
 # Explore
 #dse     = SymbolicExplorator(config, program, seed)
 #dse.explore()
+
+
 
 # One execution
 ps = ProcessState(config)
