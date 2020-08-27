@@ -402,7 +402,11 @@ def rtn_fread(se):
 
 def rtn_free(se):
     logging.debug('free hooked')
-    # TODO: MemoryAllocator, save this pointer as freed. Useful for Sanitizers.
+
+    # Get arguments
+    ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    se.pstate.heap_allocator.free(ptr)
+
     return None
 
 
@@ -464,18 +468,10 @@ def rtn_malloc(se):
 
     # Get arguments
     size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-
-    if se.pstate.mallocBase + size > se.pstate.mallocMaxAllocation:
-        logging.warning('malloc failed: out of memory')
-        os.exit(-1)
-
-    area = se.pstate.mallocBase
-    se.pstate.mallocBase += size
-
-    # TODO: MemoryAllocator, save this pointer as allocated. Useful for Sanitizers.
+    ptr  = se.pstate.heap_allocator.alloc(size)
 
     # Return value
-    return Enums.CONCRETIZE, area
+    return Enums.CONCRETIZE, ptr
 
 
 def rtn_memcmp(se):
