@@ -198,7 +198,7 @@ class SymbolicExecutor(object):
         # Link imported functions
         for fname, rel_addr in self.program.imported_functions_relocations():
             if fname in SUPPORTED_ROUTINES:  # if the routine name is supported
-                logging.debug(f"Hooking {fname} at {rel_addr:#x}#x")
+                logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
                 # Add link to routine in table
                 self.routines_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
@@ -214,7 +214,7 @@ class SymbolicExecutor(object):
         # Link imported symbols
         for sname, rel_addr in self.program.imported_variable_symbols_relocations():
             if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
-                logging.debug(f"Hooking {sname} at {rel_addr:#x}#x")
+                logging.debug(f"Hooking {sname} at {rel_addr:#x}")
                 # Apply relocation to our custom address in process memory
                 self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
             else:
