@@ -30,7 +30,6 @@ class Program(object):
         self.path = Path(path)
         self._binary = lief.parse(str(self.path))
         self._arch = self._load_arch()
-        self._loaded = False
 
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
@@ -48,15 +47,6 @@ class Program(object):
         in the binary headers
         """
         return self._binary.entrypoint
-
-    @property
-    def is_loaded(self):
-        """
-        Boolean on whether to program has just been parsed or if
-        it has also been loaded
-        :return: True if the program is loaded
-        """
-        return self._loaded
 
     @property
     def architecture(self) -> Architecture:
