@@ -185,6 +185,7 @@ class SymbolicExecutor(object):
             # Hijack RIP to skip the call
             self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), ret_addr)
 
+
     def _apply_dynamic_relocations(self) -> None:
         """
         Apply dynamic relocations of imported functions and imported symbols
@@ -203,7 +204,7 @@ class SymbolicExecutor(object):
                 self.routines_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
 
                 # Apply relocation to our custom address in process memory
-                self.pstate.write_memory(rel_addr, self.pstate.addr_size, cur_linkage_address)
+                self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
 
                 # Increment linkage address number
                 cur_linkage_address += 1
@@ -215,7 +216,7 @@ class SymbolicExecutor(object):
             if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
                 logging.debug(f"Hooking {sname} at {rel_addr:#x}#x")
                 # Apply relocation to our custom address in process memory
-                self.pstate.write_memory(rel_addr, self.pstate.addr_size, SUPORTED_GVARIABLES[sname])
+                self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
             else:
                 logging.debug(f"symbol {sname} imported but unsupported")  # should be warning
 

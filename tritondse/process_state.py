@@ -10,7 +10,7 @@ from triton import TritonContext, MemoryAccess
 from tritondse.thread_context import ThreadContext
 from tritondse.config         import Config
 from tritondse.program        import Program
-from tritondse.types import Architecture, Addr, Bytes
+from tritondse.types          import Architecture, Addr, ByteSize, BitSize
 
 
 class ProcessState(object):
@@ -83,10 +83,12 @@ class ProcessState(object):
         self.fd_id += 1
         return self.fd_id
 
+
     @property
     def architecture(self) -> Architecture:
         """ Return architecture of the current process state """
         return Architecture(self.tt_ctx.getArchitecture())
+
 
     @architecture.setter
     def architecture(self, arch: Architecture) -> None:
@@ -96,10 +98,18 @@ class ProcessState(object):
         """
         self.tt_ctx.setArchitecture(arch)
 
+
     @property
-    def addr_size(self) -> Bytes:
-        """ Size of an address in bytes """
+    def ptr_size(self) -> ByteSize:
+        """ Size of a pointer in bytes """
         return self.tt_ctx.getGprSize()
+
+
+    @property
+    def ptr_bit_size(self) -> BitSize:
+        """ Size of a pointer in bits """
+        return self.tt_ctx.getGprBitSize()
+
 
     def load_program(self, p: Program) -> None:
         """
@@ -112,7 +122,8 @@ class ProcessState(object):
             logging.debug(f"Loading {vaddr:#08x} - {vaddr+len(data):#08x}")
             self.tt_ctx.setConcreteMemoryAreaValue(vaddr, data)
 
-    def write_memory(self, addr: Addr, size: Bytes, data: int) -> None:
+
+    def write_memory(self, addr: Addr, size: ByteSize, data: int) -> None:
         """
         Write in the process memory the given data of the given size at
         a specific address.

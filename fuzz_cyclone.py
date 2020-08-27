@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
+import sys
+
 from tritondse import *
 from scapy.all import Ether, IP, TCP, UDP
-import sys
 
 
 def checksum_computation(execution, new_input_generated):

@@ -12,9 +12,12 @@ from tritondse.routines import *
 
 lief.Logger.disable()
 
-_arch_mapper = {lief.ARCHITECTURES.ARM: Architecture.ARM32,
-                lief.ARCHITECTURES.ARM64: Architecture.AARCH64,
-                lief.ARCHITECTURES.X86: Architecture.X86}
+_arch_mapper = {
+    lief.ARCHITECTURES.ARM:   Architecture.ARM32,
+    lief.ARCHITECTURES.ARM64: Architecture.AARCH64,
+    lief.ARCHITECTURES.X86:   Architecture.X86
+}
+
 
 
 class Program(object):
@@ -40,6 +43,7 @@ class Program(object):
         if self._arch is None:
             raise FileNotFoundError(f"binary {path} architecture unsupported {self._binary.abstract.header.architecture}")
 
+
     @property
     def entry_point(self) -> Addr:
         """
@@ -48,6 +52,7 @@ class Program(object):
         """
         return self._binary.entrypoint
 
+
     @property
     def architecture(self) -> Architecture:
         """
@@ -55,6 +60,7 @@ class Program(object):
         architecture as an enum object.
         """
         return self._arch
+
 
     @property
     def endianness(self) -> lief.ENDIANNESS:
@@ -65,6 +71,7 @@ class Program(object):
         """
         return self._binary.abstract.header.endianness
 
+
     @property
     def format(self) -> lief.EXE_FORMATS:
         """
@@ -72,6 +79,7 @@ class Program(object):
         :return: formats value as defined by lief
         """
         return self._binary.format
+
 
     def _load_arch(self) -> Optional[Architecture]:
         """
@@ -87,6 +95,7 @@ class Program(object):
         else:
             return None
 
+
     @property
     def relocation_enum(self):
         """
@@ -94,13 +103,16 @@ class Program(object):
         architecture of the binary.
         :return:
         """
-        rel_map = {lief.ELF.ARCH.ARM: lief.ELF.RELOCATION_ARM,
-                   lief.ELF.ARCH.AARCH64: lief.ELF.RELOCATION_AARCH64,
-                   lief.ELF.ARCH.i386: lief.ELF.RELOCATION_i386,
-                   lief.ELF.ARCH.x86_64: lief.ELF.RELOCATION_X86_64,
-                   lief.ELF.ARCH.PPC: lief.ELF.RELOCATION_PPC,
-                   lief.ELF.ARCH.PPC64: lief.ELF.RELOCATION_PPC64}
+        rel_map = {
+            lief.ELF.ARCH.AARCH64: lief.ELF.RELOCATION_AARCH64,
+            lief.ELF.ARCH.ARM:     lief.ELF.RELOCATION_ARM,
+            lief.ELF.ARCH.PPC64:   lief.ELF.RELOCATION_PPC64,
+            lief.ELF.ARCH.PPC:     lief.ELF.RELOCATION_PPC,
+            lief.ELF.ARCH.i386:    lief.ELF.RELOCATION_i386,
+            lief.ELF.ARCH.x86_64:  lief.ELF.RELOCATION_X86_64
+        }
         return rel_map[self._binary.header.machine_type]
+
 
     def _is_glob_dat(self, rel: lief.ELF.Relocation) -> bool:
         rel_enum = self.relocation_enum
@@ -108,6 +120,7 @@ class Program(object):
             return rel_enum(rel.type) == getattr(rel_enum, "GLOB_DAT")
         else:
             return False  # Not GLOB_DAT relocation for this architecture
+
 
     def memory_segments(self) -> Generator[Tuple[Addr, bytes], None, None]:
         """
@@ -124,6 +137,7 @@ class Program(object):
                     yield seg.virtual_address, content
         else:
             raise NotImplementedError(f"memory segments not implemented for: {self.format.name}")
+
 
     def imported_functions_relocations(self) -> Generator[Tuple[str, Addr], None, None]:
         """
@@ -147,6 +161,7 @@ class Program(object):
 
         else:
             raise NotImplementedError(f"Imported functions relocations not implemented for: {self.format.name}")
+
 
     def imported_variable_symbols_relocations(self) -> Generator[Tuple[str, Addr], None, None]:
         """
