@@ -1151,3 +1151,67 @@ def rtn_strtok_r(se):
             return Enums.CONCRETIZE, string + offset
 
     return Enums.CONCRETIZE, 0
+
+
+
+SUPPORTED_ROUTINES = {
+            # TODO:
+            #   - strstr
+            #   - strtoul
+            #   - tolower
+            #   - toupper
+            '__ctype_b_loc':           rtn_ctype_b_loc,
+            '__errno_location':        rtn_errno_location,
+            '__libc_start_main':       rtn_libc_start_main,
+            '__stack_chk_fail':        rtn_stack_chk_fail,
+            '__xstat':                 rtn_xstat,
+            'atoi':                    rtn_atoi,
+            'clock_gettime':           rtn_clock_gettime,
+            'exit':                    rtn_exit,
+            'fclose':                  rtn_fclose,
+            'fopen':                   rtn_fopen,
+            'fprintf':                 rtn_fprintf,
+            'fputc':                   rtn_fputc,
+            'fputs':                   rtn_fputs,
+            'fread':                   rtn_fread,
+            'free':                    rtn_free,
+            'fwrite':                  rtn_fwrite,
+            'gettimeofday':            rtn_gettimeofday,
+            'malloc':                  rtn_malloc,
+            'memcmp':                  rtn_memcmp,
+            'memcpy':                  rtn_memcpy,
+            'memmove':                 rtn_memmove,
+            'memset':                  rtn_memset,
+            'printf':                  rtn_printf,
+            'pthread_create':          rtn_pthread_create,
+            'pthread_exit':            rtn_pthread_exit,
+            'pthread_join':            rtn_pthread_join,
+            'pthread_mutex_destroy':   rtn_pthread_mutex_destroy,
+            'pthread_mutex_init':      rtn_pthread_mutex_init,
+            'pthread_mutex_lock':      rtn_pthread_mutex_lock,
+            'pthread_mutex_unlock':    rtn_pthread_mutex_unlock,
+            'puts':                    rtn_puts,
+            'read':                    rtn_read,
+            'sem_destroy':             rtn_sem_destroy,
+            'sem_getvalue':            rtn_sem_getvalue,
+            'sem_init':                rtn_sem_init,
+            'sem_post':                rtn_sem_post,
+            'sem_timedwait':           rtn_sem_timedwait,
+            'sem_trywait':             rtn_sem_trywait,
+            'sem_wait':                rtn_sem_wait,
+            'sleep':                   rtn_sleep,
+            'sprintf':                 rtn_sprintf,
+            'strcasecmp':              rtn_strcasecmp,
+            'strchr':                  rtn_strchr,
+            'strcmp':                  rtn_strcmp,
+            'strcpy':                  rtn_strcpy,
+            'strlen':                  rtn_strlen,
+            'strncasecmp':             rtn_strncasecmp,
+            'strncmp':                 rtn_strncmp,
+            'strncpy':                 rtn_strncpy,
+            'strtok_r':                rtn_strtok_r,
+        }
+
+SUPORTED_GVARIABLES = {'stdin':  0,
+                       'stdout': 1,
+                       'stderr': 2}
