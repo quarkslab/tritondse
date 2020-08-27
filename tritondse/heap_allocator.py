@@ -25,6 +25,9 @@ class HeapAllocator(object):
         self.alloc_pool   = dict() # {ptr: size}
         self.free_pool    = dict() # {size: set(ptr, ...)}
 
+        # TODO: For a to-the-moon allocator, we could merge freed chunks. Like 4 chunks of 1 byte into one chunk of 4 bytes.
+        # TODO: For a to-the-moon allocator, we could split a big chunk into two chunks when asking an allocation.
+
 
     def __ptr_from_free_to_alloc(self, size: int) -> int:
         # Pop an available pointer
