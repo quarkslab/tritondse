@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from tritondse.types import Addr
+
+
 
 class AllocException(Exception):
     def __init__(self, message):
@@ -9,7 +12,7 @@ class AllocException(Exception):
 
 
 class HeapAllocator(object):
-    def __init__(self, start: int, end: int):
+    def __init__(self, start: Addr, end: Addr):
         '''
         This class is used to represent the heap allocation manager.
 
@@ -29,7 +32,7 @@ class HeapAllocator(object):
         # TODO: For a to-the-moon allocator, we could split a big chunk into two chunks when asking an allocation.
 
 
-    def __ptr_from_free_to_alloc(self, size: int) -> int:
+    def __ptr_from_free_to_alloc(self, size: int) -> Addr:
         # Pop an available pointer
         ptr = self.free_pool[size].pop()
 
@@ -45,7 +48,7 @@ class HeapAllocator(object):
         return ptr
 
 
-    def alloc(self, size: int) -> int:
+    def alloc(self, size: int) -> Addr:
         # First, check if we have an available chunk in our
         # free_pool which have the same size
         if size in self.free_pool and self.free_pool[size]:
@@ -70,7 +73,7 @@ class HeapAllocator(object):
         return ptr
 
 
-    def free(self, ptr: int):
+    def free(self, ptr: Addr):
         if not ptr in self.alloc_pool:
             raise AllocException('This pointer is not allocated or not alligned on the head chunk')
 
@@ -85,14 +88,14 @@ class HeapAllocator(object):
         del self.alloc_pool[ptr]
 
 
-    def is_ptr_allocated(self, ptr: int) -> bool:
+    def is_ptr_allocated(self, ptr: Addr) -> bool:
         for chunk, size in self.alloc_pool.items():
             if ptr >= chunk and ptr < chunk + size:
                 return True
         return False
 
 
-    def is_ptr_freed(self, ptr: int) -> bool:
+    def is_ptr_freed(self, ptr: Addr) -> bool:
         for size, chunks in self.free_pool.items():
             for chunk in chunks:
                 if ptr >= chunk and ptr < chunk + size:
