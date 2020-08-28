@@ -5,7 +5,7 @@ from tritondse.types import Addr
 
 
 
-class AllocException(Exception):
+class AllocatorException(Exception):
     def __init__(self, message):
         Exception.__init__(self, message)
 
@@ -42,7 +42,7 @@ class HeapAllocator(object):
 
         # Move this chunk into our alloc_pool
         if ptr in self.alloc_pool:
-            raise AllocException('This pointer is already provided')
+            raise AllocatorException('This pointer is already provided')
         self.alloc_pool.update({ptr: size})
 
         return ptr
@@ -68,14 +68,17 @@ class HeapAllocator(object):
         self.alloc_pool.update({ptr: size})
         self.base += size
         if self.base >= self.end:
-            raise AllocException('Out of Memory')
+            raise AllocatorException('Out of Memory')
 
         return ptr
 
 
     def free(self, ptr: Addr):
-        if not ptr in self.alloc_pool:
-            raise AllocException('This pointer is not allocated or not alligned on the head chunk')
+        if self.is_ptr_freed(ptr):
+            raise AllocatorException('Double free or corruption!')
+
+        if not self.is_ptr_allocated(ptr):
+            raise AllocatorException('Invalid pointer')
 
         # Add the chunk into our free_pool
         size = self.alloc_pool[ptr]
