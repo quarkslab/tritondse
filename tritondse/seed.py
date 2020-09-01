@@ -14,6 +14,10 @@ class Seed(object):
         self.target_addr = None
 
 
+    def __len__(self):
+        return len(self.content)
+
+
     def __eq__(self, other):
         return self.content == other.content
 
