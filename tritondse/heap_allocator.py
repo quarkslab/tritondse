@@ -1,23 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from tritondse.types import Addr
+from tritondse.types import Addr, ByteSize
 
 
 
 class AllocatorException(Exception):
     def __init__(self, message):
-        Exception.__init__(self, message)
+        super(Exception, self).__init__(message)
 
 
 
 class HeapAllocator(object):
+    """
+    Custom tiny heap allocator. Used by built-ins
+    routines like malloc/free. This allocation manager
+    also enables better subsequent queries.
+    """
+
     def __init__(self, start: Addr, end: Addr):
         '''
-        This class is used to represent the heap allocation manager.
+        Class constructor. Takes heap bounds as parameter.
 
-        :param start int: Where the heap area can start
-        :param end int: Where the heap area must be end
+        :param start Addr: Where the heap area can start
+        :param end Addr: Where the heap area must be end
         '''
         # Range of the memory mapping
         self.start = start
@@ -48,7 +54,13 @@ class HeapAllocator(object):
         return ptr
 
 
-    def alloc(self, size: int) -> Addr:
+    def alloc(self, size: ByteSize) -> Addr:
+        """
+        Performs an allocation of the given byte size.
+
+        :param size: Byte size to allocate
+        :raise: AllocatorException if not memory is available
+        """
         # First, check if we have an available chunk in our
         # free_pool which have the same size
         if size in self.free_pool and self.free_pool[size]:
@@ -73,7 +85,14 @@ class HeapAllocator(object):
         return ptr
 
 
-    def free(self, ptr: Addr):
+    def free(self, ptr: Addr) -> None:
+        """
+        Free the given memory chunk.
+
+        :param ptr: Address to free
+        :raise: AllocatorException if the pointer has already been
+                freed or if it has never been allocated
+        """
         if self.is_ptr_freed(ptr):
             raise AllocatorException('Double free or corruption!')
 
@@ -92,6 +111,12 @@ class HeapAllocator(object):
 
 
     def is_ptr_allocated(self, ptr: Addr) -> bool:
+        """
+        Check whether a given address has been allocated
+
+        :param ptr: Address to check
+        :return: True if pointer points to an allocated memory region
+        """
         for chunk, size in self.alloc_pool.items():
             if ptr >= chunk and ptr < chunk + size:
                 return True
@@ -99,8 +124,15 @@ class HeapAllocator(object):
 
 
     def is_ptr_freed(self, ptr: Addr) -> bool:
+        """
+        Check whether a given pointer has recently been freed.
+        
+        :param ptr: Address to check
+        :return: True if pointer has been freed, False otherwise
+        """
         for size, chunks in self.free_pool.items():
             for chunk in chunks:
                 if ptr >= chunk and ptr < chunk + size:
                     return True
         return False
+
