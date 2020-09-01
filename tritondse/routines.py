@@ -288,6 +288,35 @@ def rtn_fclose(se):
     return Enums.CONCRETIZE, 0
 
 
+def rtn_fgets(se):
+    logging.debug('fgets hooked')
+
+    # Get arguments
+    buff    = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    size    = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    fd      = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    minsize = (min(len(se.seed.content), size) if se.seed else size)
+
+    if fd == 0 and se.config.symbolize_stdin:
+        for index in range(minsize):
+            var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
+            var.setComment('stdin[%d]' % index)
+            if se.seed:
+                try:
+                    se.pstate.tt_ctx.setConcreteVariableValue(var, se.seed.content[index])
+                except Exception:
+                    pass
+        logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
+        return Enums.CONCRETIZE, buff
+
+    if fd in se.pstate.fd_table:
+        data = (os.read(0, size) if fd == 0 else os.read(se.pstate.fd_table[fd], size))
+        se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, data)
+        return Enums.CONCRETIZE, buff
+
+    return Enums.CONCRETIZE, 0
+
+
 def rtn_fopen(se):
     logging.debug('fopen hooked')
 
@@ -402,7 +431,11 @@ def rtn_fread(se):
 
 def rtn_free(se):
     logging.debug('free hooked')
-    # TODO: MemoryAllocator, save this pointer as freed. Useful for Sanitizers.
+
+    # Get arguments
+    ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    se.pstate.heap_allocator.free(ptr)
+
     return None
 
 
@@ -464,18 +497,10 @@ def rtn_malloc(se):
 
     # Get arguments
     size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-
-    if se.pstate.mallocBase + size > se.pstate.mallocMaxAllocation:
-        logging.warning('malloc failed: out of memory')
-        os.exit(-1)
-
-    area = se.pstate.mallocBase
-    se.pstate.mallocBase += size
-
-    # TODO: MemoryAllocator, save this pointer as allocated. Useful for Sanitizers.
+    ptr  = se.pstate.heap_allocator.alloc(size)
 
     # Return value
-    return Enums.CONCRETIZE, area
+    return Enums.CONCRETIZE, ptr
 
 
 def rtn_memcmp(se):
@@ -739,7 +764,7 @@ def rtn_read(se):
     fd   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     buff = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    minsize = min(len(se.seed.content), size)
+    minsize = (min(len(se.seed.content), size) if se.seed else size)
 
     if fd == 0 and se.config.symbolize_stdin:
         for index in range(minsize):
@@ -755,18 +780,11 @@ def rtn_read(se):
         return Enums.CONCRETIZE, minsize
 
     if fd in se.pstate.fd_table:
-        if fd == 0:
-            data = os.read(0, size)
-        else:
-            data = os.read(se.pstate.fd_table[fd], size)
-
+        data = (os.read(0, size) if fd == 0 else os.read(se.pstate.fd_table[fd], size))
         se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, data)
+        return Enums.CONCRETIZE, len(data)
 
-    else:
-        return Enums.CONCRETIZE, 0
-
-    # Return value
-    return Enums.CONCRETIZE, len(data)
+    return Enums.CONCRETIZE, 0
 
 
 def rtn_sem_destroy(se):
@@ -1169,6 +1187,7 @@ SUPPORTED_ROUTINES = {
     'clock_gettime':           rtn_clock_gettime,
     'exit':                    rtn_exit,
     'fclose':                  rtn_fclose,
+    'fgets':                   rtn_fgets,
     'fopen':                   rtn_fopen,
     'fprintf':                 rtn_fprintf,
     'fputc':                   rtn_fputc,
