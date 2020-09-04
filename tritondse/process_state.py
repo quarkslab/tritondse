@@ -2,9 +2,10 @@
 import sys
 import time
 import logging
+from typing import Callable
 
 # third-party
-from triton import TritonContext, MemoryAccess
+from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE
 
 # local imports
 from tritondse.thread_context import ThreadContext
@@ -74,6 +75,8 @@ class ProcessState(object):
         # like gettimeofday(), clock_gettime(), etc.
         self.time = time.time()
 
+        # Hold the loading address where the main program has been loaded
+        self.load_addr = 0
 
     def get_unique_thread_id(self):
         self.utid += 1
@@ -112,17 +115,32 @@ class ProcessState(object):
         return self.tt_ctx.getGprBitSize()
 
 
-    def load_program(self, p: Program) -> None:
+    def load_program(self, p: Program, base_addr: Addr = 0) -> None:
         """
         Load the given program in the process state memory
         :param p: Program to load in the process memory
+        :param base_addr: Base address where to load the program (if PIE)
         :return: True on whether loading succeeded or not
         """
+        # Set loading address
+        self.load_addr = base_addr
+        # TODO: If PIE use this address, if not set absolute address (from binary)
+
         # Load memory areas in memory
         for vaddr, data in p.memory_segments():
             logging.debug(f"Loading {vaddr:#08x} - {vaddr+len(data):#08x}")
             self.tt_ctx.setConcreteMemoryAreaValue(vaddr, data)
 
+    def read_memory(self, addr: Addr, size: ByteSize) -> bytes:
+        """
+        Read in the process memory ``size`` amount of bytes at ``addr``.
+        Data read is returned as bytes.
+
+        :param addr: Address at which to read data
+        :param size: Number of bytes to read
+        :return: Data read
+        """
+        return bytes(self.tt_ctx.getConcreteMemoryValue(MemoryAccess(addr+x, CPUSIZE.BYTE)) for x in range(size))
 
     def write_memory(self, addr: Addr, size: ByteSize, data: int) -> None:
         """
@@ -136,3 +154,14 @@ class ProcessState(object):
         .. todo:: Adding a parameter to specify endianess if needed
         """
         self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, size), data)
+
+    def register_triton_callback(self, cb_type: CALLBACK, callback: Callable):
+        """
+        Register the given ``callback`` as triton callback to hook memory/registers
+        read/writes.
+
+        :param cb_type: CALLBACK type as defined by Triton
+        :param callback: routines to call on the given event
+        :return: None
+        """
+        self.tt_ctx.addCallback(callback, cb_type)

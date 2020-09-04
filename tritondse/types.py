@@ -1,7 +1,7 @@
 from enum    import IntEnum
 from pathlib import Path
 from triton  import ARCH
-from typing  import Union
+from typing  import Union, TypeVar
 
 # Type representing file either as a file, either as a Path object
 PathLike = Union[str, Path]
@@ -17,6 +17,9 @@ BitSize = int
 
 # Integer representing a value in bytes
 ByteSize = int
+
+Register = TypeVar('Register')
+"""Register object as returned by Triton"""
 
 
 class Architecture(IntEnum):
