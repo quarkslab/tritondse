@@ -13,6 +13,7 @@ from tritondse.seed              import Seed, SeedFile
 from tritondse.seeds_manager     import SeedsManager
 from tritondse.enums             import Enums
 from tritondse.symbolic_executor import SymbolicExecutor
+from tritondse.callbacks         import CallbackManager
 
 
 class SymbolicExplorator(object):
@@ -26,13 +27,18 @@ class SymbolicExplorator(object):
         self.stop          = False
         self.total_exec    = 0
         self.ts            = time.time()
+        self.uid_counter   = 0
+        self.cbm = CallbackManager(program)
 
+    @property
+    def callback_manager(self) -> CallbackManager:
+        return self.cbm
 
     def __time_delta(self):
         return time.time() - self.ts
 
 
-    def worker(self, seed):
+    def worker(self, seed, uid):
         """ Worker thread """
         # Inc number of trace execution
         self.total_exec += 1
@@ -43,7 +49,8 @@ class SymbolicExplorator(object):
             return
 
         # Execute the binary with seeds
-        execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed)
+        cbs = None if self.cbm.is_empty() else self.cbm.fork()
+        execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed=seed, uid=uid, callbacks=cbs)
         execution.run()
 
         if self.config.exploration_limit and self.total_exec >= self.config.exploration_limit:
@@ -65,13 +72,15 @@ class SymbolicExplorator(object):
             seed = self.seeds_manager.pick_seed()
 
             # Execution into a thread
+
             t = threading.Thread(
                     name='\033[0;%dm[exec:%08d]' % ((31 + (self.total_exec % 4)), self.total_exec),
                     target=self.worker,
-                    args=[seed],
+                    args=[seed, self.uid_counter],
                     daemon=True
                 )
             t.start()
+            self.uid_counter += 1
 
             try:
                 t.join()
