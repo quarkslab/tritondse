@@ -44,6 +44,7 @@ class CallbackManager(object):
         self._pre_exec    = list()  # before execution
         self._post_exec   = list()  # after execution
         self._ctx_switch  = list()  # on each thread context switch (implementing pre/post?)
+        self._smt_model   = list()  # each time an SMT model is get
 
         # Triton callbacks
         self._mem_read_cbs  = list()  # memory reads
@@ -259,6 +260,7 @@ class CallbackManager(object):
         :return: None
         """
         self._pre_exec.append(callback)
+        self._empty = False
 
 
     def register_post_execution_callback(self, callback: SymExCallback) -> None:
@@ -270,6 +272,7 @@ class CallbackManager(object):
         :return: None
         """
         self._post_exec.append(callback)
+        self._empty = False
 
 
     def get_execution_callbacks(self) -> Tuple[List[SymExCallback], List[SymExCallback]]:
@@ -289,6 +292,7 @@ class CallbackManager(object):
         :return: None
         """
         self._mem_read_cbs.append(callback)
+        self._empty = False
 
 
     def register_memory_write_callback(self, callback: MemCallback) -> None:
@@ -300,6 +304,7 @@ class CallbackManager(object):
         :return: None
         """
         self._mem_write_cbs.append(callback)
+        self._empty = False
 
 
     def register_register_read_callback(self, callback: RegCallback) -> None:
@@ -310,6 +315,7 @@ class CallbackManager(object):
         :return: None
         """
         self._reg_read_cbs.append(callback)
+        self._empty = False
 
 
     def register_register_write_callback(self, callback: RegCallback) -> None:
@@ -320,6 +326,7 @@ class CallbackManager(object):
         :return: None
         """
         self._reg_write_cbs.append(callback)
+        self._empty = False
 
 
     def register_thread_context_switch_callback(self, callback: ThreadContext) -> None:
@@ -330,6 +337,7 @@ class CallbackManager(object):
         :return: None
         """
         self._ctx_switch.append(callback)
+        self._empty = False
 
 
     def get_context_switch_callback(self) -> List[ThreadCallback]:
