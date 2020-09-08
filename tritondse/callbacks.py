@@ -9,7 +9,7 @@ from triton import CALLBACK, Instruction, MemoryAccess
 # local imports
 from tritondse.process_state  import ProcessState
 from tritondse.program        import Program
-from tritondse.types          import Addr, Register
+from tritondse.types          import Addr, SmtModel, Register
 from tritondse.thread_context import ThreadContext
 
 
@@ -18,12 +18,13 @@ class CbPos(Enum):
     AFTER = auto()
 
 
-AddrCallback   = Callable[['SymbolicExecutor', ProcessState, Addr], None]
-InstrCallback  = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
-MemCallback    = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
-RegCallback    = Callable[['SymbolicExecutor', ProcessState, Register], None]
-SymExCallback  = Callable[['SymbolicExecutor', ProcessState], None]
-ThreadCallback = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
+AddrCallback     = Callable[['SymbolicExecutor', ProcessState, Addr], None]
+InstrCallback    = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
+MemCallback      = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
+RegCallback      = Callable[['SymbolicExecutor', ProcessState, Register], None]
+SmtModelCallback = Callable[['SymbolicExecutor', ProcessState, SmtModel], SmtModel]
+SymExCallback    = Callable[['SymbolicExecutor', ProcessState], None]
+ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
 
 
 class CallbackManager(object):
@@ -342,8 +343,26 @@ class CallbackManager(object):
 
     def get_context_switch_callback(self) -> List[ThreadCallback]:
         """
-        Get the list of all function callback to call when thread is being scheduled. The
-        callback is called
-        :return:
+        Get the list of all function callback to call when thread is being scheduled.
+        :return: List of callbacks defined when thread is being scheduled
         """
         return self._ctx_switch
+
+
+    def register_smt_model_callback(self, callback: SmtModelCallback) -> None:
+        """
+        Register a callback function when the SMT solver find a model. This callback is called before
+        any treatment on the model (worklist, etc.)
+        :param callback: callback function
+        :return: None
+        """
+        self._smt_model.append(callback)
+        self._empty = False
+
+
+    def get_smt_model_callback(self) -> List[SmtModelCallback]:
+        """
+        Get the list of all function callback to call when an SMT model is found.
+        :return: List of callbacks defined when an SMT model is found
+        """
+        return self._smt_model

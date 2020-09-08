@@ -18,6 +18,9 @@ BitSize = int
 # Integer representing a value in bytes
 ByteSize = int
 
+# Bytes representing an SMT model
+SmtModel = bytes
+
 Register = TypeVar('Register')
 """Register object as returned by Triton"""
 

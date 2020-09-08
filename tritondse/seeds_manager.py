@@ -159,8 +159,8 @@ class SeedsManager:
                                 for k, v in model.items():
                                     content[k] = v.getValue()
                                 # Calling callback if user defined one
-                                if self.config.cb_post_model:
-                                    content = self.config.cb_post_model(execution, content)
+                                for cb in self.cbm.get_smt_model_callback():
+                                    content = cb(execution, execution.pstate, content)
                                 # Create the Seed object and assign the new model
                                 seed = Seed(bytes(content))
                                 # Note: branch[] contains information that can help the SeedManager to classify its
