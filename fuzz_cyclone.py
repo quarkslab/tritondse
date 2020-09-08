@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import sys
+import struct
+from pathlib import Path
 
 from tritondse import *
 from scapy.all import Ether, IP, TCP, UDP
@@ -60,8 +62,18 @@ seed = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
 #dse.explore()
 
 
+def hook_dumphexa(se: SymbolicExecutor, state: ProcessState, addr: Addr):
+    buffer = state.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    size = state.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    data = state.read_memory(buffer, size)
+    with open("full_comm.cov", "ab") as f:
+        f.write(struct.pack('<H', len(data))+data)
+
 
 # One execution
 ps = ProcessState(config)
 execution = SymbolicExecutor(config, ps, program, seed)
+
+execution.callback_manager.register_function_callback("dumphexa", hook_dumphexa)
+
 execution.run()
