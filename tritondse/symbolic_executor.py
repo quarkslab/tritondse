@@ -16,13 +16,14 @@ from tritondse.program       import Program
 from tritondse.seed          import Seed
 from tritondse.enums         import Enums
 from tritondse.routines      import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
+from tritondse.callbacks     import CallbackManager
 
 
 class SymbolicExecutor(object):
     """
     This class is used to represent the symbolic execution.
     """
-    def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = None):
+    def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = None, uid=0, callbacks=None):
         self.program    = program
         self.pstate     = pstate
         self.config     = config
@@ -30,11 +31,19 @@ class SymbolicExecutor(object):
         self.abi        = ABI(self.pstate)
         self.coverage   = Coverage()
         self.routines_table = {}  # Addr -> Tuple[fname, routine]
+        self._uid = uid  # Unique identifier meant to unique accross Exploration instances
+        # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
+
+        # create callback object if not provided as argument, and bind callbacks to the current process state
+        self.cbm = callbacks if callbacks is not None else CallbackManager(self.program)
 
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
 
+    @property
+    def callback_manager(self) -> CallbackManager:
+        return self.cbm
 
     def __init_optimization(self):
         self.pstate.tt_ctx.setMode(MODE.ALIGNED_MEMORY, True)
@@ -52,6 +61,11 @@ class SymbolicExecutor(object):
 
     def __schedule_thread(self):
         if self.pstate.threads[self.pstate.tid].count <= 0:
+
+            # Call all callbacks related to threads
+            for cb in self.cbm.get_context_switch_callback():
+                cb(self, self.pstate, self.pstate.threads[self.pstate.tid])
+
             # Reset the counter and save its context
             self.pstate.threads[self.pstate.tid].count = self.config.thread_scheduling
             self.pstate.threads[self.pstate.tid].save(self.pstate.tt_ctx)
@@ -102,10 +116,24 @@ class SymbolicExecutor(object):
             instruction = Instruction(pc, opcodes)
             instruction.setThreadId(self.pstate.tid)
 
+            # Trigger pre-address callback
+            pre_cbs, post_cbs = self.cbm.get_address_callbacks(pc)
+            for cb in pre_cbs:
+                cb(self, self.pstate, pc)
+
+            # Trigger pre-instruction callback
+            pre_insts, post_insts = self.cbm.get_instruction_callbacks()
+            for cb in pre_insts:
+                cb(self, self.pstate, instruction)
+
             # Process
             if not self.pstate.tt_ctx.processing(instruction):
                 logging.error('Instruction not supported: %s' % (str(instruction)))
                 break
+
+            # Trigger post-instruction callback
+            for cb in post_insts:
+                cb(self, self.pstate, instruction)
 
             # Simulate that the time of an executed instruction is time_inc_coefficient.
             # For example, if time_inc_coefficient is 0.0001, it means that an instruction
@@ -120,6 +148,11 @@ class SymbolicExecutor(object):
 
             # Simulate routines
             self.routines_handler(instruction)
+
+            # Trigger post-address callbacks
+            for cb in post_cbs:
+                cb(self, self.pstate, pc)
+
 
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:
@@ -226,6 +259,9 @@ class SymbolicExecutor(object):
         logging.debug(f"Loading an {self.program.architecture.name} architecture")
         self.pstate.architecture = self.program.architecture
 
+        # bind dbm callbacks on the process state
+        self.cbm.bind_to(self)  # bind call
+
         self.__init_optimization()
         self.__init_registers()
 
@@ -236,7 +272,19 @@ class SymbolicExecutor(object):
         # Let's emulate the binary from the entry point
         logging.info('Starting emulation')
         self.startTime = time.time()
+
+        # Get pre/post callbacks on execution
+        pre_cb, post_cb = self.cbm.get_execution_callbacks()
+        # Iterate through all pre exec callbacks
+        for cb in pre_cb:
+            cb(self, self.pstate)
+
         self.__emulate()
+
+        # Iterate through post exec callbacks
+        for cb in post_cb:
+            cb(self, self.pstate)
+
         self.endTime = time.time()
         logging.info('Emulation done')
         logging.info('Return value: %#x' % (self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_ret_register())))

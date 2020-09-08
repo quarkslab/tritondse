@@ -31,18 +31,18 @@ class Program(object):
 
     def __init__(self, path: PathLike):
         self.path = Path(path)
-        self._binary = lief.parse(str(self.path))
-        self._arch = self._load_arch()
-
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
 
+        self._binary = lief.parse(str(self.path))
         if self._binary is None:  # lief has not been able to parse it
             raise FileNotFoundError(f"file {path} not recognised by lief")
 
+        self._arch = self._load_arch()
         if self._arch is None:
             raise FileNotFoundError(f"binary {path} architecture unsupported {self._binary.abstract.header.architecture}")
 
+        self._funs = {f.name: f for f in self._binary.concrete.functions}
 
     @property
     def entry_point(self) -> Addr:
@@ -178,3 +178,13 @@ class Program(object):
                         yield rel.symbol.name, rel.address
         else:
             raise NotImplementedError(f"Imported symbols relocations not implemented for: {self.format.name}")
+
+
+    def find_function(self, name: str) -> Optional[lief.Function]:
+        """
+        Search for the function name in fonctions of the binary.
+
+        :param name: Function name
+        :return: lief Function object if found
+        """
+        return self._funs.get(name)
