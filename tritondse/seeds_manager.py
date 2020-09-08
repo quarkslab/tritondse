@@ -8,6 +8,7 @@ import time
 
 from tritondse.config      import Config
 from tritondse.seed        import Seed, SeedFile
+from tritondse.callbacks   import CallbackManager
 from tritondse.coverage    import Coverage
 from tritondse.constraints import Constraints
 from tritondse.worklist    import *
@@ -18,12 +19,13 @@ class SeedsManager:
     """
     This class is used to represent the seeds management.
     """
-    def __init__(self, config: Config, seed: Seed = Seed()):
+    def __init__(self, config: Config, callbacks: CallbackManager, seed: Seed = Seed()):
         self.config         = config
         self.initial_seed   = seed
         self.coverage       = Coverage()
         self.constraints    = Constraints()
         self.worklist       = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
+        self.cbm            = callbacks
         self.corpus         = set()
         self.crash          = set()
 

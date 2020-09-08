@@ -24,7 +24,7 @@ class SymbolicExplorator(object):
         self.program       = program
         self.config        = config
         self.cbm           = CallbackManager(program)
-        self.seeds_manager = SeedsManager(self.config, seed)
+        self.seeds_manager = SeedsManager(self.config, self.cbm, seed)
         self.stop          = False
         self.total_exec    = 0
         self.ts            = time.time()
