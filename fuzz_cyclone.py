@@ -16,7 +16,7 @@ def hook_dumphexa(se: SymbolicExecutor, state: ProcessState, addr: Addr):
         f.write(struct.pack('<H', len(data))+data)
 
 
-def checksum_computation(execution, new_input_generated):
+def checksum_computation(se: SymbolicExecutor, state: ProcessState, new_input_generated: SmtModel):
     base = 0
     for i in range(0x4): # number of packet with our initial seed
         pkt_raw = new_input_generated[base:base+600]
@@ -42,11 +42,9 @@ def checksum_computation(execution, new_input_generated):
 
 if __name__ == '__main__':
     config = Config(debug=False)
-
     config.symbolize_stdin      = True
     config.execution_timeout    = 0
     config.thread_scheduling    = 500
-    config.cb_post_model        = checksum_computation
     config.time_inc_coefficient = 0.00001
     config.program_argv         = [
         b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
@@ -66,11 +64,12 @@ if __name__ == '__main__':
     seed = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
 
     # Explore
-    #dse     = SymbolicExplorator(config, program, seed)
+    #dse = SymbolicExplorator(config, program, seed)
+    #dse.callback_manager.register_smt_model_callback(checksum_computation)
     #dse.explore()
 
     # One execution
     ps = ProcessState(config)
     execution = SymbolicExecutor(config, ps, program, seed)
-    execution.callback_manager.register_function_callback("dumphexa", hook_dumphexa)
+    #execution.callback_manager.register_function_callback("dumphexa", hook_dumphexa)
     execution.run()
