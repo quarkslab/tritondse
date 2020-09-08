@@ -1,7 +1,7 @@
 # built-in imports
-from enum import Enum, auto
+from enum   import Enum, auto
 from typing import Callable, Tuple, List
-from copy import deepcopy
+from copy   import deepcopy
 
 # third-party imports
 from triton import CALLBACK, Instruction, MemoryAccess
@@ -18,11 +18,11 @@ class CbPos(Enum):
     AFTER = auto()
 
 
-SymExCallback = Callable[['SymbolicExecutor', ProcessState], None]
-AddrCallback = Callable[['SymbolicExecutor', ProcessState, Addr], None]
-InstrCallback = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
-MemCallback = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
-RegCallback = Callable[['SymbolicExecutor', ProcessState, Register], None]
+AddrCallback   = Callable[['SymbolicExecutor', ProcessState, Addr], None]
+InstrCallback  = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
+MemCallback    = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
+RegCallback    = Callable[['SymbolicExecutor', ProcessState, Register], None]
+SymExCallback  = Callable[['SymbolicExecutor', ProcessState], None]
 ThreadCallback = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
 
 
@@ -39,20 +39,20 @@ class CallbackManager(object):
         self._se = None
 
         # SymbolicExecutor callbacks
-        self._pc_addr_cbs = {}   # addresses reached
-        self._instr_cbs = {CbPos.BEFORE: [], CbPos.AFTER: []}     # all instructions
-        self._pre_exec = []      # before execution
-        self._post_exec = []     # after execution
-        self._ctx_switch = []    # on each thread context switch (implementing pre/post?)
+        self._pc_addr_cbs = dict()  # addresses reached
+        self._instr_cbs   = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
+        self._pre_exec    = list()  # before execution
+        self._post_exec   = list()  # after execution
+        self._ctx_switch  = list()  # on each thread context switch (implementing pre/post?)
 
         # Triton callbacks
-        self._mem_read_cbs  = []  # memory reads
-        self._mem_write_cbs = []  # memory writes
-        self._reg_read_cbs  = []  # register reads
-        self._reg_write_cbs = []  # register writes
-        self._empty = True
+        self._mem_read_cbs  = list()  # memory reads
+        self._mem_write_cbs = list()  # memory writes
+        self._reg_read_cbs  = list()  # register reads
+        self._reg_write_cbs = list()  # register writes
+        self._empty         = True
 
-        self._lambdas = []    # Keep a ref on function dynamically generated otherwise triton crash
+        self._lambdas = list()  # Keep a ref on function dynamically generated otherwise triton crash
 
 
     def is_empty(self) -> bool:
@@ -98,10 +98,13 @@ class CallbackManager(object):
 
         for cb in self._mem_read_cbs:
             register_lambda(CALLBACK.GET_CONCRETE_MEMORY_VALUE, cb)
+
         for cb in self._mem_write_cbs:
             register_lambda(CALLBACK.SET_CONCRETE_MEMORY_VALUE, cb)
+
         for cb in self._reg_read_cbs:
             register_lambda(CALLBACK.GET_CONCRETE_REGISTER_VALUE, cb)
+
         for cb in self._reg_write_cbs:
             register_lambda(CALLBACK.SET_CONCRETE_MEMORY_VALUE, cb)
 
