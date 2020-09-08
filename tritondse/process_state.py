@@ -2,7 +2,7 @@
 import sys
 import time
 import logging
-from typing import Callable
+from typing import Union, Callable
 
 # third-party
 from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE
@@ -131,6 +131,7 @@ class ProcessState(object):
             logging.debug(f"Loading {vaddr:#08x} - {vaddr+len(data):#08x}")
             self.tt_ctx.setConcreteMemoryAreaValue(vaddr, data)
 
+
     def read_memory(self, addr: Addr, size: ByteSize) -> bytes:
         """
         Read in the process memory ``size`` amount of bytes at ``addr``.
@@ -140,9 +141,10 @@ class ProcessState(object):
         :param size: Number of bytes to read
         :return: Data read
         """
-        return bytes(self.tt_ctx.getConcreteMemoryValue(MemoryAccess(addr+x, CPUSIZE.BYTE)) for x in range(size))
+        return self.tt_ctx.getConcreteMemoryAreaValue(addr, size)
 
-    def write_memory(self, addr: Addr, size: ByteSize, data: int) -> None:
+
+    def write_memory(self, addr: Addr, size: ByteSize, data: Union[int, bytes]) -> None:
         """
         Write in the process memory the given data of the given size at
         a specific address.
@@ -153,7 +155,13 @@ class ProcessState(object):
 
         .. todo:: Adding a parameter to specify endianess if needed
         """
-        self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, size), data)
+        assert type(data) is int or type(data) is bytes
+
+        if type(data) is int:
+            self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, size), data)
+        else:
+            self.tt_ctx.setConcreteMemoryAreaValue(addr, data)
+
 
     def register_triton_callback(self, cb_type: CALLBACK, callback: Callable):
         """

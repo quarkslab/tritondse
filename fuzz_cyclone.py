@@ -8,6 +8,14 @@ from tritondse import *
 from scapy.all import Ether, IP, TCP, UDP
 
 
+def hook_dumphexa(se: SymbolicExecutor, state: ProcessState, addr: Addr):
+    buffer = state.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    size = state.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    data = state.read_memory(buffer, size)
+    with open("full_comm.cov", "ab") as f:
+        f.write(struct.pack('<H', len(data))+data)
+
+
 def checksum_computation(execution, new_input_generated):
     base = 0
     for i in range(0x4): # number of packet with our initial seed
@@ -32,48 +40,37 @@ def checksum_computation(execution, new_input_generated):
     return new_input_generated
 
 
-config = Config(debug=False)
+if __name__ == '__main__':
+    config = Config(debug=False)
 
-config.symbolize_stdin      = True
-config.execution_timeout    = 0
-config.thread_scheduling    = 500
-config.cb_post_model        = checksum_computation
-config.time_inc_coefficient = 0.00001
-config.program_argv         = [
-    b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
-    b'wlp0s20f3',
-    b'48:e2:44:f5:9b:01',
-    b'10.0.13.86',
-    b'255.255.255.0',
-    b'10.0.13.254'
-]
+    config.symbolize_stdin      = True
+    config.execution_timeout    = 0
+    config.thread_scheduling    = 500
+    config.cb_post_model        = checksum_computation
+    config.time_inc_coefficient = 0.00001
+    config.program_argv         = [
+        b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
+        b'wlp0s20f3',
+        b'48:e2:44:f5:9b:01',
+        b'10.0.13.86',
+        b'255.255.255.0',
+        b'10.0.13.254'
+    ]
 
-try:
-    program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
-except FileNotFoundError as e:
-    print(e)
-    sys.exit(-1)
+    try:
+        program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
+    except FileNotFoundError as e:
+        print(e)
+        sys.exit(-1)
 
-seed = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
+    seed = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
 
+    # Explore
+    #dse     = SymbolicExplorator(config, program, seed)
+    #dse.explore()
 
-# Explore
-#dse     = SymbolicExplorator(config, program, seed)
-#dse.explore()
-
-
-def hook_dumphexa(se: SymbolicExecutor, state: ProcessState, addr: Addr):
-    buffer = state.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    size = state.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    data = state.read_memory(buffer, size)
-    with open("full_comm.cov", "ab") as f:
-        f.write(struct.pack('<H', len(data))+data)
-
-
-# One execution
-ps = ProcessState(config)
-execution = SymbolicExecutor(config, ps, program, seed)
-
-execution.callback_manager.register_function_callback("dumphexa", hook_dumphexa)
-
-execution.run()
+    # One execution
+    ps = ProcessState(config)
+    execution = SymbolicExecutor(config, ps, program, seed)
+    execution.callback_manager.register_function_callback("dumphexa", hook_dumphexa)
+    execution.run()
