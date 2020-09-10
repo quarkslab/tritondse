@@ -16,7 +16,7 @@ def hook_dumphexa(se: SymbolicExecutor, state: ProcessState, addr: Addr):
         f.write(struct.pack('<H', len(data))+data)
 
 
-def checksum_computation(se: SymbolicExecutor, state: ProcessState, new_input_generated: SmtModel):
+def checksum_computation(se: SymbolicExecutor, state: ProcessState, new_input_generated: Input):
     base = 0
     for i in range(0x4): # number of packet with our initial seed
         pkt_raw = new_input_generated[base:base+600]
