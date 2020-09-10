@@ -23,19 +23,21 @@ class SymbolicExplorator(object):
     def __init__(self, config: Config, program: Program, seed: Seed = Seed()):
         self.program       = program
         self.config        = config
-        self.seeds_manager = SeedsManager(self.config, seed)
+        self.cbm           = CallbackManager(program)
+        self.seeds_manager = SeedsManager(self.config, self.cbm, seed)
         self.stop          = False
         self.total_exec    = 0
         self.ts            = time.time()
         self.uid_counter   = 0
-        self.cbm = CallbackManager(program)
+
+
+    def __time_delta(self):
+        return time.time() - self.ts
+
 
     @property
     def callback_manager(self) -> CallbackManager:
         return self.cbm
-
-    def __time_delta(self):
-        return time.time() - self.ts
 
 
     def worker(self, seed, uid):

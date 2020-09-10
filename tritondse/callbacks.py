@@ -1,7 +1,7 @@
 # built-in imports
-from enum import Enum, auto
-from typing import Callable, Tuple, List
-from copy import deepcopy
+from enum   import Enum, auto
+from typing import Callable, Tuple, List, Optional
+from copy   import deepcopy
 
 # third-party imports
 from triton import CALLBACK, Instruction, MemoryAccess
@@ -9,7 +9,7 @@ from triton import CALLBACK, Instruction, MemoryAccess
 # local imports
 from tritondse.process_state  import ProcessState
 from tritondse.program        import Program
-from tritondse.types          import Addr, Register
+from tritondse.types          import Addr, Input, Register
 from tritondse.thread_context import ThreadContext
 
 
@@ -18,12 +18,36 @@ class CbPos(Enum):
     AFTER = auto()
 
 
-SymExCallback = Callable[['SymbolicExecutor', ProcessState], None]
-AddrCallback = Callable[['SymbolicExecutor', ProcessState, Addr], None]
-InstrCallback = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
-MemCallback = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
-RegCallback = Callable[['SymbolicExecutor', ProcessState, Register], None]
-ThreadCallback = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
+class CbType(Enum):
+    CTX_SWITCH = auto()
+    MEMORY_READ = auto()
+    MEMORY_WRITE = auto()
+    POST_ADDR = auto()
+    POST_EXEC = auto()
+    POST_INST = auto()
+    PRE_ADDR = auto()
+    PRE_EXEC = auto()
+    PRE_INST = auto()
+    REG_READ = auto()
+    REG_WRITE = auto()
+    SMT_MODEL = auto()
+
+
+AddrCallback     = Callable[['SymbolicExecutor', ProcessState, Addr], None]
+InstrCallback    = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
+MemReadCallback  = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
+MemWriteCallback = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
+RegReadCallback  = Callable[['SymbolicExecutor', ProcessState, Register], None]
+RegWriteCallback = Callable[['SymbolicExecutor', ProcessState, Register, int], None]
+NewInputCallback = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
+SymExCallback    = Callable[['SymbolicExecutor', ProcessState], None]
+ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
+
+
+class ProbeInterface(object):
+    """ The Probe interface """
+    def __init__(self):
+        self.cbs = dict()
 
 
 class CallbackManager(object):
@@ -39,20 +63,21 @@ class CallbackManager(object):
         self._se = None
 
         # SymbolicExecutor callbacks
-        self._pc_addr_cbs = {}   # addresses reached
-        self._instr_cbs = {CbPos.BEFORE: [], CbPos.AFTER: []}     # all instructions
-        self._pre_exec = []      # before execution
-        self._post_exec = []     # after execution
-        self._ctx_switch = []    # on each thread context switch (implementing pre/post?)
+        self._pc_addr_cbs   = {}     # addresses reached
+        self._instr_cbs     = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
+        self._pre_exec      = []     # before execution
+        self._post_exec     = []     # after execution
+        self._ctx_switch    = []     # on each thread context switch (implementing pre/post?)
+        self._new_input_cbs = []     # each time an SMT model is get
 
         # Triton callbacks
         self._mem_read_cbs  = []  # memory reads
         self._mem_write_cbs = []  # memory writes
         self._reg_read_cbs  = []  # register reads
         self._reg_write_cbs = []  # register writes
-        self._empty = True
+        self._empty         = True
 
-        self._lambdas = []    # Keep a ref on function dynamically generated otherwise triton crash
+        self._lambdas = list()  # Keep a ref on function dynamically generated otherwise triton crash
 
 
     def is_empty(self) -> bool:
@@ -89,21 +114,29 @@ class CallbackManager(object):
         self._lambdas.clear()
 
         # Register all callbacks in the current triton context
-        # Create dynamic function that will enable receive SymbolicExecutor and ProcessState
-        # as argument of the triton callbacks
-        def register_lambda(type, cb):
+        # Create dynamic function that will enable receive SymbolicExecutor
+        # and ProcessState as argument of the triton callbacks
+        def register_read_lambda(type, cb):
             f = lambda ctx, m: cb(self._se, self._se.pstate, m)
             self._lambdas.append(f)
             se.pstate.register_triton_callback(type, f)
 
+        def register_write_lambda(type, cb):
+            f = lambda ctx, m, v: cb(self._se, self._se.pstate, m, v)
+            self._lambdas.append(f)
+            se.pstate.register_triton_callback(type, f)
+
         for cb in self._mem_read_cbs:
-            register_lambda(CALLBACK.GET_CONCRETE_MEMORY_VALUE, cb)
+            register_read_lambda(CALLBACK.GET_CONCRETE_MEMORY_VALUE, cb)
+
         for cb in self._mem_write_cbs:
-            register_lambda(CALLBACK.SET_CONCRETE_MEMORY_VALUE, cb)
+            register_write_lambda(CALLBACK.SET_CONCRETE_MEMORY_VALUE, cb)
+
         for cb in self._reg_read_cbs:
-            register_lambda(CALLBACK.GET_CONCRETE_REGISTER_VALUE, cb)
+            register_read_lambda(CALLBACK.GET_CONCRETE_REGISTER_VALUE, cb)
+
         for cb in self._reg_write_cbs:
-            register_lambda(CALLBACK.SET_CONCRETE_MEMORY_VALUE, cb)
+            register_write_lambda(CALLBACK.SET_CONCRETE_REGISTER_VALUE, cb)
 
         self.rebase_callbacks(self._se.pstate.load_addr)
 
@@ -256,6 +289,7 @@ class CallbackManager(object):
         :return: None
         """
         self._pre_exec.append(callback)
+        self._empty = False
 
 
     def register_post_execution_callback(self, callback: SymExCallback) -> None:
@@ -267,6 +301,7 @@ class CallbackManager(object):
         :return: None
         """
         self._post_exec.append(callback)
+        self._empty = False
 
 
     def get_execution_callbacks(self) -> Tuple[List[SymExCallback], List[SymExCallback]]:
@@ -277,7 +312,7 @@ class CallbackManager(object):
         return self._pre_exec, self._post_exec
 
 
-    def register_memory_read_callback(self, callback: MemCallback) -> None:
+    def register_memory_read_callback(self, callback: MemReadCallback) -> None:
         """
         Register a callback that will be triggered by any read in the concrete
         memory of the process state.
@@ -286,9 +321,10 @@ class CallbackManager(object):
         :return: None
         """
         self._mem_read_cbs.append(callback)
+        self._empty = False
 
 
-    def register_memory_write_callback(self, callback: MemCallback) -> None:
+    def register_memory_write_callback(self, callback: MemWriteCallback) -> None:
         """
         Register a callback called on each write in the concrete memory state
         of the process.
@@ -297,9 +333,10 @@ class CallbackManager(object):
         :return: None
         """
         self._mem_write_cbs.append(callback)
+        self._empty = False
 
 
-    def register_register_read_callback(self, callback: RegCallback) -> None:
+    def register_register_read_callback(self, callback: RegReadCallback) -> None:
         """
         Register a callback on each register read during the symbolic execution.
 
@@ -307,9 +344,10 @@ class CallbackManager(object):
         :return: None
         """
         self._reg_read_cbs.append(callback)
+        self._empty = False
 
 
-    def register_register_write_callback(self, callback: RegCallback) -> None:
+    def register_register_write_callback(self, callback: RegWriteCallback) -> None:
         """
         Register a callback on each register write during the symbolic execution.
 
@@ -317,6 +355,7 @@ class CallbackManager(object):
         :return: None
         """
         self._reg_write_cbs.append(callback)
+        self._empty = False
 
 
     def register_thread_context_switch_callback(self, callback: ThreadContext) -> None:
@@ -327,12 +366,47 @@ class CallbackManager(object):
         :return: None
         """
         self._ctx_switch.append(callback)
+        self._empty = False
 
 
     def get_context_switch_callback(self) -> List[ThreadCallback]:
         """
-        Get the list of all function callback to call when thread is being scheduled. The
-        callback is called
-        :return:
+        Get the list of all function callback to call when thread is being scheduled.
+        :return: List of callbacks defined when thread is being scheduled
         """
         return self._ctx_switch
+
+
+    def register_new_input_callback(self, callback: NewInputCallback) -> None:
+        """
+        Register a callback function called when the SMT solver find a new model namely
+        a new input. This callback is called before any treatment on the input (worklist, etc.).
+        It thus allow to post-process the input before it getting put in the queue.
+        :param callback: callback function
+        :return: None
+        """
+        self._new_input_cbs.append(callback)
+        self._empty = False
+
+
+    def get_new_input_callback(self) -> List[NewInputCallback]:
+        """
+        Get the list of all function callback to call when an a new
+        input is generated by SMT.
+        :return: List of callbacks to call on input generation
+        """
+        return self._new_input_cbs
+
+
+    def register_probe_callback(self, probe: ProbeInterface) -> None:
+        """
+        Register a probe callback.
+        :param probe: a probe interface
+        :return: None
+        """
+        for k, v in probe.cbs.items():
+            if k == CbType.MEMORY_READ:
+                self.register_memory_read_callback(v)
+
+            elif k == CbType.MEMORY_WRITE:
+                self.register_memory_write_callback(v)
