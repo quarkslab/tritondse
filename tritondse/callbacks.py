@@ -44,6 +44,12 @@ SymExCallback    = Callable[['SymbolicExecutor', ProcessState], None]
 ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
 
 
+class ProbeInterface(object):
+    """ The Probe interface """
+    def __init__(self):
+        self.cbs = dict()
+
+
 class CallbackManager(object):
     """
     Class used to aggregate all callbacks that can be plugged
@@ -390,13 +396,13 @@ class CallbackManager(object):
         return self._smt_model
 
 
-    def register_sanitizer_callback(self, sanitizer: 'Sanitizer') -> None:
+    def register_probe_callback(self, probe: ProbeInterface) -> None:
         """
-        Register a callback sanitizer.
-        :param sanitizer: a Sanitizer object
+        Register a probe callback.
+        :param probe: a probe interface
         :return: None
         """
-        for k, v in sanitizer.cbs.items():
+        for k, v in probe.cbs.items():
             if k == CbType.MEMORY_READ:
                 self.register_memory_read_callback(v)
 

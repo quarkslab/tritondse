@@ -173,3 +173,27 @@ class ProcessState(object):
         :return: None
         """
         self.tt_ctx.addCallback(callback, cb_type)
+
+
+    def is_heap_ptr(self, ptr: Addr) -> bool:
+        """
+        Check whether a given address is coming from the heap area.
+
+        :param ptr: Address to check
+        :return: True if pointer points to the heap area (allocated or not).
+        """
+        if ptr >= self.BASE_HEAP and ptr < self.END_HEAP:
+            return True
+        return False
+
+
+    def is_stack_ptr(self, ptr: Addr) -> bool:
+        """
+        Check whether a given address is coming from the stack area.
+
+        :param ptr: Address to check
+        :return: True if pointer points to the stack area (allocated or not).
+        """
+        if ptr >= self.BASE_STACK and ptr < self.END_STACK:
+            return True
+        return False

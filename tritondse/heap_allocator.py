@@ -135,15 +135,3 @@ class HeapAllocator(object):
                 if ptr >= chunk and ptr < chunk + size:
                     return True
         return False
-
-
-    def is_heap_ptr(self, ptr: Addr) -> bool:
-        """
-        Check whether a given address is coming from the heap area.
-
-        :param ptr: Address to check
-        :return: True if pointer points to the heap area (allocated or not).
-        """
-        if ptr >= self.start and ptr < self.end:
-            return True
-        return False
