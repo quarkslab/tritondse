@@ -18,10 +18,27 @@ class CbPos(Enum):
     AFTER = auto()
 
 
+class CbType(Enum):
+    CTX_SWITCH = auto()
+    MEMORY_READ = auto()
+    MEMORY_WRITE = auto()
+    POST_ADDR = auto()
+    POST_EXEC = auto()
+    POST_INST = auto()
+    PRE_ADDR = auto()
+    PRE_EXEC = auto()
+    PRE_INST = auto()
+    REG_READ = auto()
+    REG_WRITE = auto()
+    SMT_MODEL = auto()
+
+
 AddrCallback     = Callable[['SymbolicExecutor', ProcessState, Addr], None]
 InstrCallback    = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
-MemCallback      = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
-RegCallback      = Callable[['SymbolicExecutor', ProcessState, Register], None]
+MemReadCallback  = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
+MemWriteCallback = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
+RegReadCallback  = Callable[['SymbolicExecutor', ProcessState, Register], None]
+RegWriteCallback = Callable[['SymbolicExecutor', ProcessState, Register, int], None]
 SmtModelCallback = Callable[['SymbolicExecutor', ProcessState, SmtModel], SmtModel]
 SymExCallback    = Callable[['SymbolicExecutor', ProcessState], None]
 ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
@@ -91,24 +108,29 @@ class CallbackManager(object):
         self._lambdas.clear()
 
         # Register all callbacks in the current triton context
-        # Create dynamic function that will enable receive SymbolicExecutor and ProcessState
-        # as argument of the triton callbacks
-        def register_lambda(type, cb):
+        # Create dynamic function that will enable receive SymbolicExecutor
+        # and ProcessState as argument of the triton callbacks
+        def register_read_lambda(type, cb):
             f = lambda ctx, m: cb(self._se, self._se.pstate, m)
             self._lambdas.append(f)
             se.pstate.register_triton_callback(type, f)
 
+        def register_write_lambda(type, cb):
+            f = lambda ctx, m, v: cb(self._se, self._se.pstate, m, v)
+            self._lambdas.append(f)
+            se.pstate.register_triton_callback(type, f)
+
         for cb in self._mem_read_cbs:
-            register_lambda(CALLBACK.GET_CONCRETE_MEMORY_VALUE, cb)
+            register_read_lambda(CALLBACK.GET_CONCRETE_MEMORY_VALUE, cb)
 
         for cb in self._mem_write_cbs:
-            register_lambda(CALLBACK.SET_CONCRETE_MEMORY_VALUE, cb)
+            register_write_lambda(CALLBACK.SET_CONCRETE_MEMORY_VALUE, cb)
 
         for cb in self._reg_read_cbs:
-            register_lambda(CALLBACK.GET_CONCRETE_REGISTER_VALUE, cb)
+            register_read_lambda(CALLBACK.GET_CONCRETE_REGISTER_VALUE, cb)
 
         for cb in self._reg_write_cbs:
-            register_lambda(CALLBACK.SET_CONCRETE_MEMORY_VALUE, cb)
+            register_write_lambda(CALLBACK.SET_CONCRETE_REGISTER_VALUE, cb)
 
         self.rebase_callbacks(self._se.pstate.load_addr)
 
@@ -284,7 +306,7 @@ class CallbackManager(object):
         return self._pre_exec, self._post_exec
 
 
-    def register_memory_read_callback(self, callback: MemCallback) -> None:
+    def register_memory_read_callback(self, callback: MemReadCallback) -> None:
         """
         Register a callback that will be triggered by any read in the concrete
         memory of the process state.
@@ -296,7 +318,7 @@ class CallbackManager(object):
         self._empty = False
 
 
-    def register_memory_write_callback(self, callback: MemCallback) -> None:
+    def register_memory_write_callback(self, callback: MemWriteCallback) -> None:
         """
         Register a callback called on each write in the concrete memory state
         of the process.
@@ -308,7 +330,7 @@ class CallbackManager(object):
         self._empty = False
 
 
-    def register_register_read_callback(self, callback: RegCallback) -> None:
+    def register_register_read_callback(self, callback: RegReadCallback) -> None:
         """
         Register a callback on each register read during the symbolic execution.
 
@@ -319,7 +341,7 @@ class CallbackManager(object):
         self._empty = False
 
 
-    def register_register_write_callback(self, callback: RegCallback) -> None:
+    def register_register_write_callback(self, callback: RegWriteCallback) -> None:
         """
         Register a callback on each register write during the symbolic execution.
 
@@ -366,3 +388,17 @@ class CallbackManager(object):
         :return: List of callbacks defined when an SMT model is found
         """
         return self._smt_model
+
+
+    def register_sanitizer_callback(self, sanitizer: 'Sanitizer') -> None:
+        """
+        Register a callback sanitizer.
+        :param sanitizer: a Sanitizer object
+        :return: None
+        """
+        for k, v in sanitizer.cbs.items():
+            if k == CbType.MEMORY_READ:
+                self.register_memory_read_callback(v)
+
+            elif k == CbType.MEMORY_WRITE:
+                self.register_memory_write_callback(v)

@@ -69,7 +69,13 @@ if __name__ == '__main__':
     #dse.explore()
 
     # One execution
+    #ps = ProcessState(config)
+    #execution = SymbolicExecutor(config, ps, program, seed)
+    #execution.callback_manager.register_function_callback("dumphexa", hook_dumphexa)
+    #execution.run()
+
+    # One execution with sanitizer
     ps = ProcessState(config)
     execution = SymbolicExecutor(config, ps, program, seed)
-    #execution.callback_manager.register_function_callback("dumphexa", hook_dumphexa)
+    execution.callback_manager.register_sanitizer_callback(UAFSanitizer())
     execution.run()
