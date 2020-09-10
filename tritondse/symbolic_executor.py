@@ -30,8 +30,8 @@ class SymbolicExecutor(object):
         self.seed       = seed
         self.abi        = ABI(self.pstate)
         self.coverage   = Coverage()
-        self.routines_table = {}  # Addr -> Tuple[fname, routine]
-        self._uid = uid  # Unique identifier meant to unique accross Exploration instances
+        self.rtn_table  = dict() # Addr -> Tuple[fname, routine]
+        self._uid       = uid # Unique identifier meant to unique accross Exploration instances
         # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
 
         # create callback object if not provided as argument, and bind callbacks to the current process state
@@ -41,9 +41,11 @@ class SymbolicExecutor(object):
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
 
+
     @property
     def callback_manager(self) -> CallbackManager:
         return self.cbm
+
 
     def __init_optimization(self):
         self.pstate.tt_ctx.setMode(MODE.ALIGNED_MEMORY, True)
@@ -176,8 +178,8 @@ class SymbolicExecutor(object):
 
     def routines_handler(self, instruction):
         pc = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_pc_register())
-        if pc in self.routines_table:
-            routine_name, routine = self.routines_table[pc]
+        if pc in self.rtn_table:
+            routine_name, routine = self.rtn_table[pc]
 
             # Emulate the routine and the return value
             ret = routine(self)
@@ -234,7 +236,7 @@ class SymbolicExecutor(object):
                 logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
                 # Add link to routine in table
-                self.routines_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
+                self.rtn_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
 
                 # Apply relocation to our custom address in process memory
                 self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
@@ -252,6 +254,10 @@ class SymbolicExecutor(object):
                 self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
             else:
                 logging.debug(f"symbol {sname} imported but unsupported")  # should be warning
+
+
+    def abort(self):
+        raise RuntimeError('Execution aborted')
 
 
     def run(self):
@@ -279,7 +285,10 @@ class SymbolicExecutor(object):
         for cb in pre_cb:
             cb(self, self.pstate)
 
-        self.__emulate()
+        try:
+            self.__emulate()
+        except RuntimeError as e:
+            pass
 
         # Iterate through post exec callbacks
         for cb in post_cb:

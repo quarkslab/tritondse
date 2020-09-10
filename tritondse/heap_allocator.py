@@ -126,7 +126,7 @@ class HeapAllocator(object):
     def is_ptr_freed(self, ptr: Addr) -> bool:
         """
         Check whether a given pointer has recently been freed.
-        
+
         :param ptr: Address to check
         :return: True if pointer has been freed, False otherwise
         """
@@ -135,4 +135,3 @@ class HeapAllocator(object):
                 if ptr >= chunk and ptr < chunk + size:
                     return True
         return False
-

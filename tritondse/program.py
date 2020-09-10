@@ -1,12 +1,12 @@
 # built-in imports
 from pathlib import Path
-from typing import Optional, Generator, Tuple
+from typing  import Optional, Generator, Tuple
 
 # third party
 import lief
 
 # local imports
-from tritondse.types import PathLike, Addr, Architecture
+from tritondse.types    import PathLike, Addr, Architecture
 from tritondse.routines import *
 
 
@@ -43,6 +43,7 @@ class Program(object):
             raise FileNotFoundError(f"binary {path} architecture unsupported {self._binary.abstract.header.architecture}")
 
         self._funs = {f.name: f for f in self._binary.concrete.functions}
+
 
     @property
     def entry_point(self) -> Addr:

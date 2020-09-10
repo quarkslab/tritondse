@@ -18,6 +18,9 @@ BitSize = int
 # Integer representing a value in bytes
 ByteSize = int
 
+Input = bytes
+""" Type representing an Input (which is bytes) """
+
 Register = TypeVar('Register')
 """Register object as returned by Triton"""
 
