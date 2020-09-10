@@ -77,5 +77,5 @@ if __name__ == '__main__':
     # One execution with sanitizer
     ps = ProcessState(config)
     execution = SymbolicExecutor(config, ps, program, seed)
-    execution.callback_manager.register_sanitizer_callback(UAFSanitizer())
+    execution.callback_manager.register_probe_callback(UAFSanitizer())
     execution.run()

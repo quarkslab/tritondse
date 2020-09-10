@@ -1,19 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from tritondse.callbacks import CbType
+from tritondse.callbacks import CbType, ProbeInterface
 
 
-class Sanitizer(object):
-    """ The Sanitizer interface """
-    def __init__(self):
-        self.cbs = dict()
-
-
-class UAFSanitizer(Sanitizer):
+class UAFSanitizer(ProbeInterface):
     """ The UAF sanitizer """
     def __init__(self):
-        Sanitizer.__init__(self)
+        super(UAFSanitizer, self).__init__()
         self.cbs[CbType.MEMORY_READ] = self.memory_read
         self.cbs[CbType.MEMORY_WRITE] = self.memory_write
 
