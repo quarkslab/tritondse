@@ -6,7 +6,7 @@ from .process_state         import ProcessState
 from .heap_allocator        import HeapAllocator
 from .enums                 import Enums
 from .constraints           import Constraints
-from .callbacks             import CallbackManager
+from .callbacks             import CallbackManager, CbType, CbPos
 from .coverage              import Coverage
 from .abi                   import ABI
 from .program               import Program
@@ -18,3 +18,4 @@ from .thread_context        import ThreadContext
 from .routines              import *
 from .worklist              import WorklistAddressToSet, WorklistDFS, WorklistBFS, WorklistRand, WorklistFifo, WorklistLifo
 from .types                 import PathLike, Addr, rAddr, BitSize, ByteSize, Architecture, SmtModel
+from .sanitizers            import Sanitizer, UAFSanitizer
