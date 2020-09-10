@@ -15,6 +15,7 @@ class UAFSanitizer(ProbeInterface):
     @staticmethod
     def memory_read(se, pstate, mem):
         #print('Memory read', mem)
+        #se.abort()
         pass
 
 

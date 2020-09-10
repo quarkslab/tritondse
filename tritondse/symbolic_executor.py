@@ -256,6 +256,10 @@ class SymbolicExecutor(object):
                 logging.debug(f"symbol {sname} imported but unsupported")  # should be warning
 
 
+    def abort(self):
+        raise RuntimeError('Execution aborted')
+
+
     def run(self):
         # Initialize the process_state architecture (at this point arch is sure to be supported)
         logging.debug(f"Loading an {self.program.architecture.name} architecture")
@@ -281,7 +285,10 @@ class SymbolicExecutor(object):
         for cb in pre_cb:
             cb(self, self.pstate)
 
-        self.__emulate()
+        try:
+            self.__emulate()
+        except RuntimeError as e:
+            pass
 
         # Iterate through post exec callbacks
         for cb in post_cb:
