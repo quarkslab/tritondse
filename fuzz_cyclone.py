@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
     # Explore
     #dse = SymbolicExplorator(config, program, seed)
-    #dse.callback_manager.register_smt_model_callback(checksum_computation)
+    #dse.callback_manager.register_new_input_callback(checksum_computation)
     #dse.explore()
 
     # One execution

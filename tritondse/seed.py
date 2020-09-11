@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import hashlib
 
 
@@ -45,6 +46,34 @@ class Seed(object):
         #
         m = hashlib.md5(self.content)
         return m.hexdigest()
+
+
+    def get_file_name(self):
+        """
+        Return the file name of the seed
+        """
+        # TODO: Handle HF mangling?
+        return f'{self.get_hash()}.{self.get_size():08x}.tritondse.cov'
+
+
+    def save_on_disk(self, directory):
+        """
+        Save the seed on disk.
+        """
+        with open(f'{directory}/{self.get_file_name()}', 'wb+') as fd:
+            fd.write(self.content)
+
+
+    def remove_from_disk(self, directory):
+        """
+        Remove the seed file from disk.
+        """
+        path = f'{directory}/{self.get_file_name()}'
+        if os.path.exists(path):
+            os.remove(path)
+            return True
+        return False
+
 
 
 class SeedFile(Seed):
