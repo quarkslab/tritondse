@@ -84,4 +84,5 @@ if __name__ == '__main__':
     execution = SymbolicExecutor(config, ps, program, seed)
     execution.callback_manager.register_probe_callback(UAFSanitizer())
     execution.callback_manager.register_probe_callback(NullDerefSanitizer())
+    execution.callback_manager.register_probe_callback(FormatStringSanitizer())
     execution.run()
