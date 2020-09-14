@@ -28,6 +28,7 @@ class CbType(Enum):
     PRE_ADDR = auto()
     PRE_EXEC = auto()
     PRE_INST = auto()
+    PRE_RTN = auto()
     REG_READ = auto()
     REG_WRITE = auto()
     SMT_MODEL = auto()
@@ -404,9 +405,12 @@ class CallbackManager(object):
         :param probe: a probe interface
         :return: None
         """
-        for k, v in probe.cbs.items():
-            if k == CbType.MEMORY_READ:
-                self.register_memory_read_callback(v)
+        for (kind, data), cb in probe.cbs.items():
+            if kind == CbType.MEMORY_READ:
+                self.register_memory_read_callback(cb)
 
-            elif k == CbType.MEMORY_WRITE:
-                self.register_memory_write_callback(v)
+            elif kind == CbType.MEMORY_WRITE:
+                self.register_memory_write_callback(cb)
+
+            elif kind == CbType.PRE_RTN:
+                self.register_function_callback(data, cb)
