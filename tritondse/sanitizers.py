@@ -115,14 +115,14 @@ class FormatStringSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def printf_family_routines(se, pstate, addr, string):
+    def printf_family_routines(se, pstate, addr, string_ptr):
         symbolic_cells = 0
 
         # Count the number of cells which is symbolic
-        while se.pstate.tt_ctx.getConcreteMemoryValue(string):
-            if se.pstate.tt_ctx.isMemorySymbolized(string):
+        while se.pstate.tt_ctx.getConcreteMemoryValue(string_ptr):
+            if se.pstate.tt_ctx.isMemorySymbolized(string_ptr):
                 symbolic_cells += 1
-            string += 1
+            string_ptr += 1
 
         if symbolic_cells:
             print(f'Potential format string of {symbolic_cells} symbolic cells at {addr:#x}')
