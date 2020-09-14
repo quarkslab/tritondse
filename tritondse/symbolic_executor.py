@@ -146,15 +146,12 @@ class SymbolicExecutor(object):
             # Update the coverage of the execution
             self.coverage.add_instruction(pc)
 
-            #print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
-
             # Simulate routines
             self.routines_handler(instruction)
 
             # Trigger post-address callbacks
             for cb in post_cbs:
                 cb(self, self.pstate, pc)
-
 
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:

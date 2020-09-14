@@ -16,6 +16,10 @@ def hook_dumphexa(se: SymbolicExecutor, state: ProcessState, addr: Addr):
         f.write(struct.pack('<H', len(data))+data)
 
 
+def trace_debug(se: SymbolicExecutor, state: ProcessState, instruction: 'Instruction'):
+    print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
+
+
 def checksum_computation(se: SymbolicExecutor, state: ProcessState, new_input_generated: Input):
     base = 0
     for i in range(0x4): # number of packet with our initial seed
@@ -72,11 +76,12 @@ if __name__ == '__main__':
     #ps = ProcessState(config)
     #execution = SymbolicExecutor(config, ps, program, seed)
     #execution.callback_manager.register_function_callback("dumphexa", hook_dumphexa)
+    #execution.callback_manager.register_post_instuction_callback(trace_debug)
     #execution.run()
 
     # One execution with sanitizer
     ps = ProcessState(config)
     execution = SymbolicExecutor(config, ps, program, seed)
     execution.callback_manager.register_probe_callback(UAFSanitizer())
-    execution.callback_manager.register_probe_callback(MemoryCorruptionSanitizer())
+    execution.callback_manager.register_probe_callback(NullDerefSanitizer())
     execution.run()
