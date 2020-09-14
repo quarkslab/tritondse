@@ -76,7 +76,6 @@ class NullDerefSanitizer(ProbeInterface):
 
     @staticmethod
     def memory_read(se, pstate, mem):
-        ast = pstate.tt_ctx.getAstContext()
         access_ast = mem.getLeaAst()
         if access_ast is not None and access_ast.isSymbolized():
             model = pstate.tt_ctx.getModel(access_ast == 0)
@@ -88,7 +87,6 @@ class NullDerefSanitizer(ProbeInterface):
 
     @staticmethod
     def memory_write(se, pstate, mem, value):
-        ast = pstate.tt_ctx.getAstContext()
         access_ast = mem.getLeaAst()
         if access_ast is not None and access_ast.isSymbolized():
             model = pstate.tt_ctx.getModel(access_ast == 0)
@@ -119,6 +117,7 @@ class FormatStringSanitizer(ProbeInterface):
         symbolic_cells = 0
 
         # Count the number of cells which is symbolic
+        # TODO: What if there no null byte?
         while se.pstate.tt_ctx.getConcreteMemoryValue(string_ptr):
             if se.pstate.tt_ctx.isMemorySymbolized(string_ptr):
                 symbolic_cells += 1
@@ -159,6 +158,8 @@ class IntegerOverflowSanitizer(ProbeInterface):
 
         rf = (pstate.tt_ctx.registers.of if pstate.architecture == Architecture.X86_64 else pstate.tt_ctx.registers.v)
         flag = pstate.tt_ctx.getRegisterAst(pstate.tt_ctx.registers.rf)
+        # TODO: What if it's a legit overflow (signed / unsigned).
+        # What if it's not symbolic and 1?
         if flag.isSymbolized():
             model = pstate.tt_ctx.getModel(flag == 1)
             if model:
