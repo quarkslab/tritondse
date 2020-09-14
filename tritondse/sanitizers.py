@@ -4,6 +4,7 @@
 from tritondse.callbacks import CbType, ProbeInterface
 from tritondse.program   import Program
 from tritondse.seed      import Seed
+from tritondse.types     import Architecture
 
 
 
@@ -25,12 +26,13 @@ class UAFSanitizer(ProbeInterface):
     The UAF sanitizer
         - UFM.DEREF.MIGHT: Use after free
         - UFM.FFM.MUST: Double free
+        - UFM.FFM.MIGHT: Double free
     """
     def __init__(self):
         super(UAFSanitizer, self).__init__()
         self.cbs.append((CbType.MEMORY_READ, None, self.memory_read))
         self.cbs.append((CbType.MEMORY_WRITE, None, self.memory_write))
-        self.cbs.append((CbType.PRE_RTN, 'free', self.free_routine)) # FIXME: ATM it's not possible on imported functions
+        self.cbs.append((CbType.PRE_RTN, 'free', self.free_routine))
 
 
     @staticmethod
@@ -101,6 +103,7 @@ class FormatStringSanitizer(ProbeInterface):
     """
     The format string sanitizer
         - SV.TAINTED.FMTSTR
+        - SV.FMTSTR.GENERIC
     """
     def __init__(self):
         super(FormatStringSanitizer, self).__init__()
@@ -135,3 +138,30 @@ class FormatStringSanitizer(ProbeInterface):
     @staticmethod
     def xprintf_arg1_routine(se, pstate, addr):
         self.printf_family_routines(se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1)))
+
+
+
+class IntegerOverflowSanitizer(ProbeInterface):
+    """
+    The integer overflow sanitizer
+        - NUM.OVERFLOW
+    """
+    def __init__(self):
+        super(IntegerOverflowSanitizer, self).__init__()
+        self.cbs.append((CbType.POST_INST, None, self.post_instruction))
+
+
+    @staticmethod
+    def post_instruction(se, pstate, instruction):
+        # This probe is only available for X86_64 and AARCH64
+        # TODO: Should be done only once, but where?
+        assert(pstate.architecture == Architecture.X86_64 or pstate.architecture == Architecture.AARCH64)
+
+        rf = (pstate.tt_ctx.registers.of if pstate.architecture == Architecture.X86_64 else pstate.tt_ctx.registers.v)
+        flag = pstate.tt_ctx.getRegisterAst(pstate.tt_ctx.registers.rf)
+        if flag.isSymbolized():
+            model = pstate.tt_ctx.getModel(flag == 1)
+            if model:
+                print(f'Potential integer overflow at {instruction}')
+                save_model(se, model)
+                se.abort()

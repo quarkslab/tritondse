@@ -18,5 +18,4 @@ from .thread_context        import ThreadContext
 from .routines              import *
 from .worklist              import WorklistAddressToSet, WorklistDFS, WorklistBFS, WorklistRand, WorklistFifo, WorklistLifo
 from .types                 import PathLike, Addr, rAddr, BitSize, ByteSize, Architecture, Input
-from .sanitizers            import UAFSanitizer, NullDerefSanitizer, FormatStringSanitizer
-
+from .sanitizers            import UAFSanitizer, NullDerefSanitizer, FormatStringSanitizer, IntegerOverflowSanitizer
