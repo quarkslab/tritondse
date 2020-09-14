@@ -85,4 +85,5 @@ if __name__ == '__main__':
     execution.callback_manager.register_probe_callback(UAFSanitizer())
     execution.callback_manager.register_probe_callback(NullDerefSanitizer())
     execution.callback_manager.register_probe_callback(FormatStringSanitizer())
+    execution.callback_manager.register_probe_callback(IntegerOverflowSanitizer())
     execution.run()
