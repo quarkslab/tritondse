@@ -7,6 +7,19 @@ from tritondse.seed      import Seed
 
 
 
+def save_crash(se, model):
+    """
+    This function is used by every sanitizers to dump the model found in order
+    to trigger a bug into the crash directory.
+    """
+    new_input = bytearray(se.seed.content)
+    for k, v in model.items():
+        new_input[k] = v.getValue()
+    new_seed = Seed(new_input)
+    new_seed.save_on_disk(se.config.crash_dir)
+
+
+
 class UAFSanitizer(ProbeInterface):
     """
     The UAF sanitizer
@@ -25,6 +38,7 @@ class UAFSanitizer(ProbeInterface):
         ptr = mem.getAddress()
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             print(f'UAF detected at {mem}')
+            save_crash(se, model)
             se.abort()
 
 
@@ -33,6 +47,7 @@ class UAFSanitizer(ProbeInterface):
         ptr = mem.getAddress()
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             print(f'UAF detected at {mem}')
+            save_crash(se, model)
             se.abort()
 
 
@@ -41,6 +56,7 @@ class UAFSanitizer(ProbeInterface):
         ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             print(f'Double free detected at {mem}')
+            save_crash(se, model)
             se.abort()
 
 
@@ -51,7 +67,7 @@ class NullDerefSanitizer(ProbeInterface):
         - NPD.FUNC.MUST
     """
     def __init__(self):
-        super(MemoryCorruptionSanitizer, self).__init__()
+        super(NullDerefSanitizer, self).__init__()
         self.cbs[(CbType.MEMORY_READ, None)] = self.memory_read
         self.cbs[(CbType.MEMORY_WRITE, None)] = self.memory_write
 
@@ -64,11 +80,7 @@ class NullDerefSanitizer(ProbeInterface):
             model = pstate.tt_ctx.getModel(access_ast == 0)
             if model:
                 print(f'Null deref possible when reading at {mem}')
-                new_input = bytearray(se.seed.content)
-                for k, v in model.items():
-                    new_input[k] = v.getValue()
-                new_seed = Seed(new_input)
-                new_seed.save_on_disk(se.config.crash_dir)
+                save_crash(se, model)
                 se.abort()
 
 
@@ -80,9 +92,5 @@ class NullDerefSanitizer(ProbeInterface):
             model = pstate.tt_ctx.getModel(access_ast == 0)
             if model:
                 print(f'Null deref possible when writing at {mem}')
-                new_input = bytearray(se.seed.content)
-                for k, v in model.items():
-                    new_input[k] = v.getValue()
-                new_seed = Seed(new_input)
-                new_seed.save_on_disk(se.config.crash_dir)
+                save_crash(se, model)
                 se.abort()
