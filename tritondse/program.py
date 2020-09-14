@@ -43,6 +43,7 @@ class Program(object):
             raise FileNotFoundError(f"binary {path} architecture unsupported {self._binary.abstract.header.architecture}")
 
         self._funs = {f.name: f for f in self._binary.concrete.functions}
+        print(self._funs)
 
 
     @property

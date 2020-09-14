@@ -48,7 +48,7 @@ ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], N
 class ProbeInterface(object):
     """ The Probe interface """
     def __init__(self):
-        self.cbs = [] # [(CbType, metadata, callback)]
+        self.cbs = [] # [(CbType, arg, callback)]
 
 
 class CallbackManager(object):
@@ -405,7 +405,7 @@ class CallbackManager(object):
         :param probe: a probe interface
         :return: None
         """
-        for (kind, data, cb) in probe.cbs:
+        for (kind, arg, cb) in probe.cbs:
             if kind == CbType.MEMORY_READ:
                 self.register_memory_read_callback(cb)
 
@@ -413,4 +413,7 @@ class CallbackManager(object):
                 self.register_memory_write_callback(cb)
 
             elif kind == CbType.PRE_RTN:
-                self.register_function_callback(data, cb)
+                self.register_function_callback(arg, cb)
+
+        # TODO: Maybe return True or False? For example,
+        # register_function_callback returns a boolean
