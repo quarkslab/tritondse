@@ -7,7 +7,7 @@ from tritondse.seed      import Seed
 
 
 
-def save_crash(se, model):
+def save_model(se, model):
     """
     This function is used by every sanitizers to dump the model found in order
     to trigger a bug into the crash directory.
@@ -28,9 +28,9 @@ class UAFSanitizer(ProbeInterface):
     """
     def __init__(self):
         super(UAFSanitizer, self).__init__()
-        self.cbs[(CbType.MEMORY_READ, None)] = self.memory_read
-        self.cbs[(CbType.MEMORY_WRITE, None)] = self.memory_write
-        self.cbs[(CbType.PRE_RTN, 'free')] = self.free_routine # FIXME: ATM it's not possible on imported functions
+        self.cbs.append((CbType.MEMORY_READ, None, self.memory_read))
+        self.cbs.append((CbType.MEMORY_WRITE, None, self.memory_write))
+        self.cbs.append((CbType.PRE_RTN, 'free', self.free_routine)) # FIXME: ATM it's not possible on imported functions
 
 
     @staticmethod
@@ -38,7 +38,7 @@ class UAFSanitizer(ProbeInterface):
         ptr = mem.getAddress()
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             print(f'UAF detected at {mem}')
-            save_crash(se, model)
+            se.seed.save_on_disk(se.config.crash_dir)
             se.abort()
 
 
@@ -47,7 +47,7 @@ class UAFSanitizer(ProbeInterface):
         ptr = mem.getAddress()
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             print(f'UAF detected at {mem}')
-            save_crash(se, model)
+            se.seed.save_on_disk(se.config.crash_dir)
             se.abort()
 
 
@@ -55,8 +55,8 @@ class UAFSanitizer(ProbeInterface):
     def free_routine(se, pstate, addr):
         ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
-            print(f'Double free detected at {mem}')
-            save_crash(se, model)
+            print(f'Double free detected at {addr:#x}')
+            se.seed.save_on_disk(se.config.crash_dir)
             se.abort()
 
 
@@ -68,8 +68,8 @@ class NullDerefSanitizer(ProbeInterface):
     """
     def __init__(self):
         super(NullDerefSanitizer, self).__init__()
-        self.cbs[(CbType.MEMORY_READ, None)] = self.memory_read
-        self.cbs[(CbType.MEMORY_WRITE, None)] = self.memory_write
+        self.cbs.append((CbType.MEMORY_READ, None, self.memory_read))
+        self.cbs.append((CbType.MEMORY_WRITE, None, self.memory_write))
 
 
     @staticmethod
@@ -79,8 +79,8 @@ class NullDerefSanitizer(ProbeInterface):
         if access_ast is not None and access_ast.isSymbolized():
             model = pstate.tt_ctx.getModel(access_ast == 0)
             if model:
-                print(f'Null deref possible when reading at {mem}')
-                save_crash(se, model)
+                print(f'Potential null deref when reading at {mem}')
+                save_model(se, model)
                 se.abort()
 
 
@@ -91,6 +91,47 @@ class NullDerefSanitizer(ProbeInterface):
         if access_ast is not None and access_ast.isSymbolized():
             model = pstate.tt_ctx.getModel(access_ast == 0)
             if model:
-                print(f'Null deref possible when writing at {mem}')
-                save_crash(se, model)
+                print(f'Potential null deref when writing at {mem}')
+                save_model(se, model)
                 se.abort()
+
+
+
+class FormatStringSanitizer(ProbeInterface):
+    """
+    The format string sanitizer
+        - SV.TAINTED.FMTSTR
+    """
+    def __init__(self):
+        super(FormatStringSanitizer, self).__init__()
+        self.cbs.append((CbType.PRE_RTN, 'printf',  self.xprintf_arg0_routine))
+        self.cbs.append((CbType.PRE_RTN, 'fprintf', self.xprintf_arg1_routine))
+        self.cbs.append((CbType.PRE_RTN, 'sprintf', self.xprintf_arg1_routine))
+        self.cbs.append((CbType.PRE_RTN, 'dprintf', self.xprintf_arg1_routine))
+        self.cbs.append((CbType.PRE_RTN, 'snprintf', self.xprintf_arg1_routine))
+
+
+    @staticmethod
+    def printf_family_routines(se, pstate, addr, string):
+        symbolic_cells = 0
+
+        # Count the number of cells which is symbolic
+        while se.pstate.tt_ctx.getConcreteMemoryValue(string):
+            if se.pstate.tt_ctx.isMemorySymbolized(string):
+                symbolic_cells += 1
+            string += 1
+
+        if symbolic_cells:
+            print(f'Potential format string of {symbolic_cells} symbolic cells at {addr:#x}')
+            se.seed.save_on_disk(se.config.crash_dir)
+            se.abort()
+
+
+    @staticmethod
+    def xprintf_arg0_routine(se, pstate, addr):
+        self.printf_family_routines(se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0)))
+
+
+    @staticmethod
+    def xprintf_arg1_routine(se, pstate, addr):
+        self.printf_family_routines(se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1)))
