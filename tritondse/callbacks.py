@@ -64,12 +64,13 @@ class CallbackManager(object):
         self._se = None
 
         # SymbolicExecutor callbacks
-        self._pc_addr_cbs   = {}     # addresses reached
+        self._pc_addr_cbs   = {}  # addresses reached
         self._instr_cbs     = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
-        self._pre_exec      = []     # before execution
-        self._post_exec     = []     # after execution
-        self._ctx_switch    = []     # on each thread context switch (implementing pre/post?)
-        self._new_input_cbs = []     # each time an SMT model is get
+        self._pre_exec      = []  # before execution
+        self._post_exec     = []  # after execution
+        self._ctx_switch    = []  # on each thread context switch (implementing pre/post?)
+        self._new_input_cbs = []  # each time an SMT model is get
+        self._rtn_pending   = []  # routines callbacks waiting for binding to the symbolic executor
 
         # Triton callbacks
         self._mem_read_cbs  = []  # memory reads
@@ -138,6 +139,13 @@ class CallbackManager(object):
 
         for cb in self._reg_write_cbs:
             register_write_lambda(CALLBACK.SET_CONCRETE_REGISTER_VALUE, cb)
+
+        # At this stage, the symbolic executor have already did the reallocation
+        # of imported functions. It means that their address is now known.
+        for (fname, cb) in self._rtn_pending:
+            if fname in self._se.got_table:
+                addr = self._se.got_table[fname]
+                self.register_pre_addr_callback(addr, cb)
 
         self.rebase_callbacks(self._se.pstate.load_addr)
 
@@ -240,6 +248,10 @@ class CallbackManager(object):
             self.register_pre_addr_callback(f.address, callback)
             return True
         else:
+            # If the given function name is not a static function (e.g: imported function),
+            # we add the function name and its callbacks to the _rtn_pending list
+            # which will be considered during the bind_to() processing.
+            self._rtn_pending.append((func_name, callback))
             return False
 
 

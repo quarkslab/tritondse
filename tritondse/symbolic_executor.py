@@ -31,6 +31,7 @@ class SymbolicExecutor(object):
         self.abi        = ABI(self.pstate)
         self.coverage   = Coverage()
         self.rtn_table  = dict() # Addr -> Tuple[fname, routine]
+        self.got_table  = dict() # fname -> Addr
         self._uid       = uid # Unique identifier meant to unique accross Exploration instances
         # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
 
@@ -146,12 +147,12 @@ class SymbolicExecutor(object):
             # Update the coverage of the execution
             self.coverage.add_instruction(pc)
 
-            # Simulate routines
-            self.routines_handler(instruction)
-
             # Trigger post-address callbacks
             for cb in post_cbs:
                 cb(self, self.pstate, pc)
+
+            # Simulate routines
+            self.routines_handler(instruction)
 
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:
@@ -178,9 +179,18 @@ class SymbolicExecutor(object):
         if pc in self.rtn_table:
             routine_name, routine = self.rtn_table[pc]
 
+            # Trigger pre-address callback
+            pre_cbs, post_cbs = self.cbm.get_address_callbacks(pc)
+            for cb in pre_cbs:
+                cb(self, self.pstate, pc)
+
             # Emulate the routine and the return value
             ret = routine(self)
             self.__handle_external_return(ret)
+
+            # Trigger post-address callbacks
+            for cb in post_cbs:
+                cb(self, self.pstate, pc)
 
             # Do not continue the execution if we are in a locked mutex
             if self.pstate.mutex_locked:
@@ -232,8 +242,9 @@ class SymbolicExecutor(object):
             if fname in SUPPORTED_ROUTINES:  # if the routine name is supported
                 logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
-                # Add link to routine in table
+                # Add link to the routine and got tables
                 self.rtn_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
+                self.got_table[fname] = cur_linkage_address
 
                 # Apply relocation to our custom address in process memory
                 self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
@@ -262,15 +273,15 @@ class SymbolicExecutor(object):
         logging.debug(f"Loading an {self.program.architecture.name} architecture")
         self.pstate.architecture = self.program.architecture
 
-        # bind dbm callbacks on the process state
-        self.cbm.bind_to(self)  # bind call
-
         self.__init_optimization()
         self.__init_registers()
 
         # Load the program in process memory and apply dynamic relocations
         self.pstate.load_program(self.program)
         self._apply_dynamic_relocations()
+
+        # bind dbm callbacks on the process state
+        self.cbm.bind_to(self)  # bind call
 
         # Let's emulate the binary from the entry point
         logging.info('Starting emulation')
