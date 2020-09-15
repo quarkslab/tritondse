@@ -62,7 +62,6 @@ class UAFSanitizer(ProbeInterface):
             se.abort()
 
 
-
 class NullDerefSanitizer(ProbeInterface):
     """
     The null deref sanitizer
@@ -131,12 +130,14 @@ class FormatStringSanitizer(ProbeInterface):
 
     @staticmethod
     def xprintf_arg0_routine(se, pstate, addr):
-        self.printf_family_routines(se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0)))
+        string_ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+        FormatStringSanitizer.printf_family_routines(se, pstate, addr, string_ptr)
 
 
     @staticmethod
     def xprintf_arg1_routine(se, pstate, addr):
-        self.printf_family_routines(se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1)))
+        string_ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+        FormatStringSanitizer.printf_family_routines(se, pstate, addr, string_ptr)
 
 
 
