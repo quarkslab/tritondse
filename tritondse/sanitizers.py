@@ -54,12 +54,12 @@ class UAFSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def free_routine(se, pstate, addr):
+    def free_routine(se, pstate, name, addr):
         ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             print(f'Double free detected at {addr:#x}')
             se.seed.save_on_disk(se.config.crash_dir)
-            se.abort()
+
 
 
 class NullDerefSanitizer(ProbeInterface):
@@ -129,13 +129,13 @@ class FormatStringSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def xprintf_arg0_routine(se, pstate, addr):
+    def xprintf_arg0_routine(se, pstate, name, addr):
         string_ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
         FormatStringSanitizer.printf_family_routines(se, pstate, addr, string_ptr)
 
 
     @staticmethod
-    def xprintf_arg1_routine(se, pstate, addr):
+    def xprintf_arg1_routine(se, pstate, name, addr):
         string_ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
         FormatStringSanitizer.printf_family_routines(se, pstate, addr, string_ptr)
 
