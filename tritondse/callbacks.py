@@ -22,6 +22,7 @@ class CbType(Enum):
     CTX_SWITCH = auto()
     MEMORY_READ = auto()
     MEMORY_WRITE = auto()
+    PORT_RTN = auto()
     POST_ADDR = auto()
     POST_EXEC = auto()
     POST_INST = auto()
@@ -38,9 +39,10 @@ AddrCallback     = Callable[['SymbolicExecutor', ProcessState, Addr], None]
 InstrCallback    = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
 MemReadCallback  = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
 MemWriteCallback = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
+NewInputCallback = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
 RegReadCallback  = Callable[['SymbolicExecutor', ProcessState, Register], None]
 RegWriteCallback = Callable[['SymbolicExecutor', ProcessState, Register, int], None]
-NewInputCallback = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
+RtnCallback      = Callable[['SymbolicExecutor', ProcessState, str, Addr], None]
 SymExCallback    = Callable[['SymbolicExecutor', ProcessState], None]
 ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
 
@@ -70,7 +72,8 @@ class CallbackManager(object):
         self._post_exec     = []  # after execution
         self._ctx_switch    = []  # on each thread context switch (implementing pre/post?)
         self._new_input_cbs = []  # each time an SMT model is get
-        self._rtn_pending   = []  # routines callbacks waiting for binding to the symbolic executor
+        self._pre_rtn_cbs   = {}  # before imported routine calls ({str: [RtnCallback]})
+        self._post_rtn_cbs  = {}  # after imported routine calls ({str: [RtnCallback]})
 
         # Triton callbacks
         self._mem_read_cbs  = []  # memory reads
@@ -139,13 +142,6 @@ class CallbackManager(object):
 
         for cb in self._reg_write_cbs:
             register_write_lambda(CALLBACK.SET_CONCRETE_REGISTER_VALUE, cb)
-
-        # At this stage, the symbolic executor have already did the reallocation
-        # of imported functions. It means that their address is now known.
-        for (fname, cb) in self._rtn_pending:
-            if fname in self._se.got_table:
-                addr = self._se.got_table[fname]
-                self.register_pre_addr_callback(addr, cb)
 
         self.rebase_callbacks(self._se.pstate.load_addr)
 
@@ -248,10 +244,6 @@ class CallbackManager(object):
             self.register_pre_addr_callback(f.address, callback)
             return True
         else:
-            # If the given function name is not a static function (e.g: imported function),
-            # we add the function name and its callbacks to the _rtn_pending list
-            # which will be considered during the bind_to() processing.
-            self._rtn_pending.append((func_name, callback))
             return False
 
 
@@ -411,6 +403,45 @@ class CallbackManager(object):
         return self._new_input_cbs
 
 
+    def register_pre_imported_routine_callback(self, routine_name: str, callback: RtnCallback) -> None:
+        """
+        Register a callback before call to imported routines
+        :param routine_name: the routine name
+        :param callback: callback function
+        :return: None
+        """
+        if routine_name in self._pre_rtn_cbs:
+            self._pre_rtn_cbs[routine_name].append(callback)
+        else:
+            self._pre_rtn_cbs[routine_name] = [callback]
+        self._empty = False
+
+
+    def register_post_imported_routine_callback(self, routine_name: str, callback: RtnCallback) -> None:
+        """
+        Register a callback after the call to imported routines
+        :param routine_name: the routine name
+        :param callback: callback function
+        :return: None
+        """
+        if routine_name in self._post_rtn_cbs:
+            self._post_rtn_cbs[routine_name].append(callback)
+        else:
+            self._post_rtn_cbs[routine_name] = [callback]
+        self._empty = False
+
+
+    def get_imported_routine_callbacks(self, routine_name) -> Tuple[List[RtnCallback], List[RtnCallback]]:
+        """
+        Get the list of all callback for an imported routine
+        :param routine_name: the routine name
+        :return: List of callbacks
+        """
+        pre_ret = (self._pre_rtn_cbs[routine_name] if routine_name in self._pre_rtn_cbs else [])
+        post_ret = (self._post_rtn_cbs[routine_name] if routine_name in self._post_rtn_cbs else [])
+        return pre_ret, post_ret
+
+
     def register_probe_callback(self, probe: ProbeInterface) -> None:
         """
         Register a probe callback.
@@ -425,7 +456,4 @@ class CallbackManager(object):
                 self.register_memory_write_callback(cb)
 
             elif kind == CbType.PRE_RTN:
-                self.register_function_callback(arg, cb)
-
-        # TODO: Maybe return True or False? For example,
-        # register_function_callback returns a boolean
+                self.register_pre_imported_routine_callback(arg, cb)
