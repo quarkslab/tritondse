@@ -146,15 +146,12 @@ class SymbolicExecutor(object):
             # Update the coverage of the execution
             self.coverage.add_instruction(pc)
 
-            #print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
-
-            # Simulate routines
-            self.routines_handler(instruction)
-
             # Trigger post-address callbacks
             for cb in post_cbs:
                 cb(self, self.pstate, pc)
 
+            # Simulate routines
+            self.routines_handler(instruction)
 
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:
@@ -181,9 +178,18 @@ class SymbolicExecutor(object):
         if pc in self.rtn_table:
             routine_name, routine = self.rtn_table[pc]
 
+            # Trigger pre-address callback
+            pre_cbs, post_cbs = self.cbm.get_imported_routine_callbacks(routine_name)
+            for cb in pre_cbs:
+                cb(self, self.pstate, routine_name, pc)
+
             # Emulate the routine and the return value
             ret = routine(self)
             self.__handle_external_return(ret)
+
+            # Trigger post-address callbacks
+            for cb in post_cbs:
+                cb(self, self.pstate, routine_name, pc)
 
             # Do not continue the execution if we are in a locked mutex
             if self.pstate.mutex_locked:
@@ -235,7 +241,7 @@ class SymbolicExecutor(object):
             if fname in SUPPORTED_ROUTINES:  # if the routine name is supported
                 logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
-                # Add link to routine in table
+                # Add link to the routine and got tables
                 self.rtn_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
 
                 # Apply relocation to our custom address in process memory

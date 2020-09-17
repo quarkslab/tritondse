@@ -16,6 +16,10 @@ def hook_dumphexa(se: SymbolicExecutor, state: ProcessState, addr: Addr):
         f.write(struct.pack('<H', len(data))+data)
 
 
+def trace_debug(se: SymbolicExecutor, state: ProcessState, instruction: 'Instruction'):
+    print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
+
+
 def checksum_computation(se: SymbolicExecutor, state: ProcessState, new_input_generated: Input):
     base = 0
     for i in range(0x4): # number of packet with our initial seed
@@ -47,7 +51,7 @@ if __name__ == '__main__':
     config.thread_scheduling    = 500
     config.time_inc_coefficient = 0.00001
     config.program_argv         = [
-        b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
+        b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_with_vuln',
         b'wlp0s20f3',
         b'48:e2:44:f5:9b:01',
         b'10.0.13.86',
@@ -56,7 +60,7 @@ if __name__ == '__main__':
     ]
 
     try:
-        program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
+        program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_with_vuln')
     except FileNotFoundError as e:
         print(e)
         sys.exit(-1)
@@ -65,17 +69,25 @@ if __name__ == '__main__':
 
     # Explore
     #dse = SymbolicExplorator(config, program, seed)
-    #dse.callback_manager.register_smt_model_callback(checksum_computation)
+    #dse.callback_manager.register_new_input_callback(checksum_computation)
+    #dse.callback_manager.register_probe_callback(UAFSanitizer())
+    #dse.callback_manager.register_probe_callback(NullDerefSanitizer())
+    #dse.callback_manager.register_probe_callback(FormatStringSanitizer())
+    #dse.callback_manager.register_probe_callback(IntegerOverflowSanitizer())
     #dse.explore()
 
     # One execution
     #ps = ProcessState(config)
     #execution = SymbolicExecutor(config, ps, program, seed)
     #execution.callback_manager.register_function_callback("dumphexa", hook_dumphexa)
+    #execution.callback_manager.register_post_instuction_callback(trace_debug)
     #execution.run()
 
     # One execution with sanitizer
     ps = ProcessState(config)
     execution = SymbolicExecutor(config, ps, program, seed)
     execution.callback_manager.register_probe_callback(UAFSanitizer())
+    execution.callback_manager.register_probe_callback(NullDerefSanitizer())
+    execution.callback_manager.register_probe_callback(FormatStringSanitizer())
+    execution.callback_manager.register_probe_callback(IntegerOverflowSanitizer())
     execution.run()

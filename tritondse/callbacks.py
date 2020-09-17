@@ -22,12 +22,14 @@ class CbType(Enum):
     CTX_SWITCH = auto()
     MEMORY_READ = auto()
     MEMORY_WRITE = auto()
+    PORT_RTN = auto()
     POST_ADDR = auto()
     POST_EXEC = auto()
     POST_INST = auto()
     PRE_ADDR = auto()
     PRE_EXEC = auto()
     PRE_INST = auto()
+    PRE_RTN = auto()
     REG_READ = auto()
     REG_WRITE = auto()
     SMT_MODEL = auto()
@@ -37,9 +39,10 @@ AddrCallback     = Callable[['SymbolicExecutor', ProcessState, Addr], None]
 InstrCallback    = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
 MemReadCallback  = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
 MemWriteCallback = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
+NewInputCallback = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
 RegReadCallback  = Callable[['SymbolicExecutor', ProcessState, Register], None]
 RegWriteCallback = Callable[['SymbolicExecutor', ProcessState, Register, int], None]
-NewInputCallback = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
+RtnCallback      = Callable[['SymbolicExecutor', ProcessState, str, Addr], None]
 SymExCallback    = Callable[['SymbolicExecutor', ProcessState], None]
 ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
 
@@ -47,7 +50,7 @@ ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], N
 class ProbeInterface(object):
     """ The Probe interface """
     def __init__(self):
-        self.cbs = dict()
+        self.cbs = [] # [(CbType, arg, callback)]
 
 
 class CallbackManager(object):
@@ -63,12 +66,14 @@ class CallbackManager(object):
         self._se = None
 
         # SymbolicExecutor callbacks
-        self._pc_addr_cbs   = {}     # addresses reached
+        self._pc_addr_cbs   = {}  # addresses reached
         self._instr_cbs     = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
-        self._pre_exec      = []     # before execution
-        self._post_exec     = []     # after execution
-        self._ctx_switch    = []     # on each thread context switch (implementing pre/post?)
-        self._new_input_cbs = []     # each time an SMT model is get
+        self._pre_exec      = []  # before execution
+        self._post_exec     = []  # after execution
+        self._ctx_switch    = []  # on each thread context switch (implementing pre/post?)
+        self._new_input_cbs = []  # each time an SMT model is get
+        self._pre_rtn_cbs   = {}  # before imported routine calls ({str: [RtnCallback]})
+        self._post_rtn_cbs  = {}  # after imported routine calls ({str: [RtnCallback]})
 
         # Triton callbacks
         self._mem_read_cbs  = []  # memory reads
@@ -76,8 +81,6 @@ class CallbackManager(object):
         self._reg_read_cbs  = []  # register reads
         self._reg_write_cbs = []  # register writes
         self._empty         = True
-
-        self._lambdas = list()  # Keep a ref on function dynamically generated otherwise triton crash
 
 
     def is_empty(self) -> bool:
@@ -97,6 +100,52 @@ class CallbackManager(object):
         return bool(self._se)
 
 
+    def _trampoline_mem_read_cb(self, ctx, mem):
+        """
+        This function is the trampoline callback on memory read from triton to tritondse
+        :param: ctx: TritonContext
+        :param: mem: MemoryAccess
+        :return: None
+        """
+        for cb in self._mem_read_cbs:
+            cb(self._se, self._se.pstate, mem)
+
+
+    def _trampoline_mem_write_cb(self, ctx, mem, value):
+        """
+        This function is the trampoline callback on memory write from triton to tritondse
+        :param: ctx: TritonContext
+        :param: mem: MemoryAccess
+        :param: value: int
+        :return: None
+        """
+        for cb in self._mem_write_cbs:
+            cb(self._se, self._se.pstate, mem, value)
+
+
+    def _trampoline_reg_read_cb(self, ctx, reg):
+        """
+        This function is the trampoline callback on register read from triton to tritondse
+        :param: ctx: TritonContext
+        :param: reg: Register
+        :return: None
+        """
+        for cb in self._reg_read_cbs:
+            cb(self._se, self._se.pstate, reg)
+
+
+    def _trampoline_reg_write_cb(self, ctx, reg, value):
+        """
+        This function is the trampoline callback on register write from triton to tritondse
+        :param: ctx: TritonContext
+        :param: reg: Register
+        :param: value: int
+        :return: None
+        """
+        for cb in self._reg_write_cbs:
+            cb(self._se, self._se.pstate, reg, value)
+
+
     def bind_to(self, se: 'SymbolicExecutor') -> None:
         """
         Bind callbacks on the given process state. That step is required
@@ -110,33 +159,20 @@ class CallbackManager(object):
 
         self._se = se
 
-        # Empty lambdas
-        self._lambdas.clear()
+        # Register only one trampoline by kind of callback. It will be the role
+        # of the trampoline to call every registered tritondse callbacks.
 
-        # Register all callbacks in the current triton context
-        # Create dynamic function that will enable receive SymbolicExecutor
-        # and ProcessState as argument of the triton callbacks
-        def register_read_lambda(type, cb):
-            f = lambda ctx, m: cb(self._se, self._se.pstate, m)
-            self._lambdas.append(f)
-            se.pstate.register_triton_callback(type, f)
+        if self._mem_read_cbs:
+            se.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_MEMORY_VALUE, self._trampoline_mem_read_cb)
 
-        def register_write_lambda(type, cb):
-            f = lambda ctx, m, v: cb(self._se, self._se.pstate, m, v)
-            self._lambdas.append(f)
-            se.pstate.register_triton_callback(type, f)
+        if self._mem_write_cbs:
+            se.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_MEMORY_VALUE, self._trampoline_mem_write_cb)
 
-        for cb in self._mem_read_cbs:
-            register_read_lambda(CALLBACK.GET_CONCRETE_MEMORY_VALUE, cb)
+        if self._reg_read_cbs:
+            se.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_REGISTER_VALUE, self._trampoline_reg_read_cb)
 
-        for cb in self._mem_write_cbs:
-            register_write_lambda(CALLBACK.SET_CONCRETE_MEMORY_VALUE, cb)
-
-        for cb in self._reg_read_cbs:
-            register_read_lambda(CALLBACK.GET_CONCRETE_REGISTER_VALUE, cb)
-
-        for cb in self._reg_write_cbs:
-            register_write_lambda(CALLBACK.SET_CONCRETE_REGISTER_VALUE, cb)
+        if self._reg_write_cbs:
+            se.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_REGISTER_VALUE, self._trampoline_reg_write_cb)
 
         self.rebase_callbacks(self._se.pstate.load_addr)
 
@@ -398,15 +434,57 @@ class CallbackManager(object):
         return self._new_input_cbs
 
 
+    def register_pre_imported_routine_callback(self, routine_name: str, callback: RtnCallback) -> None:
+        """
+        Register a callback before call to imported routines
+        :param routine_name: the routine name
+        :param callback: callback function
+        :return: None
+        """
+        if routine_name in self._pre_rtn_cbs:
+            self._pre_rtn_cbs[routine_name].append(callback)
+        else:
+            self._pre_rtn_cbs[routine_name] = [callback]
+        self._empty = False
+
+
+    def register_post_imported_routine_callback(self, routine_name: str, callback: RtnCallback) -> None:
+        """
+        Register a callback after the call to imported routines
+        :param routine_name: the routine name
+        :param callback: callback function
+        :return: None
+        """
+        if routine_name in self._post_rtn_cbs:
+            self._post_rtn_cbs[routine_name].append(callback)
+        else:
+            self._post_rtn_cbs[routine_name] = [callback]
+        self._empty = False
+
+
+    def get_imported_routine_callbacks(self, routine_name) -> Tuple[List[RtnCallback], List[RtnCallback]]:
+        """
+        Get the list of all callback for an imported routine
+        :param routine_name: the routine name
+        :return: List of callbacks
+        """
+        pre_ret = (self._pre_rtn_cbs[routine_name] if routine_name in self._pre_rtn_cbs else [])
+        post_ret = (self._post_rtn_cbs[routine_name] if routine_name in self._post_rtn_cbs else [])
+        return pre_ret, post_ret
+
+
     def register_probe_callback(self, probe: ProbeInterface) -> None:
         """
         Register a probe callback.
         :param probe: a probe interface
         :return: None
         """
-        for k, v in probe.cbs.items():
-            if k == CbType.MEMORY_READ:
-                self.register_memory_read_callback(v)
+        for (kind, arg, cb) in probe.cbs:
+            if kind == CbType.MEMORY_READ:
+                self.register_memory_read_callback(cb)
 
-            elif k == CbType.MEMORY_WRITE:
-                self.register_memory_write_callback(v)
+            elif kind == CbType.MEMORY_WRITE:
+                self.register_memory_write_callback(cb)
+
+            elif kind == CbType.PRE_RTN:
+                self.register_pre_imported_routine_callback(arg, cb)
