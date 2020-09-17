@@ -51,7 +51,7 @@ if __name__ == '__main__':
     config.thread_scheduling    = 500
     config.time_inc_coefficient = 0.00001
     config.program_argv         = [
-        b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
+        b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_with_vuln',
         b'wlp0s20f3',
         b'48:e2:44:f5:9b:01',
         b'10.0.13.86',
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     ]
 
     try:
-        program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln')
+        program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_with_vuln')
     except FileNotFoundError as e:
         print(e)
         sys.exit(-1)
@@ -70,6 +70,10 @@ if __name__ == '__main__':
     # Explore
     #dse = SymbolicExplorator(config, program, seed)
     #dse.callback_manager.register_new_input_callback(checksum_computation)
+    #dse.callback_manager.register_probe_callback(UAFSanitizer())
+    #dse.callback_manager.register_probe_callback(NullDerefSanitizer())
+    #dse.callback_manager.register_probe_callback(FormatStringSanitizer())
+    #dse.callback_manager.register_probe_callback(IntegerOverflowSanitizer())
     #dse.explore()
 
     # One execution
