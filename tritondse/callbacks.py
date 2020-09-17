@@ -82,8 +82,6 @@ class CallbackManager(object):
         self._reg_write_cbs = []  # register writes
         self._empty         = True
 
-        self._lambdas = list()  # Keep a ref on function dynamically generated otherwise triton crash
-
 
     def is_empty(self) -> bool:
         """
@@ -102,6 +100,52 @@ class CallbackManager(object):
         return bool(self._se)
 
 
+    def _trampoline_mem_read_cb(self, ctx, mem):
+        """
+        This function is the trampoline callback on memory read from triton to tritondse
+        :param: ctx: TritonContext
+        :param: mem: MemoryAccess
+        :return: None
+        """
+        for cb in self._mem_read_cbs:
+            cb(self._se, self._se.pstate, mem)
+
+
+    def _trampoline_mem_write_cb(self, ctx, mem, value):
+        """
+        This function is the trampoline callback on memory write from triton to tritondse
+        :param: ctx: TritonContext
+        :param: mem: MemoryAccess
+        :param: value: int
+        :return: None
+        """
+        for cb in self._mem_write_cbs:
+            cb(self._se, self._se.pstate, mem, value)
+
+
+    def _trampoline_reg_read_cb(self, ctx, reg):
+        """
+        This function is the trampoline callback on register read from triton to tritondse
+        :param: ctx: TritonContext
+        :param: reg: Register
+        :return: None
+        """
+        for cb in self._reg_read_cbs:
+            cb(self._se, self._se.pstate, reg)
+
+
+    def _trampoline_reg_write_cb(self, ctx, reg, value):
+        """
+        This function is the trampoline callback on register write from triton to tritondse
+        :param: ctx: TritonContext
+        :param: reg: Register
+        :param: value: int
+        :return: None
+        """
+        for cb in self._reg_write_cbs:
+            cb(self._se, self._se.pstate, reg, value)
+
+
     def bind_to(self, se: 'SymbolicExecutor') -> None:
         """
         Bind callbacks on the given process state. That step is required
@@ -115,33 +159,20 @@ class CallbackManager(object):
 
         self._se = se
 
-        # Empty lambdas
-        self._lambdas.clear()
+        # Register only one trampoline by kind of callback. It will be the role
+        # of the trampoline to call every registered tritondse callbacks.
 
-        # Register all callbacks in the current triton context
-        # Create dynamic function that will enable receive SymbolicExecutor
-        # and ProcessState as argument of the triton callbacks
-        def register_read_lambda(type, cb):
-            f = lambda ctx, m: cb(self._se, self._se.pstate, m)
-            self._lambdas.append(f)
-            se.pstate.register_triton_callback(type, f)
+        if self._mem_read_cbs:
+            se.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_MEMORY_VALUE, self._trampoline_mem_read_cb)
 
-        def register_write_lambda(type, cb):
-            f = lambda ctx, m, v: cb(self._se, self._se.pstate, m, v)
-            self._lambdas.append(f)
-            se.pstate.register_triton_callback(type, f)
+        if self._mem_write_cbs:
+            se.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_MEMORY_VALUE, self._trampoline_mem_write_cb)
 
-        for cb in self._mem_read_cbs:
-            register_read_lambda(CALLBACK.GET_CONCRETE_MEMORY_VALUE, cb)
+        if self._reg_read_cbs:
+            se.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_REGISTER_VALUE, self._trampoline_reg_read_cb)
 
-        for cb in self._mem_write_cbs:
-            register_write_lambda(CALLBACK.SET_CONCRETE_MEMORY_VALUE, cb)
-
-        for cb in self._reg_read_cbs:
-            register_read_lambda(CALLBACK.GET_CONCRETE_REGISTER_VALUE, cb)
-
-        for cb in self._reg_write_cbs:
-            register_write_lambda(CALLBACK.SET_CONCRETE_REGISTER_VALUE, cb)
+        if self._reg_write_cbs:
+            se.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_REGISTER_VALUE, self._trampoline_reg_write_cb)
 
         self.rebase_callbacks(self._se.pstate.load_addr)
 
