@@ -87,7 +87,7 @@ class SymbolicExplorator(object):
 
             try:
                 t.join()
-                gc.collect()
+                gc.collect()  # FIXME: Why we have to force the collect to avoid memory leak?
             except KeyboardInterrupt:
                 logging.warning("keyboard interrupt, stop symbolic exploration")
                 self.stop = True
