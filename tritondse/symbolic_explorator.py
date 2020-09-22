@@ -4,6 +4,7 @@
 import logging
 import time
 import threading
+import gc
 
 from triton                      import *
 from tritondse.config            import Config
@@ -86,6 +87,7 @@ class SymbolicExplorator(object):
 
             try:
                 t.join()
+                gc.collect()
             except KeyboardInterrupt:
                 logging.warning("keyboard interrupt, stop symbolic exploration")
                 self.stop = True
