@@ -4,21 +4,21 @@
 import os
 
 
-class Constraints(object):
+class PathConstraintsHash(object):
     """
-    This class is used to represent all constraints asked to the SMT solver
-    during the symbolic exploration.
+    This class is used to represent all paths taken during the symbolic
+    exploration to avoid redundant constraints asking to the SMT solver.
     """
     def __init__(self):
         self.hashes = set()
 
 
-    def add_constraint(self, constraint):
-        self.hashes.add(constraint.getHash())
+    def add_hash_constraint(self, h):
+        self.hashes.add(h)
 
 
     def merge(self, other):
-        """ Merge an other instance of Constraints into this instance"""
+        """ Merge an other instance of hash constraints into this instance"""
         for crt_hash in other.hashes:
             self.hashes.add(crt_hash)
 
@@ -40,5 +40,5 @@ class Constraints(object):
                     self.hashes = eval(data)
 
 
-    def already_asked(self, constraint):
-        return (True if constraint.getHash() in self.hashes else False)
+    def hash_already_asked(self, h):
+        return (True if h in self.hashes else False)
