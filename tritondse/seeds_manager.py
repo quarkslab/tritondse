@@ -8,6 +8,7 @@ import os
 
 from array                      import array
 from hashlib                    import md5
+from tritondse.enums            import CoverageStrategy
 from tritondse.config           import Config
 from tritondse.seed             import Seed, SeedFile
 from tritondse.callbacks        import CallbackManager
@@ -116,7 +117,11 @@ class SeedsManager:
         for pc in pco:
 
             # Update the hash representation of the taken path
-            pc_hash_repr.update(array('L', [pc.getTakenAddress()]))
+            if self.config.coverage_strategy == CoverageStrategy.PATH_COVERAGE:
+                pc_hash_repr.update(array('L', [pc.getTakenAddress()]))
+
+            elif self.config.coverage_strategy == CoverageStrategy.CODE_COVERAGE:
+                pc_hash_repr = md5(array('L', [pc.getTakenAddress()]))
 
             # Save the constraint
             self.path_constraints.add_hash_constraint(pc_hash_repr.hexdigest())
@@ -128,10 +133,23 @@ class SeedsManager:
                 branches = pc.getBranchConstraints()
                 for branch in branches:
 
+                    if branch['isTaken'] and self.config.coverage_strategy == CoverageStrategy.EDGE_COVERAGE:
+                        h = md5(array('L', [branch['srcAddr'], branch['dstAddr']]))
+                        self.path_constraints.add_hash_constraint(h.hexdigest())
+
                     # Get the constraint of the branch which has not been taken.
                     if not branch['isTaken']:
-                        forked_hash = pc_hash_repr.copy()
-                        forked_hash.update(array('L', [branch['dstAddr']]))
+                        if self.config.coverage_strategy == CoverageStrategy.PATH_COVERAGE:
+                            # In path coverage, we have to fork the hash of the current
+                            # pc for each branch we want to revert
+                            forked_hash = pc_hash_repr.copy()
+                            forked_hash.update(array('L', [branch['dstAddr']]))
+
+                        elif self.config.coverage_strategy == CoverageStrategy.CODE_COVERAGE:
+                            forked_hash = md5(array('L', [branch['dstAddr']]))
+
+                        elif self.config.coverage_strategy == CoverageStrategy.EDGE_COVERAGE:
+                            forked_hash = md5(array('L', [branch['srcAddr'], branch['dstAddr']]))
 
                         # Create the constraint
                         constraint = astCtxt.land([previousConstraints, branch['constraint']])
@@ -144,7 +162,7 @@ class SeedsManager:
                             smt_queries += 1
                             logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts} seconds')
 
-                            # Save the constraint
+                            # Save the hash of the constraint
                             self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
 
                             if model:

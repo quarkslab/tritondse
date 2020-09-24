@@ -304,5 +304,5 @@ class SymbolicExecutor(object):
         logging.info('Emulation done')
         logging.info('Return value: %#x' % (self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_ret_register())))
         logging.info('Instructions executed: %d' % (self.coverage.number_of_instructions_executed()))
-        logging.info('Symbolic condition: %d' % (len(self.pstate.tt_ctx.getPathConstraints())))
+        logging.info('Symbolic branch constraints: %d' % (len(self.pstate.tt_ctx.getPathConstraints())))
         logging.info('Time of the execution: %f seconds' % (self.endTime - self.startTime))
