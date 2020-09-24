@@ -50,8 +50,9 @@ if __name__ == '__main__':
     config.symbolize_stdin      = True
     config.execution_timeout    = 0     # unlimited
     config.smt_timeout          = 5000  # 5 seconds
-    config.smt_queries_limit    = 0     # unlimited
-    config.thread_scheduling    = 100
+    config.smt_queries_limit    = 0
+    config.thread_scheduling    = 300
+    config.coverage_strategy    = CoverageStrategy.EDGE_COVERAGE
     config.time_inc_coefficient = 0.00001
     config.program_argv         = [
         b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_without_vuln',
