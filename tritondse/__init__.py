@@ -5,7 +5,7 @@ from .config                import Config
 from .process_state         import ProcessState
 from .heap_allocator        import HeapAllocator
 from .enums                 import Enums
-from .constraints           import Constraints
+from .path_constraints      import PathConstraintsHash
 from .callbacks             import ProbeInterface, CallbackManager, CbType, CbPos
 from .coverage              import Coverage
 from .abi                   import ABI
