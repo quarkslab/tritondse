@@ -206,6 +206,13 @@ class SeedsManager:
         return self.worklist.pick()
 
 
+    def add_seed(self, seed):
+        if seed and seed not in self.corpus and seed not in self.crash:
+            self.worklist.add(seed)
+            seed.save_on_disk(self.config.worklist_dir)
+            logging.info(f'Seed dumped into {self.config.worklist_dir}/{m.get_file_name()}')
+
+
     def post_execution(self, execution, seed):
         # Update instructions covered from the last execution into our exploration coverage
         self.coverage.merge(execution.coverage)
