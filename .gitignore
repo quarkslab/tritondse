@@ -6,3 +6,6 @@ worklist
 metadata
 idacov.py
 private
+build/
+dist/
+tritondse.egg-info/
