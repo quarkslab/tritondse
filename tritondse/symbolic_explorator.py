@@ -27,7 +27,6 @@ class SymbolicExplorator(object):
         self.cbm           = CallbackManager(program)
         self.seeds_manager = SeedsManager(self.config, self.cbm, seed)
         self.stop          = False
-        self.total_exec    = 0
         self.ts            = time.time()
         self.uid_counter   = 0
 
@@ -43,8 +42,7 @@ class SymbolicExplorator(object):
 
     def worker(self, seed, uid):
         """ Worker thread """
-        # Inc number of trace execution
-        self.total_exec += 1
+        logging.info(f'Pickuping {self.config.worklist_dir}/{seed.get_file_name()}')
 
         if self.config.exploration_timeout and self.__time_delta() >= self.config.exploration_timeout:
             logging.info('Exploration timout')
@@ -56,7 +54,7 @@ class SymbolicExplorator(object):
         execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed=seed, uid=uid, callbacks=cbs)
         execution.run()
 
-        if self.config.exploration_limit and self.total_exec >= self.config.exploration_limit:
+        if self.config.exploration_limit and uid >= self.config.exploration_limit:
             logging.info('Exploration limit reached')
             self.stop = True
             return
@@ -68,16 +66,14 @@ class SymbolicExplorator(object):
 
 
     def explore(self):
-        # TODO: We could run several threads. Number of threads run may be defined in Config.
-        # Note: J'ai test, c'est pas forcement plus rapide... En Python ce n'est pas des vrais threads.
         while self.seeds_manager.worklist and not self.stop:
+
             # Take an input
             seed = self.seeds_manager.pick_seed()
 
             # Execution into a thread
-
             t = threading.Thread(
-                    name='\033[0;%dm[exec:%08d]' % ((31 + (self.total_exec % 4)), self.total_exec),
+                    name='\033[0;%dm[exec:%08d]' % ((31 + (self.uid_counter % 4)), self.uid_counter),
                     target=self.worker,
                     args=[seed, self.uid_counter],
                     daemon=True

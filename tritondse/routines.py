@@ -1174,7 +1174,6 @@ def rtn_strtok_r(se):
 
 SUPPORTED_ROUTINES = {
     # TODO:
-    #   - strstr
     #   - strtoul
     #   - tolower
     #   - toupper
