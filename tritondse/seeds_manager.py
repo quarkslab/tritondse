@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import array
 import glob
 import logging
 import os
-import time
 
-from tritondse.config      import Config
-from tritondse.seed        import Seed, SeedFile
-from tritondse.callbacks   import CallbackManager
-from tritondse.coverage    import Coverage
-from tritondse.constraints import Constraints
-from tritondse.worklist    import *
+from array                      import array
+from hashlib                    import md5
+from tritondse.enums            import CoverageStrategy
+from tritondse.config           import Config
+from tritondse.seed             import Seed, SeedFile
+from tritondse.callbacks        import CallbackManager
+from tritondse.coverage         import Coverage
+from tritondse.path_constraints import PathConstraintsHash
+from tritondse.worklist         import *
 
 
 
@@ -20,19 +23,20 @@ class SeedsManager:
     This class is used to represent the seeds management.
     """
     def __init__(self, config: Config, callbacks: CallbackManager, seed: Seed = Seed()):
-        self.config         = config
-        self.initial_seed   = seed
-        self.coverage       = Coverage()
-        self.constraints    = Constraints()
-        self.worklist       = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
-        self.cbm            = callbacks
-        self.corpus         = set()
-        self.crash          = set()
+        self.config           = config
+        self.initial_seed     = seed
+        self.coverage         = Coverage()
+        self.path_constraints = PathConstraintsHash()
+        self.worklist         = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
+        self.cbm              = callbacks
+        self.corpus           = set()
+        self.crash            = set()
 
         self.__init_dirs()
 
-        # Define the first seed
-        self.worklist.add(self.initial_seed)
+        # Define the first seed if not already tested
+        if self.initial_seed not in self.corpus and self.initial_seed not in self.crash:
+            self.worklist.add(self.initial_seed)
 
 
     def __load_seed_from_file(self, path):
@@ -49,8 +53,8 @@ class SeedsManager:
             logging.debug('Loading the existing metadata directory from %s' % (self.config.metadata_dir))
             # Loading coverage
             self.coverage.load_from_disk(self.config.metadata_dir)
-            # Loading constraints
-            self.constraints.load_from_disk(self.config.metadata_dir)
+            # Loading path constraints
+            self.path_constraints.load_from_disk(self.config.metadata_dir)
 
 
         # --------- Initialize WORKLIST --------------------------------------
@@ -86,8 +90,8 @@ class SeedsManager:
     def __save_metadata_on_disk(self):
         # Save coverage
         self.coverage.save_on_disk(self.config.metadata_dir)
-        # Save constraints
-        self.constraints.save_on_disk(self.config.metadata_dir)
+        # Save path constraints
+        self.path_constraints.save_on_disk(self.config.metadata_dir)
 
 
     def __get_new_inputs(self, execution):
@@ -103,8 +107,24 @@ class SeedsManager:
         # We start with any input. T (Top)
         previousConstraints = astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())
 
+        # Define a limit of branch constraints
+        smt_queries = 0
+
+        # The hash representation of a taken path and constraints asked
+        pc_hash_repr = md5()
+
         # Go through the path constraints
-        for pc in pco[:self.config.smt_queries_limit]:
+        for pc in pco:
+
+            # Update the hash representation of the taken path
+            if self.config.coverage_strategy == CoverageStrategy.PATH_COVERAGE:
+                pc_hash_repr.update(array('L', [pc.getTakenAddress()]))
+
+            elif self.config.coverage_strategy == CoverageStrategy.CODE_COVERAGE:
+                pc_hash_repr = md5(array('L', [pc.getTakenAddress()]))
+
+            # Save the constraint
+            self.path_constraints.add_hash_constraint(pc_hash_repr.hexdigest())
 
             # If there is a condition
             if pc.isMultipleBranches():
@@ -113,31 +133,47 @@ class SeedsManager:
                 branches = pc.getBranchConstraints()
                 for branch in branches:
 
+                    if branch['isTaken'] and self.config.coverage_strategy == CoverageStrategy.EDGE_COVERAGE:
+                        h = md5(array('L', [branch['srcAddr'], branch['dstAddr']]))
+                        self.path_constraints.add_hash_constraint(h.hexdigest())
+
                     # Get the constraint of the branch which has not been taken.
                     if not branch['isTaken']:
+                        if self.config.coverage_strategy == CoverageStrategy.PATH_COVERAGE:
+                            # In path coverage, we have to fork the hash of the current
+                            # pc for each branch we want to revert
+                            forked_hash = pc_hash_repr.copy()
+                            forked_hash.update(array('L', [branch['dstAddr']]))
+
+                        elif self.config.coverage_strategy == CoverageStrategy.CODE_COVERAGE:
+                            forked_hash = md5(array('L', [branch['dstAddr']]))
+
+                        elif self.config.coverage_strategy == CoverageStrategy.EDGE_COVERAGE:
+                            forked_hash = md5(array('L', [branch['srcAddr'], branch['dstAddr']]))
 
                         # Create the constraint
                         constraint = astCtxt.land([previousConstraints, branch['constraint']])
 
                         # Only ask for a model if the constraints has never been asked
-                        if self.constraints.already_asked(constraint) is False:
+                        if self.path_constraints.hash_already_asked(forked_hash.hexdigest()) is False:
                             ts = time.time()
                             model = execution.pstate.tt_ctx.getModel(constraint)
                             te = time.time()
-                            logging.info('Query to the solver. Solving time: %f seconds' % (te - ts))
+                            smt_queries += 1
+                            logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts} seconds')
+
+                            # Save the hash of the constraint
+                            self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
 
                             if model:
-                                # The seed size is the number of symbolic variables.
-                                symvars = execution.pstate.tt_ctx.getSymbolicVariables()
-                                content = bytearray(len(symvars))
-                                # Fill the content with the current values of the symbolic variables.
-                                for k, v in symvars.items():
-                                    content[k] = execution.pstate.tt_ctx.getConcreteVariableValue(v)
+                                # Current content before getting model
+                                content = bytearray(execution.seed.content)
                                 # For each byte of the seed, we assign the value provided by the solver.
                                 # If the solver provide no model for some bytes of the seed, their value
                                 # stay unmodified (with their current value).
                                 for k, v in model.items():
                                     content[k] = v.getValue()
+
                                 # Calling callback if user defined one
                                 for cb in self.cbm.get_new_input_callback():
                                     cont = cb(execution, execution.pstate, content)
@@ -155,17 +191,26 @@ class SeedsManager:
                                 seed.target_addr = branch['dstAddr']
                                 # Add the seed to the set of new inputs
                                 inputs.add(seed)
-                                # Save the constraint as already asked.
-                                self.constraints.add_constraint(constraint)
 
             # Update the previous constraints with true branch to keep a good path.
             previousConstraints = astCtxt.land([previousConstraints, pc.getTakenPredicate()])
+
+            # Check if we reached the limit of query
+            if self.config.smt_queries_limit and smt_queries >= self.config.smt_queries_limit:
+                break
 
         return inputs
 
 
     def pick_seed(self):
         return self.worklist.pick()
+
+
+    def add_seed(self, seed):
+        if seed and seed not in self.corpus and seed not in self.crash:
+            self.worklist.add(seed)
+            seed.save_on_disk(self.config.worklist_dir)
+            logging.info(f'Seed dumped into {self.config.worklist_dir}/{m.get_file_name()}')
 
 
     def post_execution(self, execution, seed):
@@ -180,7 +225,7 @@ class SeedsManager:
         inputs = self.__get_new_inputs(execution)
         for m in inputs:
             # Check if we already have executed this new seed
-            if m not in self.corpus and m and m not in self.crash:
+            if m and m not in self.corpus and m not in self.crash:
                 self.worklist.add(m)
                 m.save_on_disk(self.config.worklist_dir)
                 logging.info(f'Seed dumped into {self.config.worklist_dir}/{m.get_file_name()}')
