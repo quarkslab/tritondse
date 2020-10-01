@@ -92,12 +92,12 @@ class CallbackManager(object):
         return self._empty
 
 
-    def is_binded(self) -> bool:
+    def is_binded(self, se) -> bool:
         """
-        Check if the callback manager has been binded on a process state?
+        Check if the callback manager has already been binded on a given process state.
         :return: True if callbacks are binded on a process state
         """
-        return bool(self._se)
+        return bool(self._se and self._se.uid == se.uid)
 
 
     def _trampoline_mem_read_cb(self, ctx, mem):
@@ -155,7 +155,7 @@ class CallbackManager(object):
         :param se: SymbolicExecutor on which to bind callbacks
         :return: None
         """
-        assert not self.is_binded()
+        assert not self.is_binded(se)
 
         self._se = se
 
@@ -175,29 +175,6 @@ class CallbackManager(object):
             se.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_REGISTER_VALUE, self._trampoline_reg_write_cb)
 
         self.rebase_callbacks(self._se.pstate.load_addr)
-
-
-    def fork(self) -> 'CallbackManager':
-        """
-        Fork the current CallbackManager in a new object instance
-        (that will be unbinded). That method is used by the SymbolicExplorator
-        to ensure each SymbolicExecutor running concurrently will have
-        their own instance off the CallbackManager.
-
-        :return: Fresh instance of CallbackManager
-        """
-        # Temporary save current program (which would make deepcopy to fail)
-        p, se = self.p, self._se
-        self.p, self._se = None, None
-
-        # Perform deepcopy
-        new_cbm = deepcopy(self)
-
-        # Restor attributes (and reset _se for new instance)
-        self.p, self._se = p, se
-        new_cbm.p, new_cbm._se = p, None
-
-        return new_cbm
 
 
     def rebase_callbacks(self, addr: Addr) -> None:

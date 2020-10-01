@@ -24,14 +24,14 @@ class SymbolicExecutor(object):
     This class is used to represent the symbolic execution.
     """
     def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = None, uid=0, callbacks=None):
-        self.program    = program
-        self.pstate     = pstate
-        self.config     = config
-        self.seed       = seed
-        self.abi        = ABI(self.pstate)
-        self.coverage   = Coverage()
-        self.rtn_table  = dict() # Addr -> Tuple[fname, routine]
-        self._uid       = uid # Unique identifier meant to unique accross Exploration instances
+        self.program    = program           # The program to execute
+        self.pstate     = pstate            # The process state
+        self.config     = config            # The config
+        self.seed       = seed              # The current seed used to the execution
+        self.abi        = ABI(self.pstate)  # ABI interface
+        self.coverage   = Coverage()        # The coverage state
+        self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
+        self.uid        = uid               # Unique identifier meant to unique accross Exploration instances
         # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
 
         # create callback object if not provided as argument, and bind callbacks to the current process state
