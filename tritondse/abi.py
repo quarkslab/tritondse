@@ -134,7 +134,8 @@ class ABI(object):
                .replace("%c", "{:c}").replace("%02x", "{:02x}").replace("%ld", "{}")    \
                .replace("%*s", "").replace("%lX", "{:X}").replace("%08x", "{:08x}")     \
                .replace("%u", "{}").replace("%lu", "{}").replace("%zu", "{}")           \
-               .replace("%02u", "{:02d}").replace("%03u", "{:03d}")
+               .replace("%02u", "{:02d}").replace("%03u", "{:03d}")                     \
+               .replace("%03d", "{:03d}")
 
 
     def find_string_format(self, s):
