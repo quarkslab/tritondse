@@ -13,6 +13,7 @@ from tritondse.callbacks        import CallbackManager
 from tritondse.coverage         import Coverage
 from tritondse.path_constraints import PathConstraintsHash
 from tritondse.worklist         import *
+from tritondse.types            import *
 
 
 
@@ -87,6 +88,18 @@ class SeedsManager:
         self.path_constraints.save_on_disk(self.config.metadata_dir)
 
 
+    def __try_lighter_model(self, execution, previousConstraints, brcrt, limit):
+        astCtxt = execution.pstate.tt_ctx.getAstContext()
+        constraint = astCtxt.land(previousConstraints[-limit:] + [brcrt])
+        ts = time.time()
+        model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
+        te = time.time()
+        logging.info(f'Sending lighter query to the solver. Solving time: {te - ts} seconds. Status: {status}')
+        if status == Solver.TIMEOUT and limit <= 1:
+            model = self.__try_lighter_model(execution, previousConstraints, brcrt, int(limit / 2))
+        return model
+
+
     def __get_new_inputs(self, execution):
         # Set of new inputs
         inputs = set()
@@ -98,7 +111,7 @@ class SeedsManager:
         astCtxt = execution.pstate.tt_ctx.getAstContext()
 
         # We start with any input. T (Top)
-        previousConstraints = astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())
+        previousConstraints = [astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())]
 
         # Define a limit of branch constraints
         smt_queries = 0
@@ -132,6 +145,7 @@ class SeedsManager:
 
                     # Get the constraint of the branch which has not been taken.
                     if not branch['isTaken']:
+
                         if self.config.coverage_strategy == CoverageStrategy.PATH_COVERAGE:
                             # In path coverage, we have to fork the hash of the current
                             # pc for each branch we want to revert
@@ -145,18 +159,21 @@ class SeedsManager:
                             forked_hash = md5(array('L', [branch['srcAddr'], branch['dstAddr']]))
 
                         # Create the constraint
-                        constraint = astCtxt.land([previousConstraints, branch['constraint']])
+                        constraint = astCtxt.land(previousConstraints + [branch['constraint']])
 
                         # Only ask for a model if the constraints has never been asked
                         if self.path_constraints.hash_already_asked(forked_hash.hexdigest()) is False:
                             ts = time.time()
-                            model = execution.pstate.tt_ctx.getModel(constraint)
+                            model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
                             te = time.time()
                             smt_queries += 1
-                            logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds')
+                            logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
 
                             # Save the hash of the constraint
                             self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
+
+                            if status == Solver.TIMEOUT:
+                                model = self.__try_lighter_model(execution, previousConstraints, branch['constraint'], 200)
 
                             if model:
                                 # Current content before getting model
@@ -186,7 +203,7 @@ class SeedsManager:
                                 inputs.add(seed)
 
             # Update the previous constraints with true branch to keep a good path.
-            previousConstraints = astCtxt.land([previousConstraints, pc.getTakenPredicate()])
+            previousConstraints.append(pc.getTakenPredicate())
 
             # Check if we reached the limit of query
             if self.config.smt_queries_limit and smt_queries >= self.config.smt_queries_limit:
