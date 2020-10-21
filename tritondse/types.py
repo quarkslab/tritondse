@@ -1,6 +1,6 @@
 from enum    import IntEnum
 from pathlib import Path
-from triton  import ARCH
+from triton  import ARCH, SOLVER
 from typing  import Union, TypeVar
 
 # Type representing file either as a file, either as a Path object
@@ -31,3 +31,11 @@ class Architecture(IntEnum):
     ARM32   = ARCH.ARM32
     X86     = ARCH.X86
     X86_64  = ARCH.X86_64
+
+
+class Solver(IntEnum):
+    """ Common Solver Enum fully compatible with Triton ARCH """
+    SAT     = SOLVER.SAT
+    UNSAT   = SOLVER.UNSAT
+    TIMEOUT = SOLVER.TIMEOUT
+    UNKNOWN = SOLVER.UNKNOWN
