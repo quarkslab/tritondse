@@ -88,16 +88,32 @@ class SeedsManager:
         self.path_constraints.save_on_disk(self.config.metadata_dir)
 
 
-    def __try_lighter_model(self, execution, previousConstraints, brcrt, limit):
-        astCtxt = execution.pstate.tt_ctx.getAstContext()
-        constraint = astCtxt.land(previousConstraints[-limit:] + [brcrt])
-        ts = time.time()
-        model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
-        te = time.time()
-        logging.info(f'Sending lighter query to the solver. Solving time: {te - ts} seconds. Status: {status}')
-        if status == Solver.TIMEOUT and limit <= 1:
-            model = self.__try_lighter_model(execution, previousConstraints, brcrt, int(limit / 2))
+    def __try_lighter_model(self, ctx, end_pc):
+        constraint = self.__get_thread_pc(ctx, end_pc)
+        astCtxt = ctx.getAstContext()
+        constraint.append(astCtxt.lnot(end_pc.getTakenPredicate()))
+        status = SOLVER.TIMEOUT
+        index = 0
+        while status == SOLVER.TIMEOUT:
+            ts = time.time()
+            model, status = ctx.getModel(astCtxt.land(constraint[index:]), status=True)
+            te = time.time()
+            logging.info(f'Sending lighter query to the solver (size: {len(constraint[index:])}). Solving time: {te - ts} seconds. Status: {status}')
+            index += 100 % len(constraint)
         return model
+
+
+    def __get_thread_pc(self, ctx, end_pc):
+        thread_id = end_pc.getThreadId()
+        astCtxt = ctx.getAstContext()
+        constraints = [astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())]
+        pco = ctx.getPathConstraints()
+        for pc in pco:
+            if pc.getThreadId() != thread_id:
+                continue
+            if pc.getBranchConstraints() == end_pc.getBranchConstraints():
+                return constraints
+            constraints.append(pc.getTakenPredicate())
 
 
     def __get_new_inputs(self, execution):
@@ -173,7 +189,7 @@ class SeedsManager:
                             self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
 
                             if status == Solver.TIMEOUT:
-                                model = self.__try_lighter_model(execution, previousConstraints, branch['constraint'], 200)
+                                model = self.__try_lighter_model(execution.pstate.tt_ctx, pc)
 
                             if model:
                                 # Current content before getting model
