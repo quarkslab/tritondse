@@ -156,3 +156,9 @@ class ABI(object):
         for p in postString:
             args[p] = self.get_memory_string(args[p])
         return args
+
+
+    def get_stack_value(self, ctx, index):
+        sp = ctx.getConcreteRegisterValue(self.get_sp_register())
+        mem = MemoryAccess(sp + (index * ctx.getGprSize()), ctx.getGprSize())
+        return ctx.getConcreteMemoryValue(mem)
