@@ -342,10 +342,13 @@ def rtn_fprintf(se):
     arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
     arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
     arg5 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
+    arg6 = se.abi.get_stack_value(se.pstate.tt_ctx, 0)
+    arg7 = se.abi.get_stack_value(se.pstate.tt_ctx, 1)
+    arg8 = se.abi.get_stack_value(se.pstate.tt_ctx, 2)
 
     arg1f = se.abi.get_format_string(arg1)
     nbArgs = arg1f.count("{")
-    args = se.abi.get_format_arguments(arg1, [arg2, arg3, arg4, arg5][:nbArgs])
+    args = se.abi.get_format_arguments(arg1, [arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
     s = arg1f.format(*args)
 
     if arg0 in se.pstate.fd_table:
@@ -599,10 +602,13 @@ def rtn_printf(se):
     arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
     arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
     arg5 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
+    arg6 = se.abi.get_stack_value(se.pstate.tt_ctx, 0)
+    arg7 = se.abi.get_stack_value(se.pstate.tt_ctx, 1)
+    arg8 = se.abi.get_stack_value(se.pstate.tt_ctx, 2)
 
     arg0f = se.abi.get_format_string(arg0)
     nbArgs = arg0f.count("{")
-    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5][:nbArgs])
+    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
     s = arg0f.format(*args)
 
     se.pstate.fd_table[1].write(s)
@@ -958,10 +964,13 @@ def rtn_sprintf(se):
     arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
     arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
     arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
+    arg5 = se.abi.get_stack_value(se.pstate.tt_ctx, 0)
+    arg6 = se.abi.get_stack_value(se.pstate.tt_ctx, 1)
+    arg7 = se.abi.get_stack_value(se.pstate.tt_ctx, 2)
 
     arg0f = se.abi.get_format_string(arg0)
     nbArgs = arg0f.count("{")
-    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4][:nbArgs])
+    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7][:nbArgs])
     s = arg0f.format(*args)
 
     index = 0

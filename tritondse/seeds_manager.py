@@ -95,7 +95,7 @@ class SeedsManager:
         self.path_constraints.save_on_disk(self.config.metadata_dir)
 
 
-    def __try_lighter_model(self, ctx, end_pc):
+    def __try_lighter_model(self, ctx, end_pc, only_one=False):
         constraint = self.__get_thread_pc(ctx, end_pc)
         astCtxt = ctx.getAstContext()
         constraint.append(astCtxt.lnot(end_pc.getTakenPredicate()))
@@ -104,9 +104,15 @@ class SeedsManager:
 
         while status == SOLVER.TIMEOUT:
             ts = time.time()
-            model, status = ctx.getModel(astCtxt.land(constraint[index:]), status=True)
-            te = time.time()
-            logging.info(f'Sending lighter query to the solver (size: {len(constraint[index:])}). Solving time: {te - ts} seconds. Status: {status}')
+            if only_one:
+                # Solve the current constraint without any predicate
+                model, status = ctx.getModel(constraint[-1], status=True)
+                te = time.time()
+                logging.info(f'Sending lighter query to the solver (size: 1). Solving time: {te - ts} seconds. Status: {status}')
+            else:
+                model, status = ctx.getModel(astCtxt.land(constraint[index:]), status=True)
+                te = time.time()
+                logging.info(f'Sending lighter query to the solver (size: {len(constraint[index:])}). Solving time: {te - ts} seconds. Status: {status}')
             index += 100 % len(constraint)
 
         return model
@@ -197,10 +203,12 @@ class SeedsManager:
                             # Save the hash of the constraint
                             self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
 
+                            models = list([model])
                             if status == Solver.TIMEOUT:
-                                model = self.__try_lighter_model(execution.pstate.tt_ctx, pc)
+                                models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc))
+                                models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc, only_one=True))
 
-                            if model:
+                            for model in models:
                                 # Current content before getting model
                                 content = bytearray(execution.seed.content)
                                 # For each byte of the seed, we assign the value provided by the solver.
