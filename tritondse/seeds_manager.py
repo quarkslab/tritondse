@@ -101,12 +101,14 @@ class SeedsManager:
         constraint.append(astCtxt.lnot(end_pc.getTakenPredicate()))
         status = SOLVER.TIMEOUT
         index = 0
+
         while status == SOLVER.TIMEOUT:
             ts = time.time()
             model, status = ctx.getModel(astCtxt.land(constraint[index:]), status=True)
             te = time.time()
             logging.info(f'Sending lighter query to the solver (size: {len(constraint[index:])}). Solving time: {te - ts} seconds. Status: {status}')
             index += 100 % len(constraint)
+
         return model
 
 
@@ -116,8 +118,8 @@ class SeedsManager:
         constraints = [astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())]
         pco = ctx.getPathConstraints()
         for pc in pco:
-            if pc.getThreadId() != thread_id:
-                continue
+            #if pc.getThreadId() != thread_id:
+            #    continue
             if pc.getBranchConstraints() == end_pc.getBranchConstraints():
                 return constraints
             constraints.append(pc.getTakenPredicate())
