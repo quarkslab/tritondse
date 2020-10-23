@@ -1010,15 +1010,24 @@ def rtn_strcasecmp(se):
 def rtn_strchr(se):
     logging.debug('strchr hooked')
 
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    s = se.abi.get_memory_string(arg0)
-    c = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    r = s.find(chr(c))
+    string = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    char   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    ast    = se.pstate.tt_ctx.getAstContext()
 
-    if r == -1:
-        return Enums.CONCRETIZE, 0
+    def rec(res, deep, maxdeep):
+        if deep == maxdeep:
+            return res
+        cell = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(string + deep, 1))
+        res  = ast.ite(cell == (char & 0xff), ast.bv(string + deep, 64), rec(res, deep + 1, maxdeep))
+        return res
 
-    return Enums.CONCRETIZE, arg0 + r
+    sze = len(se.abi.get_memory_string(string))
+    res = rec(ast.bv(0, 64), 0, sze)
+
+    # create a new symbolic expression for this summary
+    expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strchr summary")
+
+    return Enums.SYMBOLIZE, expr
 
 
 def rtn_strcmp(se):
@@ -1167,6 +1176,7 @@ def rtn_strtok_r(se):
 
     tokens = re.split('[' + re.escape(d) + ']', s)
 
+    # TODO: Make it symbolic
     for token in tokens:
         if token:
             offset = s.find(token)
