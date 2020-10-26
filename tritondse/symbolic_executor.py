@@ -254,13 +254,17 @@ class SymbolicExecutor(object):
 
         # Link imported symbols
         for sname, rel_addr in self.program.imported_variable_symbols_relocations():
-            if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
                 logging.debug(f"Hooking {sname} at {rel_addr:#x}")
-                # Apply relocation to our custom address in process memory
-                self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
-            else:
-                logging.warning(f"symbol {sname} imported but unsupported")
+                if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
+                    if self.pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
+                        self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
 
+                    elif self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
+                        self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
+                        self.pstate.write_memory(cur_linkage_address, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
+                        cur_linkage_address += self.pstate.ptr_size
+                else:
+                    logging.warning(f"symbol {sname} imported but unsupported")
 
     def abort(self):
         raise RuntimeError('Execution aborted')
