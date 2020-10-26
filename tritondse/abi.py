@@ -161,7 +161,7 @@ class ABI(object):
         return args
 
 
-    def get_stack_value(self, ctx, index):
-        sp = ctx.getConcreteRegisterValue(self.get_sp_register())
-        mem = MemoryAccess(sp + (index * ctx.getGprSize()), ctx.getGprSize())
-        return ctx.getConcreteMemoryValue(mem)
+    def get_stack_value(self, index):
+        sp = self.pstate.tt_ctx.getConcreteRegisterValue(self.get_sp_register())
+        mem = MemoryAccess(sp + (index * self.pstate.ptr_size), self.pstate.ptr_size)
+        return self.pstate.tt_ctx.getConcreteMemoryValue(mem)
