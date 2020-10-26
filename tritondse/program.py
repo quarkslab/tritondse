@@ -155,7 +155,7 @@ class Program(object):
 
                 # Iterate functions imported via mandatory relocation (e.g: __libc_start_main)
                 for rel in self._binary.dynamic_relocations:
-                    if self._is_glob_dat(rel) and rel.has_symbol:
+                    if self._is_glob_dat(rel) and rel.has_symbol and not rel.symbol.is_variable:
                         yield rel.symbol.name, rel.address
             except Exception:
                 logging.error('Something wrong with the pltgot relocations')
@@ -174,7 +174,8 @@ class Program(object):
             rel_enum = self.relocation_enum
             # Iterate imported symbols
             for rel in self._binary.dynamic_relocations:
-                if rel_enum(rel.type) == rel_enum.COPY and rel.has_symbol:
+                if rel.has_symbol:
+                #if rel_enum(rel.type) == rel_enum.COPY and rel.has_symbol:
                     if rel.symbol.is_variable:
                         yield rel.symbol.name, rel.address
         else:
