@@ -1248,7 +1248,8 @@ SUPPORTED_ROUTINES = {
 
 
 SUPORTED_GVARIABLES = {
-    'stderr': 2,
-    'stdin':  0,
-    'stdout': 1
+    '__stack_chk_guard':    0xdead,
+    'stderr':               0x0002,
+    'stdin':                0x0000,
+    'stdout':               0x0001,
 }
