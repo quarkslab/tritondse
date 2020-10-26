@@ -248,9 +248,9 @@ class SymbolicExecutor(object):
                 self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
 
                 # Increment linkage address number
-                cur_linkage_address += 1
+                cur_linkage_address += self.pstate.ptr_size
             else:
-                logging.debug(f"function {fname} imported but unsupported")  # should be warning
+                logging.warning(f"function {fname} imported but unsupported")
 
         # Link imported symbols
         for sname, rel_addr in self.program.imported_variable_symbols_relocations():
@@ -259,7 +259,7 @@ class SymbolicExecutor(object):
                 # Apply relocation to our custom address in process memory
                 self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
             else:
-                logging.debug(f"symbol {sname} imported but unsupported")  # should be warning
+                logging.warning(f"symbol {sname} imported but unsupported")
 
 
     def abort(self):
