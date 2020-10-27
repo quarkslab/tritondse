@@ -13,28 +13,32 @@ config = Config(debug=False)
 config.execution_timeout    = 120   # 2 minutes
 config.smt_timeout          = 5000  # 5 seconds
 config.smt_queries_limit    = 0
-config.thread_scheduling    = 4
+config.thread_scheduling    = 123
 config.time_inc_coefficient = 0.00001
 config.coverage_strategy    = CoverageStrategy.EDGE_COVERAGE
 config.symbolize_stdin      = True
 config.program_argv         = [
-    b'../aarch64/micro_http_server_tt_fuzz_single_without_vuln',
-    #b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_with_vuln',
+    #b'../aarch64/micro_http_server_tt_fuzz_single_without_vuln',
+    b'../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_with_vuln',
     b'wlp0s20f3',
     b'48:e2:44:f5:9b:01',
     b'10.0.13.86',
     b'255.255.255.0',
     b'10.0.13.254'
+    #b'/home/jonathan/Works/QuarksLab/Missions/pastis/programme_etalon_etatique/bin/target'
 ]
 
 try:
-    program = Program('../aarch64/micro_http_server_tt_fuzz_single_without_vuln')
-    #program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_with_vuln')
+    #program = Program('../aarch64/micro_http_server_tt_fuzz_single_without_vuln')
+    program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_with_vuln')
+    #program = Program('/home/jonathan/Works/QuarksLab/Missions/pastis/programme_etalon_etatique/bin/target')
 except FileNotFoundError as e:
     print(e)
     sys.exit(-1)
 
 seed = SeedFile('../programme_etalon_final/micro_http_server/misc/frame.seed')
+#seed = SeedFile('/home/jonathan/Works/QuarksLab/Missions/pastis/programme_etalon_etatique/fuzzing/in/tcp_echo_1')
+#seed = SeedFile('/home/jonathan/Works/QuarksLab/Missions/pastis/programme_etalon_etatique/fuzzing/in/frame_ip4_tcp_syn')
 
 #dse = SymbolicExplorator(config, program, seed)
 #dse.explore()
