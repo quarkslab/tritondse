@@ -97,7 +97,7 @@ class HeapAllocator(object):
             raise AllocatorException('Double free or corruption!')
 
         if not self.is_ptr_allocated(ptr):
-            raise AllocatorException('Invalid pointer')
+            raise AllocatorException(f'Invalid pointer ({hex(ptr)})')
 
         # Add the chunk into our free_pool
         size = self.alloc_pool[ptr]

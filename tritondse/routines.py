@@ -242,6 +242,22 @@ def rtn_atoi(se):
     return Enums.SYMBOLIZE, expr
 
 
+def rtn_calloc(se):
+    logging.debug('calloc hooked')
+
+    # Get arguments
+    nmemb = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    size  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+
+    if nmemb == 0 or size == 0:
+        ptr = 0
+    else:
+        ptr = se.pstate.heap_allocator.alloc(nmemb * size)
+
+    # Return value
+    return Enums.CONCRETIZE, ptr
+
+
 def rtn_clock_gettime(se):
     logging.debug('clock_gettime hooked')
 
@@ -298,14 +314,13 @@ def rtn_fgets(se):
     minsize = (min(len(se.seed.content), size) if se.seed else size)
 
     if fd == 0 and se.config.symbolize_stdin:
+        if se.seed:
+            se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
+
         for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
-            if se.seed:
-                try:
-                    se.pstate.tt_ctx.setConcreteVariableValue(var, se.seed.content[index])
-                except Exception:
-                    pass
+
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
         return Enums.CONCRETIZE, buff
 
@@ -417,14 +432,28 @@ def rtn_fread(se):
     logging.debug('fread hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0)) # ptr
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1)) # size
+    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2)) # nmemb
+    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3)) # stream
+    size = arg1 * arg2
 
-    if arg3 in se.pstate.fd_table:
+    minsize = (min(len(se.seed.content), size) if se.seed else size)
+
+    if arg3 == 0 and se.config.symbolize_stdin:
+        if se.seed:
+            se.pstate.tt_ctx.setConcreteMemoryAreaValue(arg0, se.seed.content[:minsize])
+        for index in range(minsize):
+            var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(arg0 + index, CPUSIZE.BYTE))
+            var.setComment('stdin[%d]' % index)
+        logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(arg0, minsize))))
+        # TODO: Could return the read value as a symbolic one
+        return Enums.CONCRETIZE, minsize
+
+    elif arg3 in se.pstate.fd_table:
         data = se.pstate.fd_table[arg3].read(arg1 * arg2)
         se.pstate.tt_ctx.setConcreteMemoryAreaValue(arg0, data)
+
     else:
         return Enums.CONCRETIZE, 0
 
@@ -773,14 +802,13 @@ def rtn_read(se):
     minsize = (min(len(se.seed.content), size) if se.seed else size)
 
     if fd == 0 and se.config.symbolize_stdin:
+        if se.seed:
+            se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
+
         for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
-            if se.seed:
-                try:
-                    se.pstate.tt_ctx.setConcreteVariableValue(var, se.seed.content[index])
-                except Exception:
-                    pass
+
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
         # TODO: Could return the read value as a symbolic one
         return Enums.CONCRETIZE, minsize
@@ -1202,6 +1230,7 @@ SUPPORTED_ROUTINES = {
     '__stack_chk_fail':        rtn_stack_chk_fail,
     '__xstat':                 rtn_xstat,
     'atoi':                    rtn_atoi,
+    'calloc':                  rtn_calloc,
     'clock_gettime':           rtn_clock_gettime,
     'exit':                    rtn_exit,
     'fclose':                  rtn_fclose,
