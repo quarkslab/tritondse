@@ -102,10 +102,12 @@ class SeedsManager:
                 model, status = ctx.getModel(constraint[-1], status=True)
                 te = time.time()
                 logging.info(f'Sending lighter query to the solver (size: 1). Solving time: {te - ts} seconds. Status: {status}')
-            else:
+            elif len(constraint[index:]) >= 2:
                 model, status = ctx.getModel(astCtxt.land(constraint[index:]), status=True)
                 te = time.time()
                 logging.info(f'Sending lighter query to the solver (size: {len(constraint[index:])}). Solving time: {te - ts} seconds. Status: {status}')
+            else:
+                return {}
             index += 100 % len(constraint)
 
         return model
@@ -135,7 +137,10 @@ class SeedsManager:
         astCtxt = execution.pstate.tt_ctx.getAstContext()
 
         # We start with any input. T (Top)
-        previousConstraints = [astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())]
+        previousConstraints = [
+            astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue()),
+            astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())
+        ]
 
         # Define a limit of branch constraints
         smt_queries = 0
@@ -207,7 +212,7 @@ class SeedsManager:
                                 # For each byte of the seed, we assign the value provided by the solver.
                                 # If the solver provide no model for some bytes of the seed, their value
                                 # stay unmodified (with their current value).
-                                for k, v in model.items():
+                                for k, v in sorted(model.items()):
                                     content[k] = v.getValue()
 
                                 # Calling callback if user defined one
