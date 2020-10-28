@@ -1215,10 +1215,24 @@ def rtn_strtok_r(se):
     return Enums.CONCRETIZE, 0
 
 
+def rtn_strtoul(se):
+    logging.debug('strtoul hooked')
+
+    nptr   = se.abi.get_string_argument(0)
+    endptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    base   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+
+    # TODO: Make it symbolic
+
+    try:
+        return Enums.CONCRETIZE, int(nptr, base)
+    except:
+        return Enums.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
+
+
 
 SUPPORTED_ROUTINES = {
     # TODO:
-    #   - strtoul
     #   - tolower
     #   - toupper
     '__ctype_b_loc':           rtn_ctype_b_loc,
@@ -1273,6 +1287,7 @@ SUPPORTED_ROUTINES = {
     'strncmp':                 rtn_strncmp,
     'strncpy':                 rtn_strncpy,
     'strtok_r':                rtn_strtok_r,
+    'strtoul':                 rtn_strtoul,
 }
 
 

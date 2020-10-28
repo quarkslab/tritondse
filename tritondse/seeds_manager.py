@@ -95,14 +95,17 @@ class SeedsManager:
         status = SOLVER.TIMEOUT
         index = 0
 
+        if only_one:
+            # Solve the current constraint without any predicate
+            ts = time.time()
+            model, status = ctx.getModel(constraint[-1], status=True)
+            te = time.time()
+            logging.info(f'Sending lighter query to the solver (size: 1). Solving time: {te - ts} seconds. Status: {status}')
+            return model
+
         while status == SOLVER.TIMEOUT:
             ts = time.time()
-            if only_one:
-                # Solve the current constraint without any predicate
-                model, status = ctx.getModel(constraint[-1], status=True)
-                te = time.time()
-                logging.info(f'Sending lighter query to the solver (size: 1). Solving time: {te - ts} seconds. Status: {status}')
-            elif len(constraint[index:]) >= 2:
+            if len(constraint[index:]) >= 2:
                 model, status = ctx.getModel(astCtxt.land(constraint[index:]), status=True)
                 te = time.time()
                 logging.info(f'Sending lighter query to the solver (size: {len(constraint[index:])}). Solving time: {te - ts} seconds. Status: {status}')
@@ -113,14 +116,15 @@ class SeedsManager:
         return model
 
 
+
     def __get_thread_pc(self, ctx, end_pc):
         thread_id = end_pc.getThreadId()
         astCtxt = ctx.getAstContext()
         constraints = [astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())]
         pco = ctx.getPathConstraints()
         for pc in pco:
-            #if pc.getThreadId() != thread_id:
-            #    continue
+            if pc.getThreadId() != thread_id:
+                continue
             if pc.getBranchConstraints() == end_pc.getBranchConstraints():
                 return constraints
             constraints.append(pc.getTakenPredicate())
@@ -204,6 +208,8 @@ class SeedsManager:
                             models = list([model])
                             if status == Solver.TIMEOUT:
                                 models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc))
+                                models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc, only_one=True))
+                            else:
                                 models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc, only_one=True))
 
                             for model in models:
