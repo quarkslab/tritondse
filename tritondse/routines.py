@@ -1018,7 +1018,7 @@ def rtn_strcasecmp(se):
 
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    maxlen = max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
+    maxlen = min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, se.pstate.ptr_bit_size)
@@ -1063,7 +1063,7 @@ def rtn_strcmp(se):
 
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    maxlen = max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
+    maxlen = min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, 64)
@@ -1129,7 +1129,7 @@ def rtn_strncasecmp(se):
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     sz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    maxlen = min(sz, max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))))
+    maxlen = min(sz, min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1)
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, se.pstate.ptr_bit_size)
@@ -1152,7 +1152,7 @@ def rtn_strncmp(se):
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     sz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    maxlen = min(sz, max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))))
+    maxlen = min(sz, min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1)
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, 64)
