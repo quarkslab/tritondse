@@ -2,6 +2,7 @@ import array
 import glob
 import logging
 import os
+import time
 
 from array                      import array
 from hashlib                    import md5
