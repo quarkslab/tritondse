@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from triton             import TritonContext
 from tritondse.config   import Config
 

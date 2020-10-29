@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from tritondse.callbacks import CbType, ProbeInterface
 from tritondse.program   import Program
 from tritondse.seed      import Seed

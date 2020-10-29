@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from triton                  import *
 from tritondse.process_state import ProcessState
 
