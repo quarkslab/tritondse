@@ -153,7 +153,7 @@ class SeedsManager:
                             model = execution.pstate.tt_ctx.getModel(constraint)
                             te = time.time()
                             smt_queries += 1
-                            logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts} seconds')
+                            logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds')
 
                             # Save the hash of the constraint
                             self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
