@@ -51,7 +51,7 @@ class SymbolicExplorator(object):
         execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed=seed, uid=uid, callbacks=cbs)
         execution.run()
 
-        if self.config.exploration_limit and uid >= self.config.exploration_limit:
+        if self.config.exploration_limit and (uid+1) >= self.config.exploration_limit:
             logging.info('Exploration limit reached')
             self.stop = True
             return
