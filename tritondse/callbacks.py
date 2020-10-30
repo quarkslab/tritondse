@@ -92,12 +92,12 @@ class CallbackManager(object):
         return self._empty
 
 
-    def is_binded(self, se) -> bool:
+    def is_binded(self) -> bool:
         """
         Check if the callback manager has already been binded on a given process state.
         :return: True if callbacks are binded on a process state
         """
-        return bool(self._se and self._se.uid == se.uid)
+        return bool(self._se) # and self._se.uid == se.uid)
 
 
     def _trampoline_mem_read_cb(self, ctx, mem):
@@ -155,7 +155,7 @@ class CallbackManager(object):
         :param se: SymbolicExecutor on which to bind callbacks
         :return: None
         """
-        assert not self.is_binded(se)
+        assert not self.is_binded()
 
         self._se = se
 
@@ -465,3 +465,32 @@ class CallbackManager(object):
 
             elif kind == CbType.PRE_RTN:
                 self.register_pre_imported_routine_callback(arg, cb)
+
+    def fork(self) -> 'CallbackManager':
+        """
+        Fork the current CallbackManager in a new object instance
+        (that will be unbinded). That method is used by the SymbolicExplorator
+        to ensure each SymbolicExecutor running concurrently will have
+        their own instance off the CallbackManager.
+
+        :return: Fresh instance of CallbackManager
+        """
+        cbs = CallbackManager(self.p)
+
+        # SymbolicExecutor callbacks
+        cbs._pc_addr_cbs   = self._pc_addr_cbs
+        cbs._instr_cbs     = self._instr_cbs
+        cbs._pre_exec      = self._pre_exec
+        cbs._post_exec     = self._post_exec
+        cbs._ctx_switch    = self._ctx_switch
+        cbs._new_input_cbs = self._new_input_cbs
+        cbs._pre_rtn_cbs   = self._pre_rtn_cbs
+        cbs._post_rtn_cbs  = self._post_rtn_cbs
+        # Triton callbacks
+        cbs._mem_read_cbs  = self._mem_read_cbs
+        cbs._mem_write_cbs = self._mem_write_cbs
+        cbs._reg_read_cbs  = self._reg_read_cbs
+        cbs._reg_write_cbs = self._reg_write_cbs
+        cbs._empty         = self._empty
+
+        return cbs

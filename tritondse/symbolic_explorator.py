@@ -47,7 +47,8 @@ class SymbolicExplorator(object):
             return
 
         # Execute the binary with seeds
-        execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed=seed, uid=uid, callbacks=self.cbm)
+        cbs = None if self.cbm.is_empty() else self.cbm.fork()
+        execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed=seed, uid=uid, callbacks=cbs)
         execution.run()
 
         if self.config.exploration_limit and (uid+1) >= self.config.exploration_limit:
