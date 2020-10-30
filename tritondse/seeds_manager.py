@@ -16,7 +16,7 @@ from tritondse.types            import *
 
 
 
-class SeedsManager:
+class SeedManager:
     """
     This class is used to represent the seeds management.
     """

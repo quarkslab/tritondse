@@ -8,7 +8,7 @@ from tritondse.config            import Config
 from tritondse.process_state     import ProcessState
 from tritondse.program           import Program
 from tritondse.seed              import Seed, SeedFile
-from tritondse.seeds_manager     import SeedsManager
+from tritondse.seeds_manager     import SeedManager
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.callbacks         import CallbackManager
 
@@ -29,7 +29,7 @@ class SymbolicExplorator(object):
         self.program       = program
         self.config        = config
         self.cbm           = CallbackManager(program)
-        self.seeds_manager = SeedsManager(self.config, self.cbm)
+        self.seeds_manager = SeedManager(self.config, self.cbm)
         self._stop          = False
         self.ts            = time.time()
         self.uid_counter   = 0
