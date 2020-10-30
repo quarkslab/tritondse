@@ -7,10 +7,12 @@ from enum import Enum
 from tritondse.config            import Config
 from tritondse.process_state     import ProcessState
 from tritondse.program           import Program
-from tritondse.seed              import Seed, SeedFile
+from tritondse.seed              import Seed
 from tritondse.seeds_manager     import SeedManager
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.callbacks         import CallbackManager
+from tritondse.workspace         import Workspace
+from tritondse.coverage          import GlobalCoverage
 
 
 class ExplorationStatus(Enum):
@@ -29,11 +31,21 @@ class SymbolicExplorator(object):
         self.program       = program
         self.config        = config
         self.cbm           = CallbackManager(program)
-        self.seeds_manager = SeedManager(self.config, self.cbm)
         self._stop          = False
         self.ts            = time.time()
         self.uid_counter   = 0
         self.status = ExplorationStatus.NOT_RUNNING
+
+        # Initialize the workspace
+        self.workspace = Workspace(self.config.workspace)
+        self.workspace.initialize(flush=False)
+
+        # Initialize coverage
+        self.coverage = GlobalCoverage(self.config.coverage_strategy, self.workspace)
+
+        # Initialize the seed manager
+        self.seeds_manager = SeedManager(self.config, self.cbm, self.coverage, self.workspace)
+
 
 
     @property
@@ -47,7 +59,7 @@ class SymbolicExplorator(object):
 
     def worker(self, seed, uid):
         """ Worker thread """
-        logging.info(f'Pickuping {self.config.worklist_dir}/{seed.get_file_name()}')
+        logging.info(f'Pickuping seed: {seed.filename}')
 
         if self.config.exploration_timeout and self.__time_delta() >= self.config.exploration_timeout:
             logging.info('Exploration timout')
@@ -66,6 +78,8 @@ class SymbolicExplorator(object):
 
         # Some analysis in post execution
         self.seeds_manager.post_execution(execution, seed)
+
+
 
         logging.info('Total time of the exploration: %f seconds' % (self.__time_delta()))
 
@@ -100,6 +114,10 @@ class SymbolicExplorator(object):
         except KeyboardInterrupt:
             logging.warning("keyboard interrupt, stop symbolic exploration")
             self.status = ExplorationStatus.STOPPED
+
+        # Call all termination functions
+        self.seeds_manager.post_exploration()
+        self.coverage.post_exploration()
 
         return self.status
 
