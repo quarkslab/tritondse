@@ -588,11 +588,16 @@ def rtn_memmove(se):
     src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     cnt = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
 
+    src_cells = []
     # TODO: What if cnt is symbolic ?
     for index in range(cnt):
-        dmem  = MemoryAccess(dst + index, 1)
         smem  = MemoryAccess(src + index, 1)
         cell = se.pstate.tt_ctx.getMemoryAst(smem)
+        src_cells.append(cell)
+
+    for index in range(cnt):
+        dmem  = MemoryAccess(dst + index, 1)
+        cell = src_cells.pop(0)
         expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "memmove byte")
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
