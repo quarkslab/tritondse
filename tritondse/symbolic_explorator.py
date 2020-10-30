@@ -79,7 +79,10 @@ class SymbolicExplorator(object):
             self.uid_counter += 1
 
             try:
-                t.join()
+                while True:
+                    t.join(0.001)
+                    if not t.is_alive():
+                        break
                 gc.collect()  # FIXME: Why we have to force the collect to avoid memory leak?
             except KeyboardInterrupt:
                 logging.warning("keyboard interrupt, stop symbolic exploration")
