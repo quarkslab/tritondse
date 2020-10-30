@@ -19,6 +19,7 @@ class Config(object):
         self.smt_queries_limit      = 2000                            # Limit of SMT queries by execution
         self.coverage_strategy      = CoverageStrategy.CODE_COVERAGE  # Coverage strategy
         self.debug                  = debug                           # Enable debug info by default
+        self.workspace              = "."                             # Workspace directory
         self.corpus_dir             = './corpus'                      # The corpus directory
         self.crash_dir              = './crash'                       # The crash directory
         self.worklist_dir           = './worklist'                    # The worklist directory

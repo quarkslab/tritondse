@@ -10,26 +10,30 @@ from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess
 # local imports
 from tritondse.abi           import ABI
 from tritondse.config        import Config
-from tritondse.coverage      import Coverage
+from tritondse.coverage      import CoverageSingleRun
 from tritondse.process_state import ProcessState
 from tritondse.program       import Program
-from tritondse.seed          import Seed
+from tritondse.seed          import Seed, SeedStatus
 from tritondse.types         import ConcSymAction
 from tritondse.routines      import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks     import CallbackManager
+from tritondse.workspace     import Workspace
 
 
 class SymbolicExecutor(object):
     """
     This class is used to represent the symbolic execution.
     """
-    def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = None, uid=0, callbacks=None):
+    def __init__(self, config: Config, pstate: ProcessState, program: Program, workspace: Workspace = None, seed: Seed = None, uid=0, callbacks=None):
         self.program    = program           # The program to execute
         self.pstate     = pstate            # The process state
         self.config     = config            # The config
+        self.workspace  = workspace         # The current workspace
+        if self.workspace is None:
+            self.workspace = Workspace(config.workspace)
         self.seed       = seed              # The current seed used to the execution
         self.abi        = ABI(self.pstate)  # ABI interface
-        self.coverage   = Coverage()        # The coverage state
+        self.coverage   = CoverageSingleRun(self.config.coverage_strategy) # The coverage state
         self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
         self.uid        = uid               # Unique identifier meant to unique accross Exploration instances
         # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
@@ -156,9 +160,10 @@ class SymbolicExecutor(object):
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:
                 logging.info('Timeout of an execution reached')
-                # TODO: Put the input in the hang directory
-                break
+                self.seed.status = SeedStatus.HANG
+                return
 
+        self.seed.status = SeedStatus.OK_DONE
         return
 
 

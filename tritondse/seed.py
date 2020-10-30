@@ -1,5 +1,15 @@
 import os
 import hashlib
+from enum    import Enum
+from pathlib import Path
+
+
+class SeedStatus(Enum):
+    NEW     = 0
+    OK_DONE = 1
+    CRASH   = 2
+    HANG    = 3
+
 
 
 class Seed(object):
@@ -7,9 +17,20 @@ class Seed(object):
     This class is used to represent a seed input. The seed will be injected
     into stdin or argv according to the Triton DSE configuration.
     """
-    def __init__(self, content=bytes()):
+    def __init__(self, content=bytes(), status=SeedStatus.NEW):
         self.content     = bytes(content)
         self.target_addr = None
+        self._status = status
+
+
+    @property
+    def status(self) -> SeedStatus:
+        return self._status
+
+
+    @status.setter
+    def status(self, value: SeedStatus) -> None:
+        self._status = value
 
 
     def __len__(self):
@@ -44,40 +65,14 @@ class Seed(object):
         m = hashlib.md5(self.content)
         return m.hexdigest()
 
-
-    def get_file_name(self):
+    @property
+    def filename(self):
         """
         Return the file name of the seed
         """
         # TODO: Handle HF mangling?
         return f'{self.get_hash()}.{self.get_size():08x}.tritondse.cov'
 
-
-    def save_on_disk(self, directory):
-        """
-        Save the seed on disk.
-        """
-        with open(f'{directory}/{self.get_file_name()}', 'wb+') as fd:
-            fd.write(self.content)
-
-
-    def remove_from_disk(self, directory):
-        """
-        Remove the seed file from disk.
-        """
-        path = f'{directory}/{self.get_file_name()}'
-        if os.path.exists(path):
-            os.remove(path)
-            return True
-        return False
-
-
-
-class SeedFile(Seed):
-    """
-    This class is used to represent a seed input form a file.
-    """
-    def __init__(self, path):
-        Seed.__init__(self)
-        with open(path, 'rb') as f:
-            self.content = f.read()
+    @staticmethod
+    def from_file(path: str, status: SeedStatus = SeedStatus.NEW) -> 'Seed':
+        return Seed(Path(path).read_bytes(), status)
