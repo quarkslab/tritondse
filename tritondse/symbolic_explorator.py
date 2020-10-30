@@ -18,11 +18,11 @@ class SymbolicExplorator(object):
     """
     This class is used to represent the symbolic exploration.
     """
-    def __init__(self, config: Config, program: Program, seed: Seed = Seed()):
+    def __init__(self, config: Config, program: Program):
         self.program       = program
         self.config        = config
         self.cbm           = CallbackManager(program)
-        self.seeds_manager = SeedsManager(self.config, self.cbm, seed)
+        self.seeds_manager = SeedsManager(self.config, self.cbm)
         self.stop          = False
         self.ts            = time.time()
         self.uid_counter   = 0
@@ -50,7 +50,7 @@ class SymbolicExplorator(object):
         execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed=seed, uid=uid, callbacks=self.cbm)
         execution.run()
 
-        if self.config.exploration_limit and uid >= self.config.exploration_limit:
+        if self.config.exploration_limit and (uid+1) >= self.config.exploration_limit:
             logging.info('Exploration limit reached')
             self.stop = True
             return

@@ -21,9 +21,8 @@ class SeedsManager:
     """
     This class is used to represent the seeds management.
     """
-    def __init__(self, config: Config, callbacks: CallbackManager, seed: Seed = Seed()):
+    def __init__(self, config: Config, callbacks: CallbackManager):
         self.config           = config
-        self.initial_seed     = seed
         self.coverage         = Coverage()
         self.path_constraints = PathConstraintsHash()
         self.worklist         = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
@@ -32,10 +31,6 @@ class SeedsManager:
         self.crash            = set()
 
         self.__init_dirs()
-
-        # Define the first seed if not already tested
-        if self.initial_seed not in self.corpus and self.initial_seed not in self.crash:
-            self.worklist.add(self.initial_seed)
 
 
     def __load_seed_from_file(self, path):
@@ -205,7 +200,7 @@ class SeedsManager:
                             model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
                             te = time.time()
                             smt_queries += 1
-                            logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts} seconds. Status: {status}')
+                            logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
 
                             # Save the hash of the constraint
                             self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
