@@ -173,7 +173,7 @@ class ProcessState(object):
         :param callback: routines to call on the given event
         :return: None
         """
-        self.tt_ctx.addCallback(callback, cb_type)
+        self.tt_ctx.addCallback(cb_type, callback)
 
 
     def is_heap_ptr(self, ptr: Addr) -> bool:

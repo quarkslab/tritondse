@@ -2,6 +2,7 @@ import array
 import glob
 import logging
 import os
+import time
 
 from array                      import array
 from hashlib                    import md5
@@ -12,6 +13,7 @@ from tritondse.callbacks        import CallbackManager
 from tritondse.coverage         import Coverage
 from tritondse.path_constraints import PathConstraintsHash
 from tritondse.worklist         import *
+from tritondse.types            import *
 
 
 
@@ -91,6 +93,48 @@ class SeedsManager:
         self.path_constraints.save_on_disk(self.config.metadata_dir)
 
 
+    def __try_lighter_model(self, ctx, end_pc, only_one=False):
+        constraint = self.__get_thread_pc(ctx, end_pc)
+        astCtxt = ctx.getAstContext()
+        constraint.append(astCtxt.lnot(end_pc.getTakenPredicate()))
+        status = SOLVER.TIMEOUT
+        index = 0
+
+        if only_one:
+            # Solve the current constraint without any predicate
+            ts = time.time()
+            model, status = ctx.getModel(constraint[-1], status=True)
+            te = time.time()
+            logging.info(f'Sending lighter query to the solver (size: 1). Solving time: {te - ts} seconds. Status: {status}')
+            return model
+
+        while status == SOLVER.TIMEOUT:
+            ts = time.time()
+            if len(constraint[index:]) >= 2:
+                model, status = ctx.getModel(astCtxt.land(constraint[index:]), status=True)
+                te = time.time()
+                logging.info(f'Sending lighter query to the solver (size: {len(constraint[index:])}). Solving time: {te - ts} seconds. Status: {status}')
+            else:
+                return {}
+            index += 100 % len(constraint)
+
+        return model
+
+
+
+    def __get_thread_pc(self, ctx, end_pc):
+        thread_id = end_pc.getThreadId()
+        astCtxt = ctx.getAstContext()
+        constraints = [astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())]
+        pco = ctx.getPathConstraints()
+        for pc in pco:
+            if pc.getThreadId() != thread_id:
+                continue
+            if pc.getBranchConstraints() == end_pc.getBranchConstraints():
+                return constraints
+            constraints.append(pc.getTakenPredicate())
+
+
     def __get_new_inputs(self, execution):
         # Set of new inputs
         inputs = set()
@@ -102,7 +146,10 @@ class SeedsManager:
         astCtxt = execution.pstate.tt_ctx.getAstContext()
 
         # We start with any input. T (Top)
-        previousConstraints = astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())
+        previousConstraints = [
+            astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue()),
+            astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())
+        ]
 
         # Define a limit of branch constraints
         smt_queries = 0
@@ -136,6 +183,7 @@ class SeedsManager:
 
                     # Get the constraint of the branch which has not been taken.
                     if not branch['isTaken']:
+
                         if self.config.coverage_strategy == CoverageStrategy.PATH_COVERAGE:
                             # In path coverage, we have to fork the hash of the current
                             # pc for each branch we want to revert
@@ -149,26 +197,33 @@ class SeedsManager:
                             forked_hash = md5(array('L', [branch['srcAddr'], branch['dstAddr']]))
 
                         # Create the constraint
-                        constraint = astCtxt.land([previousConstraints, branch['constraint']])
+                        constraint = astCtxt.land(previousConstraints + [branch['constraint']])
 
                         # Only ask for a model if the constraints has never been asked
                         if self.path_constraints.hash_already_asked(forked_hash.hexdigest()) is False:
                             ts = time.time()
-                            model = execution.pstate.tt_ctx.getModel(constraint)
+                            model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
                             te = time.time()
                             smt_queries += 1
-                            logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts} seconds')
+                            logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts} seconds. Status: {status}')
 
                             # Save the hash of the constraint
                             self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
 
-                            if model:
+                            models = list([model])
+                            if status == Solver.TIMEOUT:
+                                models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc))
+                                models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc, only_one=True))
+                            else:
+                                models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc, only_one=True))
+
+                            for model in models:
                                 # Current content before getting model
                                 content = bytearray(execution.seed.content)
                                 # For each byte of the seed, we assign the value provided by the solver.
                                 # If the solver provide no model for some bytes of the seed, their value
                                 # stay unmodified (with their current value).
-                                for k, v in model.items():
+                                for k, v in sorted(model.items()):
                                     content[k] = v.getValue()
 
                                 # Calling callback if user defined one
@@ -190,7 +245,7 @@ class SeedsManager:
                                 inputs.add(seed)
 
             # Update the previous constraints with true branch to keep a good path.
-            previousConstraints = astCtxt.land([previousConstraints, pc.getTakenPredicate()])
+            previousConstraints.append(pc.getTakenPredicate())
 
             # Check if we reached the limit of query
             if self.config.smt_queries_limit and smt_queries >= self.config.smt_queries_limit:
@@ -205,8 +260,8 @@ class SeedsManager:
 
     def add_seed(self, seed):
         if seed and seed not in self.corpus and seed not in self.crash:
-            self.worklist.add(seed)
             seed.save_on_disk(self.config.worklist_dir)
+            self.worklist.add(seed)
             logging.info(f'Seed dumped into {self.config.worklist_dir}/{seed.get_file_name()}')
 
 
