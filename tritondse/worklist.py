@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 
 class WorklistAddressToSet(object):
     """
@@ -26,7 +23,7 @@ class WorklistAddressToSet(object):
         if seed.target_addr in self.worklist:
             self.worklist[seed.target_addr].add(seed)
         else:
-            self.worklist.update({seed.target_addr: set({seed})})
+            self.worklist.update({seed.target_addr: {seed}})
 
 
     def pick(self):

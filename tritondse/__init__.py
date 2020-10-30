@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from .config                import Config
 from .process_state         import ProcessState
 from .heap_allocator        import HeapAllocator
@@ -19,3 +16,7 @@ from .routines              import *
 from .worklist              import WorklistAddressToSet, WorklistDFS, WorklistBFS, WorklistRand, WorklistFifo, WorklistLifo
 from .types                 import PathLike, Addr, rAddr, BitSize, ByteSize, Architecture, Input
 from .sanitizers            import UAFSanitizer, NullDerefSanitizer, FormatStringSanitizer, IntegerOverflowSanitizer
+
+from triton import VERSION
+
+TRITON_VERSION = f"v{VERSION.MAJOR}.{VERSION.MINOR}"
