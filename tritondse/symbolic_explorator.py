@@ -28,13 +28,13 @@ class SymbolicExplorator(object):
         self.uid_counter   = 0
 
 
-    def __time_delta(self):
-        return time.time() - self.ts
-
-
     @property
     def callback_manager(self) -> CallbackManager:
         return self.cbm
+
+
+    def __time_delta(self):
+        return time.time() - self.ts
 
 
     def worker(self, seed, uid):
@@ -47,8 +47,7 @@ class SymbolicExplorator(object):
             return
 
         # Execute the binary with seeds
-        cbs = None if self.cbm.is_empty() else self.cbm.fork()
-        execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed=seed, uid=uid, callbacks=cbs)
+        execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed=seed, uid=uid, callbacks=self.cbm)
         execution.run()
 
         if self.config.exploration_limit and uid >= self.config.exploration_limit:

@@ -24,14 +24,14 @@ class SymbolicExecutor(object):
     This class is used to represent the symbolic execution.
     """
     def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = None, uid=0, callbacks=None):
-        self.program    = program
-        self.pstate     = pstate
-        self.config     = config
-        self.seed       = seed
-        self.abi        = ABI(self.pstate)
-        self.coverage   = Coverage()
-        self.rtn_table  = dict() # Addr -> Tuple[fname, routine]
-        self._uid       = uid # Unique identifier meant to unique accross Exploration instances
+        self.program    = program           # The program to execute
+        self.pstate     = pstate            # The process state
+        self.config     = config            # The config
+        self.seed       = seed              # The current seed used to the execution
+        self.abi        = ABI(self.pstate)  # ABI interface
+        self.coverage   = Coverage()        # The coverage state
+        self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
+        self.uid        = uid               # Unique identifier meant to unique accross Exploration instances
         # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
 
         # create callback object if not provided as argument, and bind callbacks to the current process state
@@ -248,19 +248,23 @@ class SymbolicExecutor(object):
                 self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
 
                 # Increment linkage address number
-                cur_linkage_address += 1
+                cur_linkage_address += self.pstate.ptr_size
             else:
-                logging.debug(f"function {fname} imported but unsupported")  # should be warning
+                logging.warning(f"function {fname} imported but unsupported")
 
         # Link imported symbols
         for sname, rel_addr in self.program.imported_variable_symbols_relocations():
-            if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
                 logging.debug(f"Hooking {sname} at {rel_addr:#x}")
-                # Apply relocation to our custom address in process memory
-                self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
-            else:
-                logging.debug(f"symbol {sname} imported but unsupported")  # should be warning
+                if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
+                    if self.pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
+                        self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
 
+                    elif self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
+                        self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
+                        self.pstate.write_memory(cur_linkage_address, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
+                        cur_linkage_address += self.pstate.ptr_size
+                else:
+                    logging.warning(f"symbol {sname} imported but unsupported")
 
     def abort(self):
         raise RuntimeError('Execution aborted')

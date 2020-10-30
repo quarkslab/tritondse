@@ -239,6 +239,22 @@ def rtn_atoi(se):
     return Enums.SYMBOLIZE, expr
 
 
+def rtn_calloc(se):
+    logging.debug('calloc hooked')
+
+    # Get arguments
+    nmemb = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    size  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+
+    if nmemb == 0 or size == 0:
+        ptr = 0
+    else:
+        ptr = se.pstate.heap_allocator.alloc(nmemb * size)
+
+    # Return value
+    return Enums.CONCRETIZE, ptr
+
+
 def rtn_clock_gettime(se):
     logging.debug('clock_gettime hooked')
 
@@ -295,14 +311,13 @@ def rtn_fgets(se):
     minsize = (min(len(se.seed.content), size) if se.seed else size)
 
     if fd == 0 and se.config.symbolize_stdin:
+        if se.seed:
+            se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
+
         for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
-            if se.seed:
-                try:
-                    se.pstate.tt_ctx.setConcreteVariableValue(var, se.seed.content[index])
-                except Exception:
-                    pass
+
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
         return Enums.CONCRETIZE, buff
 
@@ -339,10 +354,13 @@ def rtn_fprintf(se):
     arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
     arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
     arg5 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
+    arg6 = se.abi.get_stack_value(0)
+    arg7 = se.abi.get_stack_value(1)
+    arg8 = se.abi.get_stack_value(2)
 
     arg1f = se.abi.get_format_string(arg1)
     nbArgs = arg1f.count("{")
-    args = se.abi.get_format_arguments(arg1, [arg2, arg3, arg4, arg5][:nbArgs])
+    args = se.abi.get_format_arguments(arg1, [arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
     s = arg1f.format(*args)
 
     if arg0 in se.pstate.fd_table:
@@ -411,14 +429,28 @@ def rtn_fread(se):
     logging.debug('fread hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0)) # ptr
+    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1)) # size
+    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2)) # nmemb
+    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3)) # stream
+    size = arg1 * arg2
 
-    if arg3 in se.pstate.fd_table:
+    minsize = (min(len(se.seed.content), size) if se.seed else size)
+
+    if arg3 == 0 and se.config.symbolize_stdin:
+        if se.seed:
+            se.pstate.tt_ctx.setConcreteMemoryAreaValue(arg0, se.seed.content[:minsize])
+        for index in range(minsize):
+            var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(arg0 + index, CPUSIZE.BYTE))
+            var.setComment('stdin[%d]' % index)
+        logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(arg0, minsize))))
+        # TODO: Could return the read value as a symbolic one
+        return Enums.CONCRETIZE, minsize
+
+    elif arg3 in se.pstate.fd_table:
         data = se.pstate.fd_table[arg3].read(arg1 * arg2)
         se.pstate.tt_ctx.setConcreteMemoryAreaValue(arg0, data)
+
     else:
         return Enums.CONCRETIZE, 0
 
@@ -596,10 +628,13 @@ def rtn_printf(se):
     arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
     arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
     arg5 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
+    arg6 = se.abi.get_stack_value(0)
+    arg7 = se.abi.get_stack_value(1)
+    arg8 = se.abi.get_stack_value(2)
 
     arg0f = se.abi.get_format_string(arg0)
     nbArgs = arg0f.count("{")
-    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5][:nbArgs])
+    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
     s = arg0f.format(*args)
 
     se.pstate.fd_table[1].write(s)
@@ -764,14 +799,13 @@ def rtn_read(se):
     minsize = (min(len(se.seed.content), size) if se.seed else size)
 
     if fd == 0 and se.config.symbolize_stdin:
+        if se.seed:
+            se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
+
         for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
-            if se.seed:
-                try:
-                    se.pstate.tt_ctx.setConcreteVariableValue(var, se.seed.content[index])
-                except Exception:
-                    pass
+
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
         # TODO: Could return the read value as a symbolic one
         return Enums.CONCRETIZE, minsize
@@ -955,10 +989,13 @@ def rtn_sprintf(se):
     arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
     arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
     arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
+    arg5 = se.abi.get_stack_value(0)
+    arg6 = se.abi.get_stack_value(1)
+    arg7 = se.abi.get_stack_value(2)
 
     arg0f = se.abi.get_format_string(arg0)
     nbArgs = arg0f.count("{")
-    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4][:nbArgs])
+    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7][:nbArgs])
     s = arg0f.format(*args)
 
     index = 0
@@ -978,7 +1015,7 @@ def rtn_strcasecmp(se):
 
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    maxlen = max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
+    maxlen = min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, se.pstate.ptr_bit_size)
@@ -998,15 +1035,24 @@ def rtn_strcasecmp(se):
 def rtn_strchr(se):
     logging.debug('strchr hooked')
 
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    s = se.abi.get_memory_string(arg0)
-    c = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    r = s.find(chr(c))
+    string = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    char   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    ast    = se.pstate.tt_ctx.getAstContext()
 
-    if r == -1:
-        return Enums.CONCRETIZE, 0
+    def rec(res, deep, maxdeep):
+        if deep == maxdeep:
+            return res
+        cell = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(string + deep, 1))
+        res  = ast.ite(cell == (char & 0xff), ast.bv(string + deep, 64), rec(res, deep + 1, maxdeep))
+        return res
 
-    return Enums.CONCRETIZE, arg0 + r
+    sze = len(se.abi.get_memory_string(string))
+    res = rec(ast.bv(0, 64), 0, sze)
+
+    # create a new symbolic expression for this summary
+    expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strchr summary")
+
+    return Enums.SYMBOLIZE, expr
 
 
 def rtn_strcmp(se):
@@ -1014,7 +1060,7 @@ def rtn_strcmp(se):
 
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    maxlen = max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
+    maxlen = min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, 64)
@@ -1080,7 +1126,7 @@ def rtn_strncasecmp(se):
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     sz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    maxlen = min(sz, max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))))
+    maxlen = min(sz, min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1)
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, se.pstate.ptr_bit_size)
@@ -1103,7 +1149,7 @@ def rtn_strncmp(se):
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     sz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    maxlen = min(sz, max(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))))
+    maxlen = min(sz, min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1)
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, 64)
@@ -1155,6 +1201,7 @@ def rtn_strtok_r(se):
 
     tokens = re.split('[' + re.escape(d) + ']', s)
 
+    # TODO: Make it symbolic
     for token in tokens:
         if token:
             offset = s.find(token)
@@ -1168,10 +1215,24 @@ def rtn_strtok_r(se):
     return Enums.CONCRETIZE, 0
 
 
+def rtn_strtoul(se):
+    logging.debug('strtoul hooked')
+
+    nptr   = se.abi.get_string_argument(0)
+    endptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    base   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+
+    # TODO: Make it symbolic
+
+    try:
+        return Enums.CONCRETIZE, int(nptr, base)
+    except:
+        return Enums.CONCRETIZE, 0xffffffff
+
+
 
 SUPPORTED_ROUTINES = {
     # TODO:
-    #   - strtoul
     #   - tolower
     #   - toupper
     '__ctype_b_loc':           rtn_ctype_b_loc,
@@ -1180,6 +1241,7 @@ SUPPORTED_ROUTINES = {
     '__stack_chk_fail':        rtn_stack_chk_fail,
     '__xstat':                 rtn_xstat,
     'atoi':                    rtn_atoi,
+    'calloc':                  rtn_calloc,
     'clock_gettime':           rtn_clock_gettime,
     'exit':                    rtn_exit,
     'fclose':                  rtn_fclose,
@@ -1225,11 +1287,13 @@ SUPPORTED_ROUTINES = {
     'strncmp':                 rtn_strncmp,
     'strncpy':                 rtn_strncpy,
     'strtok_r':                rtn_strtok_r,
+    'strtoul':                 rtn_strtoul,
 }
 
 
 SUPORTED_GVARIABLES = {
-    'stderr': 2,
-    'stdin':  0,
-    'stdout': 1
+    '__stack_chk_guard':    0xdead,
+    'stderr':               0x0002,
+    'stdin':                0x0000,
+    'stdout':               0x0001,
 }
