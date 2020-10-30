@@ -1,6 +1,6 @@
 import logging
 
-from tritondse.enums import CoverageStrategy
+from tritondse.coverage import CoverageStrategy
 
 
 

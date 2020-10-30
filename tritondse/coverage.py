@@ -1,4 +1,11 @@
 import os
+from enum import Enum, auto
+
+
+class CoverageStrategy(Enum):
+    CODE_COVERAGE = auto()
+    PATH_COVERAGE = auto()
+    EDGE_COVERAGE = auto()
 
 
 class Coverage(object):
