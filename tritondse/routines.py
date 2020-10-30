@@ -1227,7 +1227,7 @@ def rtn_strtoul(se):
     try:
         return Enums.CONCRETIZE, int(nptr, base)
     except:
-        return Enums.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
+        return Enums.CONCRETIZE, 0xffffffff
 
 
 
