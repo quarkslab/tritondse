@@ -14,7 +14,7 @@ from tritondse.coverage      import Coverage
 from tritondse.process_state import ProcessState
 from tritondse.program       import Program
 from tritondse.seed          import Seed
-from tritondse.enums         import Enums
+from tritondse.types         import ConcSymAction
 from tritondse.routines      import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks     import CallbackManager
 
@@ -156,6 +156,7 @@ class SymbolicExecutor(object):
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:
                 logging.info('Timeout of an execution reached')
+                # TODO: Put the input in the hang directory
                 break
 
         return
@@ -164,10 +165,10 @@ class SymbolicExecutor(object):
     def __handle_external_return(self, ret):
         """ Symbolize or concretize return values of external functions """
         if ret is not None:
-            if ret[0] == Enums.CONCRETIZE:
+            if ret[0] == ConcSymAction.CONCRETIZE:
                 self.pstate.tt_ctx.concretizeRegister(self.abi.get_ret_register())
                 self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1])
-            elif ret[0] == Enums.SYMBOLIZE:
+            elif ret[0] == ConcSymAction.SYMBOLIZE:
                 self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1].getAst().evaluate())
                 self.pstate.tt_ctx.assignSymbolicExpressionToRegister(ret[1], self.abi.get_ret_register())
         return

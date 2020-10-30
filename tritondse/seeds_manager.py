@@ -6,11 +6,10 @@ import time
 
 from array                      import array
 from hashlib                    import md5
-from tritondse.enums            import CoverageStrategy
 from tritondse.config           import Config
 from tritondse.seed             import Seed, SeedFile
 from tritondse.callbacks        import CallbackManager
-from tritondse.coverage         import Coverage
+from tritondse.coverage         import Coverage, CoverageStrategy
 from tritondse.path_constraints import PathConstraintsHash
 from tritondse.worklist         import *
 from tritondse.types            import *

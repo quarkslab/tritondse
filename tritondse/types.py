@@ -1,4 +1,4 @@
-from enum    import IntEnum
+from enum    import IntEnum, Enum, auto
 from pathlib import Path
 from triton  import ARCH, SOLVER
 from typing  import Union, TypeVar
@@ -39,3 +39,11 @@ class Solver(IntEnum):
     UNSAT   = SOLVER.UNSAT
     TIMEOUT = SOLVER.TIMEOUT
     UNKNOWN = SOLVER.UNKNOWN
+
+
+class ConcSymAction(Enum):
+    """ Enumeration to represent an action to perform on some
+    symbolic data, namely wether or not keep them concrete or
+    to symbolize them"""
+    CONCRETIZE = auto()
+    SYMBOLIZE  = auto()
