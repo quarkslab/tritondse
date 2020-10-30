@@ -116,18 +116,16 @@ class SeedsManager:
         return model
 
 
-
     def __get_thread_pc(self, ctx, end_pc):
         thread_id = end_pc.getThreadId()
         astCtxt = ctx.getAstContext()
         constraints = [astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())]
         pco = ctx.getPathConstraints()
         for pc in pco:
-            if pc.getThreadId() != thread_id:
-                continue
-            if pc.getBranchConstraints() == end_pc.getBranchConstraints():
-                return constraints
-            constraints.append(pc.getTakenPredicate())
+            if pc.isMultipleBranches() and pc.getThreadId() == thread_id:
+                if pc.getBranchConstraints() == end_pc.getBranchConstraints():
+                    return constraints
+                constraints.append(pc.getTakenPredicate())
 
 
     def __get_new_inputs(self, execution):
@@ -209,8 +207,8 @@ class SeedsManager:
                             if status == Solver.TIMEOUT:
                                 models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc))
                                 models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc, only_one=True))
-                            else:
-                                models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc, only_one=True))
+                            #if status != Solver.SAT:
+                            #    models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc, only_one=True))
 
                             for model in models:
                                 # Current content before getting model
