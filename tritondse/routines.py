@@ -1,8 +1,9 @@
 import logging
-import sys
 import os
-import time
+import random
 import re
+import sys
+import time
 
 from triton                   import *
 from tritondse.enums          import Enums
@@ -794,6 +795,11 @@ def rtn_puts(se):
     return Enums.CONCRETIZE, len(arg0) + 1
 
 
+def rtn_rand(se):
+    logging.debug('rand hooked')
+    return Enums.CONCRETIZE, random.randrange(0, 0xffffffff)
+
+
 def rtn_read(se):
     logging.debug('read hooked')
 
@@ -1273,6 +1279,7 @@ SUPPORTED_ROUTINES = {
     'pthread_mutex_lock':      rtn_pthread_mutex_lock,
     'pthread_mutex_unlock':    rtn_pthread_mutex_unlock,
     'puts':                    rtn_puts,
+    'rand':                    rtn_rand,
     'read':                    rtn_read,
     'sem_destroy':             rtn_sem_destroy,
     'sem_getvalue':            rtn_sem_getvalue,
