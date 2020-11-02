@@ -6,6 +6,7 @@ import time
 
 from array                      import array
 from hashlib                    import md5
+from triton                     import AST_NODE
 from tritondse.enums            import CoverageStrategy
 from tritondse.config           import Config
 from tritondse.seed             import Seed, SeedFile
@@ -88,46 +89,29 @@ class SeedsManager:
         self.path_constraints.save_on_disk(self.config.metadata_dir)
 
 
-    def __try_lighter_model(self, ctx, end_pc, only_one=False):
-        constraint = self.__get_thread_pc(ctx, end_pc)
-        astCtxt = ctx.getAstContext()
-        constraint.append(astCtxt.lnot(end_pc.getTakenPredicate()))
-        status = SOLVER.TIMEOUT
-        index = 0
-
-        if only_one:
-            # Solve the current constraint without any predicate
-            ts = time.time()
-            model, status = ctx.getModel(constraint[-1], status=True)
-            te = time.time()
-            logging.info(f'Sending lighter query to the solver (size: 1). Solving time: {te - ts} seconds. Status: {status}')
-            return model
-
-        while status == SOLVER.TIMEOUT:
-            ts = time.time()
-            if len(constraint[index:]) >= 2:
-                model, status = ctx.getModel(astCtxt.land(constraint[index:]), status=True)
-                te = time.time()
-                logging.info(f'Sending lighter query to the solver (size: {len(constraint[index:])}). Solving time: {te - ts} seconds. Status: {status}')
-            else:
-                return {}
-            index += 100 % len(constraint)
-
-        return model
-
-
-
-    def __get_thread_pc(self, ctx, end_pc):
-        thread_id = end_pc.getThreadId()
-        astCtxt = ctx.getAstContext()
-        constraints = [astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())]
+    # Presente pour du debug
+    def __get_path_constraint(self, psate, end_pc, branch):
+        ctx = psate.tt_ctx
+        ast = ctx.getAstContext()
+        tid = end_pc.getThreadId()
         pco = ctx.getPathConstraints()
+        vrs = ast.search(branch['constraint'], AST_NODE.VARIABLE)
+        ret = [ast.equal(ast.bvtrue(), ast.bvtrue())]
+
         for pc in pco:
-            if pc.getThreadId() != thread_id:
-                continue
+            #if pc.isMultipleBranches() and pc.getThreadId() == tid:
             if pc.getBranchConstraints() == end_pc.getBranchConstraints():
-                return constraints
-            constraints.append(pc.getTakenPredicate())
+                break
+            cr = pc.getTakenPredicate()
+            # Ici, on cherche à recuperer les contraintes qui sont liées
+            # uniquement aux variables symboliques de la contrainte à nier.
+            #for x in ast.search(cr, AST_NODE.VARIABLE):
+            #    if x in vrs:
+            #        ret.append(cr)
+            #        break
+
+        ret.append(ast.lnot(branch['constraint']))
+        return ret
 
 
     def __get_new_inputs(self, execution):
@@ -191,13 +175,14 @@ class SeedsManager:
                         elif self.config.coverage_strategy == CoverageStrategy.EDGE_COVERAGE:
                             forked_hash = md5(array('L', [branch['srcAddr'], branch['dstAddr']]))
 
-                        # Create the constraint
-                        constraint = astCtxt.land(previousConstraints + [branch['constraint']])
-
                         # Only ask for a model if the constraints has never been asked
                         if self.path_constraints.hash_already_asked(forked_hash.hexdigest()) is False:
+                            # Create the constraint
+                            #constraint = self.__get_path_constraint(execution.pstate, pc, branch)
+                            constraint = previousConstraints + [astCtxt.lnot(branch['constraint'])]
+
                             ts = time.time()
-                            model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
+                            model, status = execution.pstate.tt_ctx.getModel(astCtxt.land(constraint), status=True)
                             te = time.time()
                             smt_queries += 1
                             logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
@@ -205,14 +190,17 @@ class SeedsManager:
                             # Save the hash of the constraint
                             self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
 
-                            models = list([model])
-                            if status == Solver.TIMEOUT:
-                                models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc))
-                                models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc, only_one=True))
-                            else:
-                                models.append(self.__try_lighter_model(execution.pstate.tt_ctx, pc, only_one=True))
+                            while status == Solver.TIMEOUT:
+                                limit = int(len(constraint) / 2)
+                                if limit < 1:
+                                    break
+                                ts = time.time()
+                                model, status = execution.pstate.tt_ctx.getModel(astCtxt.land(constraint[limit:]), status=True)
+                                te = time.time()
+                                smt_queries += 1
+                                logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
 
-                            for model in models:
+                            if model:
                                 # Current content before getting model
                                 content = bytearray(execution.seed.content)
                                 # For each byte of the seed, we assign the value provided by the solver.
