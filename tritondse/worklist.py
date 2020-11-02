@@ -38,11 +38,19 @@ class WorklistAddressToSet(object):
 
             # If the address has never been executed, return the seed
             if k not in self.coverage.instructions:
-                return v.pop()
-
-            # If all adresses has been executed, just pick a random seed
-            elif not default:
                 default = v.pop()
+                if not len(v):
+                    to_remove.add(k)
+                break
+
+        # If all adresses has been executed, just pick a random seed
+        if not default:
+            for k, v in self.worklist.items():
+                if v:
+                    default = v.pop()
+                    if not len(v):
+                        to_remove.add(k)
+                    break
 
         # Garbage the worklist
         for i in to_remove:
