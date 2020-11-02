@@ -2,7 +2,7 @@
 import shutil
 from pathlib import Path
 import logging
-from typing import Generator, Optional
+from typing import Generator, Optional, Union
 
 # local imports
 from tritondse.types import PathLike
@@ -34,7 +34,7 @@ class Workspace(object):
         for dir in (self.root_dir / x for x in [self.CORPUS_DIR, self.CRASH_DIR, self.HANG_DIR, self.WORKLIST_DIR, self.METADATA_DIR]):
             if not dir.exists():
                 logging.debug(f"Creating the {dir} directory")
-                dir.mkdir()
+                dir.mkdir(parents=True)
             else:
                 if flush:
                     shutil.rmtree(dir)
@@ -91,3 +91,14 @@ class Workspace(object):
         old_p = (self.root_dir / self.WORKLIST_DIR) / seed.filename
         old_p.unlink()  # Remove the seed from the worklist
         self.save_seed(seed)
+
+    def save_file(self, rel_path: str, content: Union[str, bytes], override=False):
+        p = self.root_dir / rel_path
+        p.parent.mkdir(parents=True, exist_ok=True)
+        if not p.exists() or override:
+            if isinstance(content, str):
+                p.write_text(content)
+            elif isinstance(content, bytes):
+                p.write_bytes(content)
+            else:
+                assert False
