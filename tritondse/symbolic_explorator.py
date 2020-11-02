@@ -40,6 +40,10 @@ class SymbolicExplorator(object):
         self.workspace = Workspace(self.config.workspace)
         self.workspace.initialize(flush=False)
 
+        # Save both the program and configuration in the workspace (for later resume if needed)
+        self.workspace.save_file("config.json", self.config.to_json())
+        self.workspace.save_file(self.program.path.name, self.program.path.read_bytes())
+
         # Initialize coverage
         self.coverage = GlobalCoverage(self.config.coverage_strategy, self.workspace)
 

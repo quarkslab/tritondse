@@ -101,24 +101,25 @@ def rtn_libc_start_main(se):
 
     index = 0
     for argv in se.config.program_argv:
+        b_argv = argv.encode("latin-1")
         addrs.append(base)
-        se.pstate.tt_ctx.setConcreteMemoryAreaValue(base, argv + b'\x00')
+        se.pstate.tt_ctx.setConcreteMemoryAreaValue(base, b_argv + b'\x00')
         # TODO
         #for indexCell in range(len(argv)):
         #    if se.config.symbolize_argv:
         #        var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(base+indexCell, CPUSIZE.BYTE))
         #        var.setAlias('argv[%d][%d]' %(index, indexCell))
-        logging.debug('argv[%d] = %s' % (index, repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(base, len(argv)))))
-        base += len(argv) + 1
+        logging.debug('argv[%d] = %s' % (index, repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(base, len(b_argv)))))
+        base += len(b_argv) + 1
         index += 1
 
-    argv = base
+    b_argv = base
     for addr in addrs:
         se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(base, CPUSIZE.QWORD), addr)
         base += CPUSIZE.QWORD
 
     # Concrete value
-    se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_arg_register(1), argv)
+    se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_arg_register(1), b_argv)
 
     return None
 
