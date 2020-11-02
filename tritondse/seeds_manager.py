@@ -190,6 +190,7 @@ class SeedsManager:
                             # Save the hash of the constraint
                             self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
 
+                            # TODO: Faire de la dichotomie
                             while status == Solver.TIMEOUT:
                                 limit = int(len(constraint) / 2)
                                 if limit < 1:
