@@ -550,11 +550,7 @@ def rtn_memcmp(se):
         res = res + ast.ite(
                         cells1 == cells2,
                         ast.bv(0, 64),
-                        ast.ite(
-                            cells1 < cells2,
-                            ast.bv(0xffffffffffffffff, 64),
-                            ast.bv(1, 64)
-                        )
+                        ast.bv(1, 64)
                     )
 
     # create a new symbolic expression for this summary
