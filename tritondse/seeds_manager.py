@@ -24,8 +24,8 @@ class SeedsManager:
     """
     def __init__(self, config: Config, callbacks: CallbackManager):
         self.config           = config
-        self.coverage         = Coverage()
-        self.path_constraints = PathConstraintsHash()
+        self.coverage         = Coverage()  # toutes les instructions exécutées depuis tous les corpus
+        self.path_constraints = PathConstraintsHash()  # toutes les contraintes envoyées au solver corpus + worklist compris
         self.worklist         = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
         self.cbm              = callbacks
         self.corpus           = set()
@@ -188,8 +188,13 @@ class SeedsManager:
                             logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
 
                             # Save the hash of the constraint
-                            self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
+                            if status == Solver.SAT:
+                                self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
+                            elif status == Solver.UNSAT:
+                                # TODO: Si c'est UNSAT on devrait return inputs directement ? Car le reste sera UNSAT ?
+                                pass
 
+                            # Si c'est TIMEOUT on essaie de reduire le predicat de chemin
                             # TODO: Faire de la dichotomie
                             while status == Solver.TIMEOUT:
                                 limit = int(len(constraint) / 2)
