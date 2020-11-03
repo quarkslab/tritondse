@@ -110,7 +110,7 @@ class SeedsManager:
             #        ret.append(cr)
             #        break
 
-        ret.append(ast.lnot(branch['constraint']))
+        ret.append(branch['constraint'])
         return ret
 
 
@@ -179,7 +179,7 @@ class SeedsManager:
                         if self.path_constraints.hash_already_asked(forked_hash.hexdigest()) is False:
                             # Create the constraint
                             #constraint = self.__get_path_constraint(execution.pstate, pc, branch)
-                            constraint = previousConstraints + [astCtxt.lnot(branch['constraint'])]
+                            constraint = previousConstraints + [branch['constraint']]
 
                             ts = time.time()
                             model, status = execution.pstate.tt_ctx.getModel(astCtxt.land(constraint), status=True)
@@ -243,7 +243,7 @@ class SeedsManager:
 
 
     def add_seed(self, seed):
-        if seed and seed not in self.corpus and seed not in self.crash:
+        if seed is not None and seed not in self.corpus and seed not in self.crash:
             seed.save_on_disk(self.config.worklist_dir)
             self.worklist.add(seed)
             logging.info(f'Seed dumped into {self.config.worklist_dir}/{seed.get_file_name()}')
