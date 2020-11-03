@@ -314,6 +314,8 @@ def rtn_fgets(se):
     if fd == 0 and se.config.symbolize_stdin:
         if se.seed:
             se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
+        else:
+            se.seed.content = b'\x00' * minsize
 
         for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
@@ -441,9 +443,13 @@ def rtn_fread(se):
     if arg3 == 0 and se.config.symbolize_stdin:
         if se.seed:
             se.pstate.tt_ctx.setConcreteMemoryAreaValue(arg0, se.seed.content[:minsize])
+        else:
+            se.seed.content = b'\x00' * minsize
+
         for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(arg0 + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
+
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(arg0, minsize))))
         # TODO: Could return the read value as a symbolic one
         return Enums.CONCRETIZE, minsize
@@ -808,6 +814,8 @@ def rtn_read(se):
     if fd == 0 and se.config.symbolize_stdin:
         if se.seed:
             se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
+        else:
+            se.seed.content = b'\x00' * minsize
 
         for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
