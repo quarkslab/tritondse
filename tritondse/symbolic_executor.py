@@ -133,7 +133,7 @@ class SymbolicExecutor(object):
                 cb(self, self.pstate, instruction)
 
             # Process
-            if not self.pstate.tt_ctx.processing(instruction):
+            if not self.pstate.process_instruction(instruction):
                 logging.error('Instruction not supported: %s' % (str(instruction)))
                 break
 
@@ -141,14 +141,14 @@ class SymbolicExecutor(object):
             for cb in post_insts:
                 cb(self, self.pstate, instruction)
 
-            # Simulate that the time of an executed instruction is time_inc_coefficient.
-            # For example, if time_inc_coefficient is 0.0001, it means that an instruction
-            # takes 100us to be executed. Used to provide a deterministic behavior when
-            # calling time functions (e.g gettimeofday(), clock_gettime(), ...).
-            self.pstate.time += self.config.time_inc_coefficient
 
             # Update the coverage of the execution
-            self.coverage.add_instruction(pc)
+            self.coverage.add_covered_address(pc)
+
+            # Update coverage send it the last PathConstraint object if one was added
+            if self.pstate.is_path_predicate_updated():
+                branch = self.pstate.last_branch_constraint
+                self.coverage.add_covered_branch(pc, branch)
 
             # Trigger post-address callbacks
             for cb in post_cbs:
@@ -313,6 +313,6 @@ class SymbolicExecutor(object):
         self.endTime = time.time()
         logging.info('Emulation done')
         logging.info('Return value: %#x' % (self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_ret_register())))
-        logging.info('Instructions executed: %d' % (self.coverage.number_of_instructions_executed()))
+        logging.info('Instructions executed: %d' % self.coverage.total_instruction_executed)
         logging.info('Symbolic branch constraints: %d' % (len(self.pstate.tt_ctx.getPathConstraints())))
-        logging.info('Time of the execution: %f seconds' % (self.endTime - self.startTime))
+        logging.info('Total execution time: %d seconds' % (self.endTime - self.startTime))
