@@ -50,7 +50,8 @@ class SymbolicExplorator(object):
         # Initialize the seed manager
         self.seeds_manager = SeedManager(self.config, self.cbm, self.coverage, self.workspace)
 
-
+        # running executors (for debugging purposes)
+        self.last_executors = None
 
     @property
     def callback_manager(self) -> CallbackManager:
@@ -72,7 +73,9 @@ class SymbolicExplorator(object):
 
         # Execute the binary with seeds
         cbs = None if self.cbm.is_empty() else self.cbm.fork()
-        execution = SymbolicExecutor(self.config, ProcessState(self.config), self.program, seed=seed, uid=uid, callbacks=cbs)
+        pstate = ProcessState(self.config.thread_scheduling, self.config.time_inc_coefficient)
+        execution = SymbolicExecutor(self.config, pstate, self.program, seed=seed, uid=uid, callbacks=cbs)
+        self.last_executors = execution
         execution.run()
 
         if self.config.exploration_limit and (uid+1) >= self.config.exploration_limit:
@@ -82,8 +85,6 @@ class SymbolicExplorator(object):
 
         # Some analysis in post execution
         self.seeds_manager.post_execution(execution, seed)
-
-
 
         logging.info('Total time of the exploration: %f seconds' % (self.__time_delta()))
 

@@ -1,3 +1,4 @@
+import sys
 from enum    import IntEnum, Enum, auto
 from pathlib import Path
 from triton  import ARCH, SOLVER
@@ -23,6 +24,31 @@ Input = bytes
 
 Register = TypeVar('Register')
 """Register object as returned by Triton"""
+
+PathConstraint = TypeVar('PathConstraint')
+""" PathConstraint object as returned by Triton"""
+
+AstNode = TypeVar('AstNode')
+""" SMT logic formula as returned by Triton """
+
+Model = TypeVar('Model')
+""" Solver Model as returned by Triton """
+
+if sys.version_info.minor >= 8:
+    from typing import TypedDict
+
+    class PathBranch(TypedDict):
+        """
+        Typed dictionnary describing the branch information
+        returned by Triton (with getBranchConstraints())
+        """
+        isTaken: bool
+        srcAddr: Addr
+        dstAddr: Addr
+        constraint: AstNode
+else:
+    PathBranch = TypeVar('PathBranch')
+    """ PathConstraint object as returned by Triton"""
 
 
 class Architecture(IntEnum):

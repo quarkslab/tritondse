@@ -22,6 +22,8 @@ class Seed(object):
         self.target_addr = None
         self._status = status
 
+    def is_bootstrap_seed(self) -> bool:
+        return self.content == b""
 
     @property
     def status(self) -> SeedStatus:
