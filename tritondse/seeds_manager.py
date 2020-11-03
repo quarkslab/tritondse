@@ -3,6 +3,7 @@ import logging
 import time
 from typing  import Generator
 
+
 # local imports
 from tritondse.config    import Config
 from tritondse.seed      import Seed, SeedStatus
@@ -12,6 +13,7 @@ from tritondse.worklist  import WorklistAddressToSet
 from tritondse.workspace import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.types     import Solver, Model
+
 
 
 class SeedManager:
@@ -85,6 +87,32 @@ class SeedManager:
         logging.info(f'Unique instructions covered: {self.coverage.unique_instruction_covered}')
 
 
+    # Presente pour du debug
+    def __get_path_constraint(self, psate, end_pc, branch):
+        from triton import AST_NODE
+        ctx = psate.tt_ctx
+        ast = ctx.getAstContext()
+        tid = end_pc.getThreadId()
+        pco = ctx.getPathConstraints()
+        vrs = ast.search(branch['constraint'], AST_NODE.VARIABLE)
+        ret = [ast.equal(ast.bvtrue(), ast.bvtrue())]
+
+        for pc in pco:
+            #if pc.isMultipleBranches() and pc.getThreadId() == tid:
+            if pc.getBranchConstraints() == end_pc.getBranchConstraints():
+                break
+            cr = pc.getTakenPredicate()
+            # Ici, on cherche à recuperer les contraintes qui sont liées
+            # uniquement aux variables symboliques de la contrainte à nier.
+            #for x in ast.search(cr, AST_NODE.VARIABLE):
+            #    if x in vrs:
+            #        ret.append(cr)
+            #        break
+
+        ret.append(branch['constraint'])
+        return ret
+
+
     def __iter_new_inputs(self, execution: SymbolicExecutor) -> Generator[Seed, None, None]:
         # Get the astContext
         actx = execution.pstate.tt_ctx.getAstContext()
@@ -125,6 +153,16 @@ class SeedManager:
                     pass
                 elif status == Solver.TIMEOUT:
                     pass
+                    # while status == Solver.TIMEOUT:
+                    #     limit = int(len(constraint) / 2)
+                    #     if limit < 1:
+                    #         break
+                    #     ts = time.time()
+                    #     model, status = execution.pstate.tt_ctx.getModel(actx.land(constraint[limit:]), status=True)
+                    #     te = time.time()
+                    #     smt_queries += 1
+                    #     logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
+
                 elif status == Solver.UNKNOWN:
                     pass
                 else:
@@ -161,7 +199,7 @@ class SeedManager:
 
 
     def add_seed(self, seed):
-        if seed and seed not in self.corpus and seed not in self.crash:
+        if seed is not None and seed not in self.corpus and seed not in self.crash:
             self.worklist.add(seed)
             self.workspace.save_seed(seed)
             logging.info(f'Seed {seed.filename} dumped [{seed.status.name}]')

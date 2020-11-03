@@ -1,8 +1,9 @@
 import logging
-import sys
 import os
-import time
+import random
 import re
+import sys
+import time
 
 from triton                   import *
 from tritondse.types          import ConcSymAction as CS
@@ -314,6 +315,8 @@ def rtn_fgets(se):
     if fd == 0 and se.config.symbolize_stdin:
         if se.seed:
             se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
+        else:
+            se.seed.content = b'\x00' * minsize
 
         for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
@@ -441,9 +444,13 @@ def rtn_fread(se):
     if arg3 == 0 and se.config.symbolize_stdin:
         if se.seed:
             se.pstate.tt_ctx.setConcreteMemoryAreaValue(arg0, se.seed.content[:minsize])
+        else:
+            se.seed.content = b'\x00' * minsize
+
         for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(arg0 + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
+
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(arg0, minsize))))
         # TODO: Could return the read value as a symbolic one
         return CS.CONCRETIZE, minsize
@@ -550,11 +557,7 @@ def rtn_memcmp(se):
         res = res + ast.ite(
                         cells1 == cells2,
                         ast.bv(0, 64),
-                        ast.ite(
-                            cells1 < cells2,
-                            ast.bv(0xffffffffffffffff, 64),
-                            ast.bv(1, 64)
-                        )
+                        ast.bv(1, 64)
                     )
 
     # create a new symbolic expression for this summary
@@ -589,11 +592,16 @@ def rtn_memmove(se):
     src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     cnt = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
 
+    src_cells = []
     # TODO: What if cnt is symbolic ?
     for index in range(cnt):
-        dmem  = MemoryAccess(dst + index, 1)
         smem  = MemoryAccess(src + index, 1)
         cell = se.pstate.tt_ctx.getMemoryAst(smem)
+        src_cells.append(cell)
+
+    for index in range(cnt):
+        dmem  = MemoryAccess(dst + index, 1)
+        cell = src_cells.pop(0)
         expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "memmove byte")
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
@@ -790,6 +798,11 @@ def rtn_puts(se):
     return CS.CONCRETIZE, len(arg0) + 1
 
 
+def rtn_rand(se):
+    logging.debug('rand hooked')
+    return Enums.CONCRETIZE, random.randrange(0, 0xffffffff)
+
+
 def rtn_read(se):
     logging.debug('read hooked')
 
@@ -802,6 +815,8 @@ def rtn_read(se):
     if fd == 0 and se.config.symbolize_stdin:
         if se.seed:
             se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
+        else:
+            se.seed.content = b'\x00' * minsize
 
         for index in range(minsize):
             var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
@@ -1269,6 +1284,7 @@ SUPPORTED_ROUTINES = {
     'pthread_mutex_lock':      rtn_pthread_mutex_lock,
     'pthread_mutex_unlock':    rtn_pthread_mutex_unlock,
     'puts':                    rtn_puts,
+    'rand':                    rtn_rand,
     'read':                    rtn_read,
     'sem_destroy':             rtn_sem_destroy,
     'sem_getvalue':            rtn_sem_getvalue,
