@@ -2,7 +2,8 @@ import logging
 import time
 import threading
 import gc
-from enum import Enum
+from enum   import Enum
+from typing import Union
 
 from tritondse.config            import Config
 from tritondse.process_state     import ProcessState
@@ -127,9 +128,10 @@ class SymbolicExplorator(object):
 
         return self.status
 
-    def add_input_seed(self, data: bytes) -> None:
+    def add_input_seed(self, seed: Union[bytes, Seed]) -> None:
         """ Add the given bytes as input for the exploration """
-        self.seeds_manager.add_seed(Seed(data))
+        seed = seed if isinstance(seed, Seed) else Seed(seed)
+        self.seeds_manager.add_seed(seed)
 
     def stop_exploration(self) -> None:
         """ Interrupt exploration """
