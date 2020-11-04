@@ -213,7 +213,7 @@ class ProcessState(object):
         :return:
         """
         self.__pcs_updated = False
-        __len_pcs = len(self.tt_ctx.getPathConstraints())
+        __len_pcs = self.tt_ctx.getPathPredicateSize()
 
         ret = self.tt_ctx.processing(instruction)
 
@@ -223,7 +223,7 @@ class ProcessState(object):
         # calling time functions (e.g gettimeofday(), clock_gettime(), ...).
         self.time += self.time_inc_coefficient
 
-        if len(self.tt_ctx.getPathConstraints()) != __len_pcs:
+        if self.tt_ctx.getPathPredicateSize() != __len_pcs:
             self.__pcs_updated = True
 
         return ret
