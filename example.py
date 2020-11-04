@@ -40,10 +40,11 @@ seed = Seed.from_file('../programme_etalon_final/micro_http_server/misc/frame.se
 #seed = SeedFile('/home/jonathan/Works/QuarksLab/Missions/pastis/programme_etalon_etatique/fuzzing/in/tcp_echo_1')
 #seed = SeedFile('/home/jonathan/Works/QuarksLab/Missions/pastis/programme_etalon_etatique/fuzzing/in/frame_ip4_tcp_syn')
 
-#dse = SymbolicExplorator(config, program, seed)
-#dse.explore()
+dse = SymbolicExplorator(config, program)
+dse.add_input_seed(seed)
+dse.explore()
 
-ps = ProcessState(config.thread_scheduling, config.time_inc_coefficient)
-execution = SymbolicExecutor(config, ps, program, seed)
+# ps = ProcessState(config.thread_scheduling, config.time_inc_coefficient)
+# execution = SymbolicExecutor(config, ps, program, seed)
 #execution.callback_manager.register_post_instuction_callback(trace_debug)
-execution.run()
+# execution.run()
