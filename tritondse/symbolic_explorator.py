@@ -73,6 +73,7 @@ class SymbolicExplorator(object):
 
         # Execute the binary with seeds
         cbs = None if self.cbm.is_empty() else self.cbm.fork()
+        logging.info(f"Initialize ProcessState with thread scheduling: {self.config.thread_scheduling}")
         pstate = ProcessState(self.config.thread_scheduling, self.config.time_inc_coefficient)
         execution = SymbolicExecutor(self.config, pstate, self.program, seed=seed, uid=uid, callbacks=cbs)
         self.last_executors = execution

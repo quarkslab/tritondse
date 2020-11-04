@@ -132,7 +132,7 @@ class GlobalCoverage(CoverageSingleRun):
 
                         # If the not taken branch is new wrt coverage
                         if new:
-                            res = yield pending_csts, pc, dst
+                            res = yield pending_csts, branch, dst
                             if res == Solver.SAT:  # If path was satisfiable add it to pending coverage
                                 self.pending_coverage.add(item)
 
@@ -142,7 +142,7 @@ class GlobalCoverage(CoverageSingleRun):
                         pass  # Branch was taken do nothing
                 # Add it the path preodicate constraints and update current path hash
                 pending_csts.append(pc)
-                current_hash.update(pc.getTakenAddress())
+                current_hash.update(struct.pack("<Q", pc.getTakenAddress()))
             else:
                 pass   # RMQ: Do nothing on unconditional jumps?
 
