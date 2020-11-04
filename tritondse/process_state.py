@@ -5,21 +5,21 @@ import logging
 from typing import Union, Callable
 
 # third-party
-from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE
+from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction
 
 # local imports
 from tritondse.thread_context import ThreadContext
 from tritondse.config         import Config
 from tritondse.program        import Program
 from tritondse.heap_allocator import HeapAllocator
-from tritondse.types          import Architecture, Addr, ByteSize, BitSize
+from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint
 
 
 class ProcessState(object):
     """
     This class is used to represent the state of a process.
     """
-    def __init__(self, config: Config):
+    def __init__(self, thread_scheduling: int, time_coefficient: int):
         # Memory mapping
         self.BASE_PLT   = 0x01000000
         self.BASE_ARGV  = 0x02000000
@@ -60,7 +60,7 @@ class ProcessState(object):
 
         # Threads contexts
         self.threads = {
-            self.utid: ThreadContext(config, self.tid)
+            self.utid: ThreadContext(self.tid, thread_scheduling)
         }
 
         # Thread mutext init magic number
@@ -78,6 +78,12 @@ class ProcessState(object):
         # Hold the loading address where the main program has been loaded
         self.load_addr = 0
 
+        # Configuration values
+        self.thread_scheduling_count = thread_scheduling
+        self.time_inc_coefficient = time_coefficient
+
+        # runtime temporary variables
+        self.__pcs_updated = False
 
     def get_unique_thread_id(self):
         self.utid += 1
@@ -183,7 +189,7 @@ class ProcessState(object):
         :param ptr: Address to check
         :return: True if pointer points to the heap area (allocated or not).
         """
-        if ptr >= self.BASE_HEAP and ptr < self.END_HEAP:
+        if self.BASE_HEAP <= ptr < self.END_HEAP:
             return True
         return False
 
@@ -195,6 +201,44 @@ class ProcessState(object):
         :param ptr: Address to check
         :return: True if pointer points to the stack area (allocated or not).
         """
-        if ptr >= self.BASE_STACK and ptr < self.END_STACK:
+        if self.BASE_STACK <= ptr < self.END_STACK:
             return True
         return False
+
+
+    def process_instruction(self, instruction: Instruction) -> bool:
+        """
+        Process the given triton instruction on this process state.
+        :param instruction:
+        :return:
+        """
+        self.__pcs_updated = False
+        __len_pcs = len(self.tt_ctx.getPathConstraints())
+
+        ret = self.tt_ctx.processing(instruction)
+
+        # Simulate that the time of an executed instruction is time_inc_coefficient.
+        # For example, if time_inc_coefficient is 0.0001, it means that an instruction
+        # takes 100us to be executed. Used to provide a deterministic behavior when
+        # calling time functions (e.g gettimeofday(), clock_gettime(), ...).
+        self.time += self.time_inc_coefficient
+
+        if len(self.tt_ctx.getPathConstraints()) != __len_pcs:
+            self.__pcs_updated = True
+
+        return ret
+
+    def is_path_predicate_updated(self) -> bool:
+        """ Return whether or not the path predicate has been updated """
+        return self.__pcs_updated
+
+    @property
+    def last_branch_constraint(self) -> PathConstraint:
+        """
+        Return the last PathConstraint object added in the path predicate.
+        Should be called after ``is_path_predicate_updated``.
+
+        :raise: IndexError if the path predicate is empty
+        :return:
+        """
+        return self.tt_ctx.getPathConstraints()[-1]

@@ -4,13 +4,13 @@ from tritondse.config   import Config
 
 class ThreadContext(object):
 
-    def __init__(self, config: Config, tid: int):
+    def __init__(self, tid: int, thread_scheduling: int):
         self.cregs  = dict()                    # context of concrete registers
         self.sregs  = dict()                    # context of symbolic registers
         self.joined = None                      # joined thread id
         self.tid    = tid                       # the thread id
         self.killed = False                     # is the thread killed
-        self.count  = config.thread_scheduling  # Number of instructions executed until scheduling
+        self.count  = thread_scheduling         # Number of instructions executed until scheduling
 
 
     def save(self, tt_ctx: TritonContext):

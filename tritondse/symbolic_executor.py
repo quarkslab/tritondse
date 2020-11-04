@@ -10,26 +10,30 @@ from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess
 # local imports
 from tritondse.abi           import ABI
 from tritondse.config        import Config
-from tritondse.coverage      import Coverage
+from tritondse.coverage      import CoverageSingleRun
 from tritondse.process_state import ProcessState
 from tritondse.program       import Program
-from tritondse.seed          import Seed
-from tritondse.enums         import Enums
+from tritondse.seed          import Seed, SeedStatus
+from tritondse.types         import ConcSymAction
 from tritondse.routines      import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks     import CallbackManager
+from tritondse.workspace     import Workspace
 
 
 class SymbolicExecutor(object):
     """
     This class is used to represent the symbolic execution.
     """
-    def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = None, uid=0, callbacks=None):
+    def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = Seed(), workspace: Workspace = None, uid=0, callbacks=None):
         self.program    = program           # The program to execute
         self.pstate     = pstate            # The process state
         self.config     = config            # The config
+        self.workspace  = workspace         # The current workspace
+        if self.workspace is None:
+            self.workspace = Workspace(config.workspace)
         self.seed       = seed              # The current seed used to the execution
         self.abi        = ABI(self.pstate)  # ABI interface
-        self.coverage   = Coverage()        # The coverage state
+        self.coverage   = CoverageSingleRun(self.config.coverage_strategy) # The coverage state
         self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
         self.uid        = uid               # Unique identifier meant to unique accross Exploration instances
         # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
@@ -129,7 +133,7 @@ class SymbolicExecutor(object):
                 cb(self, self.pstate, instruction)
 
             # Process
-            if not self.pstate.tt_ctx.processing(instruction):
+            if not self.pstate.process_instruction(instruction):
                 logging.error('Instruction not supported: %s' % (str(instruction)))
                 break
 
@@ -137,14 +141,14 @@ class SymbolicExecutor(object):
             for cb in post_insts:
                 cb(self, self.pstate, instruction)
 
-            # Simulate that the time of an executed instruction is time_inc_coefficient.
-            # For example, if time_inc_coefficient is 0.0001, it means that an instruction
-            # takes 100us to be executed. Used to provide a deterministic behavior when
-            # calling time functions (e.g gettimeofday(), clock_gettime(), ...).
-            self.pstate.time += self.config.time_inc_coefficient
 
             # Update the coverage of the execution
-            self.coverage.add_instruction(pc)
+            self.coverage.add_covered_address(pc)
+
+            # Update coverage send it the last PathConstraint object if one was added
+            if self.pstate.is_path_predicate_updated():
+                branch = self.pstate.last_branch_constraint
+                self.coverage.add_covered_branch(pc, branch)
 
             # Trigger post-address callbacks
             for cb in post_cbs:
@@ -156,18 +160,20 @@ class SymbolicExecutor(object):
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:
                 logging.info('Timeout of an execution reached')
-                break
+                self.seed.status = SeedStatus.HANG
+                return
 
+        self.seed.status = SeedStatus.OK_DONE
         return
 
 
     def __handle_external_return(self, ret):
         """ Symbolize or concretize return values of external functions """
         if ret is not None:
-            if ret[0] == Enums.CONCRETIZE:
+            if ret[0] == ConcSymAction.CONCRETIZE:
                 self.pstate.tt_ctx.concretizeRegister(self.abi.get_ret_register())
                 self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1])
-            elif ret[0] == Enums.SYMBOLIZE:
+            elif ret[0] == ConcSymAction.SYMBOLIZE:
                 self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1].getAst().evaluate())
                 self.pstate.tt_ctx.assignSymbolicExpressionToRegister(ret[1], self.abi.get_ret_register())
         return
@@ -307,6 +313,6 @@ class SymbolicExecutor(object):
         self.endTime = time.time()
         logging.info('Emulation done')
         logging.info('Return value: %#x' % (self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_ret_register())))
-        logging.info('Instructions executed: %d' % (self.coverage.number_of_instructions_executed()))
+        logging.info('Instructions executed: %d' % self.coverage.total_instruction_executed)
         logging.info('Symbolic branch constraints: %d' % (len(self.pstate.tt_ctx.getPathConstraints())))
-        logging.info('Time of the execution: %f seconds' % (self.endTime - self.startTime))
+        logging.info('Total execution time: %d seconds' % (self.endTime - self.startTime))

@@ -6,7 +6,7 @@ import sys
 import time
 
 from triton                   import *
-from tritondse.enums          import Enums
+from tritondse.types          import ConcSymAction as CS
 from tritondse.thread_context import ThreadContext
 
 
@@ -62,7 +62,7 @@ def rtn_ctype_b_loc(se):
 
     se.pstate.tt_ctx.setConcreteMemoryAreaValue(table, ctype)
 
-    return Enums.CONCRETIZE, ptable
+    return CS.CONCRETIZE, ptable
 
 
 def rtn_errno_location(se):
@@ -71,7 +71,7 @@ def rtn_errno_location(se):
     errno = 0xdeadbeaf
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(errno, CPUSIZE.QWORD), 0)
 
-    return Enums.CONCRETIZE, errno
+    return CS.CONCRETIZE, errno
 
 
 def rtn_libc_start_main(se):
@@ -102,24 +102,25 @@ def rtn_libc_start_main(se):
 
     index = 0
     for argv in se.config.program_argv:
+        b_argv = argv.encode("latin-1")
         addrs.append(base)
-        se.pstate.tt_ctx.setConcreteMemoryAreaValue(base, argv + b'\x00')
+        se.pstate.tt_ctx.setConcreteMemoryAreaValue(base, b_argv + b'\x00')
         # TODO
         #for indexCell in range(len(argv)):
         #    if se.config.symbolize_argv:
         #        var = se.pstate.tt_ctx.symbolizeMemory(MemoryAccess(base+indexCell, CPUSIZE.BYTE))
         #        var.setAlias('argv[%d][%d]' %(index, indexCell))
-        logging.debug('argv[%d] = %s' % (index, repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(base, len(argv)))))
-        base += len(argv) + 1
+        logging.debug('argv[%d] = %s' % (index, repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(base, len(b_argv)))))
+        base += len(b_argv) + 1
         index += 1
 
-    argv = base
+    b_argv = base
     for addr in addrs:
         se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(base, CPUSIZE.QWORD), addr)
         base += CPUSIZE.QWORD
 
     # Concrete value
-    se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_arg_register(1), argv)
+    se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_arg_register(1), b_argv)
 
     return None
 
@@ -160,9 +161,9 @@ def rtn_xstat(se):
         se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x78, CPUSIZE.QWORD), 0)
         se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x80, CPUSIZE.QWORD), 0)
         se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x88, CPUSIZE.QWORD), 0)
-        return Enums.CONCRETIZE, 0
+        return CS.CONCRETIZE, 0
 
-    return Enums.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
+    return CS.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
 
 
 def rtn_atoi(se):
@@ -237,7 +238,7 @@ def rtn_atoi(se):
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "atoi summary")
 
-    return Enums.SYMBOLIZE, expr
+    return CS.SYMBOLIZE, expr
 
 
 def rtn_calloc(se):
@@ -253,7 +254,7 @@ def rtn_calloc(se):
         ptr = se.pstate.heap_allocator.alloc(nmemb * size)
 
     # Return value
-    return Enums.CONCRETIZE, ptr
+    return CS.CONCRETIZE, ptr
 
 
 def rtn_clock_gettime(se):
@@ -264,7 +265,7 @@ def rtn_clock_gettime(se):
     tp      = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
 
     if tp == 0:
-        return Enums.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
+        return CS.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
 
     if se.config.time_inc_coefficient:
         t = se.pstate.time
@@ -276,14 +277,14 @@ def rtn_clock_gettime(se):
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp + s, s), int(t * 1000000))
 
     # Return value
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_exit(se):
     logging.debug('exit hooked')
     arg = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     se.pstate.stop = True
-    return Enums.CONCRETIZE, arg
+    return CS.CONCRETIZE, arg
 
 
 def rtn_fclose(se):
@@ -296,10 +297,10 @@ def rtn_fclose(se):
         se.pstate.fd_table[arg0].close()
         del se.pstate.fd_table[arg0]
     else:
-        return Enums.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
+        return CS.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
 
     # Return value
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_fgets(se):
@@ -322,14 +323,14 @@ def rtn_fgets(se):
             var.setComment('stdin[%d]' % index)
 
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
-        return Enums.CONCRETIZE, buff
+        return CS.CONCRETIZE, buff
 
     if fd in se.pstate.fd_table:
         data = (os.read(0, size) if fd == 0 else os.read(se.pstate.fd_table[fd], size))
         se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, data)
-        return Enums.CONCRETIZE, buff
+        return CS.CONCRETIZE, buff
 
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_fopen(se):
@@ -344,7 +345,7 @@ def rtn_fopen(se):
     se.pstate.fd_table.update({fd_id: fd})
 
     # Return value
-    return Enums.CONCRETIZE, fd_id
+    return CS.CONCRETIZE, fd_id
 
 
 def rtn_fprintf(se):
@@ -370,10 +371,10 @@ def rtn_fprintf(se):
         se.pstate.fd_table[arg0].write(s)
         se.pstate.fd_table[arg0].flush()
     else:
-        return Enums.CONCRETIZE, 0
+        return CS.CONCRETIZE, 0
 
     # Return value
-    return Enums.CONCRETIZE, len(s)
+    return CS.CONCRETIZE, len(s)
 
 
 def rtn_fputc(se):
@@ -385,7 +386,7 @@ def rtn_fputc(se):
 
     if arg1 in se.pstate.fd_table:
         if arg1 == 0:
-            return Enums.CONCRETIZE, 0
+            return CS.CONCRETIZE, 0
         elif arg1 == 1:
             sys.stdout.write(chr(arg0))
             sys.stdout.flush()
@@ -396,10 +397,10 @@ def rtn_fputc(se):
             fd = open(se.pstate.fd_table[arg1], 'wb+')
             fd.write(chr(arg0))
     else:
-        return Enums.CONCRETIZE, 0
+        return CS.CONCRETIZE, 0
 
     # Return value
-    return Enums.CONCRETIZE, 1
+    return CS.CONCRETIZE, 1
 
 
 def rtn_fputs(se):
@@ -411,7 +412,7 @@ def rtn_fputs(se):
 
     if arg1 in se.pstate.fd_table:
         if arg1 == 0:
-            return Enums.CONCRETIZE, 0
+            return CS.CONCRETIZE, 0
         elif arg1 == 1:
             sys.stdout.write(se.abi.get_memory_string(arg0))
             sys.stdout.flush()
@@ -422,10 +423,10 @@ def rtn_fputs(se):
             fd = open(se.pstate.fd_table[arg1], 'wb+')
             fd.write(se.abi.get_memory_string(arg0))
     else:
-        return Enums.CONCRETIZE, 0
+        return CS.CONCRETIZE, 0
 
     # Return value
-    return Enums.CONCRETIZE, len(se.abi.get_memory_string(arg0))
+    return CS.CONCRETIZE, len(se.abi.get_memory_string(arg0))
 
 
 def rtn_fread(se):
@@ -452,17 +453,17 @@ def rtn_fread(se):
 
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(arg0, minsize))))
         # TODO: Could return the read value as a symbolic one
-        return Enums.CONCRETIZE, minsize
+        return CS.CONCRETIZE, minsize
 
     elif arg3 in se.pstate.fd_table:
         data = se.pstate.fd_table[arg3].read(arg1 * arg2)
         se.pstate.tt_ctx.setConcreteMemoryAreaValue(arg0, data)
 
     else:
-        return Enums.CONCRETIZE, 0
+        return CS.CONCRETIZE, 0
 
     # Return value
-    return Enums.CONCRETIZE, len(data)
+    return CS.CONCRETIZE, len(data)
 
 
 def rtn_free(se):
@@ -488,7 +489,7 @@ def rtn_fwrite(se):
 
     if arg3 in se.pstate.fd_table:
         if arg3 == 0:
-            return Enums.CONCRETIZE, 0
+            return CS.CONCRETIZE, 0
         elif arg3 == 1:
             sys.stdout.buffer.write(data)
             sys.stdout.flush()
@@ -499,10 +500,10 @@ def rtn_fwrite(se):
             fd = open(se.pstate.fd_table[arg3], 'wb+')
             fd.write(data)
     else:
-        return Enums.CONCRETIZE, 0
+        return CS.CONCRETIZE, 0
 
     # Return value
-    return Enums.CONCRETIZE, size
+    return CS.CONCRETIZE, size
 
 
 def rtn_gettimeofday(se):
@@ -513,7 +514,7 @@ def rtn_gettimeofday(se):
     tz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
 
     if tv == 0:
-        return Enums.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
+        return CS.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
 
     if se.config.time_inc_coefficient:
         t = se.pstate.time
@@ -525,7 +526,7 @@ def rtn_gettimeofday(se):
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv + s, s), int(t * 1000000))
 
     # Return value
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_malloc(se):
@@ -536,7 +537,7 @@ def rtn_malloc(se):
     ptr  = se.pstate.heap_allocator.alloc(size)
 
     # Return value
-    return Enums.CONCRETIZE, ptr
+    return CS.CONCRETIZE, ptr
 
 
 def rtn_memcmp(se):
@@ -562,7 +563,7 @@ def rtn_memcmp(se):
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "memcmp summary")
 
-    return Enums.SYMBOLIZE, expr
+    return CS.SYMBOLIZE, expr
 
 
 def rtn_memcpy(se):
@@ -581,7 +582,7 @@ def rtn_memcpy(se):
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
 
-    return Enums.CONCRETIZE, dst
+    return CS.CONCRETIZE, dst
 
 
 def rtn_memmove(se):
@@ -605,7 +606,7 @@ def rtn_memmove(se):
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
 
-    return Enums.CONCRETIZE, dst
+    return CS.CONCRETIZE, dst
 
 
 def rtn_memset(se):
@@ -623,7 +624,7 @@ def rtn_memset(se):
         expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "memset byte")
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
 
-    return Enums.CONCRETIZE, dst
+    return CS.CONCRETIZE, dst
 
 
 def rtn_printf(se):
@@ -649,7 +650,7 @@ def rtn_printf(se):
     se.pstate.fd_table[1].flush()
 
     # Return value
-    return Enums.CONCRETIZE, len(s)
+    return CS.CONCRETIZE, len(s)
 
 
 def rtn_pthread_create(se):
@@ -692,7 +693,7 @@ def rtn_pthread_create(se):
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.ptr_size), tid)
 
     # Return value
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_pthread_exit(se):
@@ -723,7 +724,7 @@ def rtn_pthread_join(se):
         logging.debug('Thread id %d already destroyed' % arg0)
 
     # Return value
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_pthread_mutex_destroy(se):
@@ -734,7 +735,7 @@ def rtn_pthread_mutex_destroy(se):
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.ptr_size), se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
     # Return value
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_pthread_mutex_init(se):
@@ -747,7 +748,7 @@ def rtn_pthread_mutex_init(se):
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.ptr_size), se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
     # Return value
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_pthread_mutex_lock(se):
@@ -769,7 +770,7 @@ def rtn_pthread_mutex_lock(se):
         se.pstate.mutex_locked = True
 
     # Return value
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_pthread_mutex_unlock(se):
@@ -782,7 +783,7 @@ def rtn_pthread_mutex_unlock(se):
     se.pstate.tt_ctx.setConcreteMemoryValue(mem, se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
     # Return value
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_puts(se):
@@ -794,7 +795,7 @@ def rtn_puts(se):
     sys.stdout.flush()
 
     # Return value
-    return Enums.CONCRETIZE, len(arg0) + 1
+    return CS.CONCRETIZE, len(arg0) + 1
 
 
 def rtn_rand(se):
@@ -823,14 +824,14 @@ def rtn_read(se):
 
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
         # TODO: Could return the read value as a symbolic one
-        return Enums.CONCRETIZE, minsize
+        return CS.CONCRETIZE, minsize
 
     if fd in se.pstate.fd_table:
         data = (os.read(0, size) if fd == 0 else os.read(se.pstate.fd_table[fd], size))
         se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, data)
-        return Enums.CONCRETIZE, len(data)
+        return CS.CONCRETIZE, len(data)
 
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_sem_destroy(se):
@@ -844,7 +845,7 @@ def rtn_sem_destroy(se):
     se.pstate.tt_ctx.setConcreteMemoryValue(mem, 0)
 
     # Return success
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_sem_getvalue(se):
@@ -861,7 +862,7 @@ def rtn_sem_getvalue(se):
     se.pstate.tt_ctx.setConcreteMemoryValue(memOut, value)
 
     # Return success
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_sem_init(se):
@@ -877,7 +878,7 @@ def rtn_sem_init(se):
     se.pstate.tt_ctx.setConcreteMemoryValue(mem, arg2)
 
     # Return success
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_sem_post(se):
@@ -892,7 +893,7 @@ def rtn_sem_post(se):
     se.pstate.tt_ctx.setConcreteMemoryValue(mem, value + 1)
 
     # Return success
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_sem_timedwait(se):
@@ -932,7 +933,7 @@ def rtn_sem_timedwait(se):
         se.pstate.semaphore_locked = True
 
     # Return success
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_sem_trywait(se):
@@ -953,10 +954,10 @@ def rtn_sem_trywait(se):
         logging.debug('semaphore locked')
         se.pstate.semaphore_locked = False
         # Return EAGAIN
-        return Enums.CONCRETIZE, 3406
+        return CS.CONCRETIZE, 3406
 
     # Return success
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_sem_wait(se):
@@ -980,7 +981,7 @@ def rtn_sem_wait(se):
         se.pstate.semaphore_locked = True
 
     # Return success
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_sleep(se):
@@ -991,7 +992,7 @@ def rtn_sleep(se):
     #time.sleep(t)
 
     # Return value
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_sprintf(se):
@@ -1022,7 +1023,7 @@ def rtn_sprintf(se):
     # including the terminating null byte ('\0')
     se.pstate.tt_ctx.setConcreteMemoryValue(buff + len(s), 0x00)
 
-    return Enums.CONCRETIZE, len(s)
+    return CS.CONCRETIZE, len(s)
 
 
 def rtn_strcasecmp(se):
@@ -1044,7 +1045,7 @@ def rtn_strcasecmp(se):
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strcasecmp summary")
 
-    return Enums.SYMBOLIZE, expr
+    return CS.SYMBOLIZE, expr
 
 
 def rtn_strchr(se):
@@ -1067,7 +1068,7 @@ def rtn_strchr(se):
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strchr summary")
 
-    return Enums.SYMBOLIZE, expr
+    return CS.SYMBOLIZE, expr
 
 
 def rtn_strcmp(se):
@@ -1087,7 +1088,7 @@ def rtn_strcmp(se):
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strcmp summary")
 
-    return Enums.SYMBOLIZE, expr
+    return CS.SYMBOLIZE, expr
 
 
 def rtn_strcpy(se):
@@ -1108,7 +1109,7 @@ def rtn_strcpy(se):
     # including the terminating null byte ('\0')
     se.pstate.tt_ctx.setConcreteMemoryValue(dst + size, 0x00)
 
-    return Enums.CONCRETIZE, dst
+    return CS.CONCRETIZE, dst
 
 
 def rtn_strlen(se):
@@ -1132,7 +1133,7 @@ def rtn_strlen(se):
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strlen summary")
 
-    return Enums.SYMBOLIZE, expr
+    return CS.SYMBOLIZE, expr
 
 
 def rtn_strncasecmp(se):
@@ -1155,7 +1156,7 @@ def rtn_strncasecmp(se):
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strncasecmp summary")
 
-    return Enums.SYMBOLIZE, expr
+    return CS.SYMBOLIZE, expr
 
 
 def rtn_strncmp(se):
@@ -1176,7 +1177,7 @@ def rtn_strncmp(se):
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strncmp summary")
 
-    return Enums.SYMBOLIZE, expr
+    return CS.SYMBOLIZE, expr
 
 
 def rtn_strncpy(se):
@@ -1197,7 +1198,7 @@ def rtn_strncpy(se):
         if cell.evaluate() == 0:
             break
 
-    return Enums.CONCRETIZE, dst
+    return CS.CONCRETIZE, dst
 
 
 def rtn_strtok_r(se):
@@ -1225,9 +1226,9 @@ def rtn_strtok_r(se):
             # Save the pointer
             se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(saveptr, se.pstate.ptr_size), string + offset + len(token) + 1)
             # Return the token
-            return Enums.CONCRETIZE, string + offset
+            return CS.CONCRETIZE, string + offset
 
-    return Enums.CONCRETIZE, 0
+    return CS.CONCRETIZE, 0
 
 
 def rtn_strtoul(se):
@@ -1240,9 +1241,9 @@ def rtn_strtoul(se):
     # TODO: Make it symbolic
 
     try:
-        return Enums.CONCRETIZE, int(nptr, base)
+        return CS.CONCRETIZE, int(nptr, base)
     except:
-        return Enums.CONCRETIZE, 0xffffffff
+        return CS.CONCRETIZE, 0xffffffff
 
 
 
