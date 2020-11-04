@@ -140,11 +140,12 @@ class GlobalCoverage(CoverageSingleRun):
 
                     else:
                         pass  # Branch was taken do nothing
-                # Add it the path preodicate constraints and update current path hash
-                pending_csts.append(pc)
-                current_hash.update(struct.pack("<Q", pc.getTakenAddress()))
             else:
-                pass   # RMQ: Do nothing on unconditional jumps?
+                pass  # TODO: trying to enumerate values for jmp rax etc ..
+
+            # Add it the path preodicate constraints and update current path hash
+            pending_csts.append(pc)
+            current_hash.update(struct.pack("<Q", pc.getTakenAddress()))
 
 
     def merge(self, other: CoverageSingleRun) -> None:
