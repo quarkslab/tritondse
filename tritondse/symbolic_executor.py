@@ -24,7 +24,7 @@ class SymbolicExecutor(object):
     """
     This class is used to represent the symbolic execution.
     """
-    def __init__(self, config: Config, pstate: ProcessState, program: Program, workspace: Workspace = None, seed: Seed = None, uid=0, callbacks=None):
+    def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = Seed(), workspace: Workspace = None, uid=0, callbacks=None):
         self.program    = program           # The program to execute
         self.pstate     = pstate            # The process state
         self.config     = config            # The config
