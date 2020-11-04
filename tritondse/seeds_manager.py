@@ -1,96 +1,95 @@
-import array
-import glob
+# built-in imports
 import logging
-import os
 import time
-
-from array                      import array
-from hashlib                    import md5
-from triton                     import AST_NODE
-from tritondse.enums            import CoverageStrategy
-from tritondse.config           import Config
-from tritondse.seed             import Seed, SeedFile
-from tritondse.callbacks        import CallbackManager
-from tritondse.coverage         import Coverage
-from tritondse.path_constraints import PathConstraintsHash
-from tritondse.worklist         import *
-from tritondse.types            import *
+from typing  import Generator
 
 
+# local imports
+from tritondse.config    import Config
+from tritondse.seed      import Seed, SeedStatus
+from tritondse.callbacks import CallbackManager
+from tritondse.coverage  import GlobalCoverage
+from tritondse.worklist  import WorklistAddressToSet
+from tritondse.workspace import Workspace
+from tritondse.symbolic_executor import SymbolicExecutor
+from tritondse.types     import Solver, Model
 
-class SeedsManager:
+
+
+class SeedManager:
     """
     This class is used to represent the seeds management.
     """
-    def __init__(self, config: Config, callbacks: CallbackManager):
+    def __init__(self, config: Config, callbacks: CallbackManager, coverage: GlobalCoverage, workspace: Workspace):
         self.config           = config
-        self.coverage         = Coverage()  # toutes les instructions exécutées depuis tous les corpus
-        self.path_constraints = PathConstraintsHash()  # toutes les contraintes envoyées au solver corpus + worklist compris
+        self.workspace        = workspace
+        self.coverage         = coverage
         self.worklist         = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
         self.cbm              = callbacks
         self.corpus           = set()
         self.crash            = set()
+        self.hangs            = set()
 
-        self.__init_dirs()
-
-
-    def __load_seed_from_file(self, path):
-        logging.debug('Loading %s' % (path))
-        return SeedFile(path)
+        self.__load_seed_workspace()
 
 
-    def __init_dirs(self):
-        # --------- Initialize METADATA --------------------------------------
-        if not os.path.isdir(self.config.metadata_dir):
-            logging.debug('Creating the %s directory' % (self.config.metadata_dir))
-            os.mkdir(self.config.metadata_dir)
+    def __load_seed_workspace(self):
+        # Load seed from the corpus
+        for seed in self.workspace.iter_corpus():
+            self.corpus.add(seed)
+        # Load hangs
+        for seed in self.workspace.iter_hangs():
+            self.hangs.add(seed)
+        # Load crashes
+        for seed in self.workspace.iter_crashes():
+            self.crash.add(seed)
+        # Load worklist
+        for seed in self.workspace.iter_worklist():
+            self.worklist.add(seed)
+
+    def is_new_seed(self, seed: Seed) -> bool:
+        return sum(seed in x for x in [self.corpus, self.crash, self.hangs]) == 0
+
+
+    def post_execution(self, execution: SymbolicExecutor, seed: Seed) -> None:
+        # Update instructions covered from the last execution into our exploration coverage
+        self.coverage.merge(execution.coverage)
+
+        # Add the seed to the appropriate list
+        if seed.status == SeedStatus.NEW:
+            logging.error(f"seed not meant to be NEW at the end of execution ({seed.filename})")
+        elif seed.status == SeedStatus.OK_DONE:
+            self.corpus.add(seed)
+        elif seed.status == SeedStatus.HANG:
+            self.hangs.add(seed)
+        elif seed.status == SeedStatus.CRASH:
+            self.crash.add(seed)
         else:
-            logging.debug('Loading the existing metadata directory from %s' % (self.config.metadata_dir))
-            # Loading coverage
-            self.coverage.load_from_disk(self.config.metadata_dir)
-            # Loading path constraints
-            self.path_constraints.load_from_disk(self.config.metadata_dir)
+            assert False
 
+        # Move the current seed into the right directory (and remove it from worklist)
+        self.workspace.update_seed_location(seed)
+        logging.info(f'Seed {seed.filename} dumped [{seed.status.name}]')
 
-        # --------- Initialize WORKLIST --------------------------------------
-        if not os.path.isdir(self.config.worklist_dir):
-            logging.debug('Creating the %s directory' % (self.config.worklist_dir))
-            os.mkdir(self.config.worklist_dir)
-        else:
-            logging.debug('Checking the existing worklist directory from %s' % (self.config.worklist_dir))
-            for path in glob.glob('%s/*.cov' % (self.config.worklist_dir)):
-                self.worklist.add(self.__load_seed_from_file(path))
+        # Generate new inputs
+        logging.info('Getting models, please wait...')
+        for new_input in self.__iter_new_inputs(execution):
+            # Check if we already have executed this new seed
+            if self.is_new_seed(new_input):
+                self.worklist.add(new_input)
+                self.workspace.save_seed(new_input)
+                logging.info(f'New seed model {new_input.filename} dumped [{new_input.status.name}]')
+            else:
+                logging.debug(f"New seed {new_input.filename} has already been generated")
 
-
-        # --------- Initialize CORPUS ----------------------------------------
-        if not os.path.isdir(self.config.corpus_dir):
-            logging.debug('Creating the %s directory' % (self.config.corpus_dir))
-            os.mkdir(self.config.corpus_dir)
-        else:
-            logging.debug('Checking the existing corpus directory from %s' % (self.config.corpus_dir))
-            for path in glob.glob('%s/*.cov' % (self.config.corpus_dir)):
-                self.corpus.add(self.__load_seed_from_file(path))
-
-
-        # --------- Initialize CRASH -----------------------------------------
-        if not os.path.isdir(self.config.crash_dir):
-            logging.debug('Creating the %s directory' % (self.config.crash_dir))
-            os.mkdir(self.config.crash_dir)
-        else:
-            logging.debug('Checking the existing crash directory from %s' % (self.config.crash_dir))
-            for path in glob.glob('%s/*.cov' % (self.config.crash_dir)):
-                self.crash.add(self.__load_seed_from_file(path))
-
-
-    def __save_metadata_on_disk(self):
-        # Save coverage
-        self.coverage.save_on_disk(self.config.metadata_dir)
-        # Save path constraints
-        self.path_constraints.save_on_disk(self.config.metadata_dir)
+        logging.info('Worklist size: %d' % (len(self.worklist)))
+        logging.info('Corpus size: %d' % (len(self.corpus)))
+        logging.info(f'Unique instructions covered: {self.coverage.unique_instruction_covered}')
 
 
     # Presente pour du debug
     def __get_path_constraint(self, psate, end_pc, branch):
+        from triton import AST_NODE
         ctx = psate.tt_ctx
         ast = ctx.getAstContext()
         tid = end_pc.getThreadId()
@@ -114,133 +113,85 @@ class SeedsManager:
         return ret
 
 
-    def __get_new_inputs(self, execution):
-        # Set of new inputs
-        inputs = set()
-
-        # Get path constraints from the last execution
-        pco = execution.pstate.tt_ctx.getPathConstraints()
-
+    def __iter_new_inputs(self, execution: SymbolicExecutor) -> Generator[Seed, None, None]:
         # Get the astContext
-        astCtxt = execution.pstate.tt_ctx.getAstContext()
+        actx = execution.pstate.tt_ctx.getAstContext()
 
         # We start with any input. T (Top)
-        previousConstraints = [
-            astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue()),
-            astCtxt.equal(astCtxt.bvtrue(), astCtxt.bvtrue())
-        ]
+        path_predicate = [actx.equal(actx.bvtrue(), actx.bvtrue())]
 
         # Define a limit of branch constraints
         smt_queries = 0
 
-        # The hash representation of a taken path and constraints asked
-        pc_hash_repr = md5()
+        # Solver status
+        status = None
+        path_generator = self.coverage.iter_new_paths(execution.pstate.tt_ctx.getPathConstraints())
 
-        # Go through the path constraints
-        for pc in pco:
+        try:
+            while True:
+                p_prefix, branch, dst_addr = path_generator.send(status)
 
-            # Update the hash representation of the taken path
-            if self.config.coverage_strategy == CoverageStrategy.PATH_COVERAGE:
-                pc_hash_repr.update(array('L', [pc.getTakenAddress()]))
+                # Add path_prefix in path predicate
+                path_predicate.extend(x.getTakenPredicate() for x in p_prefix)
 
-            elif self.config.coverage_strategy == CoverageStrategy.CODE_COVERAGE:
-                pc_hash_repr = md5(array('L', [pc.getTakenAddress()]))
+                # Create the constraint
+                constraint = actx.land(path_predicate + [branch['constraint']])
 
-            # Save the constraint
-            self.path_constraints.add_hash_constraint(pc_hash_repr.hexdigest())
+                # Solve the constraint
+                ts = time.time()
+                model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
+                status = Solver(status)
+                smt_queries += 1
+                logging.info(f'solver query n°{smt_queries}, time: {time.time() - ts:.02f} seconds. Status: {status.name}')
 
-            # If there is a condition
-            if pc.isMultipleBranches():
+                if status == Solver.SAT:
+                    new_seed = self._mk_new_seed(execution, execution.seed, model)
+                    # Trick to keep track of which target a seed is meant to cover
+                    new_seed.target_addr = dst_addr
+                    yield new_seed  # Yield the seed to get it added in the worklist
+                elif status == Solver.UNSAT:
+                    pass
+                elif status == Solver.TIMEOUT:
+                    pass
+                    # while status == Solver.TIMEOUT:
+                    #     limit = int(len(constraint) / 2)
+                    #     if limit < 1:
+                    #         break
+                    #     ts = time.time()
+                    #     model, status = execution.pstate.tt_ctx.getModel(actx.land(constraint[limit:]), status=True)
+                    #     te = time.time()
+                    #     smt_queries += 1
+                    #     logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
 
-                # Get all branches
-                branches = pc.getBranchConstraints()
-                for branch in branches:
+                elif status == Solver.UNKNOWN:
+                    pass
+                else:
+                    assert False
 
-                    if branch['isTaken'] and self.config.coverage_strategy == CoverageStrategy.EDGE_COVERAGE:
-                        h = md5(array('L', [branch['srcAddr'], branch['dstAddr']]))
-                        self.path_constraints.add_hash_constraint(h.hexdigest())
+                # Check if we reached the limit of query
+                if self.config.smt_queries_limit and smt_queries >= self.config.smt_queries_limit:  # FIXME: breaking if smt_queries_limit is negative
+                    break
+        except StopIteration:  # We have iterated the whole path generator
+            pass
 
-                    # Get the constraint of the branch which has not been taken.
-                    if not branch['isTaken']:
 
-                        if self.config.coverage_strategy == CoverageStrategy.PATH_COVERAGE:
-                            # In path coverage, we have to fork the hash of the current
-                            # pc for each branch we want to revert
-                            forked_hash = pc_hash_repr.copy()
-                            forked_hash.update(array('L', [branch['dstAddr']]))
+    def _mk_new_seed(self, exec: SymbolicExecutor, seed: Seed, model: Model) -> Seed:
+        # Current content before getting model
+        content = bytearray(seed.content)
+        # For each byte of the seed, we assign the value provided by the solver.
+        # If the solver provide no model for some bytes of the seed, their value
+        # stay unmodified (with their current value).
+        for k, v in sorted(model.items()):
+            content[k] = v.getValue()
 
-                        elif self.config.coverage_strategy == CoverageStrategy.CODE_COVERAGE:
-                            forked_hash = md5(array('L', [branch['dstAddr']]))
+        # Calling callback if user defined one
+        for cb in self.cbm.get_new_input_callback():
+            cont = cb(exec, exec.pstate, content)
+            # if the callback return a new input continue with that one
+            content = cont if cont is not None else content
 
-                        elif self.config.coverage_strategy == CoverageStrategy.EDGE_COVERAGE:
-                            forked_hash = md5(array('L', [branch['srcAddr'], branch['dstAddr']]))
-
-                        # Only ask for a model if the constraints has never been asked
-                        if self.path_constraints.hash_already_asked(forked_hash.hexdigest()) is False:
-                            # Create the constraint
-                            #constraint = self.__get_path_constraint(execution.pstate, pc, branch)
-                            constraint = previousConstraints + [branch['constraint']]
-
-                            ts = time.time()
-                            model, status = execution.pstate.tt_ctx.getModel(astCtxt.land(constraint), status=True)
-                            te = time.time()
-                            smt_queries += 1
-                            logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
-
-                            # Save the hash of the constraint
-                            if status == Solver.SAT:
-                                self.path_constraints.add_hash_constraint(forked_hash.hexdigest())
-                            elif status == Solver.UNSAT:
-                                # TODO: Si c'est UNSAT on devrait return inputs directement ? Car le reste sera UNSAT ?
-                                pass
-
-                            # Si c'est TIMEOUT on essaie de reduire le predicat de chemin
-                            # TODO: Faire de la dichotomie
-                            while status == Solver.TIMEOUT:
-                                limit = int(len(constraint) / 2)
-                                if limit < 1:
-                                    break
-                                ts = time.time()
-                                model, status = execution.pstate.tt_ctx.getModel(astCtxt.land(constraint[limit:]), status=True)
-                                te = time.time()
-                                smt_queries += 1
-                                logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
-
-                            if model:
-                                # Current content before getting model
-                                content = bytearray(execution.seed.content)
-                                # For each byte of the seed, we assign the value provided by the solver.
-                                # If the solver provide no model for some bytes of the seed, their value
-                                # stay unmodified (with their current value).
-                                for k, v in sorted(model.items()):
-                                    content[k] = v.getValue()
-
-                                # Calling callback if user defined one
-                                for cb in self.cbm.get_new_input_callback():
-                                    cont = cb(execution, execution.pstate, content)
-                                    # if the callback return a new input continue with that one
-                                    content = cont if cont is not None else content
-
-                                # Create the Seed object and assign the new model
-                                seed = Seed(bytes(content))
-                                # Note: branch[] contains information that can help the SeedManager to classify its
-                                # seeds insertion:
-                                #
-                                #   - branch['srcAddr'] -> The location of the branch instruction
-                                #   - branch['dstAddr'] -> The destination of the jump if and only if branch['isTaken'] is True.
-                                #                          Otherwise, the destination address is the next linear instruction.
-                                seed.target_addr = branch['dstAddr']
-                                # Add the seed to the set of new inputs
-                                inputs.add(seed)
-
-            # Update the previous constraints with true branch to keep a good path.
-            previousConstraints.append(pc.getTakenPredicate())
-
-            # Check if we reached the limit of query
-            if self.config.smt_queries_limit and smt_queries >= self.config.smt_queries_limit:
-                break
-
-        return inputs
+        # Create the Seed object and assign the new model
+        return Seed(bytes(content))
 
 
     def pick_seed(self):
@@ -249,37 +200,12 @@ class SeedsManager:
 
     def add_seed(self, seed):
         if seed is not None and seed not in self.corpus and seed not in self.crash:
-            seed.save_on_disk(self.config.worklist_dir)
             self.worklist.add(seed)
-            logging.info(f'Seed dumped into {self.config.worklist_dir}/{seed.get_file_name()}')
+            self.workspace.save_seed(seed)
+            logging.info(f'Seed {seed.filename} dumped [{seed.status.name}]')
 
 
-    def post_execution(self, execution, seed):
-        # Update instructions covered from the last execution into our exploration coverage
-        self.coverage.merge(execution.coverage)
-
-        # Add the seed to the current corpus
-        self.corpus.add(seed)
-
-        # Generate new inputs
-        logging.info('Getting models, please wait...')
-        inputs = self.__get_new_inputs(execution)
-        for m in inputs:
-            # Check if we already have executed this new seed
-            if m and m not in self.corpus and m not in self.crash:
-                self.worklist.add(m)
-                m.save_on_disk(self.config.worklist_dir)
-                logging.info(f'Seed dumped into {self.config.worklist_dir}/{m.get_file_name()}')
-
-        # Save the current seed into the corpus directory  and remove it from
-        # the worklist directory.
-        seed.save_on_disk(self.config.corpus_dir)
-        seed.remove_from_disk(self.config.worklist_dir)
-        logging.info(f'Corpus dumped into {self.config.corpus_dir}/{seed.get_file_name()}')
-
-        # Save metadata on disk
-        self.__save_metadata_on_disk()
-
-        logging.info('Worklist size: %d' % (len(self.worklist)))
-        logging.info('Corpus size: %d' % (len(self.corpus)))
-        logging.info('Total of instructions covered: %d' % (self.coverage.number_of_instructions_covered()))
+    def post_exploration(self):
+        # Do things you would do at the very end of exploration
+        # (or just before it becomes idle)
+        pass

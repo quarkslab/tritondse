@@ -1,11 +1,10 @@
 from tritondse.callbacks import CbType, ProbeInterface
-from tritondse.program   import Program
-from tritondse.seed      import Seed
+from tritondse.seed      import Seed, SeedStatus
 from tritondse.types     import Architecture
 
 
 
-def save_model(se, model):
+def mk_new_crashing_seed(se, model) -> Seed:
     """
     This function is used by every sanitizers to dump the model found in order
     to trigger a bug into the crash directory.
@@ -13,8 +12,7 @@ def save_model(se, model):
     new_input = bytearray(se.seed.content)
     for k, v in model.items():
         new_input[k] = v.getValue()
-    new_seed = Seed(new_input)
-    new_seed.save_on_disk(se.config.crash_dir)
+    return Seed(new_input, SeedStatus.CRASH)
 
 
 
@@ -37,7 +35,7 @@ class UAFSanitizer(ProbeInterface):
         ptr = mem.getAddress()
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             print(f'UAF detected at {mem}')
-            se.seed.save_on_disk(se.config.crash_dir)
+            se.seed.status = SeedStatus.CRASH
             se.abort()
 
 
@@ -46,7 +44,7 @@ class UAFSanitizer(ProbeInterface):
         ptr = mem.getAddress()
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             print(f'UAF detected at {mem}')
-            se.seed.save_on_disk(se.config.crash_dir)
+            se.seed.status = SeedStatus.CRASH
             se.abort()
 
 
@@ -55,8 +53,8 @@ class UAFSanitizer(ProbeInterface):
         ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             print(f'Double free detected at {addr:#x}')
-            se.seed.save_on_disk(se.config.crash_dir)
-
+            se.seed.status = SeedStatus.CRASH
+            se.abort()
 
 
 class NullDerefSanitizer(ProbeInterface):
@@ -77,8 +75,10 @@ class NullDerefSanitizer(ProbeInterface):
             model = pstate.tt_ctx.getModel(access_ast == 0)
             if model:
                 print(f'Potential null deref when reading at {mem}')
-                save_model(se, model)
-                se.abort()
+                crash_seed = mk_new_crashing_seed(se, model)
+                se.workspace.save_seed(crash_seed)
+                se.seed.status = SeedStatus.OK_DONE  # FIXME: The current seed is ok no ?
+                se.abort()  # FIXME: Shall we abort ?
 
 
     @staticmethod
@@ -88,7 +88,9 @@ class NullDerefSanitizer(ProbeInterface):
             model = pstate.tt_ctx.getModel(access_ast == 0)
             if model:
                 print(f'Potential null deref when writing at {mem}')
-                save_model(se, model)
+                crash_seed = mk_new_crashing_seed(se, model)
+                se.workspace.save_seed(crash_seed)
+                se.seed.status = SeedStatus.OK_DONE  # FIXME: The current seed is ok no ?
                 se.abort()
 
 
@@ -121,7 +123,7 @@ class FormatStringSanitizer(ProbeInterface):
 
         if symbolic_cells:
             print(f'Potential format string of {symbolic_cells} symbolic cells at {addr:#x}')
-            se.seed.save_on_disk(se.config.crash_dir)
+            se.seed.status = SeedStatus.CRASH
             se.abort()
 
 
@@ -162,5 +164,7 @@ class IntegerOverflowSanitizer(ProbeInterface):
             model = pstate.tt_ctx.getModel(flag == 1)
             if model:
                 print(f'Potential integer overflow at {instruction}')
-                save_model(se, model)
+                crash_seed = mk_new_crashing_seed(se, model)
+                se.workspace.save_seed(crash_seed)
+                se.seed.status = SeedStatus.OK_DONE  # FIXME: The current seed is ok no ?
                 se.abort()
