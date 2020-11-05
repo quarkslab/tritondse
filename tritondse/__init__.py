@@ -5,6 +5,7 @@ from .coverage              import CoverageStrategy
 from .symbolic_executor     import SymbolicExecutor
 from .symbolic_explorator   import SymbolicExplorator, ExplorationStatus
 from .seed                  import Seed, SeedStatus
+from .heap_allocator        import AllocatorException
 
 from triton import VERSION
 
