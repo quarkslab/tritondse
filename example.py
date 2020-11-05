@@ -18,11 +18,11 @@ config.time_inc_coefficient = 0.00001
 config.coverage_strategy    = CoverageStrategy.EDGE_COVERAGE
 config.symbolize_stdin      = True
 config.program_argv         = [
-    '../cyclonetcp_harness/harness/harness_triton_vuln_off'
+    '../cyclonetcp_harness/harness/harness_triton_vuln_ON'
 ]
 
 try:
-    program = Program('../cyclonetcp_harness/harness/harness_triton_vuln_off')
+    program = Program('../cyclonetcp_harness/harness/harness_triton_vuln_ON')
 except FileNotFoundError as e:
     print(e)
     sys.exit(-1)
@@ -33,7 +33,7 @@ dse = SymbolicExplorator(config, program)
 dse.add_input_seed(seed)
 dse.explore()
 
-# ps = ProcessState(config.thread_scheduling, config.time_inc_coefficient)
-# execution = SymbolicExecutor(config, ps, program, seed)
-#execution.callback_manager.register_post_instuction_callback(trace_debug)
-# execution.run()
+#ps = ProcessState(config.thread_scheduling, config.time_inc_coefficient)
+#execution = SymbolicExecutor(config, ps, program, seed)
+##execution.callback_manager.register_post_instuction_callback(trace_debug)
+#execution.run()
