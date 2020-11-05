@@ -68,10 +68,11 @@ def rtn_ctype_b_loc(se):
 def rtn_errno_location(se):
     logging.debug('__errno_location hooked')
 
-    errno = 0xdeadbeaf
-    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(errno, CPUSIZE.QWORD), 0)
+    # Errno is a int* ptr
+    # Initialize it to zero
+    se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(se.pstate.ERRNO_PTR, CPUSIZE.DWORD), 0)
 
-    return CS.CONCRETIZE, errno
+    return CS.CONCRETIZE, se.pstate.ERRNO_PTR
 
 
 def rtn_libc_start_main(se):
@@ -575,8 +576,8 @@ def rtn_memcpy(se):
 
     # TODO: What if cnt is symbolic ?
     for index in range(cnt):
-        dmem  = MemoryAccess(dst + index, 1)
-        smem  = MemoryAccess(src + index, 1)
+        dmem  = MemoryAccess(dst + index, CPUSIZE.BYTE)
+        smem  = MemoryAccess(src + index, CPUSIZE.BYTE)
         cell = se.pstate.tt_ctx.getMemoryAst(smem)
         expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "memcpy byte")
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
@@ -595,12 +596,12 @@ def rtn_memmove(se):
     src_cells = []
     # TODO: What if cnt is symbolic ?
     for index in range(cnt):
-        smem  = MemoryAccess(src + index, 1)
+        smem  = MemoryAccess(src + index, CPUSIZE.BYTE)
         cell = se.pstate.tt_ctx.getMemoryAst(smem)
         src_cells.append(cell)
 
     for index in range(cnt):
-        dmem  = MemoryAccess(dst + index, 1)
+        dmem  = MemoryAccess(dst + index, CPUSIZE.BYTE)
         cell = src_cells.pop(0)
         expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "memmove byte")
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
@@ -855,7 +856,7 @@ def rtn_sem_getvalue(se):
     arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
     arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # int *sval
     memIn = MemoryAccess(arg0, se.pstate.ptr_size)
-    memOut = MemoryAccess(arg1, se.pstate.ptr_size)
+    memOut = MemoryAccess(arg1, CPUSIZE.DWORD)
     value = se.pstate.tt_ctx.getConcreteMemoryValue(memIn)
 
     # Set the semaphore's value into the output
@@ -951,10 +952,12 @@ def rtn_sem_trywait(se):
         se.pstate.tt_ctx.setConcreteMemoryValue(mem, value - 1)
         se.pstate.semaphore_locked = False
     else:
-        logging.debug('semaphore locked')
+        logging.debug('semaphore locked but continue')
         se.pstate.semaphore_locked = False
-        # Return EAGAIN
-        return CS.CONCRETIZE, 3406
+        # Setting errno to EAGAIN (3406)
+        se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(se.pstate.ERRNO_PTR, CPUSIZE.DWORD), 3406)
+        # Return -1
+        return CS.CONCRETIZE, ((1 << se.pstate.ptr_bit_size) - 1)
 
     # Return success
     return CS.CONCRETIZE, 0
@@ -1099,8 +1102,8 @@ def rtn_strcpy(se):
     size = len(se.abi.get_memory_string(src))
 
     for index in range(size):
-        dmem = MemoryAccess(dst + index, 1)
-        smem = MemoryAccess(src + index, 1)
+        dmem = MemoryAccess(dst + index, CPUSIZE.BYTE)
+        smem = MemoryAccess(src + index, CPUSIZE.BYTE)
         cell = se.pstate.tt_ctx.getMemoryAst(smem)
         expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "strcpy byte")
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
@@ -1189,8 +1192,8 @@ def rtn_strncpy(se):
 
     # TODO: What if the cnt is symbolic ?
     for index in range(cnt):
-        dmem = MemoryAccess(dst + index, 1)
-        smem = MemoryAccess(src + index, 1)
+        dmem = MemoryAccess(dst + index, CPUSIZE.BYTE)
+        smem = MemoryAccess(src + index, CPUSIZE.BYTE)
         cell = se.pstate.tt_ctx.getMemoryAst(smem)
         expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "strncpy byte")
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
