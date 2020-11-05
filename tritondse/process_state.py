@@ -24,6 +24,7 @@ class ProcessState(object):
         self.BASE_PLT   = 0x01000000
         self.BASE_ARGV  = 0x02000000
         self.BASE_CTYPE = 0x03000000
+        self.ERRNO_PTR  = 0x04000000
         self.BASE_HEAP  = 0x10000000
         self.END_HEAP   = 0x6fffffff
         self.BASE_STACK = 0xefffffff

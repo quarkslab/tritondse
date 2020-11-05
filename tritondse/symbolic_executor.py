@@ -8,16 +8,17 @@ import os
 from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess
 
 # local imports
-from tritondse.abi           import ABI
-from tritondse.config        import Config
-from tritondse.coverage      import CoverageSingleRun
-from tritondse.process_state import ProcessState
-from tritondse.program       import Program
-from tritondse.seed          import Seed, SeedStatus
-from tritondse.types         import ConcSymAction
-from tritondse.routines      import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
-from tritondse.callbacks     import CallbackManager
-from tritondse.workspace     import Workspace
+from tritondse.abi            import ABI
+from tritondse.config         import Config
+from tritondse.coverage       import CoverageSingleRun
+from tritondse.process_state  import ProcessState
+from tritondse.program        import Program
+from tritondse.seed           import Seed, SeedStatus
+from tritondse.types          import ConcSymAction
+from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
+from tritondse.callbacks      import CallbackManager
+from tritondse.workspace      import Workspace
+from tritondse.heap_allocator import AllocatorException
 
 
 class SymbolicExecutor(object):
@@ -155,7 +156,12 @@ class SymbolicExecutor(object):
                 cb(self, self.pstate, pc)
 
             # Simulate routines
-            self.routines_handler(instruction)
+            try:
+                self.routines_handler(instruction)
+            except AllocatorException as e:
+                logging.info(f'An exception has been raised: {e}')
+                self.seed.status = SeedStatus.CRASH
+                return
 
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:
