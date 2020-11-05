@@ -1,12 +1,21 @@
 #!/usr/bin/env python3
 
 import sys
+import logging
 
 from tritondse import *
 
 
 def trace_debug(se: SymbolicExecutor, state: ProcessState, instruction: 'Instruction'):
     print("[tid:%d] %#x: %s" %(instruction.getThreadId(), instruction.getAddress(), instruction.getDisassembly()))
+
+
+def intrinsic_callback(se: SymbolicExecutor, state: ProcessState, addr: 'Addr'):
+    alert_id = state.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    logging.info(f"[INTRINSIC] id {alert_id} triggered")
+    with open('./id', 'a+') as f:
+        f.write(f'{alert_id}\n')
+    return
 
 
 config = Config(debug=False)
@@ -31,6 +40,7 @@ seed = Seed.from_file('../cyclonetcp_harness/harness/misc/new_frame.seed')
 
 dse = SymbolicExplorator(config, program)
 dse.add_input_seed(seed)
+dse.callback_manager.register_function_callback('__klocwork_alert_placeholder', intrinsic_callback)
 dse.explore()
 
 #ps = ProcessState(config.thread_scheduling, config.time_inc_coefficient)
