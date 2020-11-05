@@ -47,6 +47,7 @@ class SeedManager:
         for seed in self.workspace.iter_worklist():
             self.worklist.add(seed)
 
+
     def is_new_seed(self, seed: Seed) -> bool:
         return sum(seed in x for x in [self.corpus, self.crash, self.hangs]) == 0
 
@@ -86,31 +87,6 @@ class SeedManager:
         logging.info('Corpus size: %d' % (len(self.corpus)))
         logging.info(f'Unique instructions covered: {self.coverage.unique_instruction_covered}')
 
-
-    # Presente pour du debug
-    def __get_path_constraint(self, psate, end_pc, branch):
-        from triton import AST_NODE
-        ctx = psate.tt_ctx
-        ast = ctx.getAstContext()
-        tid = end_pc.getThreadId()
-        pco = ctx.getPathConstraints()
-        vrs = ast.search(branch['constraint'], AST_NODE.VARIABLE)
-        ret = [ast.equal(ast.bvtrue(), ast.bvtrue())]
-
-        for pc in pco:
-            #if pc.isMultipleBranches() and pc.getThreadId() == tid:
-            if pc.getBranchConstraints() == end_pc.getBranchConstraints():
-                break
-            cr = pc.getTakenPredicate()
-            # Ici, on cherche à recuperer les contraintes qui sont liées
-            # uniquement aux variables symboliques de la contrainte à nier.
-            #for x in ast.search(cr, AST_NODE.VARIABLE):
-            #    if x in vrs:
-            #        ret.append(cr)
-            #        break
-
-        ret.append(branch['constraint'])
-        return ret
 
 
     def __iter_new_inputs(self, execution: SymbolicExecutor) -> Generator[Seed, None, None]:
