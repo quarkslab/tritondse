@@ -586,6 +586,24 @@ def rtn_memcpy(se):
     return CS.CONCRETIZE, dst
 
 
+def rtn_memmem(se):
+    logging.debug('memmem hooked')
+
+    haystack    = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # const void*
+    haystacklen = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # size_t
+    needle      = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))  # const void *
+    needlelen   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))  # size_t
+
+    s1 = se.pstate.tt_ctx.getConcreteMemoryAreaValue(haystack, haystacklen)  # haystack
+    s2 = se.pstate.tt_ctx.getConcreteMemoryAreaValue(needle, needlelen)      # needle
+
+    offset = s1.find(s2)
+    if offset == -1:
+        return CS.CONCRETIZE, 0
+
+    return CS.CONCRETIZE, haystack + offset
+
+
 def rtn_memmove(se):
     logging.debug('memmove hooked')
 
@@ -1276,6 +1294,7 @@ SUPPORTED_ROUTINES = {
     'malloc':                  rtn_malloc,
     'memcmp':                  rtn_memcmp,
     'memcpy':                  rtn_memcpy,
+    'memmem':                  rtn_memmem,
     'memmove':                 rtn_memmove,
     'memset':                  rtn_memset,
     'printf':                  rtn_printf,
