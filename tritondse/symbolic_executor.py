@@ -178,10 +178,11 @@ class SymbolicExecutor(object):
         if ret is not None:
             if ret[0] == ConcSymAction.CONCRETIZE:
                 self.pstate.tt_ctx.concretizeRegister(self.abi.get_ret_register())
-                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1])
+                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1]) # setup symbolic state
+
             elif ret[0] == ConcSymAction.SYMBOLIZE:
-                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1].getAst().evaluate())
-                self.pstate.tt_ctx.assignSymbolicExpressionToRegister(ret[1], self.abi.get_ret_register())
+                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1].getAst().evaluate()) # setup concrete state
+                self.pstate.tt_ctx.assignSymbolicExpressionToRegister(ret[1], self.abi.get_ret_register()) # setup symbolic state
         return
 
 
