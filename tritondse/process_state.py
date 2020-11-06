@@ -86,6 +86,7 @@ class ProcessState(object):
         # runtime temporary variables
         self.__pcs_updated = False
 
+
     def get_unique_thread_id(self):
         self.utid += 1
         return self.utid
@@ -121,6 +122,12 @@ class ProcessState(object):
     def ptr_bit_size(self) -> BitSize:
         """ Size of a pointer in bits """
         return self.tt_ctx.getGprBitSize()
+
+
+    @property
+    def minus_one(self) -> int:
+        """ -1 according to the architecture size """
+        return ((1 << self.ptr_bit_size) - 1)
 
 
     def load_program(self, p: Program, base_addr: Addr = 0) -> None:
