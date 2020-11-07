@@ -1159,13 +1159,17 @@ def rtn_strcasecmp(se):
 
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    size = min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
+    size = min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)) + 1)
 
-    s = s1 if len(se.abi.get_memory_string(s1)) < len(se.abi.get_memory_string(s2)) else s2
-    for i in range(size):
-        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
-        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
+    #s = s1 if len(se.abi.get_memory_string(s1)) < len(se.abi.get_memory_string(s2)) else s2
+    #for i in range(size):
+    #    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
+    #    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
+    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
+    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(se.abi.get_memory_string(s1)), CPUSIZE.BYTE)) == 0x00)
+    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(se.abi.get_memory_string(s2)), CPUSIZE.BYTE)) == 0x00)
+
+    # FIXME: Il y a des truc chelou avec le +1 et le logic ci-dessous
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, se.pstate.ptr_bit_size)
@@ -1199,6 +1203,10 @@ def rtn_strchr(se):
     sze = len(se.abi.get_memory_string(string))
     res = rec(ast.bv(0, 64), 0, sze)
 
+    for i, c in enumerate(se.abi.get_memory_string(string)):
+        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(string + i, CPUSIZE.BYTE)) != 0x00)
+    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(string + len(se.abi.get_memory_string(string)), CPUSIZE.BYTE)) == 0x00)
+
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strchr summary")
 
@@ -1210,13 +1218,17 @@ def rtn_strcmp(se):
 
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    size = min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)))
+    size = min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1
 
-    s = s1 if len(se.abi.get_memory_string(s1)) < len(se.abi.get_memory_string(s2)) else s2
-    for i in range(size):
-        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
-        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
+    #s = s1 if len(se.abi.get_memory_string(s1)) <= len(se.abi.get_memory_string(s2)) else s2
+    #for i in range(size):
+    #    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
+    #    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
+    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
+    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(se.abi.get_memory_string(s1)), CPUSIZE.BYTE)) == 0x00)
+    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(se.abi.get_memory_string(s2)), CPUSIZE.BYTE)) == 0x00)
+
+    # FIXME: Il y a des truc chelou avec le +1 et le logic ci-dessous
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, 64)
@@ -1238,6 +1250,10 @@ def rtn_strcpy(se):
     src  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     size = len(se.abi.get_memory_string(src))
 
+    for i, c in enumerate(se.abi.get_memory_string(src)):
+        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(src + i, CPUSIZE.BYTE)) != 0x00)
+    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(src + size, CPUSIZE.BYTE)) == 0x00)
+
     for index in range(size):
         dmem = MemoryAccess(dst + index, CPUSIZE.BYTE)
         smem = MemoryAccess(src + index, CPUSIZE.BYTE)
@@ -1248,7 +1264,6 @@ def rtn_strcpy(se):
 
     # including the terminating null byte ('\0')
     se.pstate.tt_ctx.setConcreteMemoryValue(dst + size, 0x00)
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(dst + size, 1)) == 0)
 
     return CS.CONCRETIZE, dst
 
@@ -1270,6 +1285,10 @@ def rtn_strlen(se):
     sze = len(se.abi.get_memory_string(s))
     res = ast.bv(sze, 64)
     res = rec(res, s, 0, sze)
+
+    # FIXME: enumerate != 0 ?
+
+    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s + sze, CPUSIZE.BYTE)) == 0x00)
 
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strlen summary")
@@ -1328,7 +1347,8 @@ def rtn_strncpy(se):
     src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     cnt = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
 
-    # TODO: What if the cnt is symbolic ?
+    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == cnt)
+
     for index in range(cnt):
         dmem = MemoryAccess(dst + index, CPUSIZE.BYTE)
         smem = MemoryAccess(src + index, CPUSIZE.BYTE)
@@ -1336,9 +1356,11 @@ def rtn_strncpy(se):
         expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "strncpy byte")
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
-        #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(dmem) == cell)
         if cell.evaluate() == 0:
+            se.pstate.tt_ctx.pushPathConstraint(cell == 0x00)
             break
+        else:
+            se.pstate.tt_ctx.pushPathConstraint(cell != 0x00)
 
     return CS.CONCRETIZE, dst
 
@@ -1382,14 +1404,17 @@ def rtn_strtok_r(se):
 def rtn_strtoul(se):
     logging.debug('strtoul hooked')
 
-    nptr   = se.abi.get_string_argument(0)
+    nptr   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    nptrs  = se.abi.get_string_argument(0)
     endptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     base   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
 
-    # TODO: Make it symbolic
+    for i, c in enumerate(nptr):
+        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(nptr + i, CPUSIZE.BYTE)) == ord(c))
+    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == base)
 
     try:
-        return CS.CONCRETIZE, int(nptr, base)
+        return CS.CONCRETIZE, int(nptrs, base)
     except:
         return CS.CONCRETIZE, 0xffffffff
 
