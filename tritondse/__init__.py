@@ -6,6 +6,7 @@ from .symbolic_executor     import SymbolicExecutor
 from .symbolic_explorator   import SymbolicExplorator, ExplorationStatus
 from .seed                  import Seed, SeedStatus
 from .heap_allocator        import AllocatorException
+from .sanitizers            import UAFSanitizer, NullDerefSanitizer, FormatStringSanitizer, IntegerOverflowSanitizer
 
 from triton import VERSION
 
