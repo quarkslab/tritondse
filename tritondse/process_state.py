@@ -231,14 +231,16 @@ class ProcessState(object):
         # calling time functions (e.g gettimeofday(), clock_gettime(), ...).
         self.time += self.time_inc_coefficient
 
-        if self.tt_ctx.getPathPredicateSize() != __len_pcs:
+        if self.tt_ctx.getPathPredicateSize() > __len_pcs:
             self.__pcs_updated = True
 
         return ret
 
+
     def is_path_predicate_updated(self) -> bool:
         """ Return whether or not the path predicate has been updated """
         return self.__pcs_updated
+
 
     @property
     def last_branch_constraint(self) -> PathConstraint:

@@ -88,7 +88,6 @@ class SeedManager:
         logging.info(f'Unique instructions covered: {self.coverage.unique_instruction_covered}')
 
 
-
     def __iter_new_inputs(self, execution: SymbolicExecutor) -> Generator[Seed, None, None]:
         # Get the astContext
         actx = execution.pstate.tt_ctx.getAstContext()

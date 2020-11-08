@@ -38,8 +38,10 @@ class CoverageSingleRun(object):
         self.current_path = []  # Hold all addresses currently forming the path taken
         self.current_path_hash = hashlib.md5()
 
+
     def add_covered_address(self, address: Addr):
         self.instructions[address] += 1
+
 
     def add_covered_branch(self, program_counter: Addr, pc: PathConstraint) -> None:
         if pc.isMultipleBranches():
@@ -54,9 +56,11 @@ class CoverageSingleRun(object):
         else:
             pass  # otherwise, unconditional we are not interested
 
+
     @property
     def unique_instruction_covered(self) -> int:
         return len(self.instructions)
+
 
     @property
     def total_instruction_executed(self) -> int:
@@ -65,6 +69,7 @@ class CoverageSingleRun(object):
 
     def post_execution(self) -> None:
         pass
+
 
 
 class GlobalCoverage(CoverageSingleRun):
