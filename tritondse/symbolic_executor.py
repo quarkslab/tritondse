@@ -142,7 +142,6 @@ class SymbolicExecutor(object):
             for cb in post_insts:
                 cb(self, self.pstate, instruction)
 
-
             # Update the coverage of the execution
             self.coverage.add_covered_address(pc)
 
