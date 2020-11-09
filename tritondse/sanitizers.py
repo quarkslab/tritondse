@@ -1,3 +1,5 @@
+import logging
+
 from tritondse.callbacks import CbType, ProbeInterface
 from tritondse.seed      import Seed, SeedStatus
 from tritondse.types     import Architecture
@@ -34,7 +36,7 @@ class UAFSanitizer(ProbeInterface):
     def memory_read(se, pstate, mem):
         ptr = mem.getAddress()
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
-            print(f'UAF detected at {mem}')
+            logging.critical(f'UAF detected at {mem}')
             se.seed.status = SeedStatus.CRASH
             se.abort()
 
@@ -43,7 +45,7 @@ class UAFSanitizer(ProbeInterface):
     def memory_write(se, pstate, mem, value):
         ptr = mem.getAddress()
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
-            print(f'UAF detected at {mem}')
+            logging.critical(f'UAF detected at {mem}')
             se.seed.status = SeedStatus.CRASH
             se.abort()
 
@@ -52,7 +54,7 @@ class UAFSanitizer(ProbeInterface):
     def free_routine(se, pstate, name, addr):
         ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
-            print(f'Double free detected at {addr:#x}')
+            logging.critical(f'Double free detected at {addr:#x}')
             se.seed.status = SeedStatus.CRASH
             se.abort()
 
@@ -74,11 +76,16 @@ class NullDerefSanitizer(ProbeInterface):
         if access_ast is not None and access_ast.isSymbolized():
             model = pstate.tt_ctx.getModel(access_ast == 0)
             if model:
-                print(f'Potential null deref when reading at {mem}')
+                logging.warning(f'Potential null deref when reading at {mem}')
                 crash_seed = mk_new_crashing_seed(se, model)
                 se.workspace.save_seed(crash_seed)
-                se.seed.status = SeedStatus.OK_DONE  # FIXME: The current seed is ok no ?
-                se.abort()  # FIXME: Shall we abort ?
+                se.seed.status = SeedStatus.OK_DONE
+                #se.abort()
+        elif access_ast is not None and access_ast.evaluate() == 0:
+                # FIXME: Mettre toutes les zones valide en read
+                logging.critical(f'Invalid memory access when reading at {mem}')
+                se.seed.status = SeedStatus.CRASH
+                se.abort()
 
 
     @staticmethod
@@ -87,10 +94,15 @@ class NullDerefSanitizer(ProbeInterface):
         if access_ast is not None and access_ast.isSymbolized():
             model = pstate.tt_ctx.getModel(access_ast == 0)
             if model:
-                print(f'Potential null deref when writing at {mem}')
+                logging.warning(f'Potential null deref when writing at {mem}')
                 crash_seed = mk_new_crashing_seed(se, model)
                 se.workspace.save_seed(crash_seed)
-                se.seed.status = SeedStatus.OK_DONE  # FIXME: The current seed is ok no ?
+                se.seed.status = SeedStatus.OK_DONE
+                #se.abort()
+        elif access_ast is not None and access_ast.evaluate() == 0:
+                # FIXME: Mettre toutes les zones valide en read
+                logging.critical(f'Invalid memory access when writting at {mem}')
+                se.seed.status = SeedStatus.CRASH
                 se.abort()
 
 
@@ -122,9 +134,9 @@ class FormatStringSanitizer(ProbeInterface):
             string_ptr += 1
 
         if symbolic_cells:
-            print(f'Potential format string of {symbolic_cells} symbolic cells at {addr:#x}')
-            se.seed.status = SeedStatus.CRASH
-            se.abort()
+            logging.warning(f'Potential format string of {symbolic_cells} symbolic cells at {addr:#x}')
+            se.seed.status = SeedStatus.OK_DONE
+            #se.abort()
 
 
     @staticmethod
@@ -163,8 +175,8 @@ class IntegerOverflowSanitizer(ProbeInterface):
         if flag.isSymbolized():
             model = pstate.tt_ctx.getModel(flag == 1)
             if model:
-                print(f'Potential integer overflow at {instruction}')
+                logging.warning(f'Potential integer overflow at {instruction}')
                 crash_seed = mk_new_crashing_seed(se, model)
                 se.workspace.save_seed(crash_seed)
-                se.seed.status = SeedStatus.OK_DONE  # FIXME: The current seed is ok no ?
-                se.abort()
+                se.seed.status = SeedStatus.OK_DONE
+                #se.abort()
