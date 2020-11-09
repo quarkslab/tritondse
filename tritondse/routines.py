@@ -154,8 +154,8 @@ def rtn_xstat(se):
     arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # const char* path
     arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))  # struct stat* stat_buf
 
-    if os.path.isfile(se.abi.get_memory_string(arg1)):
-        stat = os.stat(se.abi.get_memory_string(arg1))
+    if os.path.isfile(se.pstate.get_memory_string(arg1)):
+        stat = os.stat(se.pstate.get_memory_string(arg1))
         se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x00, CPUSIZE.QWORD), stat.st_dev)
         se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x08, CPUSIZE.QWORD), stat.st_ino)
         se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x10, CPUSIZE.QWORD), stat.st_nlink)
@@ -387,8 +387,8 @@ def rtn_fopen(se):
     # Get arguments
     arg0  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # const char *pathname
     arg1  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # const char *mode
-    arg0s = se.abi.get_memory_string(arg0)
-    arg1s = se.abi.get_memory_string(arg1)
+    arg0s = se.pstate.get_memory_string(arg0)
+    arg1s = se.pstate.get_memory_string(arg1)
 
     # We use pathname as concrete value
     for i, c in enumerate(arg0s):
@@ -488,19 +488,19 @@ def rtn_fputs(se):
         if arg1 == 0:
             return CS.CONCRETIZE, 0
         elif arg1 == 1:
-            sys.stdout.write(se.abi.get_memory_string(arg0))
+            sys.stdout.write(se.pstate.get_memory_string(arg0))
             sys.stdout.flush()
         elif arg1 == 2:
-            sys.stderr.write(se.abi.get_memory_string(arg0))
+            sys.stderr.write(se.pstate.get_memory_string(arg0))
             sys.stderr.flush()
         else:
             fd = open(se.pstate.fd_table[arg1], 'wb+')
-            fd.write(se.abi.get_memory_string(arg0))
+            fd.write(se.pstate.get_memory_string(arg0))
     else:
         return CS.CONCRETIZE, 0
 
     # Return value
-    return CS.CONCRETIZE, len(se.abi.get_memory_string(arg0))
+    return CS.CONCRETIZE, len(se.pstate.get_memory_string(arg0))
 
 
 def rtn_fread(se):
@@ -915,7 +915,7 @@ def rtn_puts(se):
 
 def rtn_rand(se):
     logging.debug('rand hooked')
-    return Enums.CONCRETIZE, random.randrange(0, 0xffffffff)
+    return CS.CONCRETIZE, random.randrange(0, 0xffffffff)
 
 
 def rtn_read(se):
@@ -1159,15 +1159,15 @@ def rtn_strcasecmp(se):
 
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    size = min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2)) + 1)
+    size = min(len(se.pstate.get_memory_string(s1)), len(se.pstate.get_memory_string(s2)) + 1)
 
-    #s = s1 if len(se.abi.get_memory_string(s1)) < len(se.abi.get_memory_string(s2)) else s2
+    #s = s1 if len(se.pstate.get_memory_string(s1)) < len(se.pstate.get_memory_string(s2)) else s2
     #for i in range(size):
     #    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
     #    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
     #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
-    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(se.abi.get_memory_string(s1)), CPUSIZE.BYTE)) == 0x00)
-    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(se.abi.get_memory_string(s2)), CPUSIZE.BYTE)) == 0x00)
+    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(se.pstate.get_memory_string(s1)), CPUSIZE.BYTE)) == 0x00)
+    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(se.pstate.get_memory_string(s2)), CPUSIZE.BYTE)) == 0x00)
 
     # FIXME: Il y a des truc chelou avec le +1 et le logic ci-dessous
 
@@ -1200,12 +1200,12 @@ def rtn_strchr(se):
         res  = ast.ite(cell == (char & 0xff), ast.bv(string + deep, 64), rec(res, deep + 1, maxdeep))
         return res
 
-    sze = len(se.abi.get_memory_string(string))
+    sze = len(se.pstate.get_memory_string(string))
     res = rec(ast.bv(0, 64), 0, sze)
 
-    for i, c in enumerate(se.abi.get_memory_string(string)):
+    for i, c in enumerate(se.pstate.get_memory_string(string)):
         se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(string + i, CPUSIZE.BYTE)) != 0x00)
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(string + len(se.abi.get_memory_string(string)), CPUSIZE.BYTE)) == 0x00)
+    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(string + len(se.pstate.get_memory_string(string)), CPUSIZE.BYTE)) == 0x00)
 
     # create a new symbolic expression for this summary
     expr = se.pstate.tt_ctx.newSymbolicExpression(res, "strchr summary")
@@ -1218,15 +1218,15 @@ def rtn_strcmp(se):
 
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    size = min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1
+    size = min(len(se.pstate.get_memory_string(s1)), len(se.pstate.get_memory_string(s2))) + 1
 
-    #s = s1 if len(se.abi.get_memory_string(s1)) <= len(se.abi.get_memory_string(s2)) else s2
+    #s = s1 if len(se.pstate.get_memory_string(s1)) <= len(se.pstate.get_memory_string(s2)) else s2
     #for i in range(size):
     #    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
     #    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
     #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
-    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(se.abi.get_memory_string(s1)), CPUSIZE.BYTE)) == 0x00)
-    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(se.abi.get_memory_string(s2)), CPUSIZE.BYTE)) == 0x00)
+    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(se.pstate.get_memory_string(s1)), CPUSIZE.BYTE)) == 0x00)
+    #se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(se.pstate.get_memory_string(s2)), CPUSIZE.BYTE)) == 0x00)
 
     # FIXME: Il y a des truc chelou avec le +1 et le logic ci-dessous
 
@@ -1248,9 +1248,9 @@ def rtn_strcpy(se):
 
     dst  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     src  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    size = len(se.abi.get_memory_string(src))
+    size = len(se.pstate.get_memory_string(src))
 
-    for i, c in enumerate(se.abi.get_memory_string(src)):
+    for i, c in enumerate(se.pstate.get_memory_string(src)):
         se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(src + i, CPUSIZE.BYTE)) != 0x00)
     se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(src + size, CPUSIZE.BYTE)) == 0x00)
 
@@ -1282,7 +1282,7 @@ def rtn_strlen(se):
         res  = ast.ite(cell == 0x00, ast.bv(deep, 64), rec(res, s, deep + 1, maxdeep))
         return res
 
-    sze = len(se.abi.get_memory_string(s))
+    sze = len(se.pstate.get_memory_string(s))
     res = ast.bv(sze, 64)
     res = rec(res, s, 0, sze)
 
@@ -1302,7 +1302,7 @@ def rtn_strncasecmp(se):
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     sz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    maxlen = min(sz, min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1)
+    maxlen = min(sz, min(len(se.pstate.get_memory_string(s1)), len(se.pstate.get_memory_string(s2))) + 1)
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, se.pstate.ptr_bit_size)
@@ -1325,7 +1325,7 @@ def rtn_strncmp(se):
     s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
     s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     sz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    maxlen = min(sz, min(len(se.abi.get_memory_string(s1)), len(se.abi.get_memory_string(s2))) + 1)
+    maxlen = min(sz, min(len(se.pstate.get_memory_string(s1)), len(se.pstate.get_memory_string(s2))) + 1)
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, 64)
@@ -1377,8 +1377,8 @@ def rtn_strtok_r(se):
     if string == 0:
         string = saveMem
 
-    d = se.abi.get_memory_string(delim)
-    s = se.abi.get_memory_string(string)
+    d = se.pstate.get_memory_string(delim)
+    s = se.pstate.get_memory_string(string)
 
     tokens = re.split('[' + re.escape(d) + ']', s)
 
