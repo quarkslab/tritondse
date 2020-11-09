@@ -86,6 +86,7 @@ class ProcessState(object):
         # runtime temporary variables
         self.__pcs_updated = False
 
+
     def get_unique_thread_id(self):
         self.utid += 1
         return self.utid
@@ -121,6 +122,12 @@ class ProcessState(object):
     def ptr_bit_size(self) -> BitSize:
         """ Size of a pointer in bits """
         return self.tt_ctx.getGprBitSize()
+
+
+    @property
+    def minus_one(self) -> int:
+        """ -1 according to the architecture size """
+        return ((1 << self.ptr_bit_size) - 1)
 
 
     def load_program(self, p: Program, base_addr: Addr = 0) -> None:
@@ -224,14 +231,16 @@ class ProcessState(object):
         # calling time functions (e.g gettimeofday(), clock_gettime(), ...).
         self.time += self.time_inc_coefficient
 
-        if self.tt_ctx.getPathPredicateSize() != __len_pcs:
+        if self.tt_ctx.getPathPredicateSize() > __len_pcs:
             self.__pcs_updated = True
 
         return ret
 
+
     def is_path_predicate_updated(self) -> bool:
         """ Return whether or not the path predicate has been updated """
         return self.__pcs_updated
+
 
     @property
     def last_branch_constraint(self) -> PathConstraint:
