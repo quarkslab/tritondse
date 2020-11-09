@@ -1409,7 +1409,7 @@ def rtn_strtoul(se):
     endptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
     base   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
 
-    for i, c in enumerate(nptr):
+    for i, c in enumerate(nptrs):
         se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(nptr + i, CPUSIZE.BYTE)) == ord(c))
     se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == base)
 
