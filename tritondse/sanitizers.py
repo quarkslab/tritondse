@@ -136,7 +136,7 @@ class FormatStringSanitizer(ProbeInterface):
             string_ptr += 1
 
         if symbolic_cells:
-            logging.warning(f'Potential format string of {len(symbolic_cells)} symbolic cells at {addr:#x}')
+            logging.warning(f'Potential format string of {len(symbolic_cells)} symbolic memory cells at {addr:#x}')
             se.seed.status = SeedStatus.OK_DONE
             actx = pstate.tt_ctx.getAstContext()
             query = pstate.tt_ctx.getPathPredicate()
