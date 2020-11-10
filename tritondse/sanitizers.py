@@ -1,5 +1,6 @@
 import logging
 
+from triton              import MemoryAccess, CPUSIZE
 from tritondse.callbacks import CbType, ProbeInterface
 from tritondse.seed      import Seed, SeedStatus
 from tritondse.types     import Architecture
@@ -73,37 +74,39 @@ class NullDerefSanitizer(ProbeInterface):
     @staticmethod
     def memory_read(se, pstate, mem):
         access_ast = mem.getLeaAst()
-        if access_ast is not None and access_ast.isSymbolized():
-            model = pstate.tt_ctx.getModel(access_ast == 0)
-            if model:
-                logging.warning(f'Potential null deref when reading at {mem}')
-                crash_seed = mk_new_crashing_seed(se, model)
-                se.workspace.save_seed(crash_seed)
-                se.seed.status = SeedStatus.OK_DONE
-                # Do not abort, just continue the execution
-        elif access_ast is not None and access_ast.evaluate() == 0:
-                # FIXME: Mettre toutes les zones valide en read
-                logging.critical(f'Invalid memory access when reading at {mem}')
-                se.seed.status = SeedStatus.CRASH
-                se.abort()
+        # FIXME: Takes so much time...
+        #if access_ast is not None and access_ast.isSymbolized():
+        #    model = pstate.tt_ctx.getModel(access_ast == 0)
+        #    if model:
+        #        logging.warning(f'Potential null deref when reading at {mem}')
+        #        crash_seed = mk_new_crashing_seed(se, model)
+        #        se.workspace.save_seed(crash_seed)
+        #        se.seed.status = SeedStatus.OK_DONE
+        #        # Do not abort, just continue the execution
+        if access_ast is not None and access_ast.evaluate() == 0:
+            # FIXME: Mettre toutes les zones valide en read
+            logging.critical(f'Invalid memory access when reading at {mem}')
+            se.seed.status = SeedStatus.CRASH
+            se.abort()
 
 
     @staticmethod
     def memory_write(se, pstate, mem, value):
         access_ast = mem.getLeaAst()
-        if access_ast is not None and access_ast.isSymbolized():
-            model = pstate.tt_ctx.getModel(access_ast == 0)
-            if model:
-                logging.warning(f'Potential null deref when writing at {mem}')
-                crash_seed = mk_new_crashing_seed(se, model)
-                se.workspace.save_seed(crash_seed)
-                se.seed.status = SeedStatus.OK_DONE
-                # Do not abort, just continue the execution
-        elif access_ast is not None and access_ast.evaluate() == 0:
-                # FIXME: Mettre toutes les zones valide en read
-                logging.critical(f'Invalid memory access when writting at {mem}')
-                se.seed.status = SeedStatus.CRASH
-                se.abort()
+        # FIXME: Takes so much time...
+        #if access_ast is not None and access_ast.isSymbolized():
+        #    model = pstate.tt_ctx.getModel(access_ast == 0)
+        #    if model:
+        #        logging.warning(f'Potential null deref when writing at {mem}')
+        #        crash_seed = mk_new_crashing_seed(se, model)
+        #        se.workspace.save_seed(crash_seed)
+        #        se.seed.status = SeedStatus.OK_DONE
+        #        # Do not abort, just continue the execution
+        if access_ast is not None and access_ast.evaluate() == 0:
+            # FIXME: Mettre toutes les zones valide en read
+            logging.critical(f'Invalid memory access when writting at {mem}')
+            se.seed.status = SeedStatus.CRASH
+            se.abort()
 
 
 
@@ -124,18 +127,28 @@ class FormatStringSanitizer(ProbeInterface):
 
     @staticmethod
     def printf_family_routines(se, pstate, addr, string_ptr):
-        symbolic_cells = 0
+        symbolic_cells = []
 
         # Count the number of cells which is symbolic
         while se.pstate.tt_ctx.getConcreteMemoryValue(string_ptr):
             if se.pstate.tt_ctx.isMemorySymbolized(string_ptr):
-                symbolic_cells += 1
+                symbolic_cells.append(string_ptr)
             string_ptr += 1
 
         if symbolic_cells:
-            logging.warning(f'Potential format string of {symbolic_cells} symbolic cells at {addr:#x}')
+            logging.warning(f'Potential format string of {len(symbolic_cells)} symbolic cells at {addr:#x}')
             se.seed.status = SeedStatus.OK_DONE
-            # TODO: Make a new seed that can lead to a crash
+            actx = pstate.tt_ctx.getAstContext()
+            for i in range(int(len(symbolic_cells) / 2)):
+                cell1 = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
+                cell2 = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
+                query = actx.land([pstate.tt_ctx.getPathPredicate(), cell1 == ord('%'), cell2 == ord('s')])
+                model = pstate.tt_ctx.getModel(query)
+                if model:
+                    logging.warning(f'Model found for crafting a seed which lead to a crash')
+                    crash_seed = mk_new_crashing_seed(se, model)
+                    se.workspace.save_seed(crash_seed)
+                    se.seed.status = SeedStatus.OK_DONE
             # Do not abort, just continue the execution
 
 
