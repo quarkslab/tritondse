@@ -139,16 +139,17 @@ class FormatStringSanitizer(ProbeInterface):
             logging.warning(f'Potential format string of {len(symbolic_cells)} symbolic cells at {addr:#x}')
             se.seed.status = SeedStatus.OK_DONE
             actx = pstate.tt_ctx.getAstContext()
+            query = pstate.tt_ctx.getPathPredicate()
             for i in range(int(len(symbolic_cells) / 2)):
                 cell1 = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
                 cell2 = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
-                query = actx.land([pstate.tt_ctx.getPathPredicate(), cell1 == ord('%'), cell2 == ord('s')])
+                query = actx.land([query, cell1 == ord('%'), cell2 == ord('s')])
                 model = pstate.tt_ctx.getModel(query)
                 if model:
-                    logging.warning(f'Model found for crafting a seed which lead to a crash')
                     crash_seed = mk_new_crashing_seed(se, model)
                     se.workspace.save_seed(crash_seed)
                     se.seed.status = SeedStatus.OK_DONE
+                    logging.warning(f'Model found for a seed which may lead to a crash ({crash_seed.filename})')
             # Do not abort, just continue the execution
 
 
