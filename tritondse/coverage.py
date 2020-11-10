@@ -78,6 +78,7 @@ class GlobalCoverage(CoverageSingleRun):
     """
 
     INSTRUCTION_COVERAGE_FILE = "instruction_coverage.json"
+    EDGE_COVERAGE_FILE = "edge_coverage.json"
     PATH_COVERAGE_FILE = "path_coverage.json"
 
     def __init__(self, strategy: CoverageStrategy, workspace: Workspace):
@@ -181,6 +182,10 @@ class GlobalCoverage(CoverageSingleRun):
         if self.instructions:
             self.workspace.save_metadata_file(self.INSTRUCTION_COVERAGE_FILE, json.dumps(self.instructions, indent=2))
 
+        # Save edge coverage
+        if self.edges:
+            self.workspace.save_metadata_file(self.EDGE_COVERAGE_FILE, json.dumps(self.edges, indent=2))
+
         # Save path coverage
         if self.paths:
             self.workspace.save_metadata_file(self.PATH_COVERAGE_FILE, json.dumps(list(self.paths)))
@@ -192,6 +197,12 @@ class GlobalCoverage(CoverageSingleRun):
         data = self.workspace.get_metadata_file(self.INSTRUCTION_COVERAGE_FILE)
         if data:
             logging.debug(f"Loading the existing instruction coverage from: {self.INSTRUCTION_COVERAGE_FILE}")
+            self.instructions = json.loads(data)
+
+        # Load instruction edge
+        data = self.workspace.get_metadata_file(self.EDGE_COVERAGE_FILE)
+        if data:
+            logging.debug(f"Loading the existing edge coverage from: {self.EDGE_COVERAGE_FILE}")
             self.instructions = json.loads(data)
 
         # Load path coverage
