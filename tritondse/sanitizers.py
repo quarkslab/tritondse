@@ -80,7 +80,7 @@ class NullDerefSanitizer(ProbeInterface):
                 crash_seed = mk_new_crashing_seed(se, model)
                 se.workspace.save_seed(crash_seed)
                 se.seed.status = SeedStatus.OK_DONE
-                #se.abort()
+                # Do not abort, just continue the execution
         elif access_ast is not None and access_ast.evaluate() == 0:
                 # FIXME: Mettre toutes les zones valide en read
                 logging.critical(f'Invalid memory access when reading at {mem}')
@@ -98,7 +98,7 @@ class NullDerefSanitizer(ProbeInterface):
                 crash_seed = mk_new_crashing_seed(se, model)
                 se.workspace.save_seed(crash_seed)
                 se.seed.status = SeedStatus.OK_DONE
-                #se.abort()
+                # Do not abort, just continue the execution
         elif access_ast is not None and access_ast.evaluate() == 0:
                 # FIXME: Mettre toutes les zones valide en read
                 logging.critical(f'Invalid memory access when writting at {mem}')
@@ -127,7 +127,6 @@ class FormatStringSanitizer(ProbeInterface):
         symbolic_cells = 0
 
         # Count the number of cells which is symbolic
-        # TODO: What if there no null byte?
         while se.pstate.tt_ctx.getConcreteMemoryValue(string_ptr):
             if se.pstate.tt_ctx.isMemorySymbolized(string_ptr):
                 symbolic_cells += 1
@@ -136,7 +135,8 @@ class FormatStringSanitizer(ProbeInterface):
         if symbolic_cells:
             logging.warning(f'Potential format string of {symbolic_cells} symbolic cells at {addr:#x}')
             se.seed.status = SeedStatus.OK_DONE
-            #se.abort()
+            # TODO: Make a new seed that can lead to a crash
+            # Do not abort, just continue the execution
 
 
     @staticmethod
@@ -165,12 +165,10 @@ class IntegerOverflowSanitizer(ProbeInterface):
     @staticmethod
     def post_instruction(se, pstate, instruction):
         # This probe is only available for X86_64 and AARCH64
-        # TODO: Should be done only once, but where?
         assert(pstate.architecture == Architecture.X86_64 or pstate.architecture == Architecture.AARCH64)
 
         rf = (pstate.tt_ctx.registers.of if pstate.architecture == Architecture.X86_64 else pstate.tt_ctx.registers.v)
         flag = pstate.tt_ctx.getRegisterAst(pstate.tt_ctx.registers.rf)
-        # TODO: What if it's a legit overflow (signed / unsigned).
         # What if it's not symbolic and 1?
         if flag.isSymbolized():
             model = pstate.tt_ctx.getModel(flag == 1)
