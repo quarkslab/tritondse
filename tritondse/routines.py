@@ -8,6 +8,7 @@ import time
 from triton                   import *
 from tritondse.types          import ConcSymAction as CS
 from tritondse.thread_context import ThreadContext
+from tritondse.seed           import SeedStatus
 
 
 def rtn_ctype_b_loc(se):
@@ -138,7 +139,9 @@ def rtn_stack_chk_fail(se):
     Pure emulation.
     """
     logging.debug('__stack_chk_fail hooked')
+    logging.critical('*** stack smashing detected ***: terminated')
     se.pstate.stop = True
+    se.seed.status = SeedStatus.CRASH
     return None
 
 
