@@ -400,9 +400,13 @@ def rtn_fopen(se):
     # We use mode as concrete value
     se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(1)) == arg1)
 
-    fd = open(arg0s, arg1s)
-    fd_id = se.pstate.get_unique_file_id()
-    se.pstate.fd_table.update({fd_id: fd})
+    try:
+        fd = open(arg0s, arg1s)
+        fd_id = se.pstate.get_unique_file_id()
+        se.pstate.fd_table.update({fd_id: fd})
+    except:
+        # Return value
+        return CS.CONCRETIZE, 0
 
     # Return value
     return CS.CONCRETIZE, fd_id
