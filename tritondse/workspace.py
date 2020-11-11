@@ -48,6 +48,14 @@ class Workspace(object):
         else:
             return None
 
+    def get_metadata_file_path(self, name: str) -> Path:
+        """
+        Return a file path in the workspace directory that the user can write into.
+
+        :param name: filename wanted
+        :return: full filepath
+        """
+        return self.root_dir / name
 
     def save_metadata_file(self, name: str, content: str) -> None:
         p = (self.root_dir / self.METADATA_DIR) / name
