@@ -126,6 +126,16 @@ class FormatStringSanitizer(ProbeInterface):
 
 
     @staticmethod
+    def solve_query(se, pstate, query):
+        model = pstate.tt_ctx.getModel(query)
+        if model:
+            crash_seed = mk_new_crashing_seed(se, model)
+            se.workspace.save_seed(crash_seed)
+            se.seed.status = SeedStatus.OK_DONE
+            logging.warning(f'Model found for a seed which may lead to a crash ({crash_seed.filename})')
+
+
+    @staticmethod
     def printf_family_routines(se, pstate, addr, string_ptr):
         symbolic_cells = []
 
@@ -139,17 +149,15 @@ class FormatStringSanitizer(ProbeInterface):
             logging.warning(f'Potential format string of {len(symbolic_cells)} symbolic memory cells at {addr:#x}')
             se.seed.status = SeedStatus.OK_DONE
             actx = pstate.tt_ctx.getAstContext()
-            query = pstate.tt_ctx.getPathPredicate()
+            query1 = pstate.tt_ctx.getPathPredicate()
+            query2 = (actx.bvtrue() == actx.bvtrue())
             for i in range(int(len(symbolic_cells) / 2)):
-                cell1 = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
-                cell2 = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
-                query = actx.land([query, cell1 == ord('%'), cell2 == ord('s')])
-                model = pstate.tt_ctx.getModel(query)
-                if model:
-                    crash_seed = mk_new_crashing_seed(se, model)
-                    se.workspace.save_seed(crash_seed)
-                    se.seed.status = SeedStatus.OK_DONE
-                    logging.warning(f'Model found for a seed which may lead to a crash ({crash_seed.filename})')
+                cell1  = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
+                cell2  = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
+                query1 = actx.land([query1, cell1 == ord('%'), cell2 == ord('s')])
+                query2 = actx.land([query2, cell1 == ord('%'), cell2 == ord('s')])
+                FormatStringSanitizer.solve_query(se, pstate, query1)
+                FormatStringSanitizer.solve_query(se, pstate, query2) # This method may be incorrect but help to discover bugs
             # Do not abort, just continue the execution
 
 
