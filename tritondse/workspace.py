@@ -89,8 +89,12 @@ class Workspace(object):
         """ Move a worklist seed to its final location according to its
         new status"""
         old_p = (self.root_dir / self.WORKLIST_DIR) / seed.filename
-        old_p.unlink()  # Remove the seed from the worklist
+        try:
+            old_p.unlink()  # Remove the seed from the worklist
+        except:
+            pass
         self.save_seed(seed)
+
 
     def save_file(self, rel_path: str, content: Union[str, bytes], override=False):
         p = self.root_dir / rel_path
