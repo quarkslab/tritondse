@@ -145,7 +145,9 @@ class SeedManager:
 
                 # Check if we reached the limit of query
                 if self.config.smt_queries_limit and smt_queries >= self.config.smt_queries_limit:  # FIXME: breaking if smt_queries_limit is negative
+                    logging.info(f'Limit of query reached. Stop asking for models.')
                     break
+
         except StopIteration:  # We have iterated the whole path generator
             pass
 

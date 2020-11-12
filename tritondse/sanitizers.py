@@ -43,7 +43,9 @@ class UAFSanitizer(ProbeInterface):
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             logging.critical(f'UAF detected at {mem}')
             se.seed.status = SeedStatus.CRASH
-            se.abort()
+            pstate.stop = True
+            return True
+        return False
 
 
     @staticmethod
@@ -52,7 +54,9 @@ class UAFSanitizer(ProbeInterface):
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             logging.critical(f'UAF detected at {mem}')
             se.seed.status = SeedStatus.CRASH
-            se.abort()
+            pstate.stop = True
+            return True
+        return False
 
 
     @staticmethod
@@ -61,7 +65,9 @@ class UAFSanitizer(ProbeInterface):
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             logging.critical(f'Double free detected at {addr:#x}')
             se.seed.status = SeedStatus.CRASH
-            se.abort()
+            pstate.stop = True
+            return True
+        return False
 
 
 class NullDerefSanitizer(ProbeInterface):
@@ -91,7 +97,9 @@ class NullDerefSanitizer(ProbeInterface):
             # FIXME: Mettre toutes les zones valide en read
             logging.critical(f'Invalid memory access when reading at {mem}')
             se.seed.status = SeedStatus.CRASH
-            se.abort()
+            pstate.stop = True
+            return True
+        return False
 
 
     @staticmethod
@@ -110,7 +118,9 @@ class NullDerefSanitizer(ProbeInterface):
             # FIXME: Mettre toutes les zones valide en read
             logging.critical(f'Invalid memory access when writting at {mem}')
             se.seed.status = SeedStatus.CRASH
-            se.abort()
+            pstate.stop = True
+            return True
+        return False
 
 
 
@@ -162,7 +172,10 @@ class FormatStringSanitizer(ProbeInterface):
                 query2 = actx.land([query2, cell1 == ord('%'), cell2 == ord('s')])
                 FormatStringSanitizer.solve_query(se, pstate, query1)
                 FormatStringSanitizer.solve_query(se, pstate, query2) # This method may be incorrect but help to discover bugs
-            # Do not abort, just continue the execution
+            # Do not stop the execution, just continue the execution
+            pstate.stop = False
+            return True
+        return False
 
 
     @staticmethod
@@ -203,4 +216,7 @@ class IntegerOverflowSanitizer(ProbeInterface):
                 crash_seed = mk_new_crashing_seed(se, model)
                 se.workspace.save_seed(crash_seed)
                 se.seed.status = SeedStatus.OK_DONE
-                #se.abort()
+                # Do not stop the execution, just continue the execution
+                pstate.stop = False
+                return True
+        return False
