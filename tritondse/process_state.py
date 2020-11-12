@@ -2,7 +2,7 @@
 import sys
 import time
 import logging
-from typing import Union, Callable
+from typing import Union, Callable, Optional
 
 # third-party
 from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction
