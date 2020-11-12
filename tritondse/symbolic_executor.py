@@ -187,7 +187,7 @@ class SymbolicExecutor(object):
                 cb(self, self.pstate, routine_name, pc)
 
             # Emulate the routine and the return value
-            ret_val = routine(self)
+            ret_val = routine(self, self.pstate)
             self.__handle_external_return(ret_val)
 
             # Trigger post-address callbacks
