@@ -99,9 +99,8 @@ class NullDerefSanitizer(ProbeInterface):
         # en fin de page mappée. Lors du fetching des opcodes, nous fetchons 16 bytes car
         # nous ne connaissons pas la taille d'une instruction, ici, en fetchant en fin de
         # page on déclenche ce sanitizer...
-        #if pstate.is_valid_memory_mapping(ptr, padding_segment=16) == False:
 
-        if ptr == 0:
+        if ptr == 0 or pstate.is_valid_memory_mapping(ptr, padding_segment=16) == False:
             logging.critical(desc)
             se.seed.status = SeedStatus.CRASH
             pstate.stop = True
