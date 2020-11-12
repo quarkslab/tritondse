@@ -85,22 +85,22 @@ def rtn_libc_start_main(se):
     logging.debug('__libc_start_main hooked')
 
     # Get arguments
-    main = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    main = se.pstate.get_argument_value(0)
 
     if se.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
-        se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_pc_register(), main)
+        se.pstate.cpu.program_counter = main
 
     elif se.pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
         # Push the return value to jump into the main() function
-        se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_sp_register(), se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_sp_register()) - CPUSIZE.QWORD)
+        se.pstate.cpu.stack_pointer -= CPUSIZE.QWORD
 
-        ret2main = MemoryAccess(se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_sp_register()), CPUSIZE.QWORD)
+        ret2main = MemoryAccess(se.pstate.cpu.stack_pointer, CPUSIZE.QWORD)
         se.pstate.tt_ctx.concretizeMemory(ret2main)
         se.pstate.tt_ctx.setConcreteMemoryValue(ret2main, main)
 
     # Define concrete value of argc
     argc = len(se.config.program_argv)
-    se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_arg_register(0), argc)
+    se.pstate.tt_ctx.setConcreteRegisterValue(se.pstate._get_argument_register(0), argc)
     logging.debug('argc = %d' % (argc))
 
     # Define argv
@@ -127,7 +127,7 @@ def rtn_libc_start_main(se):
         base += CPUSIZE.QWORD
 
     # Concrete value
-    se.pstate.tt_ctx.setConcreteRegisterValue(se.abi.get_arg_register(1), b_argv)
+    se.pstate.tt_ctx.setConcreteRegisterValue(se.pstate._get_argument_register(1), b_argv)
 
     return None
 
@@ -149,9 +149,9 @@ def rtn_xstat(se):
     logging.debug('__xstat hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # int ver
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # const char* path
-    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))  # struct stat* stat_buf
+    arg0 = se.pstate.get_argument_value(0)  # int ver
+    arg1 = se.pstate.get_argument_value(1)  # const char* path
+    arg2 = se.pstate.get_argument_value(2)  # struct stat* stat_buf
 
     if os.path.isfile(se.pstate.get_memory_string(arg1)):
         stat = os.stat(se.pstate.get_memory_string(arg1))
@@ -186,7 +186,7 @@ def rtn_atoi(se):
     logging.debug('atoi hooked')
 
     ast = se.pstate.tt_ctx.getAstContext()
-    arg = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg = se.pstate.get_argument_value(0)
 
     cells = {
         0: se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 0, 1)),
@@ -267,12 +267,12 @@ def rtn_calloc(se):
     logging.debug('calloc hooked')
 
     # Get arguments
-    nmemb = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    size  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    nmemb = se.pstate.get_argument_value(0)
+    size  = se.pstate.get_argument_value(1)
 
     # We use nmemb and size as concret values
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(0)) == nmemb)
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(1)) == size)
+    se.pstate.concretize_argument(0)  # will be concretized with nmemb value
+    se.pstate.concretize_argument(1)  # will be concretized with size value
 
     if nmemb == 0 or size == 0:
         ptr = 0
@@ -288,11 +288,11 @@ def rtn_clock_gettime(se):
     logging.debug('clock_gettime hooked')
 
     # Get arguments
-    clockid = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    tp      = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    clockid = se.pstate.get_argument_value(0)
+    tp      = se.pstate.get_argument_value(1)
 
     # We use tp as concret value
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(1)) == tp)
+    se.pstate.concretize_argument(1)
 
     # FIXME: We can return something logic
     if tp == 0:
@@ -313,7 +313,7 @@ def rtn_clock_gettime(se):
 
 def rtn_exit(se):
     logging.debug('exit hooked')
-    arg = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg = se.pstate.get_argument_value(0)
     se.pstate.stop = True
     return arg
 
@@ -322,10 +322,10 @@ def rtn_fclose(se):
     logging.debug('fclose hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0)) # fd
+    arg0 = se.pstate.get_argument_value(0) # fd
 
     # We use fd as concret value
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(0)) == arg0)
+    se.pstate.concretize_argument(0)
 
     if arg0 in se.pstate.fd_table:
         se.pstate.fd_table[arg0].close()
@@ -342,18 +342,17 @@ def rtn_fgets(se):
     logging.debug('fgets hooked')
 
     # Get arguments
-    buff     = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    buff_ast = se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(0))
-    size     = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    fd       = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    buff, buff_ast = se.pstate.get_full_argument(0)
+    size, size_ast = se.pstate.get_full_argument(1)
+    fd       = se.pstate.get_argument_value(2)
     minsize  = (min(len(se.seed.content), size) if se.seed else size)
 
     # We use fd as concret value
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == fd)
+    se.pstate.concretize_argument(2)
 
     if fd == 0 and se.config.symbolize_stdin:
         # We use fd as concret value
-        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(1)) == minsize)
+        se.pstate.push_constraint(size_ast.getAst() == minsize)
 
         if se.seed:
             se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
@@ -365,14 +364,14 @@ def rtn_fgets(se):
             var.setComment('stdin[%d]' % index)
 
         logging.debug('stdin = %s' % (repr(se.pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
-        return se.pstate.tt_ctx.newSymbolicExpression(buff_ast)
+        return buff_ast
 
     if fd in se.pstate.fd_table:
         # We use fd as concret value
-        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(1)) == size)
+        se.pstate.concretize_argument(1)
         data = (os.read(0, size) if fd == 0 else os.read(se.pstate.fd_table[fd], size))
         se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, data)
-        return se.pstate.tt_ctx.newSymbolicExpression(buff_ast)
+        return buff_ast
     else:
         logging.warning(f'File descriptor ({fd}) not found')
 
@@ -384,8 +383,8 @@ def rtn_fopen(se):
     logging.debug('fopen hooked')
 
     # Get arguments
-    arg0  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # const char *pathname
-    arg1  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # const char *mode
+    arg0  = se.pstate.get_argument_value(0)  # const char *pathname
+    arg1  = se.pstate.get_argument_value(1)  # const char *mode
     arg0s = se.pstate.get_memory_string(arg0)
     arg1s = se.pstate.get_memory_string(arg1)
 
@@ -397,7 +396,7 @@ def rtn_fopen(se):
     se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(arg0 + len(arg0s), CPUSIZE.BYTE)) == 0x00)
 
     # We use mode as concrete value
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(1)) == arg1)
+    se.pstate.concretize_argument(1)
 
     fd = open(arg0s, arg1s)
     fd_id = se.pstate.get_unique_file_id()
@@ -411,22 +410,22 @@ def rtn_fprintf(se):
     logging.debug('fprintf hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
-    arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
-    arg5 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
-    arg6 = se.abi.get_stack_value(0)
-    arg7 = se.abi.get_stack_value(1)
-    arg8 = se.abi.get_stack_value(2)
+    arg0 = se.pstate.get_argument_value(0)
+    arg1 = se.pstate.get_argument_value(1)
+    arg2 = se.pstate.get_argument_value(2)
+    arg3 = se.pstate.get_argument_value(3)
+    arg4 = se.pstate.get_argument_value(4)
+    arg5 = se.pstate.get_argument_value(5)
+    arg6 = se.pstate.get_argument_value(6)
+    arg7 = se.pstate.get_argument_value(7)
+    arg8 = se.pstate.get_argument_value(8)
 
     # FIXME: ARM64
     # FIXME: pushPathConstraint
 
-    arg1f = se.abi.get_format_string(arg1)
+    arg1f = se.pstate.get_format_string(arg1)
     nbArgs = arg1f.count("{")
-    args = se.abi.get_format_arguments(arg1, [arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
+    args = se.pstate.get_format_arguments(arg1, [arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
     s = arg1f.format(*args)
 
     if arg0 in se.pstate.fd_table:
@@ -444,11 +443,11 @@ def rtn_fputc(se):
     logging.debug('fputc hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    arg0 = se.pstate.get_argument_value(0)
+    arg1 = se.pstate.get_argument_value(1)
 
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(0)) == arg0)
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(1)) == arg1)
+    se.pstate.concretize_argument(0)
+    se.pstate.concretize_argument(1)
 
     if arg1 in se.pstate.fd_table:
         if arg1 == 0:
@@ -475,11 +474,11 @@ def rtn_fputs(se):
     logging.debug('fputs hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    arg0 = se.pstate.get_argument_value(0)
+    arg1 = se.pstate.get_argument_value(1)
 
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(0)) == arg0)
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(1)) == arg1)
+    se.pstate.concretize_argument(0)
+    se.pstate.concretize_argument(1)
 
     # FIXME: What if the fd is coming from the memory (fmemopen) ?
 
@@ -506,10 +505,10 @@ def rtn_fread(se):
     logging.debug('fread hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0)) # ptr
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1)) # size
-    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2)) # nmemb
-    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3)) # stream
+    arg0 = se.pstate.get_argument_value(0) # ptr
+    arg1 = se.pstate.get_argument_value(1) # size
+    arg2 = se.pstate.get_argument_value(2) # nmemb
+    arg3 = se.pstate.get_argument_value(3) # stream
     size = arg1 * arg2
 
     minsize = (min(len(se.seed.content), size) if se.seed else size)
@@ -545,7 +544,7 @@ def rtn_free(se):
     logging.debug('free hooked')
 
     # Get arguments
-    ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    ptr = se.pstate.get_argument_value(0)
     se.pstate.heap_allocator.free(ptr)
 
     return None
@@ -555,10 +554,10 @@ def rtn_fwrite(se):
     logging.debug('fwrite hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
+    arg0 = se.pstate.get_argument_value(0)
+    arg1 = se.pstate.get_argument_value(1)
+    arg2 = se.pstate.get_argument_value(2)
+    arg3 = se.pstate.get_argument_value(3)
     size = arg1 * arg2
     data = se.pstate.tt_ctx.getConcreteMemoryAreaValue(arg0, size)
 
@@ -585,8 +584,8 @@ def rtn_gettimeofday(se):
     logging.debug('gettimeofday hooked')
 
     # Get arguments
-    tv = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    tz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    tv = se.pstate.get_argument_value(0)
+    tz = se.pstate.get_argument_value(1)
 
     if tv == 0:
         return se.pstate.minus_one
@@ -608,7 +607,7 @@ def rtn_malloc(se):
     logging.debug('malloc hooked')
 
     # Get arguments
-    size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    size = se.pstate.get_argument_value(0)
     ptr  = se.pstate.heap_allocator.alloc(size)
 
     # Return value
@@ -618,15 +617,15 @@ def rtn_malloc(se):
 def rtn_memcmp(se):
     logging.debug('memcmp hooked')
 
-    s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    s1 = se.pstate.get_argument_value(0)
+    s2 = se.pstate.get_argument_value(1)
+    size = se.pstate.get_argument_value(2)
 
     ast = se.pstate.tt_ctx.getAstContext()
     res = ast.bv(0, 64)
 
     # We constrain the logical value of size
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == size)
+    se.pstate.concretize_argument(2)
 
     for index in range(size):
         cells1 = se.pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
@@ -646,12 +645,12 @@ def rtn_memcmp(se):
 def rtn_memcpy(se):
     logging.debug('memcpy hooked')
 
-    dst = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    cnt = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    dst, dst_ast = se.pstate.get_full_argument(0)
+    src = se.pstate.get_argument_value(1)
+    cnt = se.pstate.get_argument_value(2)
 
     # We constrain the logical value of size
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == cnt)
+    se.pstate.concretize_argument(2)
 
     for index in range(cnt):
         dmem  = MemoryAccess(dst + index, CPUSIZE.BYTE)
@@ -661,16 +660,16 @@ def rtn_memcpy(se):
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
 
-    return se.pstate.tt_ctx.newSymbolicExpression(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(0)))
+    return dst_ast
 
 
 def rtn_memmem(se):
     logging.debug('memmem hooked')
 
-    haystack    = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # const void*
-    haystacklen = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # size_t
-    needle      = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))  # const void *
-    needlelen   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))  # size_t
+    haystack    = se.pstate.get_argument_value(0)  # const void*
+    haystacklen = se.pstate.get_argument_value(1)  # size_t
+    needle      = se.pstate.get_argument_value(2)  # const void *
+    needlelen   = se.pstate.get_argument_value(3)  # size_t
 
     s1 = se.pstate.tt_ctx.getConcreteMemoryAreaValue(haystack, haystacklen)  # haystack
     s2 = se.pstate.tt_ctx.getConcreteMemoryAreaValue(needle, needlelen)      # needle
@@ -696,12 +695,12 @@ def rtn_memmem(se):
 def rtn_memmove(se):
     logging.debug('memmove hooked')
 
-    dst = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    cnt = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    dst, dst_ast = se.pstate.get_full_argument(0)
+    src = se.pstate.get_argument_value(1)
+    cnt = se.pstate.get_argument_value(2)
 
     # We constrain the logical value of cnt
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == cnt)
+    se.pstate.concretize_argument(2)
 
     src_cells = []
     # TODO: What if cnt is symbolic ?
@@ -717,47 +716,47 @@ def rtn_memmove(se):
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
 
-    return se.pstate.tt_ctx.newSymbolicExpression(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(0)))
+    return dst_ast
 
 
 def rtn_memset(se):
     logging.debug('memset hooked')
 
-    dst = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    dst, dst_ast = se.pstate.get_full_argument(0)
+    src, src_ast = se.pstate.get_full_argument(1)
+    size = se.pstate.get_argument_value(2)
 
     # We constrain the logical value of size
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == size)
+    se.pstate.concretize_argument(2)
 
     # TODO: What if size is symbolic ?
     for index in range(size):
         dmem = MemoryAccess(dst + index, CPUSIZE.BYTE)
-        cell = se.pstate.tt_ctx.getAstContext().extract(7, 0, se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(1)))
+        cell = se.pstate.tt_ctx.getAstContext().extract(7, 0, src_ast.getAst())
         se.pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
         expr = se.pstate.tt_ctx.newSymbolicExpression(cell, "memset byte")
         se.pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
 
-    return se.pstate.tt_ctx.newSymbolicExpression(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(0)))
+    return dst_ast
 
 
 def rtn_printf(se):
     logging.debug('printf hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
-    arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
-    arg5 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
-    arg6 = se.abi.get_stack_value(0)
-    arg7 = se.abi.get_stack_value(1)
-    arg8 = se.abi.get_stack_value(2)
+    arg0 = se.pstate.get_argument_value(0)
+    arg1 = se.pstate.get_argument_value(1)
+    arg2 = se.pstate.get_argument_value(2)
+    arg3 = se.pstate.get_argument_value(3)
+    arg4 = se.pstate.get_argument_value(4)
+    arg5 = se.pstate.get_argument_value(5)
+    arg6 = se.pstate.get_argument_value(6)
+    arg7 = se.pstate.get_argument_value(7)
+    arg8 = se.pstate.get_argument_value(8)
 
-    arg0f = se.abi.get_format_string(arg0)
+    arg0f = se.pstate.get_format_string(arg0)
     nbArgs = arg0f.count("{")
-    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
+    args = se.pstate.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
     s = arg0f.format(*args)
 
     se.pstate.fd_table[1].write(s)
@@ -771,35 +770,35 @@ def rtn_pthread_create(se):
     logging.debug('pthread_create hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0)) # pthread_t *thread
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1)) # const pthread_attr_t *attr
-    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2)) # void *(*start_routine) (void *)
-    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3)) # void *arg
+    arg0 = se.pstate.get_argument_value(0) # pthread_t *thread
+    arg1 = se.pstate.get_argument_value(1) # const pthread_attr_t *attr
+    arg2 = se.pstate.get_argument_value(2) # void *(*start_routine) (void *)
+    arg3 = se.pstate.get_argument_value(3) # void *arg
 
     tid = se.pstate.get_unique_thread_id()
     thread = ThreadContext(se.config, tid)
     thread.save(se.pstate.tt_ctx)
 
     # Concretize pc
-    if se.abi.get_pc_register().getId() in thread.sregs:
-        del thread.sregs[se.abi.get_pc_register().getId()]
+    if se.pstate.program_counter_register.getId() in thread.sregs:
+        del thread.sregs[se.pstate.program_counter_register.getId()]
 
     # Concretize bp
-    if se.abi.get_bp_register().getId() in thread.sregs:
-        del thread.sregs[se.abi.get_bp_register().getId()]
+    if se.pstate.base_pointer_register.getId() in thread.sregs:
+        del thread.sregs[se.pstate.base_pointer_register.getId()]
 
     # Concretize sp
-    if se.abi.get_sp_register().getId() in thread.sregs:
-        del thread.sregs[se.abi.get_sp_register().getId()]
+    if se.pstate.stack_pointer_register.getId() in thread.sregs:
+        del thread.sregs[se.pstate.stack_pointer_register.getId()]
 
     # Concretize arg0
-    if se.abi.get_arg_register(0).getId() in thread.sregs:
-        del thread.sregs[se.abi.get_arg_register(0).getId()]
+    if se.pstate._get_argument_register(0).getId() in thread.sregs:
+        del thread.sregs[se.pstate._get_argument_register(0).getId()]
 
-    thread.cregs[se.abi.get_pc_register().getId()] = arg2
-    thread.cregs[se.abi.get_arg_register(0).getId()] = arg3
-    thread.cregs[se.abi.get_bp_register().getId()] = (se.pstate.BASE_STACK - ((1 << 28) * tid))
-    thread.cregs[se.abi.get_sp_register().getId()] = (se.pstate.BASE_STACK - ((1 << 28) * tid))
+    thread.cregs[se.pstate.program_counter_register.getId()] = arg2
+    thread.cregs[se.pstate._get_argument_register(0).getId()] = arg3
+    thread.cregs[se.pstate.base_pointer_register.getId()] = (se.pstate.BASE_STACK - ((1 << 28) * tid))
+    thread.cregs[se.pstate.stack_pointer_register.getId()] = (se.pstate.BASE_STACK - ((1 << 28) * tid))
 
     se.pstate.threads.update({tid: thread})
 
@@ -814,7 +813,7 @@ def rtn_pthread_exit(se):
     logging.debug('pthread_exit hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    arg0 = se.pstate.get_argument_value(0)
 
     # Kill the thread
     se.pstate.threads[se.pstate.tid].killed = True
@@ -827,8 +826,8 @@ def rtn_pthread_join(se):
     logging.debug('pthread_join hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    arg0 = se.pstate.get_argument_value(0)
+    arg1 = se.pstate.get_argument_value(1)
 
     if arg0 in se.pstate.threads:
         se.pstate.threads[se.pstate.tid].joined = arg0
@@ -845,7 +844,7 @@ def rtn_pthread_mutex_destroy(se):
     logging.debug('pthread_mutex_destroy hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *restrict mutex
+    arg0 = se.pstate.get_argument_value(0)  # pthread_mutex_t *restrict mutex
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.ptr_size), se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
     # Return value
@@ -856,8 +855,8 @@ def rtn_pthread_mutex_init(se):
     logging.debug('pthread_mutex_init hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *restrict mutex
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # const pthread_mutexattr_t *restrict attr)
+    arg0 = se.pstate.get_argument_value(0)  # pthread_mutex_t *restrict mutex
+    arg1 = se.pstate.get_argument_value(1)  # const pthread_mutexattr_t *restrict attr)
 
     se.pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, se.pstate.ptr_size), se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
@@ -869,7 +868,7 @@ def rtn_pthread_mutex_lock(se):
     logging.debug('pthread_mutex_lock hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *mutex
+    arg0 = se.pstate.get_argument_value(0)  # pthread_mutex_t *mutex
     mem = MemoryAccess(arg0, se.pstate.ptr_size)
     mutex = se.pstate.tt_ctx.getConcreteMemoryValue(mem)
 
@@ -891,7 +890,7 @@ def rtn_pthread_mutex_unlock(se):
     logging.debug('pthread_mutex_unlock hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # pthread_mutex_t *mutex
+    arg0 = se.pstate.get_argument_value(0)  # pthread_mutex_t *mutex
     mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     se.pstate.tt_ctx.setConcreteMemoryValue(mem, se.pstate.PTHREAD_MUTEX_INIT_MAGIC)
@@ -904,7 +903,7 @@ def rtn_puts(se):
     logging.debug('puts hooked')
 
     # Get arguments
-    arg0 = se.abi.get_string_argument(0)
+    arg0 = se.pstate.get_string_argument(0)
     sys.stdout.write(arg0 + '\n')
     sys.stdout.flush()
 
@@ -921,18 +920,18 @@ def rtn_read(se):
     logging.debug('read hooked')
 
     # Get arguments
-    fd   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    buff = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    size = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    fd   = se.pstate.get_argument_value(0)
+    buff = se.pstate.get_argument_value(1)
+    size, size_ast = se.pstate.get_full_argument(2)
     minsize = (min(len(se.seed.content), size) if se.seed else size)
 
-    if se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)).isSymbolized():
+    if size_ast.isSymbolized():
         logging.warning(f'Reading from the file descriptor ({fd}) with a symbolic size')
 
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(0)) == fd)
+    se.pstate.concretize_argument(0)
 
     if fd == 0 and se.config.symbolize_stdin:
-        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == minsize)
+        se.pstate.push_constraint(size_ast.getAst() == minsize)
         if se.seed:
             se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
         else:
@@ -947,7 +946,7 @@ def rtn_read(se):
         return minsize
 
     if fd in se.pstate.fd_table:
-        se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == size)
+        se.pstate.concretize_argument(2)
         data = (os.read(0, size) if fd == 0 else os.read(se.pstate.fd_table[fd], size))
         se.pstate.tt_ctx.setConcreteMemoryAreaValue(buff, data)
         return len(data)
@@ -959,7 +958,7 @@ def rtn_sem_destroy(se):
     logging.debug('sem_destroy hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_ret_register(0))  # sem_t *sem
+    arg0 = se.pstate.get_argument_value(0)  # sem_t *sem
     mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # Destroy the semaphore with the value
@@ -973,8 +972,8 @@ def rtn_sem_getvalue(se):
     logging.debug('sem_getvalue hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # int *sval
+    arg0 = se.pstate.get_argument_value(0)  # sem_t *sem
+    arg1 = se.pstate.get_argument_value(1)  # int *sval
     memIn = MemoryAccess(arg0, se.pstate.ptr_size)
     memOut = MemoryAccess(arg1, CPUSIZE.DWORD)
     value = se.pstate.tt_ctx.getConcreteMemoryValue(memIn)
@@ -990,9 +989,9 @@ def rtn_sem_init(se):
     logging.debug('sem_init hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # int pshared
-    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))  # unsigned int value
+    arg0 = se.pstate.get_argument_value(0)  # sem_t *sem
+    arg1 = se.pstate.get_argument_value(1)  # int pshared
+    arg2 = se.pstate.get_argument_value(2)  # unsigned int value
     mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # Init the semaphore with the value
@@ -1005,7 +1004,7 @@ def rtn_sem_init(se):
 def rtn_sem_post(se):
     logging.debug('sem_post hooked')
 
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
+    arg0 = se.pstate.get_argument_value(0)  # sem_t *sem
     mem  = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # increments (unlocks) the semaphore pointed to by sem
@@ -1020,9 +1019,9 @@ def rtn_sem_post(se):
 def rtn_sem_timedwait(se):
     logging.debug('sem_timedwait hooked')
 
-    arg0  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
+    arg0  = se.pstate.get_argument_value(0)  # sem_t *sem
     arg0m = MemoryAccess(arg0, se.pstate.ptr_size)
-    arg1  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))  # const struct timespec *abs_timeout
+    arg1  = se.pstate.get_argument_value(1)  # const struct timespec *abs_timeout
     arg1m = MemoryAccess(arg1, se.pstate.ptr_size)
 
     # sem_timedwait() is the same as sem_wait(), except that abs_timeout specifies a limit
@@ -1060,7 +1059,7 @@ def rtn_sem_timedwait(se):
 def rtn_sem_trywait(se):
     logging.debug('sem_trywait hooked')
 
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
+    arg0 = se.pstate.get_argument_value(0)  # sem_t *sem
     mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # sem_trywait()  is  the  same as sem_wait(), except that if the decrement
@@ -1086,7 +1085,7 @@ def rtn_sem_trywait(se):
 def rtn_sem_wait(se):
     logging.debug('sem_wait hooked')
 
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
+    arg0 = se.pstate.get_argument_value(0)  # sem_t *sem
     mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # decrements (locks) the semaphore pointed to by sem. If the semaphore's value
@@ -1111,7 +1110,7 @@ def rtn_sleep(se):
     logging.debug('sleep hooked')
 
     # Get arguments
-    t = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    t = se.pstate.get_argument_value(0)
     #time.sleep(t)
 
     # Return value
@@ -1122,19 +1121,19 @@ def rtn_sprintf(se):
     logging.debug('sprintf hooked')
 
     # Get arguments
-    buff = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    arg1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
-    arg2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(3))
-    arg3 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(4))
-    arg4 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(5))
-    arg5 = se.abi.get_stack_value(0)
-    arg6 = se.abi.get_stack_value(1)
-    arg7 = se.abi.get_stack_value(2)
+    buff = se.pstate.get_argument_value(0)
+    arg0 = se.pstate.get_argument_value(1)
+    arg1 = se.pstate.get_argument_value(2)
+    arg2 = se.pstate.get_argument_value(3)
+    arg3 = se.pstate.get_argument_value(4)
+    arg4 = se.pstate.get_argument_value(5)
+    arg5 = se.pstate.get_argument_value(6)
+    arg6 = se.pstate.get_argument_value(7)
+    arg7 = se.pstate.get_argument_value(8)
 
-    arg0f = se.abi.get_format_string(arg0)
+    arg0f = se.pstate.get_format_string(arg0)
     nbArgs = arg0f.count("{")
-    args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7][:nbArgs])
+    args = se.pstate.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7][:nbArgs])
     s = arg0f.format(*args)
 
     # FIXME: todo
@@ -1156,8 +1155,8 @@ def rtn_sprintf(se):
 def rtn_strcasecmp(se):
     logging.debug('strcasecmp hooked')
 
-    s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    s1 = se.pstate.get_argument_value(0)
+    s2 = se.pstate.get_argument_value(1)
     size = min(len(se.pstate.get_memory_string(s1)), len(se.pstate.get_memory_string(s2)) + 1)
 
     #s = s1 if len(se.pstate.get_memory_string(s1)) < len(se.pstate.get_memory_string(s2)) else s2
@@ -1188,8 +1187,8 @@ def rtn_strcasecmp(se):
 def rtn_strchr(se):
     logging.debug('strchr hooked')
 
-    string = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    char   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    string = se.pstate.get_argument_value(0)
+    char   = se.pstate.get_argument_value(1)
     ast    = se.pstate.tt_ctx.getAstContext()
 
     def rec(res, deep, maxdeep):
@@ -1215,8 +1214,8 @@ def rtn_strchr(se):
 def rtn_strcmp(se):
     logging.debug('strcmp hooked')
 
-    s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    s1 = se.pstate.get_argument_value(0)
+    s2 = se.pstate.get_argument_value(1)
     size = min(len(se.pstate.get_memory_string(s1)), len(se.pstate.get_memory_string(s2))) + 1
 
     #s = s1 if len(se.pstate.get_memory_string(s1)) <= len(se.pstate.get_memory_string(s2)) else s2
@@ -1245,8 +1244,8 @@ def rtn_strcmp(se):
 def rtn_strcpy(se):
     logging.debug('strcpy hooked')
 
-    dst  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    src  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+    dst  = se.pstate.get_argument_value(0)
+    src  = se.pstate.get_argument_value(1)
     size = len(se.pstate.get_memory_string(src))
 
     for i, c in enumerate(se.pstate.get_memory_string(src)):
@@ -1271,7 +1270,7 @@ def rtn_strlen(se):
     logging.debug('strlen hooked')
 
     # Get arguments
-    s = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+    s = se.pstate.get_argument_value(0)
     ast = se.pstate.tt_ctx.getAstContext()
 
     def rec(res, s, deep, maxdeep):
@@ -1298,9 +1297,9 @@ def rtn_strlen(se):
 def rtn_strncasecmp(se):
     logging.debug('strncasecmp hooked')
 
-    s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    sz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    s1 = se.pstate.get_argument_value(0)
+    s2 = se.pstate.get_argument_value(1)
+    sz = se.pstate.get_argument_value(2)
     maxlen = min(sz, min(len(se.pstate.get_memory_string(s1)), len(se.pstate.get_memory_string(s2))) + 1)
 
     ast = se.pstate.tt_ctx.getAstContext()
@@ -1321,9 +1320,9 @@ def rtn_strncasecmp(se):
 def rtn_strncmp(se):
     logging.debug('strncmp hooked')
 
-    s1 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    s2 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    sz = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    s1 = se.pstate.get_argument_value(0)
+    s2 = se.pstate.get_argument_value(1)
+    sz = se.pstate.get_argument_value(2)
     maxlen = min(sz, min(len(se.pstate.get_memory_string(s1)), len(se.pstate.get_memory_string(s2))) + 1)
 
     ast = se.pstate.tt_ctx.getAstContext()
@@ -1342,11 +1341,11 @@ def rtn_strncmp(se):
 def rtn_strncpy(se):
     logging.debug('strncpy hooked')
 
-    dst = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    src = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    cnt = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    dst = se.pstate.get_argument_value(0)
+    src = se.pstate.get_argument_value(1)
+    cnt = se.pstate.get_argument_value(2)
 
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == cnt)
+    se.pstate.concretize_argument(2)
 
     for index in range(cnt):
         dmem = MemoryAccess(dst + index, CPUSIZE.BYTE)
@@ -1367,9 +1366,9 @@ def rtn_strncpy(se):
 def rtn_strtok_r(se):
     logging.debug('strtok_r hooked')
 
-    string  = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    delim   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    saveptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    string  = se.pstate.get_argument_value(0)
+    delim   = se.pstate.get_argument_value(1)
+    saveptr = se.pstate.get_argument_value(2)
     saveMem = se.pstate.tt_ctx.getConcreteMemoryValue(MemoryAccess(saveptr, se.pstate.ptr_size))
     actx    = se.pstate.tt_ctx.getAstContext()
 
@@ -1403,14 +1402,15 @@ def rtn_strtok_r(se):
 def rtn_strtoul(se):
     logging.debug('strtoul hooked')
 
-    nptr   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-    nptrs  = se.abi.get_string_argument(0)
-    endptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-    base   = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(2))
+    nptr   = se.pstate.get_argument_value(0)
+    nptrs  = se.pstate.get_string_argument(0)
+    endptr = se.pstate.get_argument_value(1)
+    base   = se.pstate.get_argument_value(2)
 
     for i, c in enumerate(nptrs):
         se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getMemoryAst(MemoryAccess(nptr + i, CPUSIZE.BYTE)) == ord(c))
-    se.pstate.tt_ctx.pushPathConstraint(se.pstate.tt_ctx.getRegisterAst(se.abi.get_arg_register(2)) == base)
+
+    se.concretize_argument(2)  # Concretize base
 
     try:
         return int(nptrs, base)
