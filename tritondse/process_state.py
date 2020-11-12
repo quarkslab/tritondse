@@ -2,7 +2,7 @@
 import sys
 import time
 import logging
-from typing import Union, Callable
+from typing import Union, Callable, Optional
 
 # third-party
 from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction
@@ -83,8 +83,11 @@ class ProcessState(object):
         self.thread_scheduling_count = thread_scheduling
         self.time_inc_coefficient = time_coefficient
 
-        # runtime temporary variables
+        # Runtime temporary variables
         self.__pcs_updated = False
+
+        # The current instruction executed
+        self.__current_inst = None
 
 
     def get_unique_thread_id(self):
@@ -223,7 +226,9 @@ class ProcessState(object):
         self.__pcs_updated = False
         __len_pcs = self.tt_ctx.getPathPredicateSize()
 
-        ret = self.tt_ctx.processing(instruction)
+        self.tt_ctx.disassembly(instruction)
+        self.__current_inst = instruction
+        ret = self.tt_ctx.buildSemantics(instruction)
 
         # Simulate that the time of an executed instruction is time_inc_coefficient.
         # For example, if time_inc_coefficient is 0.0001, it means that an instruction
@@ -252,3 +257,11 @@ class ProcessState(object):
         :return:
         """
         return self.tt_ctx.getPathConstraints()[-1]
+
+
+    @property
+    def current_instruction(self) -> Optional[Instruction]:
+        """
+        Return the current Instruction.
+        """
+        return self.__current_inst
