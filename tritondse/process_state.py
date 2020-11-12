@@ -2,17 +2,20 @@
 import sys
 import time
 import logging
-from typing import Union, Callable
+from typing import Union, Callable, Tuple
 
 # third-party
 from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction
 
 # local imports
 from tritondse.thread_context import ThreadContext
-from tritondse.config         import Config
 from tritondse.program        import Program
 from tritondse.heap_allocator import HeapAllocator
-from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, AstNode
+from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
+                                     AstNode, Registers
+from tritondse.arch           import ARCHS, CpuState
+
+
 
 
 class ProcessState(object):
@@ -35,6 +38,10 @@ class ProcessState(object):
         # The Triton's context
         self.tt_ctx = TritonContext()
         self.actx = self.tt_ctx.getAstContext()
+
+        # Cpu object wrapping registers values
+        self.cpu = None
+        self._archinfo = None
 
         # Used to define that the process must exist
         self.stop = False
@@ -128,7 +135,56 @@ class ProcessState(object):
     @property
     def minus_one(self) -> int:
         """ -1 according to the architecture size """
-        return ((1 << self.ptr_bit_size) - 1)
+        return (1 << self.ptr_bit_size) - 1
+
+
+    @property
+    def registers(self) -> Registers:
+        return self.tt_ctx.registers
+
+
+    @property
+    def return_register(self) -> Register:
+        """ Return the appropriate return register according to the arch """
+        return getattr(self.registers, self._archinfo.ret_reg)
+
+    @property
+    def program_counter_register(self) -> Register:
+        """ Return the appropriate pc register according to the arch """
+        return getattr(self.registers, self._archinfo.pc_reg)
+
+    @property
+    def base_pointer_register(self) -> Register:
+        """ Return the appropriate base pointer register according to the arch """
+        return getattr(self.registers, self._archinfo.bp_reg)
+
+    @property
+    def stack_pointer_register(self) -> Register:
+        """ Return the appropriate stack pointer register according to the arch """
+        return getattr(self.registers, self._archinfo.sp_reg)
+
+    @property
+    def _syscall_register(self) -> Register:
+        """ Return the appropriate syscall id register according to the arch """
+        return getattr(self.registers, self._archinfo.sys_reg)
+
+
+    def _get_argument_register(self, i: int) -> Register:
+        """
+        Return the appropriate register according to the arch.
+
+        :raise: IndexError If the index is out of arguments bound
+        :return: Register
+        """
+        return getattr(self.registers, self._archinfo.reg_args[i])
+
+
+    def initialize_context(self, arch: Architecture):
+        self.architecture = arch
+        self._archinfo = ARCHS[self.architecture]
+        self.cpu = CpuState(self.tt_ctx, self._archinfo)
+        self.write_register(self.base_pointer_register, self.BASE_STACK)
+        self.write_register(self.stack_pointer_register, self.BASE_STACK)
 
 
     def load_program(self, p: Program, base_addr: Addr = 0) -> None:
@@ -138,6 +194,9 @@ class ProcessState(object):
         :param base_addr: Base address where to load the program (if PIE)
         :return: True on whether loading succeeded or not
         """
+        # Set the program counter to points to entrypoint
+        self.cpu.program_counter = p.entry_point
+
         # Set loading address
         self.load_addr = base_addr
         # TODO: If PIE use this address, if not set absolute address (from binary)
@@ -419,31 +478,31 @@ class ProcessState(object):
         return False
 
 
-    def push_constraint(self, constraint: AstNode) -> None:
+    def push_constraint(self, constraint: AstNode, comment: str = "") -> None:
         """
         Thin wrapper on underneath triton context function to add a path
         constraint.
 
         :param constraint: Constraint expression to add
+        :param comment: Comment to add on the constraint
         :return: None
         """
-        self.tt_ctx.pushPathConstraint(constraint)
+        self.tt_ctx.pushPathConstraint(constraint, comment)
 
 
-    def concretize_register(self, register: Union[str, Register], value: int = None) -> None:
+    def concretize_register(self, register: Union[str, Register]) -> None:
         """
         Concretize the given register with the given value. If no value is provided the
         current register concrete value is used. This operation allows given the register
         a constant and staying sound!
 
         :param register: Register identifier (str or Register)
-        :param value: Int
         :return: None
         """
-        # FIXME: If a value is provided should we do ctx.concretizeRegister, setConcreteRegisterValue ?
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register
-        value = self.read_register(reg) if value is None else value
+        value = self.read_register(reg)
         self.push_constraint(self.read_symbolic_register(reg).getAst() == value)
+
 
 
     def concretize_memory_int(self, addr: Addr, size: ByteSize) -> None:
@@ -470,3 +529,83 @@ class ProcessState(object):
         data = self.read_memory_bytes(addr, size)
         for i in range(size):
             self.push_constraint(self.read_symbolic_memory_byte(addr+i) == data[i])
+
+
+    def concretize_argument(self, index: int) -> None:
+        """
+        Concretize the given function parameter according to the calling convention.
+        This operation is sound !
+
+        :param index: Argument index
+        :return: None
+        """
+        reg = self._get_argument_register(index)
+        self.concretize_register(reg)
+
+
+    def get_argument_value(self, i: int) -> int:
+        """
+        Return the integer value of parameters following the call convention.
+        Thus the value originate either from a register or the stack.
+
+        :param i: Ith argument of the function
+        :return: integer value of the parameter
+        """
+        try:
+            return self.read_register(self._get_argument_register(i))
+        except IndexError:
+            len_args = len(self._archinfo.reg_args)
+            return self.get_stack_value(i-len_args)
+
+    def get_argument_symbolic(self, i: int) -> Expression:
+        """
+        Return the symbolic expression associated with the given ith parameter.
+
+        :param i: Ith function parameter
+        :return: Symbolic expression associated
+        """
+        try:
+            return self.read_symbolic_register(self._get_argument_register(i))
+        except IndexError:
+            len_args = len(self._archinfo.reg_args)
+            addr = self.cpu.stack_pointer + ((i-len_args) * self.ptr_size)
+            return self.read_symbolic_memory_int(addr, self.ptr_size)
+
+
+    def get_full_argument(self, i: int) -> Tuple[int, Expression]:
+        """
+        Get both the concrete argument value along with its symbolic expression.
+
+        :return: Tuple containing concrete value and symbolic expression
+        """
+        return self.get_argument_value(i), self.get_argument_symbolic(i)
+
+
+    def get_string_argument(self, i: int) -> str:
+        """ Return the string on the given function parameter """
+        return self.get_memory_string(self.get_argument_value(i))
+
+
+    def get_format_string(self, addr: Addr) -> str:
+        """ Returns a formatted string from a memory address """
+        return self.get_memory_string(addr)                                             \
+               .replace("%s", "{}").replace("%d", "{}").replace("%#02x", "{:#02x}")     \
+               .replace("%#x", "{:#x}").replace("%x", "{:x}").replace("%02X", "{:02X}") \
+               .replace("%c", "{:c}").replace("%02x", "{:02x}").replace("%ld", "{}")    \
+               .replace("%*s", "").replace("%lX", "{:X}").replace("%08x", "{:08x}")     \
+               .replace("%u", "{}").replace("%lu", "{}").replace("%zu", "{}")           \
+               .replace("%02u", "{:02d}").replace("%03u", "{:03d}")                     \
+               .replace("%03d", "{:03d}").replace("%p", "{:#x}").replace("%i", "{}")
+
+
+    def get_format_arguments(self, s, args):
+        s_str = self.get_memory_string(s)
+        postString = [i for i, x in enumerate([i for i, c in enumerate(s_str) if c == '%']) if s_str[x+1] == "s"]
+        for p in postString:
+            args[p] = self.get_memory_string(args[p])
+        return args
+
+
+    def get_stack_value(self, index: int) -> int:
+        addr = self.cpu.stack_pointer + (index * self.ptr_size)
+        return self.read_memory_int(addr, self.ptr_size)

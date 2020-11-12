@@ -52,7 +52,7 @@ class UAFSanitizer(ProbeInterface):
 
     @staticmethod
     def free_routine(se, pstate, name, addr):
-        ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+        ptr = se.pstate.get_argument_value(0)
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             logging.critical(f'Double free detected at {addr:#x}')
             se.seed.status = SeedStatus.CRASH
@@ -141,13 +141,13 @@ class FormatStringSanitizer(ProbeInterface):
 
     @staticmethod
     def xprintf_arg0_routine(se, pstate, name, addr):
-        string_ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
+        string_ptr = se.pstate.get_argument_value(0)
         FormatStringSanitizer.printf_family_routines(se, pstate, addr, string_ptr)
 
 
     @staticmethod
     def xprintf_arg1_routine(se, pstate, name, addr):
-        string_ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
+        string_ptr = se.pstate.get_argument_value(1)
         FormatStringSanitizer.printf_family_routines(se, pstate, addr, string_ptr)
 
 
