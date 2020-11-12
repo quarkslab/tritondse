@@ -184,7 +184,7 @@ class GlobalCoverage(CoverageSingleRun):
 
         # Save edge coverage
         if self.edges:
-            self.workspace.save_metadata_file(self.EDGE_COVERAGE_FILE, json.dumps(self.edges, indent=2))
+            self.workspace.save_metadata_file(self.EDGE_COVERAGE_FILE, json.dumps([[list(k), v] for k, v in self.edges.items()], indent=2))
 
         # Save path coverage
         if self.paths:
@@ -197,13 +197,13 @@ class GlobalCoverage(CoverageSingleRun):
         data = self.workspace.get_metadata_file(self.INSTRUCTION_COVERAGE_FILE)
         if data:
             logging.debug(f"Loading the existing instruction coverage from: {self.INSTRUCTION_COVERAGE_FILE}")
-            self.instructions = json.loads(data)
+            self.instructions = Counter(json.loads(data))
 
         # Load instruction edge
         data = self.workspace.get_metadata_file(self.EDGE_COVERAGE_FILE)
         if data:
             logging.debug(f"Loading the existing edge coverage from: {self.EDGE_COVERAGE_FILE}")
-            self.instructions = json.loads(data)
+            self.edges = Counter({tuple(x[0]): x[1] for x in json.loads(data)})
 
         # Load path coverage
         data = self.workspace.get_metadata_file(self.PATH_COVERAGE_FILE)
