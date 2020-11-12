@@ -3,6 +3,7 @@ import logging
 import time
 import random
 import os
+from typing import Optional, Union
 
 # third party imports
 from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess
@@ -14,7 +15,7 @@ from tritondse.coverage       import CoverageSingleRun
 from tritondse.process_state  import ProcessState
 from tritondse.program        import Program
 from tritondse.seed           import Seed, SeedStatus
-from tritondse.types          import ConcSymAction
+from tritondse.types          import Expression
 from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks      import CallbackManager
 from tritondse.workspace      import Workspace
@@ -172,17 +173,15 @@ class SymbolicExecutor(object):
         return
 
 
-    def __handle_external_return(self, ret):
+    def __handle_external_return(self, ret_val: Optional[Union[int, Expression]]) -> None:
         """ Symbolize or concretize return values of external functions """
-        if ret is not None:
-            if ret[0] == ConcSymAction.CONCRETIZE:
-                self.pstate.tt_ctx.concretizeRegister(self.abi.get_ret_register())
-                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1]) # setup symbolic state
-
-            elif ret[0] == ConcSymAction.SYMBOLIZE:
-                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1].getAst().evaluate()) # setup concrete state
-                self.pstate.tt_ctx.assignSymbolicExpressionToRegister(ret[1], self.abi.get_ret_register()) # setup symbolic state
-        return
+        if ret_val is not None:
+            reg = self.abi.get_ret_register()
+            if isinstance(ret_val, int): # Write its concrete value
+                self.pstate.write_register(reg, ret_val)
+            else:  # It should be a logic expression
+                self.pstate.write_register(reg, ret_val.getAst().evaluate())
+                self.pstate.write_symbolic_register(reg, ret_val)
 
 
     def routines_handler(self, instruction):
@@ -196,8 +195,8 @@ class SymbolicExecutor(object):
                 cb(self, self.pstate, routine_name, pc)
 
             # Emulate the routine and the return value
-            ret = routine(self)
-            self.__handle_external_return(ret)
+            ret_val = routine(self)
+            self.__handle_external_return(ret_val)
 
             # Trigger post-address callbacks
             for cb in post_cbs:
