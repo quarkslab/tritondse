@@ -208,15 +208,20 @@ class IntegerOverflowSanitizer(ProbeInterface):
 
         rf = (pstate.tt_ctx.registers.of if pstate.architecture == Architecture.X86_64 else pstate.tt_ctx.registers.v)
         flag = pstate.tt_ctx.getRegisterAst(pstate.tt_ctx.registers.rf)
-        # What if it's not symbolic and 1?
+        if flag.evaluate():
+            logging.warning(f'Integer overflow at {instruction}')
+            # FIXME: What if it's normal behavior?
+            se.seed.status = SeedStatus.CRASH
+            return True
+
         if flag.isSymbolized():
             model = pstate.tt_ctx.getModel(flag == 1)
             if model:
                 logging.warning(f'Potential integer overflow at {instruction}')
                 crash_seed = mk_new_crashing_seed(se, model)
+                crash_seed.status = SeedStatus.CRASH
                 se.workspace.save_seed(crash_seed)
                 se.seed.status = SeedStatus.OK_DONE
-                # Do not stop the execution, just continue the execution
-                pstate.stop = False
                 return True
+
         return False
