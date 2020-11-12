@@ -446,34 +446,27 @@ class ProcessState(object):
         self.push_constraint(self.read_symbolic_register(reg).getAst() == value)
 
 
-    def concretize_memory_int(self, addr: Addr, size: ByteSize, value: int = None) -> None:
+    def concretize_memory_int(self, addr: Addr, size: ByteSize) -> None:
         """
-        Concretize the given memory with the given integer value. If no value is provided
-        the current concrete value is used. This operation is sound and allows restraining
-        the memory value.
+        Concretize the given memory with its current integer value. This operation is sound and
+        allows restraining the memory value to its constant value.
 
         :param addr: Address to concretize
         :param size: Size of the integer to concretize
-        :param value: Integer value to concretize
         :return: None
         """
-        # FIXME: If a value is provided should we do ctx.concretizeMemory ? setConcreteRegisterValue ?
-        value = self.read_memory_int(addr, size) if value is None else value
+        value = self.read_memory_int(addr, size)
         self.push_constraint(self.read_symbolic_memory_int(addr, size) == value)
 
 
-    def concretize_memory_bytes(self, addr: Addr, size: ByteSize, data: bytes = None) -> None:
+    def concretize_memory_bytes(self, addr: Addr, size: ByteSize) -> None:
         """
-        Concretize the given range of memory with the given value. If no value is provided
-        uses the current concrete value.
+        Concretize the given range of memory with its current value.
 
         :param addr: Address to concretize
         :param size: Size of the memory buffer to concretize
-        :param data: Data to concretize
         :return: None
         """
-        if data:
-            assert len(data) == size
-        data = self.read_memory_bytes(addr, size) if data is None else data
+        data = self.read_memory_bytes(addr, size)
         for i in range(size):
             self.push_constraint(self.read_symbolic_memory_byte(addr+i) == data[i])
