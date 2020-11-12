@@ -38,10 +38,9 @@ class UAFSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def memory_read(se, pstate, mem):
-        ptr = mem.getAddress()
+    def check(se, pstate, ptr, desc):
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
-            logging.critical(f'UAF detected at {mem}')
+            logging.critical(desc)
             se.seed.status = SeedStatus.CRASH
             pstate.stop = True
             return True
@@ -49,25 +48,20 @@ class UAFSanitizer(ProbeInterface):
 
 
     @staticmethod
+    def memory_read(se, pstate, mem):
+        return UAFSanitizer.check(se, pstate, mem.getAddress(), f'UAF detected at {mem}')
+
+
+    @staticmethod
     def memory_write(se, pstate, mem, value):
-        ptr = mem.getAddress()
-        if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
-            logging.critical(f'UAF detected at {mem}')
-            se.seed.status = SeedStatus.CRASH
-            pstate.stop = True
-            return True
-        return False
+        return UAFSanitizer.check(se, pstate, mem.getAddress(), f'UAF detected at {mem}')
 
 
     @staticmethod
     def free_routine(se, pstate, name, addr):
         ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-        if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
-            logging.critical(f'Double free detected at {addr:#x}')
-            se.seed.status = SeedStatus.CRASH
-            pstate.stop = True
-            return True
-        return False
+        return UAFSanitizer.check(se, pstate, ptr, f'Double free detected at {addr:#x}')
+
 
 
 class NullDerefSanitizer(ProbeInterface):
@@ -82,8 +76,14 @@ class NullDerefSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def memory_read(se, pstate, mem):
-        access_ast = mem.getLeaAst()
+    def check(se, pstate, mem, desc):
+        ptr = mem.getAddress()
+        valid_access = False
+
+        # The execution has not started yet
+        if pstate.current_instruction is None:
+            return False
+
         # FIXME: Takes so much time...
         #if access_ast is not None and access_ast.isSymbolized():
         #    model = pstate.tt_ctx.getModel(access_ast == 0)
@@ -93,34 +93,29 @@ class NullDerefSanitizer(ProbeInterface):
         #        se.workspace.save_seed(crash_seed)
         #        se.seed.status = SeedStatus.OK_DONE
         #        # Do not abort, just continue the execution
-        if access_ast is not None and access_ast.evaluate() == 0:
-            # FIXME: Mettre toutes les zones valide en read
-            logging.critical(f'Invalid memory access when reading at {mem}')
+        #if access_ast is not None and access_ast.evaluate() == 0:
+
+        # FIXME: Ici on rajoute 16 car nous avons un problème si une instruction se situe
+        # en fin de page mappée. Lors du fetching des opcodes, nous fetchons 16 bytes car
+        # nous ne connaissons pas la taille d'une instruction, ici, en fetchant en fin de
+        # page on déclenche ce sanitizer...
+        if pstate.is_valid_memory_mapping(ptr, padding_segment=16) == False:
+            logging.critical(desc)
             se.seed.status = SeedStatus.CRASH
             pstate.stop = True
             return True
+
         return False
 
 
     @staticmethod
+    def memory_read(se, pstate, mem):
+        return NullDerefSanitizer.check(se, pstate, mem, f'Invalid memory access when reading at {mem} from {pstate.current_instruction}')
+
+
+    @staticmethod
     def memory_write(se, pstate, mem, value):
-        access_ast = mem.getLeaAst()
-        # FIXME: Takes so much time...
-        #if access_ast is not None and access_ast.isSymbolized():
-        #    model = pstate.tt_ctx.getModel(access_ast == 0)
-        #    if model:
-        #        logging.warning(f'Potential null deref when writing at {mem}')
-        #        crash_seed = mk_new_crashing_seed(se, model)
-        #        se.workspace.save_seed(crash_seed)
-        #        se.seed.status = SeedStatus.OK_DONE
-        #        # Do not abort, just continue the execution
-        if access_ast is not None and access_ast.evaluate() == 0:
-            # FIXME: Mettre toutes les zones valide en read
-            logging.critical(f'Invalid memory access when writting at {mem}')
-            se.seed.status = SeedStatus.CRASH
-            pstate.stop = True
-            return True
-        return False
+        return NullDerefSanitizer.check(se, pstate, mem, f'Invalid memory access when writting at {mem} from {pstate.current_instruction}')
 
 
 
@@ -150,7 +145,7 @@ class FormatStringSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def printf_family_routines(se, pstate, addr, string_ptr):
+    def check(se, pstate, addr, string_ptr):
         symbolic_cells = []
 
         # Count the number of cells which is symbolic
@@ -181,13 +176,13 @@ class FormatStringSanitizer(ProbeInterface):
     @staticmethod
     def xprintf_arg0_routine(se, pstate, name, addr):
         string_ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))
-        FormatStringSanitizer.printf_family_routines(se, pstate, addr, string_ptr)
+        FormatStringSanitizer.check(se, pstate, addr, string_ptr)
 
 
     @staticmethod
     def xprintf_arg1_routine(se, pstate, name, addr):
         string_ptr = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(1))
-        FormatStringSanitizer.printf_family_routines(se, pstate, addr, string_ptr)
+        FormatStringSanitizer.check(se, pstate, addr, string_ptr)
 
 
 
@@ -198,11 +193,11 @@ class IntegerOverflowSanitizer(ProbeInterface):
     """
     def __init__(self):
         super(IntegerOverflowSanitizer, self).__init__()
-        self.cbs.append((CbType.POST_INST, None, self.post_instruction))
+        self.cbs.append((CbType.POST_INST, None, self.check))
 
 
     @staticmethod
-    def post_instruction(se, pstate, instruction):
+    def check(se, pstate, instruction):
         # This probe is only available for X86_64 and AARCH64
         assert(pstate.architecture == Architecture.X86_64 or pstate.architecture == Architecture.AARCH64)
 
