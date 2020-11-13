@@ -14,7 +14,7 @@ from tritondse.coverage       import CoverageSingleRun
 from tritondse.process_state  import ProcessState
 from tritondse.program        import Program
 from tritondse.seed           import Seed, SeedStatus
-from tritondse.types          import Expression
+from tritondse.types          import Expression, Architecture
 from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks      import CallbackManager
 from tritondse.workspace      import Workspace
@@ -165,21 +165,21 @@ class SymbolicExecutor(object):
         return
 
 
-    def __handle_external_return(self, ret_val: Optional[Union[int, Expression]]) -> None:
+    def __handle_external_return(self, routine_name: str, ret_val: Optional[Union[int, Expression]]) -> None:
         """ Symbolize or concretize return values of external functions """
         if ret_val is not None:
             reg = self.pstate.return_register
             if isinstance(ret_val, int): # Write its concrete value
                 self.pstate.write_register(reg, ret_val)
             else:  # It should be a logic expression
-                self.pstate.write_register(reg, ret_val.getAst().evaluate())
-                self.pstate.write_symbolic_register(reg, ret_val)
+                self.pstate.write_symbolic_register(reg, ret_val, f"(routine {routine_name}")
 
 
     def routines_handler(self, instruction):
         pc = self.pstate.cpu.program_counter
         if pc in self.rtn_table:
             routine_name, routine = self.rtn_table[pc]
+            logging.debug(f"Enter external routine: {routine_name}")
 
             # Trigger pre-address callback
             pre_cbs, post_cbs = self.cbm.get_imported_routine_callbacks(routine_name)
@@ -188,7 +188,7 @@ class SymbolicExecutor(object):
 
             # Emulate the routine and the return value
             ret_val = routine(self, self.pstate)
-            self.__handle_external_return(ret_val)
+            self.__handle_external_return(routine_name, ret_val)
 
             # Trigger post-address callbacks
             for cb in post_cbs:
@@ -211,18 +211,16 @@ class SymbolicExecutor(object):
                 return
 
             # FIXME: What the fuck is that ?
-            if self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
+            if self.pstate.architecture == Architecture.AARCH64:
                 # Get the return address
                 if routine_name == "__libc_start_main":
                     ret_addr = self.pstate.cpu.program_counter
                 else:
                     ret_addr = self.pstate.tt_ctx.getConcreteRegisterValue(self.pstate.tt_ctx.registers.x30)
 
-            elif self.pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
-                # Get the return address
-                ret_addr = self.pstate.tt_ctx.getConcreteMemoryValue(MemoryAccess(self.pstate.cpu.stack_pointer, CPUSIZE.QWORD))
-                # Restore RSP (simulate the ret)
-                self.pstate.cpu.stack_pointer += CPUSIZE.QWORD
+            elif self.pstate.architecture == Architecture.X86_64:
+                # Get the return address and restore RSP (simulate RET)
+                ret_addr = self.pstate.pop_stack_value()
 
             else:
                 raise Exception("Architecture not supported")
@@ -249,7 +247,7 @@ class SymbolicExecutor(object):
                 self.rtn_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
 
                 # Apply relocation to our custom address in process memory
-                self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
+                self.pstate.write_memory_ptr(rel_addr, cur_linkage_address)
 
                 # Increment linkage address number
                 cur_linkage_address += self.pstate.ptr_size
@@ -261,11 +259,11 @@ class SymbolicExecutor(object):
                 logging.debug(f"Hooking {sname} at {rel_addr:#x}")
                 if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
                     if self.pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
-                        self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
+                        self.pstate.write_memory_ptr(rel_addr, SUPORTED_GVARIABLES[sname])
 
                     elif self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
-                        self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
-                        self.pstate.write_memory(cur_linkage_address, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
+                        self.pstate.write_memory_ptr(rel_addr, cur_linkage_address)
+                        self.pstate.write_memory_ptr(cur_linkage_address, SUPORTED_GVARIABLES[sname])
                         cur_linkage_address += self.pstate.ptr_size
                 else:
                     logging.warning(f"symbol {sname} imported but unsupported")

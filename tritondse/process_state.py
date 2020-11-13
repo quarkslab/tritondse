@@ -240,6 +240,17 @@ class ProcessState(object):
         return self.tt_ctx.getConcreteMemoryValue(MemoryAccess(addr, size))
 
 
+    def read_memory_ptr(self, addr: Addr) -> int:
+        """
+        Read in the process memory a little-endian integer of the
+         ptr_size size
+
+        :param addr: Address at which to read data
+        :return: Integer value read
+        """
+        return self.tt_ctx.getConcreteMemoryValue(MemoryAccess(addr, self.ptr_size))
+
+
     def read_memory_bytes(self, addr: Addr, size: ByteSize) -> bytes:
         """
         Read in the process memory ``size`` amount of bytes at ``addr``.
@@ -252,24 +263,57 @@ class ProcessState(object):
         return self.tt_ctx.getConcreteMemoryAreaValue(addr, size)
 
 
-    def write_memory(self, addr: Addr, size: ByteSize, data: Union[int, bytes]) -> None:
+    def write_memory_int(self, addr: Addr, size: ByteSize, value: int) -> None:
         """
-        Write in the process memory the given data of the given size at
+        Write in the process memory the given integer value of the given size at
         a specific address.
 
         :param addr: address where to write data
         :param size: size of data to write in bytes
-        :param data: data to write represented as an integer
+        :param value: data to write represented as an integer
         :return: None
 
         .. todo:: Adding a parameter to specify endianess if needed
         """
-        assert type(data) is int or type(data) is bytes
+        self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, size), value)
 
-        if type(data) is int:
-            self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, size), data)
+
+    def write_memory_bytes(self, addr: Addr, data: bytes) -> None:
+        """
+        Write the given bytes in the process memory. Size is automatically
+        deduced with data size.
+
+        :param addr: address where to write data
+        :param data: bytes data to write
+        :return: None
+        """
+        self.tt_ctx.setConcreteMemoryAreaValue(addr, data)
+
+
+    def write_memory_byte(self, addr: Addr, data: Union[bytes, int]) -> None:
+        """
+        Write the given bytes in the process memory. Size is automatically
+        deduced with data size.
+
+        :param addr: address where to write data
+        :param data: bytes data to write
+        :return: None
+        """
+        if isinstance(data, int):
+            self.write_memory_int(addr, CPUSIZE.BYTE, data)
         else:
-            self.tt_ctx.setConcreteMemoryAreaValue(addr, data)
+            self.write_memory_bytes(addr, data)
+
+
+    def write_memory_ptr(self, addr: Addr, value: int) -> None:
+        """
+        Similar to write_memory_int but the size is automatically adjusted
+        to be ptr_size.
+
+        :param addr: address where to write data
+        :param value: pointer value to write
+        """
+        self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, self.ptr_size), value)
 
 
     def register_triton_callback(self, cb_type: CALLBACK, callback: Callable):
@@ -368,20 +412,26 @@ class ProcessState(object):
         :return: Symbolic Expression of the register
         """
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register  # if str transform to reg
-        return self.tt_ctx.getSymbolicRegister(reg)
+        sym_reg = self.tt_ctx.getSymbolicRegister(reg)
+        if sym_reg is None:
+            return self.tt_ctx.newSymbolicExpression(self.tt_ctx.getRegisterAst(reg))
+        else:
+            return sym_reg
 
 
-    def write_symbolic_register(self, register: Union[str, Register], expr: Union[AstNode, Expression]) -> None:
+    def write_symbolic_register(self, register: Union[str, Register], expr: Union[AstNode, Expression], comment = "") -> None:
         """
         Assign the given symbolic expression to the register. The given expression can either be a SMT AST node
         or directly an Expression (SymbolicExpression).
 
         :param register: register identifier (str or Register)
         :param expr: expression to assign (AstNode or Expression)
+        :param comment: Comment to add on the symbolic expression
         :return: None
         """
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register  # if str transform to reg
-        exp = expr if hasattr(expr, "getAst") else self.tt_ctx.newSymbolicExpression(expr, f"assign {reg.getName()}")
+        exp = expr if hasattr(expr, "getAst") else self.tt_ctx.newSymbolicExpression(expr, f"assign {reg.getName()}: {comment}")
+        self.write_register(reg, exp.getAst().evaluate())  # Update concrete state to keep sync
         self.tt_ctx.assignSymbolicExpressionToRegister(exp, reg)
 
 
@@ -395,7 +445,7 @@ class ProcessState(object):
         :return: Symbolic Expression associated with the memory
         """
         if size == 1:
-            return self.tt_ctx.getSymbolicMemory(addr)
+            return self.read_symbolic_memory_byte(addr)
         elif size in [2, 4, 8, 16, 32, 64]:
             ast = self.tt_ctx.getMemoryAst(MemoryAccess(addr, size))
             return self.tt_ctx.newSymbolicExpression(ast)
@@ -410,8 +460,11 @@ class ProcessState(object):
         :param addr: Memory address
         :return: Symbolic Expression associated with the memory
         """
-        return self.tt_ctx.getSymbolicMemory(addr)
-
+        res = self.tt_ctx.getSymbolicMemory(addr)
+        if res is None:
+            return self.tt_ctx.newSymbolicExpression(self.tt_ctx.getMemoryAst(MemoryAccess(addr, 1)))
+        else:
+            return res
 
     def read_symbolic_memory_bytes(self, addr: Addr, size: ByteSize) -> Expression:
         """
@@ -423,29 +476,31 @@ class ProcessState(object):
         :return: Symbolic Expression associated with the memory
         """
         if size == 1:
-            return self.tt_ctx.getSymbolicMemory(addr)
+            return self.read_symbolic_memory_byte(addr)
         else:  # Need to create a per-byte expression with concat
             asts = [self.tt_ctx.getMemoryAst(MemoryAccess(addr+i, CPUSIZE.BYTE)) for i in range(size)]
             concat_expr = self.actx.concat(asts)
             return self.tt_ctx.newSymbolicExpression(concat_expr)
 
 
-    def write_symbolic_memory_int(self, addr: Addr, size: ByteSize, expr: Expression) -> None:
+    def write_symbolic_memory_int(self, addr: Addr, size: ByteSize, expr: Union[AstNode, Expression]) -> None:
         """
         Assign the given symbolic expression representing an integer to the given address.
         That function should not be used on big memory chunks.
 
         :param addr: Memory address
         :param size: memory size in bytes
-        :param expr: Symbolic Expression to assign
+        :param expr: Symbolic Expression or AST to assign
         """
+        expr = expr if hasattr(expr, "getAst") else self.tt_ctx.newSymbolicExpression(expr, f"assign memory")
         if size in [1, 2, 4, 8, 16, 32, 64]:
+            self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, size), expr.getAst().evaluate())  # To keep the concrete state synchronized
             self.tt_ctx.assignSymbolicExpressionToMemory(expr, MemoryAccess(addr, size))
         else:
             raise RuntimeError("size should be aligned [1, 2, 4, 8, 16, 32, 64] (bytes)")
 
 
-    def write_symbolic_memory_byte(self, addr: Addr, expr: Expression) -> None:
+    def write_symbolic_memory_byte(self, addr: Addr, expr: Union[AstNode, Expression]) -> None:
         """
         Set a single bytes symbolic at the given address
 
@@ -454,11 +509,13 @@ class ProcessState(object):
            you should do it in a per-byte manner with this method.
 
         :param addr: Memory address
-        :param expr: Byte expression to assign
+        :param expr: Byte Expression or AST to assign
         :return: None
         """
+        expr = expr if hasattr(expr, "getAst") else self.tt_ctx.newSymbolicExpression(expr, f"assign memory")
         ast = expr.getAst()
-        assert ast.getBitVectorSize() == 8
+        assert ast.getBitvectorSize() == 8
+        self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, CPUSIZE.BYTE), ast.evaluate())  # Keep concrete state synced
         self.tt_ctx.assignSymbolicExpressionToMemory(expr, MemoryAccess(addr, CPUSIZE.BYTE))
 
 
@@ -472,22 +529,20 @@ class ProcessState(object):
         :return: True if at least one byte of the memory is symbolic, false otherwise
         """
         for i in range(addr, addr+size):
-            s = self.tt_ctx.getSymbolicMemory()
-            if s.isSymbolized():
+            if self.tt_ctx.isMemorySymbolized(MemoryAccess(i, 1)):
                 return True
         return False
 
 
-    def push_constraint(self, constraint: AstNode, comment: str = "") -> None:
+    def push_constraint(self, constraint: AstNode) -> None:
         """
         Thin wrapper on underneath triton context function to add a path
         constraint.
 
         :param constraint: Constraint expression to add
-        :param comment: Comment to add on the constraint
         :return: None
         """
-        self.tt_ctx.pushPathConstraint(constraint, comment)
+        self.tt_ctx.pushPathConstraint(constraint)
 
 
     def concretize_register(self, register: Union[str, Register]) -> None:
@@ -500,9 +555,10 @@ class ProcessState(object):
         :return: None
         """
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register
-        value = self.read_register(reg)
-        self.push_constraint(self.read_symbolic_register(reg).getAst() == value)
-
+        if self.tt_ctx.isRegisterSymbolized(reg):
+            value = self.read_register(reg)
+            self.push_constraint(self.read_symbolic_register(reg).getAst() == value)
+        # Else do not even push the constraint
 
 
     def concretize_memory_int(self, addr: Addr, size: ByteSize) -> None:
@@ -515,7 +571,9 @@ class ProcessState(object):
         :return: None
         """
         value = self.read_memory_int(addr, size)
-        self.push_constraint(self.read_symbolic_memory_int(addr, size) == value)
+        if self.tt_ctx.isMemorySymbolized(MemoryAccess(addr, size)):
+            self.push_constraint(self.read_symbolic_memory_int(addr, size).getAst() == value)
+        # else do not even push the constraint
 
 
     def concretize_memory_bytes(self, addr: Addr, size: ByteSize) -> None:
@@ -527,8 +585,9 @@ class ProcessState(object):
         :return: None
         """
         data = self.read_memory_bytes(addr, size)
-        for i in range(size):
-            self.push_constraint(self.read_symbolic_memory_byte(addr+i) == data[i])
+        if self.is_memory_symbolic(addr, size):
+            for i in range(size):
+                self.push_constraint(self.read_symbolic_memory_byte(addr+i).getAst() == data[i])
 
 
     def concretize_argument(self, index: int) -> None:
@@ -609,3 +668,13 @@ class ProcessState(object):
     def get_stack_value(self, index: int) -> int:
         addr = self.cpu.stack_pointer + (index * self.ptr_size)
         return self.read_memory_int(addr, self.ptr_size)
+
+
+    def pop_stack_value(self) -> int:
+        val = self.read_memory_ptr(self.cpu.stack_pointer)
+        self.cpu.stack_pointer += self.ptr_size
+        return val
+
+    def push_stack_value(self, value: int) -> None:
+        self.write_memory_ptr(self.cpu.stack_pointer-self.ptr_size, value)
+        self.cpu.stack_pointer -= self.ptr_size
