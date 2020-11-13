@@ -5,8 +5,9 @@ import re
 import sys
 import time
 
-from triton                   import *
+from triton                   import CPUSIZE, MemoryAccess
 from tritondse.thread_context import ThreadContext
+from tritondse.types          import Architecture
 
 
 def rtn_ctype_b_loc(se, pstate):
@@ -56,14 +57,14 @@ def rtn_ctype_b_loc(se, pstate):
 
     size   = pstate.ptr_size
     ptable = pstate.BASE_CTYPE
-    table  = (size * 2) + (pstate.BASE_CTYPE)
+    table  = (size * 2) + pstate.BASE_CTYPE
     otable = table + 256
 
-    pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(ptable + 0x00, size), otable)
-    pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(ptable + size, size), 0)
+    pstate.write_memory_ptr(ptable + 0x00, otable)
+    pstate.write_memory_ptr(ptable+size, 0)
 
     # FIXME: On pourrait la renvoyer qu'une seule fois ou la charger au demarage direct dans pstate
-    pstate.tt_ctx.setConcreteMemoryAreaValue(table, ctype)
+    pstate.write_memory_bytes(table, ctype)
 
     return ptable
 
@@ -76,7 +77,7 @@ def rtn_errno_location(se, pstate):
 
     # Errno is a int* ptr
     # Initialize it to zero
-    pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(pstate.ERRNO_PTR, CPUSIZE.DWORD), 0)
+    pstate.write_memory_int(pstate.ERRNO_PTR, CPUSIZE.DWORD, 0)
 
     return pstate.ERRNO_PTR
 
@@ -87,21 +88,17 @@ def rtn_libc_start_main(se, pstate):
     # Get arguments
     main = pstate.get_argument_value(0)
 
-    if pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
+    if pstate.architecture == Architecture.AARCH64:
         pstate.cpu.program_counter = main
 
-    elif pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
+    elif pstate.architecture == Architecture.X86_64:
         # Push the return value to jump into the main() function
-        pstate.cpu.stack_pointer -= CPUSIZE.QWORD
-
-        ret2main = MemoryAccess(pstate.cpu.stack_pointer, CPUSIZE.QWORD)
-        pstate.tt_ctx.concretizeMemory(ret2main)
-        pstate.tt_ctx.setConcreteMemoryValue(ret2main, main)
+        pstate.push_stack_value(main)
 
     # Define concrete value of argc
     argc = len(se.config.program_argv)
-    pstate.tt_ctx.setConcreteRegisterValue(pstate._get_argument_register(0), argc)
-    logging.debug('argc = %d' % (argc))
+    pstate.write_register(pstate._get_argument_register(0), argc)
+    logging.debug(f"argc = {argc}")
 
     # Define argv
     base = pstate.BASE_ARGV
@@ -111,23 +108,23 @@ def rtn_libc_start_main(se, pstate):
     for argv in se.config.program_argv:
         b_argv = argv.encode("latin-1")
         addrs.append(base)
-        pstate.tt_ctx.setConcreteMemoryAreaValue(base, b_argv + b'\x00')
+        pstate.write_memory_bytes(base, b_argv + b'\x00')
         # TODO: Si symbolize_args is True
         #for indexCell in range(len(argv)):
         #    if se.config.symbolize_argv:
         #        var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(base+indexCell, CPUSIZE.BYTE))
         #        var.setAlias('argv[%d][%d]' %(index, indexCell))
-        logging.debug('argv[%d] = %s' % (index, repr(pstate.tt_ctx.getConcreteMemoryAreaValue(base, len(b_argv)))))
+        logging.debug(f"argv[{index}] = {repr(pstate.read_memory_bytes(base, len(b_argv)))}")
         base += len(b_argv) + 1
         index += 1
 
     b_argv = base
     for addr in addrs:
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(base, CPUSIZE.QWORD), addr)
+        pstate.write_memory_ptr(base, addr)
         base += CPUSIZE.QWORD
 
     # Concrete value
-    pstate.tt_ctx.setConcreteRegisterValue(pstate._get_argument_register(1), b_argv)
+    pstate.write_register(pstate._get_argument_register(1), b_argv)
 
     return None
 
@@ -155,26 +152,26 @@ def rtn_xstat(se, pstate):
 
     if os.path.isfile(pstate.get_memory_string(arg1)):
         stat = os.stat(pstate.get_memory_string(arg1))
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x00, CPUSIZE.QWORD), stat.st_dev)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x08, CPUSIZE.QWORD), stat.st_ino)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x10, CPUSIZE.QWORD), stat.st_nlink)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x18, CPUSIZE.DWORD), stat.st_mode)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x1c, CPUSIZE.DWORD), stat.st_uid)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x20, CPUSIZE.DWORD), stat.st_gid)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x24, CPUSIZE.DWORD), 0)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x28, CPUSIZE.QWORD), stat.st_rdev)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x30, CPUSIZE.QWORD), stat.st_size)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x38, CPUSIZE.QWORD), stat.st_blksize)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x40, CPUSIZE.QWORD), stat.st_blocks)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x48, CPUSIZE.QWORD), 0)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x50, CPUSIZE.QWORD), 0)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x58, CPUSIZE.QWORD), 0)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x60, CPUSIZE.QWORD), 0)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x68, CPUSIZE.QWORD), 0)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x70, CPUSIZE.QWORD), 0)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x78, CPUSIZE.QWORD), 0)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x80, CPUSIZE.QWORD), 0)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg2 + 0x88, CPUSIZE.QWORD), 0)
+        pstate.write_memory_int(arg2 + 0x00, CPUSIZE.QWORD, stat.st_dev)
+        pstate.write_memory_int(arg2 + 0x08, CPUSIZE.QWORD, stat.st_ino)
+        pstate.write_memory_int(arg2 + 0x10, CPUSIZE.QWORD, stat.st_nlink)
+        pstate.write_memory_int(arg2 + 0x18, CPUSIZE.DWORD, stat.st_mode)
+        pstate.write_memory_int(arg2 + 0x1c, CPUSIZE.DWORD, stat.st_uid)
+        pstate.write_memory_int(arg2 + 0x20, CPUSIZE.DWORD, stat.st_gid)
+        pstate.write_memory_int(arg2 + 0x24, CPUSIZE.DWORD, 0)
+        pstate.write_memory_int(arg2 + 0x28, CPUSIZE.QWORD, stat.st_rdev)
+        pstate.write_memory_int(arg2 + 0x30, CPUSIZE.QWORD, stat.st_size)
+        pstate.write_memory_int(arg2 + 0x38, CPUSIZE.QWORD, stat.st_blksize)
+        pstate.write_memory_int(arg2 + 0x40, CPUSIZE.QWORD, stat.st_blocks)
+        pstate.write_memory_int(arg2 + 0x48, CPUSIZE.QWORD, 0)
+        pstate.write_memory_int(arg2 + 0x50, CPUSIZE.QWORD, 0)
+        pstate.write_memory_int(arg2 + 0x58, CPUSIZE.QWORD, 0)
+        pstate.write_memory_int(arg2 + 0x60, CPUSIZE.QWORD, 0)
+        pstate.write_memory_int(arg2 + 0x68, CPUSIZE.QWORD, 0)
+        pstate.write_memory_int(arg2 + 0x70, CPUSIZE.QWORD, 0)
+        pstate.write_memory_int(arg2 + 0x78, CPUSIZE.QWORD, 0)
+        pstate.write_memory_int(arg2 + 0x80, CPUSIZE.QWORD, 0)
+        pstate.write_memory_int(arg2 + 0x88, CPUSIZE.QWORD, 0)
         return 0
 
     return pstate.minus_one
@@ -185,21 +182,10 @@ def rtn_atoi(se, pstate):
     """ Simulate the atoi() function """
     logging.debug('atoi hooked')
 
-    ast = pstate.tt_ctx.getAstContext()
+    ast = pstate.actx
     arg = pstate.get_argument_value(0)
 
-    cells = {
-        0: pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 0, 1)),
-        1: pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 1, 1)),
-        2: pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 2, 1)),
-        3: pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 3, 1)),
-        4: pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 4, 1)),
-        5: pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 5, 1)),
-        6: pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 6, 1)),
-        7: pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 7, 1)),
-        8: pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 8, 1)),
-        9: pstate.tt_ctx.getMemoryAst(MemoryAccess(arg + 9, 1))
-    }
+    cells = {i: pstate.read_symbolic_memory_byte(arg+i).getAst() for i in range(10)}
 
     # FIXME: Does not support negative value and all other corner cases.
     # "000000000012372183762173"
@@ -256,10 +242,7 @@ def rtn_atoi(se, pstate):
           )
     res = ast.sx(32, res)
 
-    # create a new symbolic expression for this summary
-    expr = pstate.tt_ctx.newSymbolicExpression(res, "atoi summary")
-
-    return expr
+    return res
 
 
 # void *calloc(size_t nmemb, size_t size);
@@ -303,9 +286,8 @@ def rtn_clock_gettime(se, pstate):
     else:
         t = time.time()
 
-    s = pstate.ptr_size
-    pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp, s), int(t))
-    pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tp + s, s), int(t * 1000000))
+    pstate.write_memory_int(tp, pstate.ptr_size, int(t))
+    pstate.write_memory_int(tp+pstate.ptr_size, pstate.ptr_size, int(t * 1000000))
 
     # Return value
     return 0
@@ -355,7 +337,7 @@ def rtn_fgets(se, pstate):
         pstate.push_constraint(size_ast.getAst() == minsize)
 
         if se.seed:
-            pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
+            pstate.write_memory_bytes(buff, se.seed.content[:minsize])
         else:
             se.seed.content = b'\x00' * minsize
 
@@ -363,14 +345,14 @@ def rtn_fgets(se, pstate):
             var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
 
-        logging.debug('stdin = %s' % (repr(pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
+        logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
         return buff_ast
 
     if fd in pstate.fd_table:
         # We use fd as concret value
         pstate.concretize_argument(1)
         data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
-        pstate.tt_ctx.setConcreteMemoryAreaValue(buff, data)
+        pstate.write_memory_bytes(buff, data)
         return buff_ast
     else:
         logging.warning(f'File descriptor ({fd}) not found')
@@ -388,12 +370,8 @@ def rtn_fopen(se, pstate):
     arg0s = pstate.get_memory_string(arg0)
     arg1s = pstate.get_memory_string(arg1)
 
-    # We use pathname as concrete value
-    for i, c in enumerate(arg0s):
-        pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(arg0 + i, CPUSIZE.BYTE)) == ord(c))
-
-    # Ensure terminating with \0
-    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(arg0 + len(arg0s), CPUSIZE.BYTE)) == 0x00)
+    # Concretize the whole path name
+    pstate.concretize_memory_bytes(arg0, len(arg0s)+1)  # Concretize the whole string + \0
 
     # We use mode as concrete value
     pstate.concretize_argument(1)
@@ -517,7 +495,7 @@ def rtn_fread(se, pstate):
 
     if arg3 == 0 and se.config.symbolize_stdin:
         if se.seed:
-            pstate.tt_ctx.setConcreteMemoryAreaValue(arg0, se.seed.content[:minsize])
+            pstate.write_memory_bytes(arg0, se.seed.content[:minsize])
         else:
             se.seed.content = b'\x00' * minsize
 
@@ -525,13 +503,13 @@ def rtn_fread(se, pstate):
             var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(arg0 + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
 
-        logging.debug('stdin = %s' % (repr(pstate.tt_ctx.getConcreteMemoryAreaValue(arg0, minsize))))
+        logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
         # TODO: Could return the read value as a symbolic one
         return minsize
 
     elif arg3 in pstate.fd_table:
         data = pstate.fd_table[arg3].read(arg1 * arg2)
-        pstate.tt_ctx.setConcreteMemoryAreaValue(arg0, data)
+        pstate.write_memory_bytes(arg0, data)
 
     else:
         return 0
@@ -559,7 +537,7 @@ def rtn_fwrite(se, pstate):
     arg2 = pstate.get_argument_value(2)
     arg3 = pstate.get_argument_value(3)
     size = arg1 * arg2
-    data = pstate.tt_ctx.getConcreteMemoryAreaValue(arg0, size)
+    data = pstate.read_memory_bytes(arg0, size)
 
     if arg3 in pstate.fd_table:
         if arg3 == 0:
@@ -596,8 +574,8 @@ def rtn_gettimeofday(se, pstate):
         t = time.time()
 
     s = pstate.ptr_size
-    pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv, s), int(t))
-    pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(tv + s, s), int(t * 1000000))
+    pstate.write_memory_int(tv, s, int(t))
+    pstate.write_memory_int(tv+s, s, int(t * 1000000))
 
     # Return value
     return 0
@@ -621,25 +599,22 @@ def rtn_memcmp(se, pstate):
     s2 = pstate.get_argument_value(1)
     size = pstate.get_argument_value(2)
 
-    ast = pstate.tt_ctx.getAstContext()
+    ast = pstate.actx
     res = ast.bv(0, 64)
 
     # We constrain the logical value of size
     pstate.concretize_argument(2)
 
     for index in range(size):
-        cells1 = pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
-        cells2 = pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
+        cells1 = pstate.read_symbolic_memory_byte(s1+index).getAst()
+        cells2 = pstate.read_symbolic_memory_byte(s2+index).getAst()
         res = res + ast.ite(
                         cells1 == cells2,
                         ast.bv(0, 64),
                         ast.bv(1, 64)
                     )
 
-    # create a new symbolic expression for this summary
-    expr = pstate.tt_ctx.newSymbolicExpression(res, "memcmp summary")
-
-    return expr
+    return res
 
 
 def rtn_memcpy(se, pstate):
@@ -653,12 +628,9 @@ def rtn_memcpy(se, pstate):
     pstate.concretize_argument(2)
 
     for index in range(cnt):
-        dmem  = MemoryAccess(dst + index, CPUSIZE.BYTE)
-        smem  = MemoryAccess(src + index, CPUSIZE.BYTE)
-        cell = pstate.tt_ctx.getMemoryAst(smem)
-        expr = pstate.tt_ctx.newSymbolicExpression(cell, "memcpy byte")
-        pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
-        pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
+        # Read symbolic src value and copy symbolically in dst
+        sym_src = pstate.read_symbolic_memory_byte(src+index)
+        pstate.write_symbolic_memory_byte(dst+index, sym_src)
 
     return dst_ast
 
@@ -671,8 +643,8 @@ def rtn_memmem(se, pstate):
     needle      = pstate.get_argument_value(2)  # const void *
     needlelen   = pstate.get_argument_value(3)  # size_t
 
-    s1 = pstate.tt_ctx.getConcreteMemoryAreaValue(haystack, haystacklen)  # haystack
-    s2 = pstate.tt_ctx.getConcreteMemoryAreaValue(needle, needlelen)      # needle
+    s1 = pstate.read_memory_bytes(haystack, haystacklen)  # haystack
+    s2 = pstate.read_memory_bytes(needle, needlelen)      # needle
 
     offset = s1.find(s2)
     if offset == -1:
@@ -680,11 +652,9 @@ def rtn_memmem(se, pstate):
         return 0
 
     for i, c in enumerate(s2):
-        pstate.tt_ctx.pushPathConstraint(
-            pstate.tt_ctx.getMemoryAst(MemoryAccess(haystack + offset + i, CPUSIZE.BYTE))
-            ==
-            pstate.tt_ctx.getMemoryAst(MemoryAccess(needle + i, CPUSIZE.BYTE))
-        )
+        c1 = pstate.read_symbolic_memory_byte(haystack+offset+i)
+        c2 = pstate.read_symbolic_memory_byte(needle+i)
+        pstate.push_constraint(c1.getAst() == c2.getAst())
 
     # FIXME: à reflechir si on doit contraindre offset ou pas
 
@@ -702,19 +672,11 @@ def rtn_memmove(se, pstate):
     # We constrain the logical value of cnt
     pstate.concretize_argument(2)
 
-    src_cells = []
     # TODO: What if cnt is symbolic ?
     for index in range(cnt):
-        smem  = MemoryAccess(src + index, CPUSIZE.BYTE)
-        cell = pstate.tt_ctx.getMemoryAst(smem)
-        src_cells.append(cell)
-
-    for index in range(cnt):
-        dmem  = MemoryAccess(dst + index, CPUSIZE.BYTE)
-        cell = src_cells.pop(0)
-        expr = pstate.tt_ctx.newSymbolicExpression(cell, "memmove byte")
-        pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
-        pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
+        # Read symbolic src value and copy symbolically in dst
+        sym_src = pstate.read_symbolic_memory_byte(src+index)
+        pstate.write_symbolic_memory_byte(dst+index, sym_src)
 
     return dst_ast
 
@@ -729,13 +691,11 @@ def rtn_memset(se, pstate):
     # We constrain the logical value of size
     pstate.concretize_argument(2)
 
+    sym_cell = pstate.actx.extract(7, 0, src_ast.getAst())
+
     # TODO: What if size is symbolic ?
     for index in range(size):
-        dmem = MemoryAccess(dst + index, CPUSIZE.BYTE)
-        cell = pstate.tt_ctx.getAstContext().extract(7, 0, src_ast.getAst())
-        pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
-        expr = pstate.tt_ctx.newSymbolicExpression(cell, "memset byte")
-        pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
+        pstate.write_symbolic_memory_byte(dst+index, sym_cell)
 
     return dst_ast
 
@@ -803,7 +763,7 @@ def rtn_pthread_create(se, pstate):
     pstate.threads.update({tid: thread})
 
     # Save out the thread id
-    pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, pstate.ptr_size), tid)
+    pstate.write_memory_ptr(arg0, tid)
 
     # Return value
     return 0
@@ -845,9 +805,8 @@ def rtn_pthread_mutex_destroy(se, pstate):
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *restrict mutex
-    pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, pstate.ptr_size), pstate.PTHREAD_MUTEX_INIT_MAGIC)
+    pstate.write_memory_ptr(arg0, pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
-    # Return value
     return 0
 
 
@@ -858,9 +817,8 @@ def rtn_pthread_mutex_init(se, pstate):
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *restrict mutex
     arg1 = pstate.get_argument_value(1)  # const pthread_mutexattr_t *restrict attr)
 
-    pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(arg0, pstate.ptr_size), pstate.PTHREAD_MUTEX_INIT_MAGIC)
+    pstate.write_memory_ptr(arg0, pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
-    # Return value
     return 0
 
 
@@ -869,13 +827,12 @@ def rtn_pthread_mutex_lock(se, pstate):
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *mutex
-    mem = MemoryAccess(arg0, pstate.ptr_size)
-    mutex = pstate.tt_ctx.getConcreteMemoryValue(mem)
+    mutex = pstate.read_memory_ptr(arg0)  # deref pointer and read a uint64 int
 
     # If the thread has been initialized and unused, define the tid has lock
     if mutex == pstate.PTHREAD_MUTEX_INIT_MAGIC:
         logging.debug('mutex unlocked')
-        pstate.tt_ctx.setConcreteMemoryValue(mem, pstate.tid)
+        pstate.write_memory_ptr(arg0, pstate.tid)
 
     # The mutex is locked and we are not allowed to continue the execution
     elif mutex != pstate.tid:
@@ -891,9 +848,8 @@ def rtn_pthread_mutex_unlock(se, pstate):
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *mutex
-    mem = MemoryAccess(arg0, pstate.ptr_size)
 
-    pstate.tt_ctx.setConcreteMemoryValue(mem, pstate.PTHREAD_MUTEX_INIT_MAGIC)
+    pstate.write_memory_ptr(arg0, pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
     # Return value
     return 0
@@ -933,7 +889,7 @@ def rtn_read(se, pstate):
     if fd == 0 and se.config.symbolize_stdin:
         pstate.push_constraint(size_ast.getAst() == minsize)
         if se.seed:
-            pstate.tt_ctx.setConcreteMemoryAreaValue(buff, se.seed.content[:minsize])
+            pstate.write_memory_bytes(buff, se.seed.content[:minsize])
         else:
             se.seed.content = b'\x00' * minsize
 
@@ -941,14 +897,14 @@ def rtn_read(se, pstate):
             var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
 
-        logging.debug('stdin = %s' % (repr(pstate.tt_ctx.getConcreteMemoryAreaValue(buff, minsize))))
+        logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
         # TODO: Could return the read value as a symbolic one
         return minsize
 
     if fd in pstate.fd_table:
         pstate.concretize_argument(2)
         data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
-        pstate.tt_ctx.setConcreteMemoryAreaValue(buff, data)
+        pstate.write_memory_bytes(buff, data)
         return len(data)
 
     return 0
@@ -959,10 +915,9 @@ def rtn_sem_destroy(se, pstate):
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
-    mem = MemoryAccess(arg0, pstate.ptr_size)
 
     # Destroy the semaphore with the value
-    pstate.tt_ctx.setConcreteMemoryValue(mem, 0)
+    pstate.write_memory_ptr(arg0, 0)
 
     # Return success
     return 0
@@ -974,12 +929,11 @@ def rtn_sem_getvalue(se, pstate):
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
     arg1 = pstate.get_argument_value(1)  # int *sval
-    memIn = MemoryAccess(arg0, pstate.ptr_size)
-    memOut = MemoryAccess(arg1, CPUSIZE.DWORD)
-    value = pstate.tt_ctx.getConcreteMemoryValue(memIn)
+
+    value = pstate.read_memory_ptr(arg0)  # deref pointer
 
     # Set the semaphore's value into the output
-    pstate.tt_ctx.setConcreteMemoryValue(memOut, value)
+    pstate.write_memory_int(arg1, CPUSIZE.DWORD, value)  # WARNING: read uint64 to uint32
 
     # Return success
     return 0
@@ -992,10 +946,9 @@ def rtn_sem_init(se, pstate):
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
     arg1 = pstate.get_argument_value(1)  # int pshared
     arg2 = pstate.get_argument_value(2)  # unsigned int value
-    mem = MemoryAccess(arg0, pstate.ptr_size)
 
     # Init the semaphore with the value
-    pstate.tt_ctx.setConcreteMemoryValue(mem, arg2)
+    pstate.write_memory_ptr(arg0, arg2)
 
     # Return success
     return 0
@@ -1005,12 +958,10 @@ def rtn_sem_post(se, pstate):
     logging.debug('sem_post hooked')
 
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
-    mem  = MemoryAccess(arg0, pstate.ptr_size)
 
     # increments (unlocks) the semaphore pointed to by sem
-    value = pstate.tt_ctx.getConcreteMemoryValue(mem)
-
-    pstate.tt_ctx.setConcreteMemoryValue(mem, value + 1)
+    value = pstate.read_memory_ptr(arg0)
+    pstate.write_memory_ptr(arg0, value + 1)
 
     # Return success
     return 0
@@ -1019,10 +970,8 @@ def rtn_sem_post(se, pstate):
 def rtn_sem_timedwait(se, pstate):
     logging.debug('sem_timedwait hooked')
 
-    arg0  = pstate.get_argument_value(0)  # sem_t *sem
-    arg0m = MemoryAccess(arg0, pstate.ptr_size)
-    arg1  = pstate.get_argument_value(1)  # const struct timespec *abs_timeout
-    arg1m = MemoryAccess(arg1, pstate.ptr_size)
+    arg0 = pstate.get_argument_value(0)  # sem_t *sem
+    arg1 = pstate.get_argument_value(1)  # const struct timespec *abs_timeout
 
     # sem_timedwait() is the same as sem_wait(), except that abs_timeout specifies a limit
     # on the amount of time that the call should block if the decrement cannot be immediately
@@ -1043,10 +992,10 @@ def rtn_sem_timedwait(se, pstate):
     # abs_timeout is not checked in this case.
 
     # TODO: Take into account the abs_timeout argument
-    value = pstate.tt_ctx.getConcreteMemoryValue(arg0m)
+    value = pstate.read_memory_ptr(arg0)
     if value > 0:
         logging.debug('semaphore still not locked')
-        pstate.tt_ctx.setConcreteMemoryValue(arg0m, value - 1)
+        pstate.write_memory_ptr(arg0, value - 1)
         pstate.semaphore_locked = False
     else:
         logging.debug('semaphore locked')
@@ -1060,21 +1009,20 @@ def rtn_sem_trywait(se, pstate):
     logging.debug('sem_trywait hooked')
 
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
-    mem = MemoryAccess(arg0, pstate.ptr_size)
 
     # sem_trywait()  is  the  same as sem_wait(), except that if the decrement
     # cannot be immediately performed, then call returns an error (errno set to
     # EAGAIN) instead of blocking.
-    value = pstate.tt_ctx.getConcreteMemoryValue(mem)
+    value = pstate.read_memory_ptr(arg0)
     if value > 0:
         logging.debug('semaphore still not locked')
-        pstate.tt_ctx.setConcreteMemoryValue(mem, value - 1)
+        pstate.write_memory_ptr(arg0, value - 1)
         pstate.semaphore_locked = False
     else:
         logging.debug('semaphore locked but continue')
         pstate.semaphore_locked = False
         # Setting errno to EAGAIN (3406)
-        pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(pstate.ERRNO_PTR, CPUSIZE.DWORD), 3406)
+        pstate.write_memory_int(pstate.ERRNO_PTR, CPUSIZE.DWORD, 3406)
         # Return -1
         return pstate.minus_one
 
@@ -1086,17 +1034,16 @@ def rtn_sem_wait(se, pstate):
     logging.debug('sem_wait hooked')
 
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
-    mem = MemoryAccess(arg0, pstate.ptr_size)
 
     # decrements (locks) the semaphore pointed to by sem. If the semaphore's value
     # is greater than zero, then the decrement proceeds, and the function returns,
     # immediately. If the semaphore currently has the value zero, then the call blocks
     # until either it becomes possible to perform the decrement (i.e., the semaphore
     # value rises above zero).
-    value = pstate.tt_ctx.getConcreteMemoryValue(mem)
+    value = pstate.read_memory_ptr(arg0)
     if value > 0:
         logging.debug('semaphore still not locked')
-        pstate.tt_ctx.setConcreteMemoryValue(mem, value - 1)
+        pstate.write_memory_ptr(arg0, value - 1)
         pstate.semaphore_locked = False
     else:
         logging.debug('semaphore locked')
@@ -1138,12 +1085,11 @@ def rtn_sprintf(se, pstate):
 
     # FIXME: todo
 
-    index = 0
-    for c in s:
+    # FIXME: THIS SEEMS FUCKED UP
+    for index, c in enumerate(s):
         pstate.tt_ctx.concretizeMemory(buff + index)
         pstate.tt_ctx.setConcreteMemoryValue(buff + index, ord(c))
         pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(buff + index, 1)) == ord(c))
-        index += 1
 
     # including the terminating null byte ('\0')
     pstate.tt_ctx.setConcreteMemoryValue(buff + len(s), 0x00)
@@ -1169,19 +1115,16 @@ def rtn_strcasecmp(se, pstate):
 
     # FIXME: Il y a des truc chelou avec le +1 et le logic ci-dessous
 
-    ast = pstate.tt_ctx.getAstContext()
+    ast = pstate.actx
     res = ast.bv(0, pstate.ptr_bit_size)
     for index in range(size):
-        cells1 = pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
-        cells2 = pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
+        cells1 = pstate.read_symbolic_memory_byte(s1 + index).getAst()
+        cells2 = pstate.read_symbolic_memory_byte(s2 + index).getAst()
         cells1 = ast.ite(ast.land([cells1 >= ord('a'), cells1 <= ord('z')]), cells1 - 32, cells1) # upper case
         cells2 = ast.ite(ast.land([cells2 >= ord('a'), cells2 <= ord('z')]), cells2 - 32, cells2) # upper case
         res = res + ast.ite(cells1 == cells2, ast.bv(0, 64), ast.bv(1, 64))
 
-    # create a new symbolic expression for this summary
-    expr = pstate.tt_ctx.newSymbolicExpression(res, "strcasecmp summary")
-
-    return expr
+    return res
 
 
 def rtn_strchr(se, pstate):
@@ -1189,12 +1132,12 @@ def rtn_strchr(se, pstate):
 
     string = pstate.get_argument_value(0)
     char   = pstate.get_argument_value(1)
-    ast    = pstate.tt_ctx.getAstContext()
+    ast    = pstate.actx
 
     def rec(res, deep, maxdeep):
         if deep == maxdeep:
             return res
-        cell = pstate.tt_ctx.getMemoryAst(MemoryAccess(string + deep, 1))
+        cell = pstate.read_symbolic_memory_byte(string + deep).getAst()
         res  = ast.ite(cell == (char & 0xff), ast.bv(string + deep, 64), rec(res, deep + 1, maxdeep))
         return res
 
@@ -1202,13 +1145,10 @@ def rtn_strchr(se, pstate):
     res = rec(ast.bv(0, 64), 0, sze)
 
     for i, c in enumerate(pstate.get_memory_string(string)):
-        pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(string + i, CPUSIZE.BYTE)) != 0x00)
-    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(string + len(pstate.get_memory_string(string)), CPUSIZE.BYTE)) == 0x00)
+        pstate.push_constraint(pstate.read_symbolic_memory_byte(string+i).getAst() != 0x00)
+    pstate.push_constraint(pstate.read_symbolic_memory_byte(string+sze).getAst() == 0x00)
 
-    # create a new symbolic expression for this summary
-    expr = pstate.tt_ctx.newSymbolicExpression(res, "strchr summary")
-
-    return expr
+    return res
 
 
 def rtn_strcmp(se, pstate):
@@ -1228,17 +1168,14 @@ def rtn_strcmp(se, pstate):
 
     # FIXME: Il y a des truc chelou avec le +1 et le logic ci-dessous
 
-    ast = pstate.tt_ctx.getAstContext()
+    ast = pstate.actx
     res = ast.bv(0, 64)
     for index in range(size):
-        cells1 = pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
-        cells2 = pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
+        cells1 = pstate.read_symbolic_memory_byte(s1 + index).getAst()
+        cells2 = pstate.read_symbolic_memory_byte(s2 + index).getAst()
         res = res + ast.ite(cells1 == cells2, ast.bv(0, 64), ast.bv(1, 64))
 
-    # create a new symbolic expression for this summary
-    expr = pstate.tt_ctx.newSymbolicExpression(res, "strcmp summary")
-
-    return expr
+    return res
 
 
 def rtn_strcpy(se, pstate):
@@ -1246,22 +1183,18 @@ def rtn_strcpy(se, pstate):
 
     dst  = pstate.get_argument_value(0)
     src  = pstate.get_argument_value(1)
-    size = len(pstate.get_memory_string(src))
+    src_str = pstate.get_memory_string(src)
+    size = len(src_str)
 
-    for i, c in enumerate(pstate.get_memory_string(src)):
-        pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(src + i, CPUSIZE.BYTE)) != 0x00)
-    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(src + size, CPUSIZE.BYTE)) == 0x00)
+    # constraint src buff to be != \00 and last one to be \00 (indirectly concretize length)
+    for i, c in enumerate(src_str):
+        pstate.push_constraint(pstate.read_symbolic_memory_byte(src + i).getAst() != 0x00)
+    pstate.push_constraint(pstate.read_symbolic_memory_byte(src + size).getAst() == 0x00)
 
-    for index in range(size):
-        dmem = MemoryAccess(dst + index, CPUSIZE.BYTE)
-        smem = MemoryAccess(src + index, CPUSIZE.BYTE)
-        cell = pstate.tt_ctx.getMemoryAst(smem)
-        expr = pstate.tt_ctx.newSymbolicExpression(cell, "strcpy byte")
-        pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
-        pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
-
-    # including the terminating null byte ('\0')
-    pstate.tt_ctx.setConcreteMemoryValue(dst + size, 0x00)
+    # Copy symbolically bytes (including \00)
+    for index in range(size+1):
+        sym_c = pstate.read_symbolic_memory_byte(src+index)
+        pstate.write_symbolic_memory_byte(dst+index, sym_c)
 
     return dst
 
@@ -1271,12 +1204,13 @@ def rtn_strlen(se, pstate):
 
     # Get arguments
     s = pstate.get_argument_value(0)
-    ast = pstate.tt_ctx.getAstContext()
+    ast = pstate.actx
 
+    # FIXME: Not so sure its is really the strlen semantic
     def rec(res, s, deep, maxdeep):
         if deep == maxdeep:
             return res
-        cell = pstate.tt_ctx.getMemoryAst(MemoryAccess(s + deep, 1))
+        cell = pstate.read_symbolic_memory_byte(s+deep).getAst()
         res  = ast.ite(cell == 0x00, ast.bv(deep, 64), rec(res, s, deep + 1, maxdeep))
         return res
 
@@ -1284,14 +1218,14 @@ def rtn_strlen(se, pstate):
     res = ast.bv(sze, 64)
     res = rec(res, s, 0, sze)
 
-    # FIXME: enumerate != 0 ?
+    # FIXME: That routine should do something like below to be SOUND !
+    # for i, c in enumerate(pstate.get_memory_string(src)):
+    #     pstate.push_constraint(pstate.read_symbolic_memory_byte(src + i) != 0x00)
+    # pstate.push_constraint(pstate.read_symbolic_memory_byte(src + size) == 0x00)
 
-    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s + sze, CPUSIZE.BYTE)) == 0x00)
+    pstate.push_constraint(pstate.read_symbolic_memory_byte(s+sze).getAst() == 0x00)
 
-    # create a new symbolic expression for this summary
-    expr = pstate.tt_ctx.newSymbolicExpression(res, "strlen summary")
-
-    return expr
+    return res
 
 
 def rtn_strncasecmp(se, pstate):
@@ -1302,19 +1236,16 @@ def rtn_strncasecmp(se, pstate):
     sz = pstate.get_argument_value(2)
     maxlen = min(sz, min(len(pstate.get_memory_string(s1)), len(pstate.get_memory_string(s2))) + 1)
 
-    ast = pstate.tt_ctx.getAstContext()
+    ast = pstate.actx
     res = ast.bv(0, pstate.ptr_bit_size)
     for index in range(maxlen):
-        cells1 = pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
-        cells2 = pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
+        cells1 = pstate.read_symbolic_memory_byte(s1 + index).getAst()
+        cells2 = pstate.read_symbolic_memory_byte(s2 + index).getAst()
         cells1 = ast.ite(ast.land([cells1 >= ord('a'), cells1 <= ord('z')]), cells1 - 32, cells1) # upper case
         cells2 = ast.ite(ast.land([cells2 >= ord('a'), cells2 <= ord('z')]), cells2 - 32, cells2) # upper case
         res = res + ast.ite(cells1 == cells2, ast.bv(0, 64), ast.bv(1, 64))
 
-    # create a new symbolic expression for this summary
-    expr = pstate.tt_ctx.newSymbolicExpression(res, "strncasecmp summary")
-
-    return expr
+    return res
 
 
 def rtn_strncmp(se, pstate):
@@ -1325,17 +1256,14 @@ def rtn_strncmp(se, pstate):
     sz = pstate.get_argument_value(2)
     maxlen = min(sz, min(len(pstate.get_memory_string(s1)), len(pstate.get_memory_string(s2))) + 1)
 
-    ast = pstate.tt_ctx.getAstContext()
+    ast = pstate.actx
     res = ast.bv(0, 64)
     for index in range(maxlen):
-        cells1 = pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + index, 1))
-        cells2 = pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + index, 1))
+        cells1 = pstate.read_symbolic_memory_byte(s1 + index).getAst()
+        cells2 = pstate.read_symbolic_memory_byte(s2 + index).getAst()
         res = res + ast.ite(cells1 == cells2, ast.bv(0, 64), ast.bv(1, 64))
 
-    # create a new symbolic expression for this summary
-    expr = pstate.tt_ctx.newSymbolicExpression(res, "strncmp summary")
-
-    return expr
+    return res
 
 
 def rtn_strncpy(se, pstate):
@@ -1348,17 +1276,14 @@ def rtn_strncpy(se, pstate):
     pstate.concretize_argument(2)
 
     for index in range(cnt):
-        dmem = MemoryAccess(dst + index, CPUSIZE.BYTE)
-        smem = MemoryAccess(src + index, CPUSIZE.BYTE)
-        cell = pstate.tt_ctx.getMemoryAst(smem)
-        expr = pstate.tt_ctx.newSymbolicExpression(cell, "strncpy byte")
-        pstate.tt_ctx.setConcreteMemoryValue(dmem, cell.evaluate())
-        pstate.tt_ctx.assignSymbolicExpressionToMemory(expr, dmem)
-        if cell.evaluate() == 0:
-            pstate.tt_ctx.pushPathConstraint(cell == 0x00)
+        src_sym = pstate.read_symbolic_memory_byte(src+index)
+        pstate.write_symbolic_memory_byte(dst+index, src_sym)
+
+        if src_sym.getAst().evaluate() == 0:
+            pstate.push_constraint(src_sym.getAst() == 0x00)
             break
         else:
-            pstate.tt_ctx.pushPathConstraint(cell != 0x00)
+            pstate.push_constraint(src_sym.getAst() != 0x00)
 
     return dst
 
@@ -1369,8 +1294,7 @@ def rtn_strtok_r(se, pstate):
     string  = pstate.get_argument_value(0)
     delim   = pstate.get_argument_value(1)
     saveptr = pstate.get_argument_value(2)
-    saveMem = pstate.tt_ctx.getConcreteMemoryValue(MemoryAccess(saveptr, pstate.ptr_size))
-    actx    = pstate.tt_ctx.getAstContext()
+    saveMem = pstate.read_memory_ptr(saveptr)
 
     if string == 0:
         string = saveMem
@@ -1385,14 +1309,14 @@ def rtn_strtok_r(se, pstate):
         if token:
             offset = s.find(token)
             # Init the \0 at the delimiter position
-            node = pstate.tt_ctx.getMemoryAst(MemoryAccess(string + offset + len(token), 1))
+            node = pstate.read_symbolic_memory_byte(string + offset + len(token)).getAst()
             try:
-                pstate.tt_ctx.pushPathConstraint(actx.lor([node == ord(c) for c in d]))
-            except:
-                pstate.tt_ctx.pushPathConstraint(node == ord(d))
-            pstate.tt_ctx.setConcreteMemoryValue(string + offset + len(token), 0)
+                pstate.push_constraint(pstate.actx.lor([node == ord(c) for c in d]))
+            except:  # dafuck is that?
+                pstate.push_constraint(node == ord(d))
+            pstate.write_memory_byte(string + offset + len(token), 0)
             # Save the pointer
-            pstate.tt_ctx.setConcreteMemoryValue(MemoryAccess(saveptr, pstate.ptr_size), string + offset + len(token) + 1)
+            pstate.write_memory_ptr(saveptr, string + offset + len(token) + 1)
             # Return the token
             return string + offset
 
@@ -1408,7 +1332,7 @@ def rtn_strtoul(se, pstate):
     base   = pstate.get_argument_value(2)
 
     for i, c in enumerate(nptrs):
-        pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(nptr + i, CPUSIZE.BYTE)) == ord(c))
+        pstate.push_constraint(pstate.read_symbolic_memory_byte(nptr+i).getAst() == ord(c))
 
     pstate.concretize_argument(2)  # Concretize base
 
