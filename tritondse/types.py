@@ -25,6 +25,9 @@ Input = bytes
 Register = TypeVar('Register')
 """Register object as returned by Triton"""
 
+Registers = TypeVar('Registers')
+"""Set of registers as returned by Triton"""
+
 PathConstraint = TypeVar('PathConstraint')
 """ PathConstraint object as returned by Triton"""
 
@@ -33,6 +36,10 @@ AstNode = TypeVar('AstNode')
 
 Model = TypeVar('Model')
 """ Solver Model as returned by Triton """
+
+Expression = TypeVar('Expression')
+""" Symbolic Expression as returned by Triton (SymbolicExpression) """
+
 
 if sys.version_info.minor >= 8:
     from typing import TypedDict
@@ -65,11 +72,3 @@ class Solver(IntEnum):
     UNSAT   = SOLVER.UNSAT
     TIMEOUT = SOLVER.TIMEOUT
     UNKNOWN = SOLVER.UNKNOWN
-
-
-class ConcSymAction(Enum):
-    """ Enumeration to represent an action to perform on some
-    symbolic data, namely wether or not keep them concrete or
-    to symbolize them"""
-    CONCRETIZE = auto()
-    SYMBOLIZE  = auto()
