@@ -136,9 +136,8 @@ def rtn_stack_chk_fail(se, pstate):
     """
     logging.debug('__stack_chk_fail hooked')
     logging.critical('*** stack smashing detected ***: terminated')
-    pstate.stop = True
     se.seed.status = SeedStatus.CRASH
-    return None
+    se.abort()
 
 
 # int __xstat(int ver, const char* path, struct stat* stat_buf);
