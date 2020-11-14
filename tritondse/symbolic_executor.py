@@ -3,18 +3,18 @@ import logging
 import time
 import random
 import os
+from typing import Optional, Union
 
 # third party imports
 from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess
 
 # local imports
-from tritondse.abi            import ABI
 from tritondse.config         import Config
 from tritondse.coverage       import CoverageSingleRun
 from tritondse.process_state  import ProcessState
 from tritondse.program        import Program
 from tritondse.seed           import Seed, SeedStatus
-from tritondse.types          import ConcSymAction
+from tritondse.types          import Expression, Architecture
 from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks      import CallbackManager
 from tritondse.workspace      import Workspace
@@ -33,7 +33,6 @@ class SymbolicExecutor(object):
         if self.workspace is None:
             self.workspace = Workspace(config.workspace)
         self.seed       = seed              # The current seed used to the execution
-        self.abi        = ABI(self.pstate)  # ABI interface
         self.coverage   = CoverageSingleRun(self.config.coverage_strategy) # The coverage state
         self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
         self.uid        = uid               # Unique identifier meant to unique accross Exploration instances
@@ -58,12 +57,6 @@ class SymbolicExecutor(object):
         self.pstate.tt_ctx.setMode(MODE.CONSTANT_FOLDING, True)
         self.pstate.tt_ctx.setMode(MODE.ONLY_ON_SYMBOLIZED, True)
         self.pstate.tt_ctx.setSolverTimeout(self.config.smt_timeout)
-
-
-    def __init_registers(self):
-        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_bp_register(), self.pstate.BASE_STACK)
-        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_sp_register(), self.pstate.BASE_STACK)
-        self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), self.program.entry_point)
 
 
     def __schedule_thread(self):
@@ -95,7 +88,7 @@ class SymbolicExecutor(object):
             self.__schedule_thread()
 
             # Fetch opcodes
-            pc = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_pc_register())
+            pc = self.pstate.cpu.program_counter
             opcodes = self.pstate.tt_ctx.getConcreteMemoryAreaValue(pc, 16)
 
             if (self.pstate.tid and pc == 0) or self.pstate.threads[self.pstate.tid].killed:
@@ -172,23 +165,21 @@ class SymbolicExecutor(object):
         return
 
 
-    def __handle_external_return(self, ret):
+    def __handle_external_return(self, routine_name: str, ret_val: Optional[Union[int, Expression]]) -> None:
         """ Symbolize or concretize return values of external functions """
-        if ret is not None:
-            if ret[0] == ConcSymAction.CONCRETIZE:
-                self.pstate.tt_ctx.concretizeRegister(self.abi.get_ret_register())
-                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1]) # setup symbolic state
-
-            elif ret[0] == ConcSymAction.SYMBOLIZE:
-                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_ret_register(), ret[1].getAst().evaluate()) # setup concrete state
-                self.pstate.tt_ctx.assignSymbolicExpressionToRegister(ret[1], self.abi.get_ret_register()) # setup symbolic state
-        return
+        if ret_val is not None:
+            reg = self.pstate.return_register
+            if isinstance(ret_val, int): # Write its concrete value
+                self.pstate.write_register(reg, ret_val)
+            else:  # It should be a logic expression
+                self.pstate.write_symbolic_register(reg, ret_val, f"(routine {routine_name}")
 
 
     def routines_handler(self, instruction):
-        pc = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_pc_register())
+        pc = self.pstate.cpu.program_counter
         if pc in self.rtn_table:
             routine_name, routine = self.rtn_table[pc]
+            logging.debug(f"Enter external routine: {routine_name}")
 
             # Trigger pre-address callback
             pre_cbs, post_cbs = self.cbm.get_imported_routine_callbacks(routine_name)
@@ -196,8 +187,8 @@ class SymbolicExecutor(object):
                 cb(self, self.pstate, routine_name, pc)
 
             # Emulate the routine and the return value
-            ret = routine(self)
-            self.__handle_external_return(ret)
+            ret_val = routine(self, self.pstate)
+            self.__handle_external_return(routine_name, ret_val)
 
             # Trigger post-address callbacks
             for cb in post_cbs:
@@ -206,7 +197,7 @@ class SymbolicExecutor(object):
             # Do not continue the execution if we are in a locked mutex
             if self.pstate.mutex_locked:
                 self.pstate.mutex_locked = False
-                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), instruction.getAddress())
+                self.pstate.cpu.program_counter = instruction.getAddress()
                 # It's locked, so switch to another thread
                 self.pstate.threads[self.pstate.tid].count = 0
                 return
@@ -214,29 +205,28 @@ class SymbolicExecutor(object):
             # Do not continue the execution if we are in a locked semaphore
             if self.pstate.semaphore_locked:
                 self.pstate.semaphore_locked = False
-                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), instruction.getAddress())
+                self.pstate.cpu.program_counter = instruction.getAddress()
                 # It's locked, so switch to another thread
                 self.pstate.threads[self.pstate.tid].count = 0
                 return
 
-            if self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
+            # FIXME: What the fuck is that ?
+            if self.pstate.architecture == Architecture.AARCH64:
                 # Get the return address
                 if routine_name == "__libc_start_main":
-                    ret_addr = self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_pc_register())
+                    ret_addr = self.pstate.cpu.program_counter
                 else:
                     ret_addr = self.pstate.tt_ctx.getConcreteRegisterValue(self.pstate.tt_ctx.registers.x30)
 
-            elif self.pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
-                # Get the return address
-                ret_addr = self.pstate.tt_ctx.getConcreteMemoryValue(MemoryAccess(self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_sp_register()), CPUSIZE.QWORD))
-                # Restore RSP (simulate the ret)
-                self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_sp_register(), self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_sp_register()) + CPUSIZE.QWORD)
+            elif self.pstate.architecture == Architecture.X86_64:
+                # Get the return address and restore RSP (simulate RET)
+                ret_addr = self.pstate.pop_stack_value()
 
             else:
                 raise Exception("Architecture not supported")
 
             # Hijack RIP to skip the call
-            self.pstate.tt_ctx.setConcreteRegisterValue(self.abi.get_pc_register(), ret_addr)
+            self.pstate.cpu.program_counter = ret_addr
 
 
     def _apply_dynamic_relocations(self) -> None:
@@ -257,7 +247,7 @@ class SymbolicExecutor(object):
                 self.rtn_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
 
                 # Apply relocation to our custom address in process memory
-                self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
+                self.pstate.write_memory_ptr(rel_addr, cur_linkage_address)
 
                 # Increment linkage address number
                 cur_linkage_address += self.pstate.ptr_size
@@ -269,11 +259,11 @@ class SymbolicExecutor(object):
                 logging.debug(f"Hooking {sname} at {rel_addr:#x}")
                 if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
                     if self.pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
-                        self.pstate.write_memory(rel_addr, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
+                        self.pstate.write_memory_ptr(rel_addr, SUPORTED_GVARIABLES[sname])
 
                     elif self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
-                        self.pstate.write_memory(rel_addr, self.pstate.ptr_size, cur_linkage_address)
-                        self.pstate.write_memory(cur_linkage_address, self.pstate.ptr_size, SUPORTED_GVARIABLES[sname])
+                        self.pstate.write_memory_ptr(rel_addr, cur_linkage_address)
+                        self.pstate.write_memory_ptr(cur_linkage_address, SUPORTED_GVARIABLES[sname])
                         cur_linkage_address += self.pstate.ptr_size
                 else:
                     logging.warning(f"symbol {sname} imported but unsupported")
@@ -284,14 +274,14 @@ class SymbolicExecutor(object):
 
     def run(self):
         # Initialize the process_state architecture (at this point arch is sure to be supported)
-        logging.debug(f"Loading an {self.program.architecture.name} architecture")
-        self.pstate.architecture = self.program.architecture
+        logging.debug(f"Loading program {self.program.path.name} [{self.program.architecture}]")
 
-        # bind dbm callbacks on the process state
-        self.cbm.bind_to(self)  # bind call
-
+        # Initialize ProcessState context & optimizations
+        self.pstate.initialize_context(self.program.architecture)
         self.__init_optimization()
-        self.__init_registers()
+
+        # bind dbm callbacks on the process state (newly initialized)
+        self.cbm.bind_to(self)  # bind call
 
         # Load the program in process memory and apply dynamic relocations
         self.pstate.load_program(self.program)
@@ -317,8 +307,8 @@ class SymbolicExecutor(object):
             cb(self, self.pstate)
 
         self.endTime = time.time()
-        logging.info('Emulation done')
-        logging.info('Return value: %#x' % (self.pstate.tt_ctx.getConcreteRegisterValue(self.abi.get_ret_register())))
+        logging.info("Emulation done")
+        logging.info(f"Return value: 0x{self.pstate.read_register(self.pstate.return_register):x}")
         logging.info('Instructions executed: %d' % self.coverage.total_instruction_executed)
         logging.info('Symbolic branch constraints: %d' % (len(self.pstate.tt_ctx.getPathConstraints())))
         logging.info('Total execution time: %d seconds' % (self.endTime - self.startTime))
