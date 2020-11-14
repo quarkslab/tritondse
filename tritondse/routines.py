@@ -8,6 +8,7 @@ import time
 from triton                   import CPUSIZE, MemoryAccess
 from tritondse.thread_context import ThreadContext
 from tritondse.types          import Architecture
+from tritondse.seed           import SeedStatus
 
 
 def rtn_ctype_b_loc(se, pstate):
@@ -134,7 +135,9 @@ def rtn_stack_chk_fail(se, pstate):
     Pure emulation.
     """
     logging.debug('__stack_chk_fail hooked')
+    logging.critical('*** stack smashing detected ***: terminated')
     pstate.stop = True
+    se.seed.status = SeedStatus.CRASH
     return None
 
 
@@ -376,9 +379,13 @@ def rtn_fopen(se, pstate):
     # We use mode as concrete value
     pstate.concretize_argument(1)
 
-    fd = open(arg0s, arg1s)
-    fd_id = pstate.get_unique_file_id()
-    pstate.fd_table.update({fd_id: fd})
+    try:
+        fd = open(arg0s, arg1s)
+        fd_id = se.pstate.get_unique_file_id()
+        se.pstate.fd_table.update({fd_id: fd})
+    except:
+        # Return value
+        return 0
 
     # Return value
     return fd_id
@@ -404,7 +411,12 @@ def rtn_fprintf(se, pstate):
     arg1f = pstate.get_format_string(arg1)
     nbArgs = arg1f.count("{")
     args = pstate.get_format_arguments(arg1, [arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
-    s = arg1f.format(*args)
+    try:
+        s = arg1f.format(*args)
+    except:
+        # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
+        logging.warning('Something wrong, probably UTF-8 string')
+        s = ""
 
     if arg0 in pstate.fd_table:
         pstate.fd_table[arg0].write(s)
@@ -717,7 +729,12 @@ def rtn_printf(se, pstate):
     arg0f = pstate.get_format_string(arg0)
     nbArgs = arg0f.count("{")
     args = pstate.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
-    s = arg0f.format(*args)
+    try:
+        s = arg0f.format(*args)
+    except:
+        # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
+        logging.warning('Something wrong, probably UTF-8 string')
+        s = ""
 
     pstate.fd_table[1].write(s)
     pstate.fd_table[1].flush()
@@ -1081,11 +1098,16 @@ def rtn_sprintf(se, pstate):
     arg0f = pstate.get_format_string(arg0)
     nbArgs = arg0f.count("{")
     args = pstate.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7][:nbArgs])
-    s = arg0f.format(*args)
+    try:
+        s = arg0f.format(*args)
+    except:
+        # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
+        logging.warning('Something wrong, probably UTF-8 string')
+        s = ""
 
     # FIXME: todo
 
-    # FIXME: THIS SEEMS FUCKED UP
+    # FIXME: THIS SEEMS NOT OK
     for index, c in enumerate(s):
         pstate.tt_ctx.concretizeMemory(buff + index)
         pstate.tt_ctx.setConcreteMemoryValue(buff + index, ord(c))

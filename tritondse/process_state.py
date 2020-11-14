@@ -2,7 +2,8 @@
 import sys
 import time
 import logging
-from typing import Union, Callable, Tuple
+from typing import Union, Callable, Tuple, Optional
+
 
 # third-party
 from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction
@@ -91,8 +92,14 @@ class ProcessState(object):
         self.thread_scheduling_count = thread_scheduling
         self.time_inc_coefficient = time_coefficient
 
-        # runtime temporary variables
+        # Runtime temporary variables
         self.__pcs_updated = False
+
+        # The current instruction executed
+        self.__current_inst = None
+
+        # The memory mapping of the program ({vaddr_s : vaddr_e})
+        self.__program_segments_mapping = {}
 
 
     def get_unique_thread_id(self):
@@ -205,6 +212,36 @@ class ProcessState(object):
         for vaddr, data in p.memory_segments():
             logging.debug(f"Loading {vaddr:#08x} - {vaddr+len(data):#08x}")
             self.tt_ctx.setConcreteMemoryAreaValue(vaddr, data)
+            size = len(data)
+            if vaddr in self.__program_segments_mapping and self.__program_segments_mapping[vaddr] > vaddr + size:
+                # If we already have a vaddr entry, keep the larger one
+                pass
+            else:
+                self.__program_segments_mapping.update({vaddr : vaddr + size})
+
+
+    def is_valid_memory_mapping(self, ptr, padding_segment=0) -> bool:
+        valid_access = False
+
+        # Check stack area
+        if ptr <= self.BASE_STACK and ptr >= self.END_STACK:
+            valid_access = True
+
+        # Check heap area
+        if ptr >= self.BASE_HEAP and ptr <= self.END_HEAP:
+            if self.is_heap_ptr(ptr) and self.heap_allocator.is_ptr_allocated(ptr):
+                valid_access = True
+
+        # Check other areas
+        if ptr >= self.BASE_PLT and ptr <= self.ERRNO_PTR + CPUSIZE.QWORD:
+            valid_access = True
+
+        # Check segments mapping
+        for vaddr_s, vaddr_e in self.__program_segments_mapping.items():
+            if ptr >= vaddr_s and ptr < vaddr_e + padding_segment:
+                valid_access = True
+
+        return valid_access
 
 
     def read_register(self, register: Union[str, Register]) -> int:
@@ -361,7 +398,9 @@ class ProcessState(object):
         self.__pcs_updated = False
         __len_pcs = self.tt_ctx.getPathPredicateSize()
 
-        ret = self.tt_ctx.processing(instruction)
+        self.tt_ctx.disassembly(instruction)
+        self.__current_inst = instruction
+        ret = self.tt_ctx.buildSemantics(instruction)
 
         # Simulate that the time of an executed instruction is time_inc_coefficient.
         # For example, if time_inc_coefficient is 0.0001, it means that an instruction
@@ -390,6 +429,14 @@ class ProcessState(object):
         :return:
         """
         return self.tt_ctx.getPathConstraints()[-1]
+
+
+    @property
+    def current_instruction(self) -> Optional[Instruction]:
+        """
+        Return the current Instruction.
+        """
+        return self.__current_inst
 
 
     def get_memory_string(self, addr: Addr) -> str:
