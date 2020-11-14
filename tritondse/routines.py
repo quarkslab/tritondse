@@ -435,7 +435,12 @@ def rtn_fprintf(se):
     arg1f = se.abi.get_format_string(arg1)
     nbArgs = arg1f.count("{")
     args = se.abi.get_format_arguments(arg1, [arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
-    s = arg1f.format(*args)
+    try:
+        s = arg1f.format(*args)
+    except:
+        # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
+        logging.warning('Something wrong, probably UTF-8 string')
+        s = ""
 
     if arg0 in se.pstate.fd_table:
         se.pstate.fd_table[arg0].write(s)
@@ -766,7 +771,12 @@ def rtn_printf(se):
     arg0f = se.abi.get_format_string(arg0)
     nbArgs = arg0f.count("{")
     args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
-    s = arg0f.format(*args)
+    try:
+        s = arg0f.format(*args)
+    except:
+        # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
+        logging.warning('Something wrong, probably UTF-8 string')
+        s = ""
 
     se.pstate.fd_table[1].write(s)
     se.pstate.fd_table[1].flush()
@@ -967,7 +977,7 @@ def rtn_sem_destroy(se):
     logging.debug('sem_destroy hooked')
 
     # Get arguments
-    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_ret_register(0))  # sem_t *sem
+    arg0 = se.pstate.tt_ctx.getConcreteRegisterValue(se.abi.get_arg_register(0))  # sem_t *sem
     mem = MemoryAccess(arg0, se.pstate.ptr_size)
 
     # Destroy the semaphore with the value
@@ -1143,7 +1153,12 @@ def rtn_sprintf(se):
     arg0f = se.abi.get_format_string(arg0)
     nbArgs = arg0f.count("{")
     args = se.abi.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7][:nbArgs])
-    s = arg0f.format(*args)
+    try:
+        s = arg0f.format(*args)
+    except:
+        # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
+        logging.warning('Something wrong, probably UTF-8 string')
+        s = ""
 
     # FIXME: todo
 
