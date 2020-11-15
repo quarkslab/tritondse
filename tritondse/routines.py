@@ -1335,6 +1335,13 @@ def rtn_strtok_r(se, pstate):
                 pstate.push_constraint(pstate.actx.lor([node == ord(c) for c in d]))
             except:  # dafuck is that?
                 pstate.push_constraint(node == ord(d))
+
+            # Token must not contain delimiters
+            for index, char in enumerate(token):
+                node = pstate.read_symbolic_memory_byte(string + offset + index).getAst()
+                for delim in d:
+                    pstate.push_constraint(node != ord(delim))
+
             pstate.write_memory_byte(string + offset + len(token), 0)
             # Save the pointer
             pstate.write_memory_ptr(saveptr, string + offset + len(token) + 1)
