@@ -645,8 +645,12 @@ class ProcessState(object):
         :param index: Argument index
         :return: None
         """
-        reg = self._get_argument_register(index)
-        self.concretize_register(reg)
+        try:
+            self.concretize_register(self._get_argument_register(index))
+        except IndexError:
+            len_args = len(self._archinfo.reg_args)
+            addr = self.cpu.stack_pointer + ((index-len_args) * self.ptr_size)  # Retrieve stack address
+            self.concretize_memory_int(addr, self.ptr_size)                     # Concretize the value at this addr
 
 
     def get_argument_value(self, i: int) -> int:
