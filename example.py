@@ -18,33 +18,21 @@ config.time_inc_coefficient = 0.00001
 config.coverage_strategy    = CoverageStrategy.EDGE_COVERAGE
 config.symbolize_stdin      = True
 config.program_argv         = [
-    #b'../aarch64/micro_http_server_tt_fuzz_single_without_vuln',
-    '../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_with_vuln',
-    'wlp0s20f3',
-    '48:e2:44:f5:9b:01',
-    '10.0.13.86',
-    '255.255.255.0',
-    '10.0.13.254'
-    #b'/home/jonathan/Works/QuarksLab/Missions/pastis/programme_etalon_etatique/bin/target'
+    '../cyclonetcp_harness/harness/harness_triton_vuln_ON'
 ]
 
 try:
-    #program = Program('../aarch64/micro_http_server_tt_fuzz_single_without_vuln')
-    program = Program('../programme_etalon_final/micro_http_server/micro_http_server_tt_fuzz_single_with_vuln')
-    #program = Program('/home/jonathan/Works/QuarksLab/Missions/pastis/programme_etalon_etatique/bin/target')
+    program = Program('../cyclonetcp_harness/harness/harness_triton_vuln_ON')
+    seed = Seed.from_file('../cyclonetcp_harness/harness/misc/mark_frame.seed')
 except FileNotFoundError as e:
     print(e)
     sys.exit(-1)
 
-seed = Seed.from_file('../programme_etalon_final/micro_http_server/misc/frame.seed')
-#seed = SeedFile('/home/jonathan/Works/QuarksLab/Missions/pastis/programme_etalon_etatique/fuzzing/in/tcp_echo_1')
-#seed = SeedFile('/home/jonathan/Works/QuarksLab/Missions/pastis/programme_etalon_etatique/fuzzing/in/frame_ip4_tcp_syn')
+#dse = SymbolicExplorator(config, program)
+#dse.add_input_seed(seed)
+#dse.explore()
 
-dse = SymbolicExplorator(config, program)
-dse.add_input_seed(seed)
-dse.explore()
-
-# ps = ProcessState(config.thread_scheduling, config.time_inc_coefficient)
-# execution = SymbolicExecutor(config, ps, program, seed)
+ps = ProcessState(config.thread_scheduling, config.time_inc_coefficient)
+execution = SymbolicExecutor(config, ps, program, seed)
 #execution.callback_manager.register_post_instuction_callback(trace_debug)
-# execution.run()
+execution.run()
