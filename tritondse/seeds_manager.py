@@ -52,13 +52,16 @@ class SeedManager:
         return sum(seed in x for x in [self.corpus, self.crash, self.hangs]) == 0
 
 
-    def post_execution(self, execution: SymbolicExecutor, seed: Seed) -> None:
-        # Update instructions covered from the last execution into our exploration coverage
-        self.coverage.merge(execution.coverage)
-
+    def add_seed_queue(self, seed: Seed) -> None:
+        """
+        Add a seed to to appropriate internal queue depending
+        on its status.
+        :param seed: Seed to add in internal queue
+        :return: None
+        """
         # Add the seed to the appropriate list
         if seed.status == SeedStatus.NEW:
-            logging.error(f"seed not meant to be NEW at the end of execution ({seed.filename})")
+            self.worklist.add(seed)
         elif seed.status == SeedStatus.OK_DONE:
             self.corpus.add(seed)
         elif seed.status == SeedStatus.HANG:
@@ -67,6 +70,20 @@ class SeedManager:
             self.crash.add(seed)
         else:
             assert False
+
+    def post_execution(self, execution: SymbolicExecutor, seed: Seed) -> None:
+        # Update instructions covered from the last execution into our exploration coverage
+        self.coverage.merge(execution.coverage)
+
+        # Update the current seed queue
+        if seed.status == SeedStatus.NEW:
+            logging.error(f"seed not meant to be NEW at the end of execution ({seed.filename})")
+        else:
+            self.add_seed_queue(seed)
+
+        # Iterate all pending seeds to be added in the right location
+        for s in execution.pending_seeds:
+            self._add_seed(seed)  # will add the seed in both internal queues & workspace
 
         # Move the current seed into the right directory (and remove it from worklist)
         self.workspace.update_seed_location(seed)
@@ -175,11 +192,26 @@ class SeedManager:
         return self.worklist.pick()
 
 
-    def add_seed(self, seed):
-        if seed is not None and seed not in self.corpus and seed not in self.crash:
-            self.worklist.add(seed)
-            self.workspace.save_seed(seed)
+    def is_seed_new(self, seed: Seed) -> bool:
+        """ Return True whether the seed is entirely new for the SeedManager or not """
+        return seed is not None and seed not in self.corpus and seed not in self.crash and seed not in self.hangs
+
+
+    def add_new_seed(self, seed: Seed) -> None:
+        if self.is_new_seed(seed):
+            self._add_seed(seed)
             logging.info(f'Seed {seed.filename} dumped [{seed.status.name}]')
+        else:
+            logging.debug(f"seed {seed} is already known (not adding it)")
+
+
+    def _add_seed(self, seed: Seed) -> None:
+        """ Add the seed in both internal queues but also workspace """
+        self.add_seed_queue(seed)
+        self.workspace.save_seed(seed)
+
+
+
 
 
     def post_exploration(self):

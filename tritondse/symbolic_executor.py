@@ -3,7 +3,7 @@ import logging
 import time
 import random
 import os
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 # third party imports
 from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess
@@ -41,10 +41,25 @@ class SymbolicExecutor(object):
         # create callback object if not provided as argument, and bind callbacks to the current process state
         self.cbm = callbacks if callbacks is not None else CallbackManager(self.program)
 
+        # List of new seeds filled during the execution and flushed by explorator
+        self._pending_seeds = []
+
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
 
+    @property
+    def pending_seeds(self) -> List[Seed]:
+        """ Return the list of pending seeds gathered during execution """
+        return self._pending_seeds
+
+    def enqueue_seed(self, seed: Seed) -> None:
+        """
+        Add a seed to the queue of seed to be executed in later iterations
+        :param seed: Seed to be added
+        :return: None
+        """
+        self._pending_seeds.append(seed)
 
     @property
     def callback_manager(self) -> CallbackManager:

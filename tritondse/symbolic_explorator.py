@@ -131,7 +131,7 @@ class SymbolicExplorator(object):
     def add_input_seed(self, seed: Union[bytes, Seed]) -> None:
         """ Add the given bytes as input for the exploration """
         seed = seed if isinstance(seed, Seed) else Seed(seed)
-        self.seeds_manager.add_seed(seed)
+        self.seeds_manager.add_new_seed(seed)
 
     def stop_exploration(self) -> None:
         """ Interrupt exploration """
