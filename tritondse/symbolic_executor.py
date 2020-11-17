@@ -161,7 +161,8 @@ class SymbolicExecutor(object):
                 self.seed.status = SeedStatus.HANG
                 return
 
-        self.seed.status = SeedStatus.OK_DONE
+        if self.seed.status == SeedStatus.NEW:
+            self.seed.status = SeedStatus.OK_DONE
         return
 
 
