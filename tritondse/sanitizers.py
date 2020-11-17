@@ -139,8 +139,7 @@ class FormatStringSanitizer(ProbeInterface):
         model = pstate.tt_ctx.getModel(query)
         if model:
             crash_seed = mk_new_crashing_seed(se, model)
-            se.workspace.save_seed(crash_seed)
-            se.seed.status = SeedStatus.OK_DONE
+            se.seed_manager.add_seed(crash_seed)
             logging.warning(f'Model found for a seed which may lead to a crash ({crash_seed.filename})')
 
 
@@ -214,9 +213,7 @@ class IntegerOverflowSanitizer(ProbeInterface):
             if model:
                 logging.warning(f'Potential integer overflow at {instruction}')
                 crash_seed = mk_new_crashing_seed(se, model)
-                crash_seed.status = SeedStatus.CRASH
-                se.workspace.save_seed(crash_seed)
-                se.seed.status = SeedStatus.OK_DONE
+                se.seed_manager.add_seed(crash_seed)
                 return True
 
         return False
