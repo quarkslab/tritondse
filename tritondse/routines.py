@@ -396,20 +396,13 @@ def rtn_fprintf(se, pstate):
     # Get arguments
     arg0 = pstate.get_argument_value(0)
     arg1 = pstate.get_argument_value(1)
-    arg2 = pstate.get_argument_value(2)
-    arg3 = pstate.get_argument_value(3)
-    arg4 = pstate.get_argument_value(4)
-    arg5 = pstate.get_argument_value(5)
-    arg6 = pstate.get_argument_value(6)
-    arg7 = pstate.get_argument_value(7)
-    arg8 = pstate.get_argument_value(8)
 
     # FIXME: ARM64
     # FIXME: pushPathConstraint
 
     arg1f = pstate.get_format_string(arg1)
     nbArgs = arg1f.count("{")
-    args = pstate.get_format_arguments(arg1, [arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
+    args = pstate.get_format_arguments(arg1, [pstate.get_argument_value(x) for x in range(2, nbArgs+2)])
     try:
         s = arg1f.format(*args)
     except:
@@ -716,18 +709,10 @@ def rtn_printf(se, pstate):
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
-    arg1 = pstate.get_argument_value(1)
-    arg2 = pstate.get_argument_value(2)
-    arg3 = pstate.get_argument_value(3)
-    arg4 = pstate.get_argument_value(4)
-    arg5 = pstate.get_argument_value(5)
-    arg6 = pstate.get_argument_value(6)
-    arg7 = pstate.get_argument_value(7)
-    arg8 = pstate.get_argument_value(8)
 
     arg0f = pstate.get_format_string(arg0)
     nbArgs = arg0f.count("{")
-    args = pstate.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8][:nbArgs])
+    args = pstate.get_format_arguments(arg0, [pstate.get_argument_value(x) for x in range(1, nbArgs+1)])
     try:
         s = arg0f.format(*args)
     except:
@@ -1086,17 +1071,10 @@ def rtn_sprintf(se, pstate):
     # Get arguments
     buff = pstate.get_argument_value(0)
     arg0 = pstate.get_argument_value(1)
-    arg1 = pstate.get_argument_value(2)
-    arg2 = pstate.get_argument_value(3)
-    arg3 = pstate.get_argument_value(4)
-    arg4 = pstate.get_argument_value(5)
-    arg5 = pstate.get_argument_value(6)
-    arg6 = pstate.get_argument_value(7)
-    arg7 = pstate.get_argument_value(8)
 
     arg0f = pstate.get_format_string(arg0)
     nbArgs = arg0f.count("{")
-    args = pstate.get_format_arguments(arg0, [arg1, arg2, arg3, arg4, arg5, arg6, arg7][:nbArgs])
+    args = pstate.get_format_arguments(arg0, [pstate.get_argument_value(x) for x in range(2, nbArgs+2)])
     try:
         s = arg0f.format(*args)
     except:
