@@ -35,6 +35,7 @@ class SeedManager:
 
         self._stat_branch_reverted = Counter()
         self._stat_branch_fail = Counter()
+        self._yolo_map = set()  # CovItem
 
     def __load_seed_workspace(self):
         # Load seed from the corpus
@@ -178,6 +179,11 @@ class SeedManager:
                 # Add path_prefix in path predicate
                 path_predicate.extend(x.getTakenPredicate() for x in p_prefix)
 
+                # Yolo solve without path_predicate
+                s = self._yolo_solve(execution, branch, covitem)
+                if s:
+                    yield s
+
                 # Create the constraint
                 constraint = actx.land(path_predicate + [branch['constraint']])
 
@@ -224,6 +230,25 @@ class SeedManager:
 
         except StopIteration:  # We have iterated the whole path generator
             pass
+
+
+    def _yolo_solve(self, execution, branch, covitem):
+        if covitem in self._yolo_map:
+            return  # do not try to revert the branch if we already succeeded
+
+        # Solve the constraint
+        model, status = execution.pstate.tt_ctx.getModel(branch['constraint'], status=True)
+        status = Solver(status)
+        logging.info(f'Yolo query solve:{self.coverage.pp_item(covitem)} [{self.pp_smt_status(status)}]')
+
+        if status == Solver.SAT:
+            self._yolo_map.add(covitem)
+            new_seed = self._mk_new_seed(execution, execution.seed, model)
+            # Trick to keep track of which target a seed is meant to cover
+            new_seed.coverage_objectives.add(covitem)
+            return new_seed  # Yield the seed to get it added in the worklist
+        else:
+            return None
 
 
     def _mk_new_seed(self, exec: SymbolicExecutor, seed: Seed, model: Model) -> Seed:
