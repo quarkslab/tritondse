@@ -1,8 +1,8 @@
 # built-in imports
 import logging
 import time
-from typing  import Generator
-
+from typing import Generator
+from collections import Counter
 
 # local imports
 from tritondse.config    import Config
@@ -33,6 +33,8 @@ class SeedManager:
 
         self.__load_seed_workspace()
 
+        self._stat_branch_reverted = Counter()
+        self._stat_branch_fail = Counter()
 
     def __load_seed_workspace(self):
         # Load seed from the corpus
@@ -110,7 +112,7 @@ class SeedManager:
 
         # Update the current seed queue
         if seed.status == SeedStatus.NEW:
-            logging.error(f"seed not meant to be NEW at the end of execution ({seed.filename}) (dropped)")
+            logging.error(f"seed not meant to be NEW at the end of execution ({seed.get_hash()}) (dropped)")
             self.drop_seed(seed)
 
         elif seed.status in [SeedStatus.HANG, SeedStatus.CRASH]:
@@ -123,10 +125,10 @@ class SeedManager:
                 seed.coverage_objectives =items  # Set its new objectives
 
                 if self.worklist.can_solve_models():     # No fresh seeds pending thus can solve model
-                    logging.info(f'Seed {seed.filename} generate new coverage')
+                    logging.info(f'Seed {seed.get_hash()} generate new coverage')
                     self._generate_new_inputs(execution)
                 else:
-                    logging.info(f"Seed {seed.filename} push back in worklist (to unstack fresh)")
+                    logging.info(f"Seed {seed.get_hash()} push back in worklist (to unstack fresh)")
                     seed.status = SeedStatus.NEW  # Reset its status for later run
 
                 self.add_seed_queue(seed)     # will be pushed in worklist, or corpus
@@ -134,7 +136,7 @@ class SeedManager:
                 self.corpus.add(seed)
                 # Move the current seed into the right directory (and remove it from worklist)
                 self.workspace.update_seed_location(seed)
-                logging.warning(f'Seed {seed.filename} dumped cannot generate new coverage [{seed.status.name}]')
+                logging.warning(f'Seed {seed.get_hash()} dumped cannot generate new coverage [{seed.status.name}]')
 
         else:
             assert False
@@ -171,7 +173,7 @@ class SeedManager:
 
         try:
             while True:
-                p_prefix, branch, dst_addr = path_generator.send(status)
+                p_prefix, branch, covitem = path_generator.send(status)
 
                 # Add path_prefix in path predicate
                 path_predicate.extend(x.getTakenPredicate() for x in p_prefix)
@@ -184,14 +186,19 @@ class SeedManager:
                 model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
                 status = Solver(status)
                 smt_queries += 1
-                logging.info(f'solver query n°{smt_queries}, time: {time.time() - ts:.02f} seconds. Status: {status.name}')
+                logging.info(f'Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {time.time() - ts:.02f}s) [{self.pp_smt_status(status)}]')
 
                 if status == Solver.SAT:
+                    self._stat_branch_reverted[covitem] += 1  # Update stats
+                    if covitem in self._stat_branch_fail:
+                        self._stat_branch_fail.pop(covitem)
+
                     new_seed = self._mk_new_seed(execution, execution.seed, model)
                     # Trick to keep track of which target a seed is meant to cover
-                    new_seed.target_addr = dst_addr
+                    new_seed.coverage_objectives.add(covitem)
                     yield new_seed  # Yield the seed to get it added in the worklist
                 elif status == Solver.UNSAT:
+                    self._stat_branch_fail[covitem] += 1
                     pass
                 elif status == Solver.TIMEOUT:
                     pass
@@ -254,7 +261,7 @@ class SeedManager:
     def add_new_seed(self, seed: Seed) -> None:
         if self.is_new_seed(seed):
             self._add_seed(seed)
-            logging.info(f'Seed {seed.filename} dumped [{seed.status.name}]')
+            logging.debug(f'Seed {seed.filename} dumped [{seed.status.name}]')
         else:
             logging.debug(f"seed {seed} is already known (not adding it)")
 
@@ -275,4 +282,13 @@ class SeedManager:
     def post_exploration(self):
         # Do things you would do at the very end of exploration
         # (or just before it becomes idle)
-        pass
+        count = sum(len(x) for x in self._stat_branch_reverted.values())
+        count_fail = sum(len(x) for x in self._stat_branch_fail.values())
+        logging.info(f"Branches reverted: {count} (unique: {len(self._stat_branch_reverted)})")
+        logging.info(f"Branches still fail: {count_fail} (unique: {len(self._stat_branch_fail)})")
+        self.worklist.post_exploration()
+
+
+    def pp_smt_status(self, status: Solver):
+        mapper = {Solver.SAT: 92, Solver.UNSAT: 91, Solver.TIMEOUT: 93, Solver.UNKNOWN: 95}
+        return f"\033[7m\033[{mapper[status]}m{status.name}\033[0m"

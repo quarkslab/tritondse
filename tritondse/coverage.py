@@ -113,6 +113,14 @@ class CoverageSingleRun(object):
         if self.strategy == CoverageStrategy.PATH_COVERAGE:
             return item in self.paths
 
+    def pp_item(self, covitem: CovItem) -> str:
+        if self.strategy == CoverageStrategy.CODE_COVERAGE:
+            return f"0x{covitem:08x}"
+        elif self.strategy == CoverageStrategy.EDGE_COVERAGE:
+            return f"(0x{covitem[0]:08x} -> 0x{covitem:08x})"
+        elif self.strategy == CoverageStrategy.PATH_COVERAGE:
+            return covitem  # already a hash str
+
 
 class GlobalCoverage(CoverageSingleRun):
     """
@@ -134,7 +142,7 @@ class GlobalCoverage(CoverageSingleRun):
         self.pending_coverage = set()
 
 
-    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[List[PathConstraint], PathBranch, Addr], Solver, None]:
+    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[List[PathConstraint], PathBranch, CovItem], Solver, None]:
         """
         The function iterate the given path predicate and yield PatchConstraint to
         consider as-is and PathBranch representing the new branch to take. It acts
@@ -180,7 +188,7 @@ class GlobalCoverage(CoverageSingleRun):
 
                         # If the not taken branch is new wrt coverage
                         if new:
-                            res = yield pending_csts, branch, dst
+                            res = yield pending_csts, branch, item
                             if res == Solver.SAT:  # If path was satisfiable add it to pending coverage
                                 self.pending_coverage.add(item)
 

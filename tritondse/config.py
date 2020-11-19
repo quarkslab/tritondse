@@ -29,8 +29,8 @@ class Config(object):
                                                                       # behavior when calling time functions (e.g gettimeofday(), clock_gettime(), ...).
                                                                       # For example, if 0.0001 is defined, each instruction will increment the time representation
                                                                       # of the execution by 100us.
-
-        logging.basicConfig(format="%(threadName)s\033[0m [%(levelname)s] %(message)s", level=logging.DEBUG if self.debug else logging.INFO)
+        self.pipe_stdout             = False                          # Whether to forward program stdout on current output
+        self.pipe_stderr             = False                          # Whether to forward program stderrr on current stderr
 
 
     def __str__(self):
