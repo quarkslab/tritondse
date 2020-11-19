@@ -88,7 +88,7 @@ class SymbolicExplorator(object):
         # Some analysis in post execution
         self.seeds_manager.post_execution(execution, seed)
 
-        logging.info('Total time of the exploration: %f seconds' % (self.__time_delta()))
+        logging.info(f"Elapsed time: {self._fmt_elpased(self.__time_delta())}\n")
 
 
     def explore(self) -> ExplorationStatus:
@@ -101,7 +101,7 @@ class SymbolicExplorator(object):
 
                 # Execution into a thread
                 t = threading.Thread(
-                        name='\033[0;%dm[exec:%08d]' % ((31 + (self.uid_counter % 4)), self.uid_counter),
+                        name='\033[0;%dm[exec:%08d]\033[0m' % ((31 + (self.uid_counter % 4)), self.uid_counter),
                         target=self.worker,
                         args=[seed, self.uid_counter],
                         daemon=True
@@ -125,6 +125,7 @@ class SymbolicExplorator(object):
         # Call all termination functions
         self.seeds_manager.post_exploration()
         self.coverage.post_exploration()
+        logging.info(f"Total time of the exploration: {self._fmt_elpased(self.__time_delta())}")
 
         return self.status
 
@@ -136,3 +137,8 @@ class SymbolicExplorator(object):
     def stop_exploration(self) -> None:
         """ Interrupt exploration """
         self._stop = True
+
+    def _fmt_elpased(self, seconds) -> str:
+        m, s = divmod(seconds, 60)
+        h, m = divmod(m, 60)
+        return (f"{h}s" if h else '')+f"{int(m)}m{int(s)}s"

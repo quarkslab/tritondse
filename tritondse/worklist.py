@@ -1,3 +1,5 @@
+import logging
+
 from tritondse.coverage import GlobalCoverage
 
 
@@ -159,3 +161,8 @@ class FreshSeedPrioritizerWorklist(object):
             if not self.worklist[it]:          # remove the whole covitem if empty
                 self.worklist.pop(it)
         return seed
+
+    def post_exploration(self):
+        s = " ".join(str(x) for x in self.worklist)
+        logging.info(f"Many not covered items: {s}")
+        # TODO: Save them in the workspace

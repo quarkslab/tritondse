@@ -1,12 +1,12 @@
 from collections     import namedtuple
 from tritondse.types import Architecture, Addr
 
-Arch = namedtuple("Arch", "ret_reg pc_reg bp_reg sp_reg sys_reg reg_args")
+Arch = namedtuple("Arch", "ret_reg pc_reg bp_reg sp_reg sys_reg reg_args halt_inst")
 
 ARCHS = {
-    Architecture.X86:     Arch('eax', 'eip', 'ebp', 'esp', 'eax', []),
-    Architecture.X86_64:  Arch('rax', 'rip', 'rbp', 'rsp', 'rax', ['rdi', 'rsi', 'rdx', 'rcx', 'r8', 'r9']),
-    Architecture.AARCH64: Arch('x0', 'pc', 'sp', 'sp', 'x8', ['x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7'])
+    Architecture.X86:     Arch('eax', 'eip', 'ebp', 'esp', 'eax', [], b"\xf4"),
+    Architecture.X86_64:  Arch('rax', 'rip', 'rbp', 'rsp', 'rax', ['rdi', 'rsi', 'rdx', 'rcx', 'r8', 'r9'], b"\xf4"),
+    Architecture.AARCH64: Arch('x0', 'pc', 'sp', 'sp', 'x8', ['x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7'], b"")
     # ARM ?
 }
 

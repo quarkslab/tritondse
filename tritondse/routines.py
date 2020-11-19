@@ -411,8 +411,9 @@ def rtn_fprintf(se, pstate):
         s = ""
 
     if arg0 in pstate.fd_table:
-        pstate.fd_table[arg0].write(s)
-        pstate.fd_table[arg0].flush()
+        if arg0 not in [1, 2] or (arg0 == 1 and se.config.pipe_stdout) or (arg0 == 2 and se.config.pipe_stderr):
+            pstate.fd_table[arg0].write(s)
+            pstate.fd_table[arg0].flush()
     else:
         return 0
 
@@ -435,11 +436,13 @@ def rtn_fputc(se, pstate):
         if arg1 == 0:
             return 0
         elif arg1 == 1:
-            sys.stdout.write(chr(arg0))
-            sys.stdout.flush()
+            if se.config.pipe_stdout:
+                sys.stdout.write(chr(arg0))
+                sys.stdout.flush()
         elif arg1 == 2:
-            sys.stderr.write(chr(arg0))
-            sys.stderr.flush()
+            if se.config.pipe_stderr:
+                sys.stderr.write(chr(arg0))
+                sys.stderr.flush()
         else:
             fd = open(pstate.fd_table[arg1], 'wb+')
             fd.write(chr(arg0))
@@ -468,11 +471,13 @@ def rtn_fputs(se, pstate):
         if arg1 == 0:
             return 0
         elif arg1 == 1:
-            sys.stdout.write(pstate.get_memory_string(arg0))
-            sys.stdout.flush()
+            if se.config.pipe_stdout:
+                sys.stdout.write(pstate.get_memory_string(arg0))
+                sys.stdout.flush()
         elif arg1 == 2:
-            sys.stderr.write(pstate.get_memory_string(arg0))
-            sys.stderr.flush()
+            if se.config.pipe_stderr:
+                sys.stderr.write(pstate.get_memory_string(arg0))
+                sys.stderr.flush()
         else:
             fd = open(pstate.fd_table[arg1], 'wb+')
             fd.write(pstate.get_memory_string(arg0))
@@ -547,11 +552,13 @@ def rtn_fwrite(se, pstate):
         if arg3 == 0:
             return 0
         elif arg3 == 1:
-            sys.stdout.buffer.write(data)
-            sys.stdout.flush()
+            if se.config.pipe_stdout:
+                sys.stdout.buffer.write(data)
+                sys.stdout.flush()
         elif arg3 == 2:
-            sys.stderr.buffer.write(data)
-            sys.stderr.flush()
+            if se.config.pipe_stderr:
+                sys.stderr.buffer.write(data)
+                sys.stderr.flush()
         else:
             fd = open(pstate.fd_table[arg3], 'wb+')
             fd.write(data)
@@ -720,8 +727,9 @@ def rtn_printf(se, pstate):
         logging.warning('Something wrong, probably UTF-8 string')
         s = ""
 
-    pstate.fd_table[1].write(s)
-    pstate.fd_table[1].flush()
+    if se.config.pipe_stdout:
+        pstate.fd_table[1].write(s)
+        pstate.fd_table[1].flush()
 
     # Return value
     return len(s)
