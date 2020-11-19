@@ -20,7 +20,7 @@ class Config(object):
         self.exploration_timeout    = 0                               # Unlimited by default (seconds)
         self.exploration_limit      = 0                               # Unlimited by default (number of traces)
         self.thread_scheduling      = 200                             # Number of instructions executed by thread before scheduling
-        self.smt_queries_limit      = 400                             # Limit of SMT queries by execution
+        self.smt_queries_limit      = 1200                             # Limit of SMT queries by execution
         self.coverage_strategy      = CoverageStrategy.CODE_COVERAGE  # Coverage strategy
         self.debug                  = debug                           # Enable debug info by default
         self.workspace              = "workspace"                     # Workspace directory
