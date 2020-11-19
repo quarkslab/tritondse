@@ -333,5 +333,5 @@ class SymbolicExecutor(object):
             cb(self, self.pstate)
 
         self.end_time = time.time()
-        logging.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time}s)")
+        logging.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time:.02f}s)")
         logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.tt_ctx.getPathPredicateSize()}")

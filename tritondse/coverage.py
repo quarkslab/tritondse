@@ -117,7 +117,7 @@ class CoverageSingleRun(object):
         if self.strategy == CoverageStrategy.CODE_COVERAGE:
             return f"0x{covitem:08x}"
         elif self.strategy == CoverageStrategy.EDGE_COVERAGE:
-            return f"(0x{covitem[0]:08x} -> 0x{covitem:08x})"
+            return f"(0x{covitem[0]:08x} -> 0x{covitem[1]:08x})"
         elif self.strategy == CoverageStrategy.PATH_COVERAGE:
             return covitem  # already a hash str
 

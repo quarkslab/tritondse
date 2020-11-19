@@ -141,4 +141,4 @@ class SymbolicExplorator(object):
     def _fmt_elpased(self, seconds) -> str:
         m, s = divmod(seconds, 60)
         h, m = divmod(m, 60)
-        return (f"{h}s" if h else '')+f"{int(m)}m{int(s)}s"
+        return (f"{int(h)}h" if h else '')+f"{int(m)}m{int(s)}s"

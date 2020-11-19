@@ -316,4 +316,4 @@ class SeedManager:
 
     def pp_smt_status(self, status: Solver):
         mapper = {Solver.SAT: 92, Solver.UNSAT: 91, Solver.TIMEOUT: 93, Solver.UNKNOWN: 95}
-        return f"\033[7m\033[{mapper[status]}m{status.name}\033[0m"
+        return f"\033[{mapper[status]}m{status.name}\033[0m"
