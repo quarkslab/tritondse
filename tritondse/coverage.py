@@ -6,11 +6,18 @@ import logging
 from collections import Counter
 import hashlib
 import struct
-from typing import List, Generator, Tuple
+from typing import List, Generator, Tuple, Set, Union
 
 # local imports
 from tritondse.workspace import Workspace
-from tritondse.types     import Addr, PathConstraint, PathBranch, Solver
+from tritondse.types     import Addr, PathConstraint, PathBranch, Solver, PathHash, Edge
+
+
+CovItem = Union[Addr, Edge, PathHash]
+"""
+Abstract type representing a coverage item
+that can be an address an edge a path etc..
+"""
 
 
 class CoverageStrategy(IntEnum):
@@ -29,38 +36,65 @@ class CoverageSingleRun(object):
 
         # For instruction coverage
         self.instructions = Counter()
+        self.not_instructions = set()
 
         # For edge coverage
         self.edges = Counter()
+        self.not_edges = set()
 
         # For path coverage
         self.paths = set()
+        self.not_paths = set()
         self.current_path = []  # Hold all addresses currently forming the path taken
         self.current_path_hash = hashlib.md5()
 
 
     def add_covered_address(self, address: Addr):
         self.instructions[address] += 1
-
+        self.not_instructions.discard(address)  # remove address from non-covered if inside
 
     def add_covered_branch(self, program_counter: Addr, pc: PathConstraint) -> None:
+
         if pc.isMultipleBranches():
-            taken = pc.getTakenAddress()
+            # Retrieve both branches
+            branches = pc.getBranchConstraints()
+            taken, not_taken = branches if branches[0]['isTaken'] else branches[::-1]
+            taken_addr, not_taken_addr = taken['dstAddr'], not_taken['dstAddr']
+
+            if self.strategy == CoverageStrategy.CODE_COVERAGE:
+                if not_taken_addr not in self.instructions:  # Keep the address that has not been covered (and could have)
+                    self.not_instructions.add(not_taken_addr)
+
             if self.strategy == CoverageStrategy.EDGE_COVERAGE:
-                self.edges[(program_counter, taken)] += 1
+                taken_tuple, not_taken_tuple = (program_counter, taken_addr), (program_counter, not_taken_addr)
+                self.edges[taken_tuple] += 1
+                self.not_edges.discard(taken_tuple)    # Remove it from non-taken if it was inside
+                if not_taken_tuple not in self.edges:  # Add the not taken tuple in non-covered
+                    self.not_edges.add(not_taken_tuple)
+
             if self.strategy == CoverageStrategy.PATH_COVERAGE:
-                self.current_path.append(taken)
+                self.current_path.append(taken_addr)
+
+                # Compute the hash of the not taken path and add it to non-covered paths
+                not_taken_path_hash = self.current_path_hash.copy()
+                not_taken_path_hash.update(struct.pack('<Q', not_taken_addr))
+                self.not_paths.add(not_taken_path_hash.hexdigest())
+
                 # Update the current path hash and add it to hashes
-                self.current_path_hash.update(struct.pack("<Q", taken))
+                self.current_path_hash.update(struct.pack("<Q", taken_addr))
                 self.paths.add(self.current_path_hash.hexdigest())
+
         else:
-            pass  # otherwise, unconditional we are not interested
+            pass  # TODO: Maybe something to do one jmp rax & Co
 
 
     @property
     def unique_instruction_covered(self) -> int:
         return len(self.instructions)
 
+    @property
+    def unique_edge_covered(self) -> int:
+        return len(self.edges)
 
     @property
     def total_instruction_executed(self) -> int:
@@ -70,6 +104,14 @@ class CoverageSingleRun(object):
     def post_execution(self) -> None:
         pass
 
+    def is_covered(self, item: CovItem) -> bool:
+        """ Return whether the item has been covered or not """
+        if self.strategy == CoverageStrategy.CODE_COVERAGE:
+            return item in self.instructions
+        if self.strategy == CoverageStrategy.EDGE_COVERAGE:
+            return item in self.edges
+        if self.strategy == CoverageStrategy.PATH_COVERAGE:
+            return item in self.paths
 
 
 class GlobalCoverage(CoverageSingleRun):
@@ -155,7 +197,7 @@ class GlobalCoverage(CoverageSingleRun):
 
 
     def merge(self, other: CoverageSingleRun) -> None:
-        """ Merge an other instance of Coverage into this instance"""
+        """ Merge a CoverageSingeRun instance into this instance"""
         assert self.strategy == other.strategy
 
         # Update instruction coverage for code coverage (in all cases keep code coverage)
@@ -174,6 +216,24 @@ class GlobalCoverage(CoverageSingleRun):
         if self.strategy == CoverageStrategy.PATH_COVERAGE:
             self.paths.update(other.paths)
             self.pending_coverage.difference_update(other.paths)
+
+
+    def can_improve_coverage(self, other: CoverageSingleRun) -> bool:
+        """ Check if some off the non-covered ore not already in the
+            global coverage"""
+        return bool(self.new_items_to_cover(other))
+
+
+    def new_items_to_cover(self, other: CoverageSingleRun) -> Set[CovItem]:
+        """ Return all addreses, edges, paths that the given CoverageSingleRun
+            can cover if we invert their branches"""
+        assert self.strategy == other.strategy
+        if self.strategy == CoverageStrategy.CODE_COVERAGE:
+            return other.not_instructions - self.instructions.keys()
+        elif self.strategy == CoverageStrategy.EDGE_COVERAGE:
+            return other.not_edges - self.edges.keys()
+        elif self.strategy == CoverageStrategy.PATH_COVERAGE:
+            return other.not_paths - self.paths
 
 
     def save_coverage(self) -> None:

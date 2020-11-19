@@ -2,7 +2,7 @@ import sys
 from enum    import IntEnum, Enum, auto
 from pathlib import Path
 from triton  import ARCH, SOLVER
-from typing  import Union, TypeVar
+from typing  import Union, TypeVar, Tuple
 
 # Type representing file either as a file, either as a Path object
 PathLike = Union[str, Path]
@@ -39,6 +39,12 @@ Model = TypeVar('Model')
 
 Expression = TypeVar('Expression')
 """ Symbolic Expression as returned by Triton (SymbolicExpression) """
+
+Edge = Tuple[Addr, Addr]
+""" Type representing a edge in the program """
+
+PathHash = str
+""" Type representing the hash of path to uniquely identify any path """
 
 
 if sys.version_info.minor >= 8:

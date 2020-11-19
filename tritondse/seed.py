@@ -18,12 +18,16 @@ class Seed(object):
     into stdin or argv according to the Triton DSE configuration.
     """
     def __init__(self, content=bytes(), status=SeedStatus.NEW):
-        self.content     = bytes(content)
-        self.target_addr = None
+        self.content = bytes(content)
+        self.coverage_objectives = set()  # set of coverage items that the seed is meant to cover
+        self.target = set()               # CovItem informational field indicate the item the seed was generated for
         self._status = status
 
     def is_bootstrap_seed(self) -> bool:
         return self.content == b""
+
+    def is_fresh(self) -> bool:
+        return not self.coverage_objectives
 
     @property
     def status(self) -> SeedStatus:

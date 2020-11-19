@@ -65,7 +65,7 @@ class SymbolicExplorator(object):
 
     def worker(self, seed, uid):
         """ Worker thread """
-        logging.info(f'Pickuping seed: {seed.filename}')
+        logging.info(f'Pick-up seed: {seed.filename} (fresh: {seed.is_fresh()})')
 
         if self.config.exploration_timeout and self.__time_delta() >= self.config.exploration_timeout:
             logging.info('Exploration timout')
@@ -95,7 +95,7 @@ class SymbolicExplorator(object):
         self.status = ExplorationStatus.RUNNING
 
         try:
-            while self.seeds_manager.worklist and not self._stop:
+            while self.seeds_manager.seeds_available() and not self._stop:
                 # Take an input
                 seed = self.seeds_manager.pick_seed()
 

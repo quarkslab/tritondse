@@ -9,7 +9,7 @@ from tritondse.config    import Config
 from tritondse.seed      import Seed, SeedStatus
 from tritondse.callbacks import CallbackManager
 from tritondse.coverage  import GlobalCoverage
-from tritondse.worklist  import WorklistAddressToSet
+from tritondse.worklist  import WorklistAddressToSet, FreshSeedPrioritizerWorklist
 from tritondse.workspace import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.types     import Solver, Model
@@ -24,7 +24,8 @@ class SeedManager:
         self.config           = config
         self.workspace        = workspace
         self.coverage         = coverage
-        self.worklist         = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
+        # self.worklist         = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
+        self.worklist         = FreshSeedPrioritizerWorklist(self)
         self.cbm              = callbacks
         self.corpus           = set()
         self.crash            = set()
@@ -71,26 +72,79 @@ class SeedManager:
         else:
             assert False
 
+    # def post_execution(self, execution: SymbolicExecutor, seed: Seed) -> None:
+    #     # Update instructions covered from the last execution into our exploration coverage
+    #     self.coverage.merge(execution.coverage)
+    #
+    #     # Update the current seed queue
+    #     if seed.status == SeedStatus.NEW:
+    #         logging.error(f"seed not meant to be NEW at the end of execution ({seed.filename})")
+    #     else:
+    #         self.add_seed_queue(seed)
+    #
+    #     # Iterate all pending seeds to be added in the right location
+    #     for s in execution.pending_seeds:
+    #         self._add_seed(s)  # will add the seed in both internal queues & workspace
+    #
+    #     # Move the current seed into the right directory (and remove it from worklist)
+    #     self.workspace.update_seed_location(seed)
+    #     logging.info(f'Seed {seed.filename} dumped [{seed.status.name}]')
+    #
+    #     self._generate_new_inputs(execution)
+    #
+    #     logging.info('Worklist size: %d' % (len(self.worklist)))
+    #     logging.info('Corpus size: %d' % (len(self.corpus)))
+    #     logging.info(f'Unique instructions covered: {self.coverage.unique_instruction_covered}')
+
+
     def post_execution(self, execution: SymbolicExecutor, seed: Seed) -> None:
         # Update instructions covered from the last execution into our exploration coverage
         self.coverage.merge(execution.coverage)
-
-        # Update the current seed queue
-        if seed.status == SeedStatus.NEW:
-            logging.error(f"seed not meant to be NEW at the end of execution ({seed.filename})")
-        else:
-            self.add_seed_queue(seed)
+        self.worklist.update_worklist(execution.coverage)
 
         # Iterate all pending seeds to be added in the right location
         for s in execution.pending_seeds:
-            self._add_seed(seed)  # will add the seed in both internal queues & workspace
+            if not s.coverage_objectives:
+                s.coverage_objectives.add(...)
+            self._add_seed(s)  # will add the seed in both internal queues & workspace
 
-        # Move the current seed into the right directory (and remove it from worklist)
-        self.workspace.update_seed_location(seed)
-        logging.info(f'Seed {seed.filename} dumped [{seed.status.name}]')
+        # Update the current seed queue
+        if seed.status == SeedStatus.NEW:
+            logging.error(f"seed not meant to be NEW at the end of execution ({seed.filename}) (dropped)")
+            self.drop_seed(seed)
 
+        elif seed.status in [SeedStatus.HANG, SeedStatus.CRASH]:
+            self.add_seed_queue(seed)
+            # NOTE: Do not perform further processing on the seed (like generating inputs from it)
+
+        elif seed.status == SeedStatus.OK_DONE:
+            if self.coverage.can_improve_coverage(execution.coverage):
+                items = self.coverage.new_items_to_cover(execution.coverage)
+                seed.coverage_objectives =items  # Set its new objectives
+
+                if self.worklist.can_solve_models():     # No fresh seeds pending thus can solve model
+                    logging.info(f'Seed {seed.filename} generate new coverage')
+                    self._generate_new_inputs(execution)
+                else:
+                    logging.info(f"Seed {seed.filename} push back in worklist (to unstack fresh)")
+                    seed.status = SeedStatus.NEW  # Reset its status for later run
+
+                self.add_seed_queue(seed)     # will be pushed in worklist, or corpus
+            else:
+                self.corpus.add(seed)
+                # Move the current seed into the right directory (and remove it from worklist)
+                self.workspace.update_seed_location(seed)
+                logging.warning(f'Seed {seed.filename} dumped cannot generate new coverage [{seed.status.name}]')
+
+        else:
+            assert False
+
+        logging.info(f"Worklist: {len(self.worklist)} (fresh:{len(self.worklist.fresh)}) Corpus:{len(self.corpus)} Crash:{len(self.crash)}")
+        logging.info(f"Coverage objectives:{len(self.worklist.worklist)} instruction: {self.coverage.unique_instruction_covered} edges:{self.coverage.unique_edge_covered}")
+
+
+    def _generate_new_inputs(self, execution: SymbolicExecutor):
         # Generate new inputs
-        logging.info('Getting models, please wait...')
         for new_input in self.__iter_new_inputs(execution):
             # Check if we already have executed this new seed
             if self.is_new_seed(new_input):
@@ -99,10 +153,6 @@ class SeedManager:
                 logging.info(f'New seed model {new_input.filename} dumped [{new_input.status.name}]')
             else:
                 logging.debug(f"New seed {new_input.filename} has already been generated")
-
-        logging.info('Worklist size: %d' % (len(self.worklist)))
-        logging.info('Corpus size: %d' % (len(self.corpus)))
-        logging.info(f'Unique instructions covered: {self.coverage.unique_instruction_covered}')
 
 
     def __iter_new_inputs(self, execution: SymbolicExecutor) -> Generator[Seed, None, None]:
@@ -192,6 +242,10 @@ class SeedManager:
         return self.worklist.pick()
 
 
+    def seeds_available(self) -> bool:
+        return self.worklist.has_seed_remaining()
+
+
     def is_seed_new(self, seed: Seed) -> bool:
         """ Return True whether the seed is entirely new for the SeedManager or not """
         return seed is not None and seed not in self.corpus and seed not in self.crash and seed not in self.hangs
@@ -211,7 +265,11 @@ class SeedManager:
         self.workspace.save_seed(seed)
 
 
-
+    def drop_seed(self, seed: Seed) -> None:
+        logging.info(f"droping seed {seed.get_hash()} as it cannot improve coverage anymore")
+        seed.status = SeedStatus.OK_DONE
+        self.add_seed_queue(seed)  # Will put it in the corpus
+        self.workspace.update_seed_location(seed)  # Will put it in the corpus in files
 
 
     def post_exploration(self):
