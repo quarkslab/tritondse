@@ -121,6 +121,12 @@ class SeedManager:
 
         try:
             while True:
+                # If smt_queries_limit is zero: unlimited queries
+                # If smt_queries_limit is negative: no query
+                if self.config.smt_queries_limit < 0:
+                    logging.info(f'The configuration is defined as: no query')
+                    break
+
                 p_prefix, branch, dst_addr = path_generator.send(status)
 
                 # Add path_prefix in path predicate
@@ -161,8 +167,8 @@ class SeedManager:
                     assert False
 
                 # Check if we reached the limit of query
-                if self.config.smt_queries_limit and smt_queries >= self.config.smt_queries_limit:  # FIXME: breaking if smt_queries_limit is negative
-                    logging.info(f'Limit of query reached. Stop asking for models.')
+                if self.config.smt_queries_limit and smt_queries >= self.config.smt_queries_limit:
+                    logging.info(f'Limit of query reached. Stop asking for models')
                     break
 
         except StopIteration:  # We have iterated the whole path generator
