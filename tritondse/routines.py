@@ -179,6 +179,14 @@ def rtn_xstat(se, pstate):
     return pstate.minus_one
 
 
+def rtn_abort(se, pstate):
+    """
+    Pure emulation.
+    """
+    logging.debug('abort hooked')
+    se.abort()
+
+
 # int atoi(const char *nptr);
 def rtn_atoi(se, pstate):
     """ Simulate the atoi() function """
@@ -1366,6 +1374,7 @@ SUPPORTED_ROUTINES = {
     '__libc_start_main':       rtn_libc_start_main,
     '__stack_chk_fail':        rtn_stack_chk_fail,
     '__xstat':                 rtn_xstat,
+    'abort':                   rtn_abort,
     'atoi':                    rtn_atoi,
     'calloc':                  rtn_calloc,
     'clock_gettime':           rtn_clock_gettime,
