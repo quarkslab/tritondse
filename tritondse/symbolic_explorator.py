@@ -46,7 +46,7 @@ class SymbolicExplorator(object):
         self.workspace.save_file(self.program.path.name, self.program.path.read_bytes())
 
         # Initialize coverage
-        self.coverage = GlobalCoverage(self.config.coverage_strategy, self.workspace)
+        self.coverage = GlobalCoverage(self.config.coverage_strategy, self.workspace, self.config.branch_solving_strategy)
 
         # Initialize the seed manager
         self.seeds_manager = SeedManager(self.config, self.cbm, self.coverage, self.workspace)
