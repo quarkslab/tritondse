@@ -1,3 +1,7 @@
+import logging
+
+from tritondse.coverage import GlobalCoverage
+
 
 class WorklistAddressToSet(object):
     """
@@ -6,11 +10,10 @@ class WorklistAddressToSet(object):
     When the method pick() is called, we return a seed which will leads
     to reach new instructions according to the state coverage.
     """
-    def __init__(self, config, coverage):
-        self.config   = config
-        self.coverage = coverage
-        self.worklist = dict() # {addr: set(Seed)}
-
+    def __init__(self, manager):
+        self.manager = manager
+        self.cov = None
+        self.worklist = dict() # {CovItem: set(Seed)}
 
     def __len__(self):
         count = 0
@@ -18,16 +21,25 @@ class WorklistAddressToSet(object):
             count += len(v)
         return count
 
+    def has_seed_remaining(self):
+        return len(self) != 0
 
     def add(self, seed):
-        if seed.target_addr in self.worklist:
-            self.worklist[seed.target_addr].add(seed)
-        else:
-            self.worklist.update({seed.target_addr: {seed}})
+        for obj in seed.coverage_objectives:
+            if obj in self.worklist:
+                self.worklist[obj].add(seed)
+            else:
+                self.worklist[obj] = {seed}
 
+    def update_worklist(self, coverage: GlobalCoverage):
+        self.cov = coverage
+
+    def can_solve_models(self) -> bool:
+        return True  # This worklist always enable
 
     def pick(self):
-        default = None
+        seed_picked = None
+        item_picked = None
         to_remove = set()
 
         for k, v in self.worklist.items():
@@ -37,27 +49,38 @@ class WorklistAddressToSet(object):
                 continue
 
             # If the address has never been executed, return the seed
-            if k not in self.coverage.instructions:
-                default = v.pop()
+            if not self.cov.is_covered(k):
+                seed_picked = v.pop()
+                item_picked = k
                 if not len(v):
                     to_remove.add(k)
                 break
 
         # If all adresses has been executed, just pick a random seed
-        if not default:
+        if not seed_picked:
             for k, v in self.worklist.items():
                 if v:
-                    default = v.pop()
+                    seed_picked = v.pop()
+                    item_picked = k
                     if not len(v):
                         to_remove.add(k)
                     break
 
+        # Pop the seed from all worklist[X] where it is
+        for obj in seed_picked.coverage_objectives:
+            if obj != item_picked:   # already poped it from item_picked thus only pop the other
+                self.worklist[obj].remove(seed_picked)
+                if not self.worklist[obj]:
+                    to_remove.add(obj)
+
         # Garbage the worklist
         for i in to_remove:
-            del self.worklist[i]
+            self.worklist.pop(i)
 
-        return default
+        return seed_picked
 
+    def post_exploration(self):
+        pass
 
 
 class WorklistRand(object):
@@ -65,19 +88,23 @@ class WorklistRand(object):
     This worklist deals with seeds without any classification. It uses a Set
     for insertion and pop (which is random) for picking seeds.
     """
-    def __init__(self, config, coverage):
-        self.config   = config
-        self.coverage = coverage
+    def __init__(self, manager):
         self.worklist = set() # set(Seed)
-
 
     def __len__(self):
         return len(self.worklist)
 
+    def has_seed_remaining(self):
+        return len(self) != 0
 
     def add(self, seed):
         self.worklist.add(seed)
 
+    def update_worklist(self, coverage: GlobalCoverage):
+        self.cov = coverage
+
+    def can_solve_models(self) -> bool:
+        return True  # This worklist always enable
 
     def pick(self):
         """
@@ -87,54 +114,81 @@ class WorklistRand(object):
         """
         return self.worklist.pop()
 
-
-
-# TODO
-class WorklistDFS(object):
-    def __init__(self, config, coverage):
+    def post_exploration(self):
         pass
+
+
+
+class FreshSeedPrioritizerWorklist(object):
+    """
+    This worklist works as follow:
+        - return first fresh seeds first to get them executed (to improve coverage)
+        - keep the seed in the worklist up until it gets dropped or thoroughtly processed
+        - if no fresh seed is available, iterates seed that will generate coverage
+    """
+    def __init__(self, manager):
+        self.manager = manager
+        self.fresh = []       # Seed never processed (list to make sure we can pop first one received)
+        self.worklist = dict() # CovItem -> set(Seed)
+
     def __len__(self):
-        pass
+        s = set()
+        for seeds in self.worklist.values():
+            s.update(seeds)
+        return len(self.fresh) + len(s)
+
+    def has_seed_remaining(self):
+        return len(self) != 0
+
     def add(self, seed):
-        pass
-    def pick(self):
-        pass
+        if seed.coverage_objectives:  # If the seed already have coverage objectives
+            for item in seed.coverage_objectives:  # Add it in our worklist
+                if item in self.worklist:
+                    self.worklist[item].add(seed)
+                else:
+                    self.worklist[item] = {seed}
+            # seed.coverage_objectives.clear()  # Flush the objectives
+        else:  # Otherwise it is fresh
+            self.fresh.append(seed)
 
+    def update_worklist(self, coverage: GlobalCoverage):
+        # Iterate the worklist to see if some items have now been covered
+        # and are thus not interesting anymore
+        to_remove = [x for x in self.worklist if coverage.is_covered(x)]
 
+        for item in to_remove:
+            for seed in self.worklist.pop(item):
+                seed.coverage_objectives.remove(item)
+                if not seed.coverage_objectives:  # The seed cannot improve the coverage of anything
+                    self.manager.drop_seed(seed)
 
-# TODO
-class WorklistBFS(object):
-    def __init__(self, config, coverage):
-        pass
-    def __len__(self):
-        pass
-    def add(self, seed):
-        pass
-    def pick(self):
-        pass
+    def can_solve_models(self) -> bool:
+        return not self.fresh  # True if the set of fresh seeds is empty
 
+    def pick(self) -> 'Seed':
+        """ Return the next seed to execute """
+        # Pop first fresh seed
+        if self.fresh:
+            return self.fresh.pop(0)  # Return first item as it is the older
 
+        # Then pop seed meant to crash
+        if ... in self.worklist:  # If we have specific seeds (mostly generated by sanitizers)
+            it = self.worklist[...].pop()
+            if not self.worklist[...]:  # Remove the key if now empty
+                self.worklist.pop(...)
+            return it
 
-# TODO
-class WorklistFifo(object):
-    def __init__(self, config, coverage):
-        pass
-    def __len__(self):
-        pass
-    def add(self, seed):
-        pass
-    def pick(self):
-        pass
+        # Then pop traditional coverage seeds
+        k = list(self.worklist.keys())[0]      # arbitrary covitem
+        seed = self.worklist[k].pop()          # remove first seed inside
+        for it in seed.coverage_objectives:    # Remove the seed from all worklist[x]
+            if it != k:                        # we already popped the item from k
+                self.worklist[it].remove(seed) # remove the seed from that covitem set
+            if not self.worklist[it]:          # remove the whole covitem if empty
+                self.worklist.pop(it)
+        return seed
 
-
-
-# TODO
-class WorklistLifo(object):
-    def __init__(self, config, coverage):
-        pass
-    def __len__(self):
-        pass
-    def add(self, seed):
-        pass
-    def pick(self):
-        pass
+    def post_exploration(self):
+        s = " ".join(str(x) for x in self.worklist)
+        logging.info(f"Many not covered items: {s}")
+        # TODO: Save them in the workspace

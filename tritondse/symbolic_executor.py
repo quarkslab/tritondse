@@ -36,6 +36,8 @@ class SymbolicExecutor(object):
         self.coverage   = CoverageSingleRun(self.config.coverage_strategy) # The coverage state
         self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
         self.uid        = uid               # Unique identifier meant to unique accross Exploration instances
+        self.start_time = 0
+        self.end_time  = 0
         # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
 
         # create callback object if not provided as argument, and bind callbacks to the current process state
@@ -47,6 +49,10 @@ class SymbolicExecutor(object):
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
+
+    @property
+    def execution_time(self):
+        return self.end_time - self.start_time
 
     @property
     def pending_seeds(self) -> List[Seed]:
@@ -143,7 +149,10 @@ class SymbolicExecutor(object):
 
             # Process
             if not self.pstate.process_instruction(instruction):
-                logging.error('Instruction not supported: %s' % (str(instruction)))
+                if self.pstate.is_halt_instruction():
+                    logging.info(f"hit {str(instruction)} instruction stop.")
+                else:
+                    logging.error('Instruction not supported: %s' % (str(instruction)))
                 break
 
             # Trigger post-instruction callback
@@ -171,7 +180,7 @@ class SymbolicExecutor(object):
                 return
 
             # Check timeout of the execution
-            if self.config.execution_timeout and (time.time() - self.startTime) >= self.config.execution_timeout:
+            if self.config.execution_timeout and (time.time() - self.start_time) >= self.config.execution_timeout:
                 logging.info('Timeout of an execution reached')
                 self.seed.status = SeedStatus.HANG
                 return
@@ -268,7 +277,8 @@ class SymbolicExecutor(object):
                 # Increment linkage address number
                 cur_linkage_address += self.pstate.ptr_size
             else:
-                logging.warning(f"function {fname} imported but unsupported")
+                pass
+                #logging.warning(f"function {fname} imported but unsupported")
 
         # Link imported symbols
         for sname, rel_addr in self.program.imported_variable_symbols_relocations():
@@ -289,6 +299,7 @@ class SymbolicExecutor(object):
 
 
     def run(self):
+        self.start_time = time.time()
         # Initialize the process_state architecture (at this point arch is sure to be supported)
         logging.debug(f"Loading program {self.program.path.name} [{self.program.architecture}]")
 
@@ -305,7 +316,6 @@ class SymbolicExecutor(object):
 
         # Let's emulate the binary from the entry point
         logging.info('Starting emulation')
-        self.startTime = time.time()
 
         # Get pre/post callbacks on execution
         pre_cb, post_cb = self.cbm.get_execution_callbacks()
@@ -322,9 +332,6 @@ class SymbolicExecutor(object):
         for cb in post_cb:
             cb(self, self.pstate)
 
-        self.endTime = time.time()
-        logging.info("Emulation done")
-        logging.info(f"Return value: 0x{self.pstate.read_register(self.pstate.return_register):x}")
-        logging.info('Instructions executed: %d' % self.coverage.total_instruction_executed)
-        logging.info('Symbolic branch constraints: %d' % (len(self.pstate.tt_ctx.getPathConstraints())))
-        logging.info('Total execution time: %d seconds' % (self.endTime - self.startTime))
+        self.end_time = time.time()
+        logging.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time:.02f}s)")
+        logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.tt_ctx.getPathPredicateSize()}")
