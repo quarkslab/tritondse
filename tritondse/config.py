@@ -4,7 +4,7 @@ from enum import Enum
 from pathlib import Path
 
 # triton-based libraries
-from tritondse.coverage import CoverageStrategy
+from tritondse.coverage import CoverageStrategy, BranchCheckStrategy
 
 
 
@@ -22,6 +22,7 @@ class Config(object):
         self.thread_scheduling      = 200                             # Number of instructions executed by thread before scheduling
         self.smt_queries_limit      = 1200                             # Limit of SMT queries by execution
         self.coverage_strategy      = CoverageStrategy.CODE_COVERAGE  # Coverage strategy
+        self.branch_solving_strategy= BranchCheckStrategy.FIRST_LAST_NOT_COVERED  # Only checks the first and last branch
         self.debug                  = debug                           # Enable debug info by default
         self.workspace              = "workspace"                     # Workspace directory
         self.program_argv           = list()                          # The program arguments (ex. argv[0], argv[1], etc.). List of Bytes.

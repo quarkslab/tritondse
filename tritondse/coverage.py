@@ -6,7 +6,7 @@ import logging
 from collections import Counter
 import hashlib
 import struct
-from typing import List, Generator, Tuple, Set, Union
+from typing import List, Generator, Tuple, Set, Union, Dict
 
 # local imports
 from tritondse.workspace import Workspace
@@ -24,6 +24,13 @@ class CoverageStrategy(IntEnum):
     CODE_COVERAGE = 0
     PATH_COVERAGE = 1
     EDGE_COVERAGE = 2
+
+
+class BranchCheckStrategy(IntEnum):
+    """ Enum that defines the strategy with which the new path
+     enumeration will be performed """
+    ALL_NOT_COVERED = 0
+    FIRST_LAST_NOT_COVERED = 1
 
 
 class CoverageSingleRun(object):
@@ -131,9 +138,10 @@ class GlobalCoverage(CoverageSingleRun):
     EDGE_COVERAGE_FILE = "edge_coverage.json"
     PATH_COVERAGE_FILE = "path_coverage.json"
 
-    def __init__(self, strategy: CoverageStrategy, workspace: Workspace):
+    def __init__(self, strategy: CoverageStrategy, workspace: Workspace, branch_strategy: BranchCheckStrategy):
         super().__init__(strategy)
         self.workspace = workspace
+        self.branch_strategy = branch_strategy
 
         # Load the coverage from the workspace (if it exists)
         self.load_coverage()
@@ -161,7 +169,11 @@ class GlobalCoverage(CoverageSingleRun):
         pending_csts = []
         current_hash = hashlib.md5()  # Current path hash for PATH coverage
 
-        for pc in path_constraints:         # Iterate through all path constraints
+        occurence_map = self._get_occurence_map(path_constraints)
+        is_ok_with_branch_strategy = lambda covitem, idx: True if self.strategy == CoverageStrategy.PATH_COVERAGE else (idx in occurence_map[covitem])
+
+
+        for i, pc in enumerate(path_constraints):         # Iterate through all path constraints
             if pc.isMultipleBranches():     # If there is a condition
                 for branch in pc.getBranchConstraints():  # Get all branches
                     # Get the constraint of the branch which has not been taken.
@@ -187,7 +199,7 @@ class GlobalCoverage(CoverageSingleRun):
                             assert False
 
                         # If the not taken branch is new wrt coverage
-                        if new:
+                        if new and is_ok_with_branch_strategy(item, i):
                             res = yield pending_csts, branch, item
                             if res == Solver.SAT:  # If path was satisfiable add it to pending coverage
                                 self.pending_coverage.add(item)
@@ -203,6 +215,36 @@ class GlobalCoverage(CoverageSingleRun):
             pending_csts.append(pc)
             current_hash.update(struct.pack("<Q", pc.getTakenAddress()))
 
+    def _get_occurence_map(self, path_constraints: List[PathConstraint]) -> Dict[CovItem, List[int]]:
+        """ For a list of path constraints, compute the offset of occurence of each item in the list """
+        map = {}
+        for i, pc in enumerate(path_constraints):
+            if pc.isMultipleBranches():     # If there is a condition
+                for branch in pc.getBranchConstraints():  # Get all branches
+                    if not branch['isTaken']:
+                        src, dst = branch['srcAddr'], branch['dstAddr']
+                        if self.strategy == CoverageStrategy.CODE_COVERAGE:
+                            item = dst
+                        elif self.strategy == CoverageStrategy.EDGE_COVERAGE:
+                            item = (src, dst)
+                        else: # Do nothing for PATH_COVERAGE strategy as all items will be new ones
+                            continue
+                        if item in map:
+                            map[item].append(i)
+                        else:
+                            map[item] = [i]
+                    else:
+                        pass  # Not interested by the taken branch
+            else:
+                pass  # TODO: trying to enumerate values for jmp rax etc ..
+
+        # Now filter the map according to the branch solving strategy
+        if self.branch_strategy == BranchCheckStrategy.FIRST_LAST_NOT_COVERED:
+            for k in map.keys():
+                l = map[k]
+                if len(l) > 2:
+                    map[k] = [l[0], l[-1]]  # Only keep first and last iteration
+        return map
 
     def merge(self, other: CoverageSingleRun) -> None:
         """ Merge a CoverageSingeRun instance into this instance"""
