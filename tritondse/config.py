@@ -4,7 +4,7 @@ from enum import Enum
 from pathlib import Path
 
 # triton-based libraries
-from tritondse.coverage import CoverageStrategy
+from tritondse.coverage import CoverageStrategy, BranchCheckStrategy
 
 
 
@@ -20,8 +20,9 @@ class Config(object):
         self.exploration_timeout    = 0                               # Unlimited by default (seconds)
         self.exploration_limit      = 0                               # Unlimited by default (number of traces)
         self.thread_scheduling      = 200                             # Number of instructions executed by thread before scheduling
-        self.smt_queries_limit      = 400                             # Limit of SMT queries by execution
+        self.smt_queries_limit      = 1200                             # Limit of SMT queries by execution
         self.coverage_strategy      = CoverageStrategy.CODE_COVERAGE  # Coverage strategy
+        self.branch_solving_strategy= BranchCheckStrategy.FIRST_LAST_NOT_COVERED  # Only checks the first and last branch
         self.debug                  = debug                           # Enable debug info by default
         self.workspace              = "workspace"                     # Workspace directory
         self.program_argv           = list()                          # The program arguments (ex. argv[0], argv[1], etc.). List of Bytes.
@@ -29,8 +30,8 @@ class Config(object):
                                                                       # behavior when calling time functions (e.g gettimeofday(), clock_gettime(), ...).
                                                                       # For example, if 0.0001 is defined, each instruction will increment the time representation
                                                                       # of the execution by 100us.
-
-        logging.basicConfig(format="%(threadName)s\033[0m [%(levelname)s] %(message)s", level=logging.DEBUG if self.debug else logging.INFO)
+        self.pipe_stdout             = False                          # Whether to forward program stdout on current output
+        self.pipe_stderr             = False                          # Whether to forward program stderrr on current stderr
 
 
     def __str__(self):
