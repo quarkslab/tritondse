@@ -138,9 +138,9 @@ class FormatStringSanitizer(ProbeInterface):
     def solve_query(se, pstate, query):
         model = pstate.tt_ctx.getModel(query)
         if model:
-            crash_seed = mk_new_crashing_seed(se, model)
-            se.enqueue_seed(crash_seed)
-            logging.warning(f'Model found for a seed which may lead to a crash ({crash_seed.filename})')
+            return mk_new_crashing_seed(se, model)
+
+
 
 
     @staticmethod
@@ -157,15 +157,32 @@ class FormatStringSanitizer(ProbeInterface):
             logging.warning(f'Potential format string of {len(symbolic_cells)} symbolic memory cells at {addr:#x}')
             se.seed.status = SeedStatus.OK_DONE
             actx = pstate.tt_ctx.getAstContext()
-            query1 = pstate.tt_ctx.getPathPredicate()
-            query2 = (actx.bvtrue() == actx.bvtrue())
+            path_pred = pstate.tt_ctx.getPathPredicate()
+            pp_seeds = []
+            nopp_seeds = []
+
             for i in range(int(len(symbolic_cells) / 2)):
                 cell1  = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
                 cell2  = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
-                query1 = actx.land([query1, cell1 == ord('%'), cell2 == ord('s')])
-                query2 = actx.land([query2, cell1 == ord('%'), cell2 == ord('s')])
-                FormatStringSanitizer.solve_query(se, pstate, query1)
-                FormatStringSanitizer.solve_query(se, pstate, query2) # This method may be incorrect but help to discover bugs
+                query_with_pp = actx.land([path_pred, cell1 == ord('%'), cell2 == ord('s')])
+                query_no_pp = actx.land([cell1 == ord('%'), cell2 == ord('s')])
+                s = FormatStringSanitizer.solve_query(se, pstate, query_with_pp)
+                if s:
+                    pp_seeds.append(s)
+                s = FormatStringSanitizer.solve_query(se, pstate, query_no_pp) # This method may be incorrect but help to discover bugs
+                if s:
+                    nopp_seeds.append(s)
+
+            # If found some seeds
+            if pp_seeds:
+                s = pp_seeds[-1]
+                se.enqueue_seed(s)  # Only keep last seed
+                logging.warning(f'Found model that might lead to a crash: {s.get_hash()} (with path predicate)')
+            if nopp_seeds:
+                s = nopp_seeds[-1]
+                se.enqueue_seed(s)  # Only keep last seed
+                logging.warning(f'Found model that might lead to a crash: {s.get_hash()} (without path predicate)')
+
             # Do not stop the execution, just continue the execution
             pstate.stop = False
             return True
