@@ -184,6 +184,7 @@ def rtn_abort(se, pstate):
     Pure emulation.
     """
     logging.debug('abort hooked')
+    se.seed.status = SeedStatus.OK_DONE
     se.abort()
 
 
