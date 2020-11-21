@@ -313,8 +313,8 @@ class SeedManager:
     def post_exploration(self):
         # Do things you would do at the very end of exploration
         # (or just before it becomes idle)
-        count = sum(len(x) for x in self._stat_branch_reverted.values())
-        count_fail = sum(len(x) for x in self._stat_branch_fail.values())
+        count = sum(x for x in self._stat_branch_reverted.values())
+        count_fail = sum(x for x in self._stat_branch_fail.values())
         logging.info(f"Branches reverted: {count} (unique: {len(self._stat_branch_reverted)})")
         logging.info(f"Branches still fail: {count_fail} (unique: {len(self._stat_branch_fail)})")
         self.worklist.post_exploration()
