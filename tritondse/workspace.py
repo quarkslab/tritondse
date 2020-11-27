@@ -10,8 +10,10 @@ from tritondse.seed import Seed, SeedStatus
 
 
 class Workspace(object):
-    """ Class to abstract the file tree of the current
-    exploration workspace"""
+    """
+    Class to abstract the file tree of the current
+    exploration workspace
+    """
 
     CORPUS_DIR = "corpus"
     CRASH_DIR = "crashes"

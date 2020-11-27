@@ -3,6 +3,9 @@ from tritondse.types import Addr, ByteSize
 
 
 class AllocatorException(Exception):
+    """
+    Class used to represent an allocator exception
+    """
     def __init__(self, message):
         super(Exception, self).__init__(message)
 
@@ -57,6 +60,7 @@ class HeapAllocator(object):
 
         :param size: Byte size to allocate
         :raise: AllocatorException if not memory is available
+        :return: The pointer address allocated
         """
         # First, check if we have an available chunk in our
         # free_pool which have the same size
@@ -87,8 +91,8 @@ class HeapAllocator(object):
         Free the given memory chunk.
 
         :param ptr: Address to free
-        :raise: AllocatorException if the pointer has already been
-                freed or if it has never been allocated
+        :raise: AllocatorException if the pointer has already been freed or if it has never been allocated
+        :return: None
         """
         if self.is_ptr_freed(ptr):
             raise AllocatorException('Double free or corruption!')

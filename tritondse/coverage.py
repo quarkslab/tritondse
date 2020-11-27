@@ -1,12 +1,13 @@
 # built-in imports
 import os
-from enum import IntEnum
 import json
 import logging
-from collections import Counter
 import hashlib
 import struct
-from typing import List, Generator, Tuple, Set, Union, Dict
+
+from typing      import List, Generator, Tuple, Set, Union, Dict
+from collections import Counter
+from enum        import IntEnum
 
 # local imports
 from tritondse.workspace import Workspace
@@ -21,14 +22,19 @@ that can be an address an edge a path etc..
 
 
 class CoverageStrategy(IntEnum):
+    """
+    Enum that defines the strategy of coverage
+    """
     CODE_COVERAGE = 0
     PATH_COVERAGE = 1
     EDGE_COVERAGE = 2
 
 
 class BranchCheckStrategy(IntEnum):
-    """ Enum that defines the strategy with which the new path
-     enumeration will be performed """
+    """
+    Enum that defines the strategy with which the new path
+    enumeration will be performed
+    """
     ALL_NOT_COVERED = 0
     FIRST_LAST_NOT_COVERED = 1
 
@@ -57,10 +63,28 @@ class CoverageSingleRun(object):
 
 
     def add_covered_address(self, address: Addr):
+        """
+        Add an instruction address to our covered instructions list.
+
+        :param adresses: The address of the instruction
+        :return: None
+        """
         self.instructions[address] += 1
         self.not_instructions.discard(address)  # remove address from non-covered if inside
 
+
     def add_covered_branch(self, program_counter: Addr, pc: PathConstraint) -> None:
+        """
+        Add a branch to our covered branches list. Each branch is encoded according
+        to the coverage strategy. For code coverage, the branch encoding is the
+        address of the instruction. For edge coverage, the branch encoding is the
+        tupe (src address, dst address). For path coverage, the branch encoding
+        is the MD5 of the conjunction of all taken branch addresses.
+
+        :param program_counter: The address of the branch instruction
+        :param pc: Information of the branch condition and its constraints
+        :return: None
+        """
 
         if pc.isMultipleBranches():
             # Retrieve both branches
@@ -97,22 +121,44 @@ class CoverageSingleRun(object):
 
     @property
     def unique_instruction_covered(self) -> int:
+        """
+        :return: The number of unique instructions covered
+        """
         return len(self.instructions)
+
 
     @property
     def unique_edge_covered(self) -> int:
+        """
+        :return: The number of unique edges covered
+        """
         return len(self.edges)
+
 
     @property
     def total_instruction_executed(self) -> int:
+        """
+        :return: The number of total instruction executed
+        """
         return sum(self.instructions.values())
 
 
     def post_execution(self) -> None:
+        """
+        This function is called after each execution.
+
+        :return: None
+        """
         pass
 
+
     def is_covered(self, item: CovItem) -> bool:
-        """ Return whether the item has been covered or not """
+        """
+        Return whether the item has been covered or not
+
+        :param item: An address, an edge or a path
+        :return: bool
+        """
         if self.strategy == CoverageStrategy.CODE_COVERAGE:
             return item in self.instructions
         if self.strategy == CoverageStrategy.EDGE_COVERAGE:
@@ -120,13 +166,21 @@ class CoverageSingleRun(object):
         if self.strategy == CoverageStrategy.PATH_COVERAGE:
             return item in self.paths
 
+
     def pp_item(self, covitem: CovItem) -> str:
+        """
+        Pretty print a CovItem according the coverage strategy
+
+        :param covitem: An address, an edge or a path
+        :return: str
+        """
         if self.strategy == CoverageStrategy.CODE_COVERAGE:
             return f"0x{covitem:08x}"
         elif self.strategy == CoverageStrategy.EDGE_COVERAGE:
             return f"(0x{covitem[0]:08x} -> 0x{covitem[1]:08x})"
         elif self.strategy == CoverageStrategy.PATH_COVERAGE:
             return covitem  # already a hash str
+
 
 
 class GlobalCoverage(CoverageSingleRun):
@@ -215,6 +269,7 @@ class GlobalCoverage(CoverageSingleRun):
             pending_csts.append(pc)
             current_hash.update(struct.pack("<Q", pc.getTakenAddress()))
 
+
     def _get_occurence_map(self, path_constraints: List[PathConstraint]) -> Dict[CovItem, List[int]]:
         """ For a list of path constraints, compute the offset of occurence of each item in the list """
         map = {}
@@ -246,8 +301,14 @@ class GlobalCoverage(CoverageSingleRun):
                     map[k] = [l[0], l[-1]]  # Only keep first and last iteration
         return map
 
+
     def merge(self, other: CoverageSingleRun) -> None:
-        """ Merge a CoverageSingeRun instance into this instance"""
+        """
+        Merge a CoverageSingeRun instance into this instance
+
+        :param other: The CoverageSingleRun to merge into our GlobalCoverage instance
+        :return: None
+        """
         assert self.strategy == other.strategy
 
         # Update instruction coverage for code coverage (in all cases keep code coverage)
@@ -269,14 +330,23 @@ class GlobalCoverage(CoverageSingleRun):
 
 
     def can_improve_coverage(self, other: CoverageSingleRun) -> bool:
-        """ Check if some off the non-covered ore not already in the
-            global coverage"""
+        """
+        Check if some off the non-covered are not already in the global coverage
+
+        :param other: The CoverageSingleRun to check with our global coverage state
+        :return: bool
+        """
         return bool(self.new_items_to_cover(other))
 
 
     def new_items_to_cover(self, other: CoverageSingleRun) -> Set[CovItem]:
-        """ Return all addreses, edges, paths that the given CoverageSingleRun
-            can cover if we invert their branches"""
+        """
+        Return all addreses, edges, paths that the given CoverageSingleRun
+        can cover if we invert their branches
+
+        :param other: The CoverageSingleRun to check with our global coverage state
+        :return: A set of CovItem
+        """
         assert self.strategy == other.strategy
         if self.strategy == CoverageStrategy.CODE_COVERAGE:
             return other.not_instructions - self.instructions.keys()
@@ -287,7 +357,11 @@ class GlobalCoverage(CoverageSingleRun):
 
 
     def save_coverage(self) -> None:
-        """ Save the coverage in the workspace"""
+        """
+        Save the coverage in the workspace
+
+        :return: None
+        """
         # Save instruction coverage
         if self.instructions:
             self.workspace.save_metadata_file(self.INSTRUCTION_COVERAGE_FILE, json.dumps(self.instructions, indent=2))
@@ -302,7 +376,11 @@ class GlobalCoverage(CoverageSingleRun):
 
 
     def load_coverage(self) -> None:
-        """ Load the coverage from the workspace """
+        """
+        Load the coverage from the workspace
+
+        :return: None
+        """
         # Load instruction coverage
         data = self.workspace.get_metadata_file(self.INSTRUCTION_COVERAGE_FILE)
         if data:

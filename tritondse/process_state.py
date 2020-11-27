@@ -12,8 +12,7 @@ from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction
 from tritondse.thread_context import ThreadContext
 from tritondse.program        import Program
 from tritondse.heap_allocator import HeapAllocator
-from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
-                                     AstNode, Registers
+from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, AstNode, Registers
 from tritondse.arch           import ARCHS, CpuState
 
 
@@ -103,11 +102,13 @@ class ProcessState(object):
 
 
     def get_unique_thread_id(self):
+        """ Return an unique thread id """
         self.utid += 1
         return self.utid
 
 
     def get_unique_file_id(self):
+        """ Return an unique file descriptor """
         self.fd_id += 1
         return self.fd_id
 
@@ -147,6 +148,7 @@ class ProcessState(object):
 
     @property
     def registers(self) -> Registers:
+        """ All registers according to the current architecture defined """
         return self.tt_ctx.registers
 
 
@@ -187,6 +189,12 @@ class ProcessState(object):
 
 
     def initialize_context(self, arch: Architecture):
+        """
+        Initialize the context
+
+        :param arch: The architecture to initialize
+        :return: None
+        """
         self.architecture = arch
         self._archinfo = ARCHS[self.architecture]
         self.cpu = CpuState(self.tt_ctx, self._archinfo)
@@ -197,6 +205,7 @@ class ProcessState(object):
     def load_program(self, p: Program, base_addr: Addr = 0) -> None:
         """
         Load the given program in the process state memory
+
         :param p: Program to load in the process memory
         :param base_addr: Base address where to load the program (if PIE)
         :return: True on whether loading succeeded or not
@@ -221,6 +230,13 @@ class ProcessState(object):
 
 
     def is_valid_memory_mapping(self, ptr, padding_segment=0) -> bool:
+        """
+        Check if a given address is mapped into our memory areas
+
+        :param ptr: The pointer to check
+        :param padding_segment: A padding to add at the end of segment if necessary
+        :return: True if ptr is mapped otherwise returns False
+        """
         valid_access = False
 
         # Check stack area
@@ -265,6 +281,7 @@ class ProcessState(object):
         """
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register  # if str transform to reg
         return self.tt_ctx.setConcreteRegisterValue(reg, value)
+
 
     def read_memory_int(self, addr: Addr, size: ByteSize) -> int:
         """
@@ -489,6 +506,7 @@ class ProcessState(object):
 
         :param addr: Memory address
         :param size: memory size in bytes
+        :raise: RuntimeError If the size if not aligned
         :return: Symbolic Expression associated with the memory
         """
         if size == 1:
@@ -538,6 +556,8 @@ class ProcessState(object):
         :param addr: Memory address
         :param size: memory size in bytes
         :param expr: Symbolic Expression or AST to assign
+        :raise: RuntimeError If the size if not aligned
+        :return: None
         """
         expr = expr if hasattr(expr, "getAst") else self.tt_ctx.newSymbolicExpression(expr, f"assign memory")
         if size in [1, 2, 4, 8, 16, 32, 64]:
@@ -708,7 +728,8 @@ class ProcessState(object):
                .replace("%03d", "{:03d}").replace("%p", "{:#x}").replace("%i", "{}")
 
 
-    def get_format_arguments(self, s, args):
+    def get_format_arguments(self, s: str, args: list):
+        """ Returns the formated arguments """
         s_str = self.get_memory_string(s)
         postString = [i for i, x in enumerate([i for i, c in enumerate(s_str) if c == '%']) if s_str[x+1] == "s"]
         for p in postString:
@@ -717,16 +738,31 @@ class ProcessState(object):
 
 
     def get_stack_value(self, index: int) -> int:
+        """
+        Returns the value at the index position of the stack
+        :param index: The index position from the top of the stack
+        :return: the value got
+        """
         addr = self.cpu.stack_pointer + (index * self.ptr_size)
         return self.read_memory_int(addr, self.ptr_size)
 
 
     def pop_stack_value(self) -> int:
+        """
+        Pop a stack value
+        :return: int
+        """
         val = self.read_memory_ptr(self.cpu.stack_pointer)
         self.cpu.stack_pointer += self.ptr_size
         return val
 
     def push_stack_value(self, value: int) -> None:
+        """
+        Push a stack value
+
+        :param value: The value to push
+        :return: None
+        """
         self.write_memory_ptr(self.cpu.stack_pointer-self.ptr_size, value)
         self.cpu.stack_pointer -= self.ptr_size
 

@@ -11,6 +11,8 @@ def mk_new_crashing_seed(se, model) -> Seed:
     """
     This function is used by every sanitizers to dump the model found in order
     to trigger a bug into the crash directory.
+
+    :return: A fresh Seed
     """
     new_input = bytearray(se.seed.content)
     for k, v in model.items():
@@ -19,7 +21,6 @@ def mk_new_crashing_seed(se, model) -> Seed:
     # At this stage, we do not know if the seed will really make the
     # program crash or not.
     return Seed(new_input)
-    #return Seed(new_input, SeedStatus.CRASH)
 
 
 
@@ -39,6 +40,10 @@ class UAFSanitizer(ProbeInterface):
 
     @staticmethod
     def check(se, pstate, ptr, desc):
+        """
+        The entry point of the sanitizer. This function check if a bug is present
+        :return: True if the bug is present
+        """
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             logging.critical(desc)
             se.seed.status = SeedStatus.CRASH
@@ -76,6 +81,10 @@ class NullDerefSanitizer(ProbeInterface):
 
     @staticmethod
     def check(se, pstate, mem, desc):
+        """
+        The entry point of the sanitizer. This function check if a bug is present
+        :return: True if the bug is present
+        """
         ptr = mem.getAddress()
         valid_access = False
 
@@ -141,10 +150,12 @@ class FormatStringSanitizer(ProbeInterface):
             return mk_new_crashing_seed(se, model)
 
 
-
-
     @staticmethod
     def check(se, pstate, addr, string_ptr):
+        """
+        The entry point of the sanitizer. This function check if a bug is present
+        :return: True if the bug is present
+        """
         symbolic_cells = []
 
         # Count the number of cells which is symbolic
@@ -214,6 +225,10 @@ class IntegerOverflowSanitizer(ProbeInterface):
 
     @staticmethod
     def check(se, pstate, instruction):
+        """
+        The entry point of the sanitizer. This function check if a bug is present
+        :return: True if the bug is present
+        """
         # This probe is only available for X86_64 and AARCH64
         assert(pstate.architecture == Architecture.X86_64 or pstate.architecture == Architecture.AARCH64)
 
