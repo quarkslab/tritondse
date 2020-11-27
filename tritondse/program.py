@@ -102,7 +102,7 @@ class Program(object):
         """
         Return the lief relocation enum associated with the current
         architecture of the binary.
-        :return:
+        :return: The relocation enum
         """
         rel_map = {
             lief.ELF.ARCH.AARCH64: lief.ELF.RELOCATION_AARCH64,
