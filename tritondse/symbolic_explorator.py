@@ -56,6 +56,7 @@ class SymbolicExplorator(object):
 
     @property
     def callback_manager(self) -> CallbackManager:
+        """ Returns the callback manager """
         return self.cbm
 
 
@@ -92,6 +93,7 @@ class SymbolicExplorator(object):
 
 
     def explore(self) -> ExplorationStatus:
+        """ The symbolic exploration start form here """
         self.status = ExplorationStatus.RUNNING
 
         try:
@@ -129,14 +131,17 @@ class SymbolicExplorator(object):
 
         return self.status
 
+
     def add_input_seed(self, seed: Union[bytes, Seed]) -> None:
         """ Add the given bytes as input for the exploration """
         seed = seed if isinstance(seed, Seed) else Seed(seed)
         self.seeds_manager.add_new_seed(seed)
 
+
     def stop_exploration(self) -> None:
         """ Interrupt exploration """
         self._stop = True
+
 
     def _fmt_elpased(self, seconds) -> str:
         m, s = divmod(seconds, 60)

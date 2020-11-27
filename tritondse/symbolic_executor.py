@@ -69,6 +69,7 @@ class SymbolicExecutor(object):
 
     @property
     def callback_manager(self) -> CallbackManager:
+        """ Returns the callback manager """
         return self.cbm
 
 
@@ -200,7 +201,15 @@ class SymbolicExecutor(object):
                 self.pstate.write_symbolic_register(reg, ret_val, f"(routine {routine_name}")
 
 
-    def routines_handler(self, instruction):
+    def routines_handler(self, instruction: Instruction):
+        """
+        This function handle external routines calls. When the .plt jmp on an external
+        address, we call the appropriate Python routine and setup the returned value
+        which may be concrete or symbolic.
+
+        :param instruction: The current instruction executed
+        :return: None
+        """
         pc = self.pstate.cpu.program_counter
         if pc in self.rtn_table:
             routine_name, routine = self.rtn_table[pc]
@@ -235,13 +244,9 @@ class SymbolicExecutor(object):
                 self.pstate.threads[self.pstate.tid].count = 0
                 return
 
-            # FIXME: What the fuck is that ?
             if self.pstate.architecture == Architecture.AARCH64:
                 # Get the return address
-                if routine_name == "__libc_start_main":
-                    ret_addr = self.pstate.cpu.program_counter
-                else:
-                    ret_addr = self.pstate.tt_ctx.getConcreteRegisterValue(self.pstate.tt_ctx.registers.x30)
+                ret_addr = self.pstate.tt_ctx.getConcreteRegisterValue(self.pstate.tt_ctx.registers.x30)
 
             elif self.pstate.architecture == Architecture.X86_64:
                 # Get the return address and restore RSP (simulate RET)
@@ -295,10 +300,17 @@ class SymbolicExecutor(object):
                     logging.warning(f"symbol {sname} imported but unsupported")
 
     def abort(self):
+        """ Abort the current execution """
         raise RuntimeError('Execution aborted')
 
 
     def run(self):
+        """
+        Execute the program (one trace)
+        :raise: RuntimeError if something wrong during the execution
+        :return: None
+        """
+
         self.start_time = time.time()
         # Initialize the process_state architecture (at this point arch is sure to be supported)
         logging.debug(f"Loading program {self.program.path.name} [{self.program.architecture}]")
