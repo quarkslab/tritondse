@@ -107,7 +107,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     main = pstate.get_argument_value(0)
 
     if pstate.architecture == Architecture.AARCH64:
-        pstate.cpu.program_counter = main
+        pstate.cpu.x30 = main
 
     elif pstate.architecture == Architecture.X86_64:
         # Push the return value to jump into the main() function

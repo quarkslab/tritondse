@@ -15,29 +15,41 @@ class WorklistAddressToSet(object):
         self.cov = None
         self.worklist = dict() # {CovItem: set(Seed)}
 
+
     def __len__(self):
+        """ Returns the size of the worklist """
         count = 0
         for k, v in self.worklist.items():
             count += len(v)
         return count
 
+
     def has_seed_remaining(self):
+        """ Returns true if there are still seeds in the worklist """
         return len(self) != 0
 
+
     def add(self, seed):
+        """ Add a seed to the worklist """
         for obj in seed.coverage_objectives:
             if obj in self.worklist:
                 self.worklist[obj].add(seed)
             else:
                 self.worklist[obj] = {seed}
 
+
     def update_worklist(self, coverage: GlobalCoverage):
+        """ Update the coverage state of the worklist with the global one """
         self.cov = coverage
 
+
     def can_solve_models(self) -> bool:
-        return True  # This worklist always enable
+        """ Always true """
+        return True
+
 
     def pick(self):
+        """ Return the next seed to execute """
         seed_picked = None
         item_picked = None
         to_remove = set()
@@ -79,8 +91,10 @@ class WorklistAddressToSet(object):
 
         return seed_picked
 
+
     def post_exploration(self):
         pass
+
 
 
 class WorklistRand(object):
@@ -91,28 +105,40 @@ class WorklistRand(object):
     def __init__(self, manager):
         self.worklist = set() # set(Seed)
 
+
     def __len__(self):
+        """ Returns the size of the worklist """
         return len(self.worklist)
 
+
     def has_seed_remaining(self):
+        """ Returns true if there are still seeds in the worklist """
         return len(self) != 0
 
+
     def add(self, seed):
+        """ Add a seed to the worklist """
         self.worklist.add(seed)
 
+
     def update_worklist(self, coverage: GlobalCoverage):
+        """ Update the coverage state of the worklist with the global one """
         self.cov = coverage
 
+
     def can_solve_models(self) -> bool:
+        """ Always true """
         return True  # This worklist always enable
+
 
     def pick(self):
         """
-        The method pop() removes a random element from the set and returns
-        the removed element. Unlike, a stack a random element is popped off
-        the set.
+        Return the next seed to execute. The method pop() removes a random element
+        from the set and returns the removed element. Unlike, a stack a
+        random element is popped off the set.
         """
         return self.worklist.pop()
+
 
     def post_exploration(self):
         pass
@@ -131,16 +157,22 @@ class FreshSeedPrioritizerWorklist(object):
         self.fresh = []       # Seed never processed (list to make sure we can pop first one received)
         self.worklist = dict() # CovItem -> set(Seed)
 
+
     def __len__(self):
+        """ Returns the size of the worklist """
         s = set()
         for seeds in self.worklist.values():
             s.update(seeds)
         return len(self.fresh) + len(s)
 
+
     def has_seed_remaining(self):
+        """ Returns true if there are still seeds in the worklist """
         return len(self) != 0
 
+
     def add(self, seed):
+        """ Add a seed to the worklist """
         if seed.coverage_objectives:  # If the seed already have coverage objectives
             for item in seed.coverage_objectives:  # Add it in our worklist
                 if item in self.worklist:
@@ -151,7 +183,9 @@ class FreshSeedPrioritizerWorklist(object):
         else:  # Otherwise it is fresh
             self.fresh.append(seed)
 
+
     def update_worklist(self, coverage: GlobalCoverage):
+        """ Update the coverage state of the worklist with the global one """
         # Iterate the worklist to see if some items have now been covered
         # and are thus not interesting anymore
         to_remove = [x for x in self.worklist if coverage.is_covered(x)]
@@ -162,8 +196,11 @@ class FreshSeedPrioritizerWorklist(object):
                 if not seed.coverage_objectives:  # The seed cannot improve the coverage of anything
                     self.manager.drop_seed(seed)
 
+
     def can_solve_models(self) -> bool:
-        return not self.fresh  # True if the set of fresh seeds is empty
+        """ Returns True if the set of fresh seeds is empty """
+        return not self.fresh
+
 
     def pick(self) -> 'Seed':
         """ Return the next seed to execute """
@@ -187,6 +224,7 @@ class FreshSeedPrioritizerWorklist(object):
             if not self.worklist[it]:          # remove the whole covitem if empty
                 self.worklist.pop(it)
         return seed
+
 
     def post_exploration(self):
         s = " ".join(str(x) for x in self.worklist)

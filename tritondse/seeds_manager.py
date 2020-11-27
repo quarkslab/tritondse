@@ -1,18 +1,19 @@
 # built-in imports
 import logging
 import time
-from typing import Generator
+
+from typing      import Generator
 from collections import Counter
 
 # local imports
-from tritondse.config    import Config
-from tritondse.seed      import Seed, SeedStatus
-from tritondse.callbacks import CallbackManager
-from tritondse.coverage  import GlobalCoverage
-from tritondse.worklist  import WorklistAddressToSet, FreshSeedPrioritizerWorklist
-from tritondse.workspace import Workspace
+from tritondse.config            import Config
+from tritondse.seed              import Seed, SeedStatus
+from tritondse.callbacks         import CallbackManager
+from tritondse.coverage          import GlobalCoverage
+from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritizerWorklist
+from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
-from tritondse.types     import Solver, Model
+from tritondse.types             import Solver, Model
 
 
 
@@ -21,15 +22,15 @@ class SeedManager:
     This class is used to represent the seeds management.
     """
     def __init__(self, config: Config, callbacks: CallbackManager, coverage: GlobalCoverage, workspace: Workspace):
-        self.config           = config
-        self.workspace        = workspace
-        self.coverage         = coverage
-        # self.worklist         = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
-        self.worklist         = FreshSeedPrioritizerWorklist(self)
-        self.cbm              = callbacks
-        self.corpus           = set()
-        self.crash            = set()
-        self.hangs            = set()
+        self.config     = config
+        self.workspace  = workspace
+        self.coverage   = coverage
+        #self.worklist   = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
+        self.worklist   = FreshSeedPrioritizerWorklist(self)
+        self.cbm        = callbacks
+        self.corpus     = set()
+        self.crash      = set()
+        self.hangs      = set()
 
         self.__load_seed_workspace()
 
@@ -37,7 +38,9 @@ class SeedManager:
         self._stat_branch_fail = Counter()
         self._yolo_map = set()  # CovItem
 
+
     def __load_seed_workspace(self):
+        """ Load seed from the workspace """
         # Load seed from the corpus
         for seed in self.workspace.iter_corpus():
             self.corpus.add(seed)
@@ -53,6 +56,12 @@ class SeedManager:
 
 
     def is_new_seed(self, seed: Seed) -> bool:
+        """
+        Check if a seed is a new one (not into corpus, crash and hangs)
+
+        :param seed: The seed to test
+        :return: True if the is a new one
+        """
         return sum(seed in x for x in [self.corpus, self.crash, self.hangs]) == 0
 
 
@@ -60,6 +69,7 @@ class SeedManager:
         """
         Add a seed to to appropriate internal queue depending
         on its status.
+
         :param seed: Seed to add in internal queue
         :return: None
         """
@@ -75,32 +85,18 @@ class SeedManager:
         else:
             assert False
 
-    # def post_execution(self, execution: SymbolicExecutor, seed: Seed) -> None:
-    #     # Update instructions covered from the last execution into our exploration coverage
-    #     self.coverage.merge(execution.coverage)
-    #
-    #     # Update the current seed queue
-    #     if seed.status == SeedStatus.NEW:
-    #         logging.error(f"seed not meant to be NEW at the end of execution ({seed.filename})")
-    #     else:
-    #         self.add_seed_queue(seed)
-    #
-    #     # Iterate all pending seeds to be added in the right location
-    #     for s in execution.pending_seeds:
-    #         self._add_seed(s)  # will add the seed in both internal queues & workspace
-    #
-    #     # Move the current seed into the right directory (and remove it from worklist)
-    #     self.workspace.update_seed_location(seed)
-    #     logging.info(f'Seed {seed.filename} dumped [{seed.status.name}]')
-    #
-    #     self._generate_new_inputs(execution)
-    #
-    #     logging.info('Worklist size: %d' % (len(self.worklist)))
-    #     logging.info('Corpus size: %d' % (len(self.corpus)))
-    #     logging.info(f'Unique instructions covered: {self.coverage.unique_instruction_covered}')
-
 
     def post_execution(self, execution: SymbolicExecutor, seed: Seed) -> None:
+        """
+        This function is called after each execution. This function does:
+            - update the code coverage
+            - update the worklist
+
+        :param execution: The current exection
+        :param seed: The seed of the execution
+        :return: None
+        """
+
         # Update instructions covered from the last execution into our exploration coverage
         self.coverage.merge(execution.coverage)
         self.worklist.update_worklist(execution.coverage)
@@ -214,6 +210,7 @@ class SeedManager:
                     pass
                 elif status == Solver.TIMEOUT:
                     pass
+                    # TODO
                     # while status == Solver.TIMEOUT:
                     #     limit = int(len(constraint) / 2)
                     #     if limit < 1:
@@ -277,19 +274,22 @@ class SeedManager:
 
 
     def pick_seed(self):
+        """ Return a seed from the worklist """
         return self.worklist.pick()
 
 
     def seeds_available(self) -> bool:
+        """ Returns true if seeds are still in the worklist """
         return self.worklist.has_seed_remaining()
 
 
     def is_seed_new(self, seed: Seed) -> bool:
-        """ Return True whether the seed is entirely new for the SeedManager or not """
+        """ Returns True whether the seed is entirely new for the SeedManager or not """
         return seed is not None and seed not in self.corpus and seed not in self.crash and seed not in self.hangs
 
 
     def add_new_seed(self, seed: Seed) -> None:
+        """ Add a new seed """
         if self.is_new_seed(seed):
             self._add_seed(seed)
             logging.debug(f'Seed {seed.filename} dumped [{seed.status.name}]')
@@ -304,6 +304,7 @@ class SeedManager:
 
 
     def drop_seed(self, seed: Seed) -> None:
+        """ Remove a seed from the workspace """
         logging.info(f"droping seed {seed.get_hash()} as it cannot improve coverage anymore")
         seed.status = SeedStatus.OK_DONE
         self.add_seed_queue(seed)  # Will put it in the corpus
@@ -311,6 +312,7 @@ class SeedManager:
 
 
     def post_exploration(self):
+        """ This function is called after the exploration and just print some stats """
         # Do things you would do at the very end of exploration
         # (or just before it becomes idle)
         count = sum(x for x in self._stat_branch_reverted.values())
@@ -321,5 +323,6 @@ class SeedManager:
 
 
     def pp_smt_status(self, status: Solver):
+        """ The pretty print function of the solver status """
         mapper = {Solver.SAT: 92, Solver.UNSAT: 91, Solver.TIMEOUT: 93, Solver.UNKNOWN: 95}
         return f"\033[{mapper[status]}m{status.name}\033[0m"
