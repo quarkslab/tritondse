@@ -4,6 +4,7 @@ import threading
 import gc
 from enum   import Enum
 from typing import Union
+import stat
 
 from tritondse.config            import Config
 from tritondse.process_state     import ProcessState
@@ -44,6 +45,7 @@ class SymbolicExplorator(object):
         # Save both the program and configuration in the workspace (for later resume if needed)
         self.workspace.save_file("config.json", self.config.to_json())
         self.workspace.save_file(self.program.path.name, self.program.path.read_bytes())
+        self.workspace.get_metadata_file_path(self.program.path.name).chmod(stat.S_IRWXU)  # Set the binary to be executable
 
         # Initialize coverage
         self.coverage = GlobalCoverage(self.config.coverage_strategy, self.workspace, self.config.branch_solving_strategy)
