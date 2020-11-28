@@ -3,6 +3,7 @@ import shutil
 from pathlib import Path
 import logging
 from typing import Generator, Optional, Union
+import time
 
 # local imports
 from tritondse.types import PathLike
@@ -15,6 +16,8 @@ class Workspace(object):
     exploration workspace
     """
 
+    DEFAULT_WORKSPACE = "/tmp/triton_workspace"
+
     CORPUS_DIR = "corpus"
     CRASH_DIR = "crashes"
     HANG_DIR = "hangs"
@@ -22,8 +25,13 @@ class Workspace(object):
     METADATA_DIR = "metadata"
 
     def __init__(self, root_dir: PathLike):
-        self.root_dir = Path(root_dir)
-
+        if not root_dir:  # If no workspace was provided create a unique temporary one
+            self.root_dir = Path(self.DEFAULT_WORKSPACE) / str(int(time.time()))
+            self.root_dir.mkdir(parents=True)
+        else:
+            self.root_dir = Path(root_dir)
+            if not self.root_dir.exists():  # Create the directory in case it was not existing
+                self.root_dir.mkdir(parents=True)
 
     def initialize(self, flush: bool = False):
         """
