@@ -11,3 +11,4 @@ dist/
 tritondse.egg-info/
 workspace
 www
+.idea/
