@@ -769,4 +769,4 @@ class ProcessState(object):
     def is_halt_instruction(self) -> bool:
         """ Return true if on halt instruction architecture independent (in theory) """
         halt_opc = self._archinfo.halt_inst
-        return self.__current_inst.getOpcode() == halt_opc
+        return self.__current_inst.getType() == halt_opc
