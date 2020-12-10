@@ -3,6 +3,7 @@ import logging
 import time
 import random
 import os
+import resource
 from typing import Optional, Union, List
 
 # third party imports
@@ -347,3 +348,17 @@ class SymbolicExecutor(object):
         self.end_time = time.time()
         logging.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time:.02f}s)")
         logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.tt_ctx.getPathPredicateSize()}")
+        logging.info(f"Memory usage: {self.mem_usage_str()}")
+
+
+    @staticmethod
+    def mem_usage_str():
+        size, resident, shared, _, _, _, _ = (int(x) for x in open(f"/proc/{os.getpid()}/statm").read().split(" "))
+        resident = resident * resource.getpagesize()
+        units = [(float(1024), "Kb"), (float(1024 **2), "Mb"), (float(1024 **3), "Gb")]
+        for unit, s in units[::-1]:
+            if resident / unit < 1:
+                continue
+            else:  # We are on the right unit
+                return "%.2f%s" % (resident/unit, s)
+        return "%dB" % resident

@@ -94,30 +94,34 @@ class SymbolicExplorator(object):
         logging.info(f"Elapsed time: {self._fmt_elpased(self.__time_delta())}\n")
 
 
+    def step(self):
+        # Take an input
+        seed = self.seeds_manager.pick_seed()
+
+        # Execution into a thread
+        t = threading.Thread(
+            name='\033[0;%dm[exec:%08d]\033[0m' % ((31 + (self.uid_counter % 4)), self.uid_counter),
+            target=self.worker,
+            args=[seed, self.uid_counter],
+            daemon=True
+        )
+        t.start()
+        self.uid_counter += 1
+
+        while True:
+            t.join(0.001)
+            if not t.is_alive():
+                break
+        gc.collect()  # FIXME: Why we have to force the collect to avoid memory leak?
+
+
     def explore(self) -> ExplorationStatus:
         """ The symbolic exploration start form here """
         self.status = ExplorationStatus.RUNNING
 
         try:
             while self.seeds_manager.seeds_available() and not self._stop:
-                # Take an input
-                seed = self.seeds_manager.pick_seed()
-
-                # Execution into a thread
-                t = threading.Thread(
-                        name='\033[0;%dm[exec:%08d]\033[0m' % ((31 + (self.uid_counter % 4)), self.uid_counter),
-                        target=self.worker,
-                        args=[seed, self.uid_counter],
-                        daemon=True
-                    )
-                t.start()
-                self.uid_counter += 1
-
-                while True:
-                    t.join(0.001)
-                    if not t.is_alive():
-                        break
-                gc.collect()  # FIXME: Why we have to force the collect to avoid memory leak?
+                self.step()
 
             # Exited loop
             self.status = ExplorationStatus.STOPPED if self._stop else ExplorationStatus.IDLE
