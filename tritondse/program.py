@@ -10,7 +10,7 @@ from tritondse.types    import PathLike, Addr, Architecture
 from tritondse.routines import *
 
 
-lief.Logger.disable()
+#lief.Logger.disable()
 
 _arch_mapper = {
     lief.ARCHITECTURES.ARM:   Architecture.ARM32,

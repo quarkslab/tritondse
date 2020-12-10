@@ -231,6 +231,8 @@ def rtn_atoi(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     ast = pstate.actx
     arg = pstate.get_argument_value(0)
 
+    # FIXME: On ne concretize pas correctement la taille de la chaine
+
     cells = {i: pstate.read_symbolic_memory_byte(arg+i).getAst() for i in range(10)}
 
     # FIXME: Does not support negative value and all other corner cases.
