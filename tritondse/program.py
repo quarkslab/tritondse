@@ -1,16 +1,16 @@
+from __future__ import annotations
+
 # built-in imports
 from pathlib import Path
-from typing  import Optional, Generator, Tuple
+from typing import Optional, Generator, Tuple
+import logging
 
 # third party
 import lief
 
 # local imports
-from tritondse.types    import PathLike, Addr, Architecture
-from tritondse.routines import *
+from tritondse.types import PathLike, Addr, Architecture
 
-
-#lief.Logger.disable()
 
 _arch_mapper = {
     lief.ARCHITECTURES.ARM:   Architecture.ARM32,
@@ -19,18 +19,22 @@ _arch_mapper = {
 }
 
 
-
 class Program(object):
     """
-    Class representation of a program (loaded in memory)
-    This class is wrapping LIEF to represent a program and to provide
-    all the features allowing to load one regardless of its format.
-    :raise: FileNotFoundError if the file is not properly recognized by lief
-            or in the wrong architecture
+    Representation of a program (loaded in memory). This class is wrapping
+    `LIEF <https://lief.quarkslab.com/doc/latest>`_ to represent a program
+    and to provide all the features allowing to pseudo-load one regardless
+    of its format.
     """
 
     def __init__(self, path: PathLike):
-        self.path = Path(path)
+        """
+        :param path: Program path
+        :type path: :py:obj:`tritondse.types.PathLike`
+        :raise FileNotFoundError: if the file is not properly recognized by lief
+                                  or in the wrong architecture
+        """
+        self.path: Path = Path(path)  #: Binary file path
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
 
@@ -48,8 +52,9 @@ class Program(object):
     @property
     def entry_point(self) -> Addr:
         """
-        Return the program entrypoint address as defined
-        in the binary headers
+        Program entrypoint address as defined in the binary headers
+
+        :rtype: :py:obj:`tritondse.types.Addr`
         """
         return self._binary.entrypoint
 
@@ -57,8 +62,9 @@ class Program(object):
     @property
     def architecture(self) -> Architecture:
         """
-        Returns the architecture enum representing the target
-        architecture as an enum object.
+        Architecture enum representing program architecture.
+
+        :rtype: Architecture
         """
         return self._arch
 
@@ -66,9 +72,9 @@ class Program(object):
     @property
     def endianness(self) -> lief.ENDIANNESS:
         """
-        Returns the endianness of the program as defined in the
-        binary headers.
-        :return: Endianness as defined by LIEF
+        Endianness of the program as defined in binary headers.
+
+        :rtype: lief.ENDIANNESS
         """
         return self._binary.abstract.header.endianness
 
@@ -76,8 +82,9 @@ class Program(object):
     @property
     def format(self) -> lief.EXE_FORMATS:
         """
-        Returns the binary format. Supported formats by lief are: ELF, PE, MachO
-        :return: formats value as defined by lief
+        Binary format. Supported formats by lief are: ELF, PE, MachO
+
+        :rtype: lief.EXE_FORMATS
         """
         return self._binary.format
 
@@ -85,6 +92,7 @@ class Program(object):
     def _load_arch(self) -> Optional[Architecture]:
         """
         Load architecture as an Architecture object.
+
         :return: Architecture or None if unsupported
         """
         arch = self._binary.abstract.header.architecture
@@ -100,9 +108,16 @@ class Program(object):
     @property
     def relocation_enum(self):
         """
-        Return the lief relocation enum associated with the current
+        LIEF relocation enum associated with the current
         architecture of the binary.
-        :return: The relocation enum
+
+        :return: LIEF relocation enum
+        :rtype: Union[lief.ELF.RELOCATION_AARCH64,
+                      lief.ELF.RELOCATION_ARM,
+                      lief.ELF.RELOCATION_PPC64,
+                      lief.ELF.RELOCATION_PPC,
+                      lief.ELF.RELOCATION_i386,
+                      lief.ELF.RELOCATION_X86_64]
         """
         rel_map = {
             lief.ELF.ARCH.AARCH64: lief.ELF.RELOCATION_AARCH64,
@@ -116,6 +131,9 @@ class Program(object):
 
 
     def _is_glob_dat(self, rel: lief.ELF.Relocation) -> bool:
+        """ Get whether the given relocation is of type GLOB_DAT.
+        Used locally to find mandatory relocations
+        """
         rel_enum = self.relocation_enum
         if hasattr(rel_enum, "GLOB_DAT"):
             return rel_enum(rel.type) == getattr(rel_enum, "GLOB_DAT")
@@ -126,8 +144,9 @@ class Program(object):
     def memory_segments(self) -> Generator[Tuple[Addr, bytes], None, None]:
         """
         Iterate over all memory segments of the program as loaded in memory.
+
         :return: Generator of tuples addrs and content
-        :raise: NotImplementedError if the binary format cannot be loaded
+        :raise NotImplementedError: if the binary format cannot be loaded
         """
         if self.format == lief.EXE_FORMATS.ELF:
             for seg in self._binary.concrete.segments:
@@ -145,7 +164,8 @@ class Program(object):
         Iterate over all imported functions by the program. This function
         is a generator of tuples associating the function and its relocation
         address in the binary.
-        :return: Generator of FunName, relocation address
+
+        :return: Generator of tuples function name and relocation address
         """
         if self.format == lief.EXE_FORMATS.ELF:
             try:
@@ -168,7 +188,8 @@ class Program(object):
         """
         Iterate over all imported variable symbols. Yield for each of them the name and
         the relocation address in the binary.
-        :return: Generator of symbol name, relocation address
+
+        :return: Generator of tuples with symbol name, relocation address
         """
         if self.format == lief.EXE_FORMATS.ELF:
             rel_enum = self.relocation_enum
@@ -187,6 +208,8 @@ class Program(object):
         Search for the function name in fonctions of the binary.
 
         :param name: Function name
-        :return: lief Function object if found
+        :type name: str
+        :return: Function object if found
+        :rtype: lief.Function
         """
         return self._funs.get(name)
