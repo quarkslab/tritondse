@@ -2,6 +2,7 @@ import logging
 import json
 from enum import Enum
 from pathlib import Path
+from typing import List
 
 # triton-based libraries
 from tritondse.coverage import CoverageStrategy, BranchCheckStrategy
@@ -10,29 +11,83 @@ from tritondse.coverage import CoverageStrategy, BranchCheckStrategy
 
 class Config(object):
     """
-    Data class holding tritondse configurations
+    Data class holding tritondse configuration
+    parameter
     """
-    def __init__(self, debug=True):
-        self.symbolize_argv         = False                                       # Not symbolized by default
-        self.symbolize_stdin        = False                                       # Not symbolized by default
-        self.pipe_stdout            = False                                       # Whether to forward program stdout on current output
-        self.pipe_stderr            = False                                       # Whether to forward program stderrr on current stderr
-        self.skip_sleep_routine     = False                                       # If True, sleeps are not waiting
-        self.smt_timeout            = 5000                                        # 10 seconds by default (milliseconds)
-        self.execution_timeout      = 120                                         # Unlimited by default (seconds)
-        self.exploration_timeout    = 0                                           # Unlimited by default (seconds)
-        self.exploration_limit      = 0                                           # Unlimited by default (number of traces)
-        self.thread_scheduling      = 200                                         # Number of instructions executed by thread before scheduling
-        self.smt_queries_limit      = 1200                                        # Limit of SMT queries by execution
-        self.coverage_strategy      = CoverageStrategy.CODE_COVERAGE              # Coverage strategy
-        self.branch_solving_strategy= BranchCheckStrategy.FIRST_LAST_NOT_COVERED  # Only checks the first and last branch
-        self.debug                  = debug                                       # Enable debug info by default
-        self.workspace              = "workspace"                                 # Workspace directory
-        self.program_argv           = list()                                      # The program arguments (ex. argv[0], argv[1], etc.). List of Bytes.
-        self.time_inc_coefficient   = 0.00001                                     # Time increment coefficient at each instruction to provide a deterministic
-                                                                                  # behavior when calling time functions (e.g gettimeofday(), clock_gettime(), ...).
-                                                                                  # For example, if 0.0001 is defined, each instruction will increment the time representation
-                                                                                  # of the execution by 100us.
+
+    def __init__(self, debug: bool = True):
+        """
+        :param debug: Enable debugging logging
+        :type debug: bool
+        """
+
+        self.symbolize_argv: bool = False
+        """ Symbolize parameters given on the command line. They are then injected on the
+        libc_start_main function call. *(default: False)*"""
+
+        self.symbolize_stdin: bool = False
+        """ Symbolize reads on ``stdin``. Thus the content of a buffer read in the file
+        descriptor 0 will be symbolized. *(default: False)*
+        
+        .. warning:: At the moment it is incompatible with :py:obj:`tritondse.Config.symbolize_argv`
+                     as a single symbolization point is supported at the moment
+        """
+        
+        self.pipe_stdout: bool = False
+        """ Pipe the program stdout to Python's stdout. *(default: False)*"""
+
+        self.pipe_stderr: bool = False
+        """ Pipe the program stderr to Python's stderr *(default: False)*"""
+
+        self.skip_sleep_routine: bool = False
+        """ Whether to emulate sleeps routine or not *(default: False)*"""
+
+        self.smt_timeout: int = 5000
+        """ Timeout for a single SMT query in milliseconds *(default: 10)*"""
+
+        self.execution_timeout: int = 0
+        """ Timeout of a single execution. If it is triggered the associated
+        input file is marked as 'hanging'. In seconds, 0 means unlimited *(default: 0)*"""
+
+        self.exploration_timeout: int = 0
+        """ Overall timeout of the exploration in seconds. 0 means unlimited *(default: 0)* """
+
+        self.exploration_limit: int = 0
+        """ Number of execution iterations. 0 means unlimited *(default: 0)*"""
+
+        self.thread_scheduling: int = 200
+        """ Number of instructions to execute before switching to the next thread.
+        At the moment all threads are scheduled in a round-robin manner *(default: 200)*"""
+
+        self.smt_queries_limit: int = 1200
+        """ Limit of SMT queries to perform for a single execution *(default: 1200)*"""
+
+        self.coverage_strategy: CoverageStrategy = CoverageStrategy.CODE_COVERAGE
+        """ Coverage strategy to apply for the whole exploration, default: :py:obj:`CoverageStrategy.CODE_COVERAGE`"""
+
+        self.branch_solving_strategy: BranchCheckStrategy = BranchCheckStrategy.FIRST_LAST_NOT_COVERED
+        """ Branch solving strategy to apply for a single execution. For a given non-covered
+        branch allows changing whether we try to solve it at all occurences or more seldomly.
+        default: :py:obj:`BranchCheckStrategy.FIRST_LAST_NOT_COVERED`
+        """
+
+        self.debug: bool = debug
+        """ Enable debug logging or not. Value taken from constructor.
+        FIXME: What if the value is changed during execution ?
+        """
+
+        self.workspace: str = "workspace"
+        """ Workspace directory to use. *(default: 'workspace')* """
+
+        self.program_argv: List[str] = []
+        """ Concrete program argument as given on the command line."""
+
+        self.time_inc_coefficient: float = 0.00001
+        """ Time increment coefficient at each instruction to provide a deterministic
+        behavior when calling time functions (e.g gettimeofday(), clock_gettime(), ...).
+        For example, if 0.0001 is defined, each instruction will increment the time representation
+        of the execution by 100us. *(default: 0.00001)*
+        """
 
 
     def __str__(self):
@@ -44,7 +99,6 @@ class Config(object):
         Save the current configuration to a file
 
         :param file: The path name
-        :return: None
         """
         with open(file, "w") as f:
             json.dump({k: (x.name if isinstance(x, Enum) else x) for k, x in self.__dict__.items()}, f, indent=2)
@@ -67,7 +121,7 @@ class Config(object):
         """
         Load a configuration from a json input to a new instance of Config
 
-        :param s: The json text
+        :param s: The JSON text
         :return: A fresh instance of Config
         """
         data = json.loads(s)
@@ -85,6 +139,7 @@ class Config(object):
     def to_json(self) -> str:
         """
         Convert the current configuration to a json output
-        :return: json text
+
+        :return: JSON text
         """
         return json.dumps({k: (x.name if isinstance(x, Enum) else x) for k, x in self.__dict__.items()}, indent=2)
