@@ -4,7 +4,12 @@ from tritondse.types import Addr, ByteSize
 
 class AllocatorException(Exception):
     """
-    Class used to represent an allocator exception
+    Class used to represent an heap allocator exception.
+    This exception can be raised in the following conditions:
+
+    * trying to allocate data which overflow heap size
+    * trying to free a pointer already freed
+    * trying to free a non-allocated pointer
     """
     def __init__(self, message):
         super(Exception, self).__init__(message)
@@ -13,26 +18,32 @@ class AllocatorException(Exception):
 
 class HeapAllocator(object):
     """
-    Custom tiny heap allocator. Used by built-ins
-    routines like malloc/free. This allocation manager
-    also enables better subsequent queries.
+    Custom tiny heap allocator. Used by built-ins routines like malloc/free.
+    This allocation manager also provides an API enabling checking whether
+    a pointer is allocated freed etc.
+
+    .. warning:: This allocator is very simple and does not perform any
+                 coalescing of freed memory areas. Thus it may not correctly
+                 model the behavior of libc allocator.
     """
 
     def __init__(self, start: Addr, end: Addr):
-        '''
+        """
         Class constructor. Takes heap bounds as parameter.
 
         :param start Addr: Where the heap area can start
+        :type start: :py:obj:`tritondse.types.Addr`
         :param end Addr: Where the heap area must be end
-        '''
+        :type start: :py:obj:`tritondse.types.Addr`
+        """
         # Range of the memory mapping
-        self.start = start
-        self.end   = end
-        self.base  = self.start
+        self.start: Addr       = start       #: Starting address of the heap
+        self.end: Addr         = end         #: Ending address of the heap
+        self.curr_offset: Addr = self.start  #: Heap current offset address
 
         # Pools memory
-        self.alloc_pool   = dict() # {ptr: size}
-        self.free_pool    = dict() # {size: set(ptr, ...)}
+        self.alloc_pool = dict() # {ptr: size}
+        self.free_pool  = dict() # {size: set(ptr, ...)}
 
         # TODO: For a to-the-moon allocator, we could merge freed chunks. Like 4 chunks of 1 byte into one chunk of 4 bytes.
         # TODO: For a to-the-moon allocator, we could split a big chunk into two chunks when asking an allocation.
@@ -59,8 +70,10 @@ class HeapAllocator(object):
         Performs an allocation of the given byte size.
 
         :param size: Byte size to allocate
-        :raise: AllocatorException if not memory is available
+        :type size: :py:obj:`tritondse.types.ByteSize`
+        :raise AllocatorException: if not memory is available
         :return: The pointer address allocated
+        :rtype: :py:obj:`tritondse.types.Addr`
         """
         # First, check if we have an available chunk in our
         # free_pool which have the same size
@@ -77,10 +90,10 @@ class HeapAllocator(object):
 
         # If we have nothing available in our free_pool at all, just allocate
         # a new chunk
-        ptr = self.base
+        ptr = self.curr_offset
         self.alloc_pool.update({ptr: size})
-        self.base += size
-        if self.base >= self.end:
+        self.curr_offset += size
+        if self.curr_offset >= self.end:
             raise AllocatorException('Out of Memory')
 
         return ptr
@@ -91,8 +104,8 @@ class HeapAllocator(object):
         Free the given memory chunk.
 
         :param ptr: Address to free
-        :raise: AllocatorException if the pointer has already been freed or if it has never been allocated
-        :return: None
+        :type ptr: :py:obj:`tritondse.types.Addr`
+        :raise AllocatorException: if the pointer has already been freed or if it has never been allocated
         """
         if self.is_ptr_freed(ptr):
             raise AllocatorException('Double free or corruption!')
@@ -105,7 +118,7 @@ class HeapAllocator(object):
         if size in self.free_pool:
             self.free_pool[size].add(ptr)
         else:
-            self.free_pool.update({size: set({ptr})})
+            self.free_pool.update({size: {ptr}})
 
         # Remove the chunk from our alloc_pool
         del self.alloc_pool[ptr]
@@ -116,10 +129,11 @@ class HeapAllocator(object):
         Check whether a given address has been allocated
 
         :param ptr: Address to check
+        :type ptr: :py:obj:`tritondse.types.Addr`
         :return: True if pointer points to an allocated memory region
         """
         for chunk, size in self.alloc_pool.items():
-            if ptr >= chunk and ptr < chunk + size:
+            if chunk <= ptr < chunk + size:
                 return True
         return False
 
@@ -129,10 +143,12 @@ class HeapAllocator(object):
         Check whether a given pointer has recently been freed.
 
         :param ptr: Address to check
+        :type ptr: :py:obj:`tritondse.types.Addr`
         :return: True if pointer has been freed, False otherwise
         """
+        # FIXME: This function is linear in the size of chunks. Can make it logarithmic
         for size, chunks in self.free_pool.items():
             for chunk in chunks:
-                if ptr >= chunk and ptr < chunk + size:
+                if chunk <= ptr < chunk + size:
                     return True
         return False

@@ -1,8 +1,9 @@
 # built-ins
+from __future__ import annotations
 import sys
 import time
 import logging
-from typing import Union, Callable, Tuple, Optional
+from typing import Union, Callable, Tuple, Optional, List
 
 
 # third-party
@@ -20,9 +21,18 @@ from tritondse.arch           import ARCHS, CpuState
 
 class ProcessState(object):
     """
-    This class is used to represent the state of a process.
+    Current process state. This class keeps all the runtime related to a running
+    process, namely current, instruction, thread, memory maps, file descriptors etc.
+    It also wraps Triton execution and thus hold its context. At the top of this,
+    it provides a user-friendly API to access data in both the concrete and symbolic
+    state of Triton.
     """
-    def __init__(self, thread_scheduling: int, time_coefficient: int):
+    def __init__(self, thread_scheduling: int, time_inc_coefficient: int):
+        """
+
+        :param thread_scheduling: Thread scheduling value, see :py:attr:`tritondse.Config.thread_scheduling`
+        :param time_coefficient: Time coefficient to represent execution time of an instruction see: :py:attr:`tritondse.Config.time_inc_coefficient`
+        """
         # Memory mapping
         self.BASE_PLT   = 0x01000000
         self.BASE_ARGV  = 0x02000000
@@ -40,7 +50,7 @@ class ProcessState(object):
         self.actx = self.tt_ctx.getAstContext()
 
         # Cpu object wrapping registers values
-        self.cpu = None
+        self.cpu: CpuState = None  #: CpuState holding concrete values of registers *(initialized when calling load_program)*
         self._archinfo = None
 
         # Used to define that the process must exist
@@ -89,7 +99,7 @@ class ProcessState(object):
 
         # Configuration values
         self.thread_scheduling_count = thread_scheduling
-        self.time_inc_coefficient = time_coefficient
+        self.time_inc_coefficient = time_inc_coefficient
 
         # Runtime temporary variables
         self.__pcs_updated = False
@@ -101,21 +111,32 @@ class ProcessState(object):
         self.__program_segments_mapping = {}
 
 
-    def get_unique_thread_id(self):
-        """ Return an unique thread id """
+    def get_unique_thread_id(self) -> int:
+        """ Return a new unique thread id. Used by thread related functions
+        when spawning a new thread.
+
+        :returns: new thread identifier
+        """
         self.utid += 1
         return self.utid
 
 
-    def get_unique_file_id(self):
-        """ Return an unique file descriptor """
+    def get_unique_file_id(self) -> int:
+        """ Return a new unique file descriptor. Used by routines
+        yielding new file descriptors.
+
+        :returns: new file descriptor identifier
+        """
         self.fd_id += 1
         return self.fd_id
 
 
     @property
     def architecture(self) -> Architecture:
-        """ Return architecture of the current process state """
+        """ Architecture of the current process state
+
+        :rtype: Architecture
+        """
         return Architecture(self.tt_ctx.getArchitecture())
 
 
@@ -130,46 +151,72 @@ class ProcessState(object):
 
     @property
     def ptr_size(self) -> ByteSize:
-        """ Size of a pointer in bytes """
+        """ Size of a pointer in bytes
+
+        :rtype: :py:obj:`tritondse.types.ByteSize`
+        """
         return self.tt_ctx.getGprSize()
 
 
     @property
     def ptr_bit_size(self) -> BitSize:
-        """ Size of a pointer in bits """
+        """ Size of a pointer in bits
+
+        :rtype: :py:obj:`tritondse.types.BitSize`
+        """
         return self.tt_ctx.getGprBitSize()
 
 
     @property
     def minus_one(self) -> int:
-        """ -1 according to the architecture size """
+        """ Value -1 according to the architecture size (32 or 64 bits)
+
+        :returns: -1 as an unsigned Python integer
+        :rtype: int
+        """
         return (1 << self.ptr_bit_size) - 1
 
 
     @property
     def registers(self) -> Registers:
-        """ All registers according to the current architecture defined """
+        """ All registers according to the current architecture defined.
+        The object returned is the TritonContext.register object.
+
+        :rtype: :py:obj:`tritondse.types.Registers`
+        """
         return self.tt_ctx.registers
 
 
     @property
     def return_register(self) -> Register:
-        """ Return the appropriate return register according to the arch """
+        """ Return the appropriate return register according to the arch
+
+        :rtype: :py:obj:`tritondse.types.Register`
+        """
         return getattr(self.registers, self._archinfo.ret_reg)
 
     @property
     def program_counter_register(self) -> Register:
-        """ Return the appropriate pc register according to the arch """
+        """ Return the appropriate pc register according to the arch.
+
+        :rtype: :py:obj:`tritondse.types.Register`
+        """
         return getattr(self.registers, self._archinfo.pc_reg)
 
     @property
     def base_pointer_register(self) -> Register:
-        """ Return the appropriate base pointer register according to the arch """
+        """ Return the appropriate base pointer register according to the arch.
+
+        :rtype: :py:obj:`tritondse.types.Register`
+        """
         return getattr(self.registers, self._archinfo.bp_reg)
 
     @property
     def stack_pointer_register(self) -> Register:
-        """ Return the appropriate stack pointer register according to the arch """
+        """ Return the appropriate stack pointer register according to the arch.
+
+        :rtype: :py:obj:`tritondse.types.Register`
+        """
         return getattr(self.registers, self._archinfo.sp_reg)
 
     @property
@@ -190,9 +237,12 @@ class ProcessState(object):
 
     def initialize_context(self, arch: Architecture):
         """
-        Initialize the context
+        Initialize the context with the given architecture
+
+        .. todo:: Protecting that function
 
         :param arch: The architecture to initialize
+        :type arch: Architecture
         :return: None
         """
         self.architecture = arch
@@ -204,11 +254,14 @@ class ProcessState(object):
 
     def load_program(self, p: Program, base_addr: Addr = 0) -> None:
         """
-        Load the given program in the process state memory
+        Load the given program in the process state memory. It sets
+        the program counter to the entry point and load all segments
+        in the triton context.
 
         :param p: Program to load in the process memory
+        :type p: Program
         :param base_addr: Base address where to load the program (if PIE)
-        :return: True on whether loading succeeded or not
+        :type base_addr: :py:obj:`tritondse.types.Addr`
         """
         # Set the program counter to points to entrypoint
         self.cpu.program_counter = p.entry_point
@@ -229,35 +282,35 @@ class ProcessState(object):
                 self.__program_segments_mapping.update({vaddr : vaddr + size})
 
 
-    def is_valid_memory_mapping(self, ptr, padding_segment=0) -> bool:
+    def is_valid_memory_mapping(self, ptr: Addr, padding_segment: int = 0) -> bool:
         """
-        Check if a given address is mapped into our memory areas
+        Check if a given address is mapped into memory maps
 
         :param ptr: The pointer to check
+        :type ptr: :py:obj:`tritondse.types.Addr`
         :param padding_segment: A padding to add at the end of segment if necessary
+        :type padding_segment: int
         :return: True if ptr is mapped otherwise returns False
         """
-        valid_access = False
 
         # Check stack area
-        if ptr <= self.BASE_STACK and ptr >= self.END_STACK:
-            valid_access = True
+        if self.BASE_STACK >= ptr >= self.END_STACK:
+            return True
 
         # Check heap area
-        if ptr >= self.BASE_HEAP and ptr <= self.END_HEAP:
+        if self.BASE_HEAP <= ptr <= self.END_HEAP:
             if self.is_heap_ptr(ptr) and self.heap_allocator.is_ptr_allocated(ptr):
-                valid_access = True
+                return True
 
         # Check other areas
-        if ptr >= self.BASE_PLT and ptr <= self.ERRNO_PTR + CPUSIZE.QWORD:
-            valid_access = True
+        if self.BASE_PLT <= ptr <= self.ERRNO_PTR + CPUSIZE.QWORD:
+            return True
 
         # Check segments mapping
         for vaddr_s, vaddr_e in self.__program_segments_mapping.items():
-            if ptr >= vaddr_s and ptr < vaddr_e + padding_segment:
-                valid_access = True
-
-        return valid_access
+            if vaddr_s <= ptr < vaddr_e + padding_segment:
+                return True
+        return False
 
 
     def read_register(self, register: Union[str, Register]) -> int:
@@ -265,6 +318,7 @@ class ProcessState(object):
         Read the current concrete value of the given register.
 
         :param register: string of the register or Register object
+        :type register: Union[str, :py:obj:`tritondse.types.Register`]
         :return: Integer value
         """
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register  # if str transform to reg
@@ -276,8 +330,9 @@ class ProcessState(object):
         Read the current concrete value of the given register.
 
         :param register: string of the register or Register object
+        :type register: Union[str, :py:obj:`tritondse.types.Register`]
         :param value: integer value to assign in the register
-        :return: Integer value
+        :type value: int
         """
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register  # if str transform to reg
         return self.tt_ctx.setConcreteRegisterValue(reg, value)
@@ -285,10 +340,12 @@ class ProcessState(object):
 
     def read_memory_int(self, addr: Addr, size: ByteSize) -> int:
         """
-        Read in the process memory a little-endian integer of the ``size`` at ``addr``.
+        Read in the process memory a **little-endian** integer of the ``size`` at ``addr``.
 
         :param addr: Address at which to read data
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param size: Number of bytes to read
+        :type size: Union[str, :py:obj:`tritondse.types.ByteSize`]
         :return: Integer value read
         """
         return self.tt_ctx.getConcreteMemoryValue(MemoryAccess(addr, size))
@@ -296,10 +353,10 @@ class ProcessState(object):
 
     def read_memory_ptr(self, addr: Addr) -> int:
         """
-        Read in the process memory a little-endian integer of the
-         ptr_size size
+        Read in the process memory a little-endian integer of size :py:attr:`tritondse.ProcessState.ptr_size`
 
         :param addr: Address at which to read data
+        :type addr: :py:obj:`tritondse.types.Addr`
         :return: Integer value read
         """
         return self.tt_ctx.getConcreteMemoryValue(MemoryAccess(addr, self.ptr_size))
@@ -311,8 +368,11 @@ class ProcessState(object):
         Data read is returned as bytes.
 
         :param addr: Address at which to read data
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param size: Number of bytes to read
+        :type size: :py:obj:`tritondse.types.ByteSize`
         :return: Data read
+        :rtype: bytes
         """
         return self.tt_ctx.getConcreteMemoryAreaValue(addr, size)
 
@@ -322,10 +382,12 @@ class ProcessState(object):
         Write in the process memory the given integer value of the given size at
         a specific address.
 
-        :param addr: address where to write data
-        :param size: size of data to write in bytes
+        :param addr: Address at which to read data
+        :type addr: :py:obj:`tritondse.types.Addr`
+        :param size: Number of bytes to read
+        :type size: :py:obj:`tritondse.types.ByteSize`
         :param value: data to write represented as an integer
-        :return: None
+        :type value: int
 
         .. todo:: Adding a parameter to specify endianess if needed
         """
@@ -334,25 +396,29 @@ class ProcessState(object):
 
     def write_memory_bytes(self, addr: Addr, data: bytes) -> None:
         """
-        Write the given bytes in the process memory. Size is automatically
+        Write multiple bytes in the process memory. Size is automatically
         deduced with data size.
 
-        :param addr: address where to write data
+        :param addr: Address at which to read data
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param data: bytes data to write
-        :return: None
+        :type data: bytes
         """
         self.tt_ctx.setConcreteMemoryAreaValue(addr, data)
 
 
     def write_memory_byte(self, addr: Addr, data: Union[bytes, int]) -> None:
         """
-        Write the given bytes in the process memory. Size is automatically
-        deduced with data size.
+        Write a single byte in the process memory. Can be provided as a byte
+        or integer. Integer value should fit in a byte.
 
-        :param addr: address where to write data
+        :param addr: Address at which to read data
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param data: bytes data to write
-        :return: None
+        :type data: Union[bytes, int]
         """
+        # FIXME: in doctstring declare exception raised
+
         if isinstance(data, int):
             self.write_memory_int(addr, CPUSIZE.BYTE, data)
         else:
@@ -361,33 +427,36 @@ class ProcessState(object):
 
     def write_memory_ptr(self, addr: Addr, value: int) -> None:
         """
-        Similar to write_memory_int but the size is automatically adjusted
-        to be ptr_size.
+        Similar to :py:meth:`write_memory_int` but the size is automatically adjusted
+        to be ``ptr_size``.
 
         :param addr: address where to write data
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param value: pointer value to write
+        :type value: int
         """
         self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, self.ptr_size), value)
 
 
-    def register_triton_callback(self, cb_type: CALLBACK, callback: Callable):
+    def register_triton_callback(self, cb_type: CALLBACK, callback: Callable) -> None:
         """
         Register the given ``callback`` as triton callback to hook memory/registers
         read/writes.
 
-        :param cb_type: CALLBACK type as defined by Triton
+        :param cb_type: Callback enum type as defined by Triton
+        :type cb_type: `CALLBACK <https://triton.quarkslab.com/documentation/doxygen/py_CALLBACK_page.html>`_
         :param callback: routines to call on the given event
-        :return: None
         """
         self.tt_ctx.addCallback(cb_type, callback)
 
 
     def is_heap_ptr(self, ptr: Addr) -> bool:
         """
-        Check whether a given address is coming from the heap area.
+        Check whether a given address is pointing in the heap area.
 
         :param ptr: Address to check
-        :return: True if pointer points to the heap area (allocated or not).
+        :type ptr: :py:obj:`tritondse.types.Addr`
+        :return: True if pointer points to the heap area *(allocated or not)*.
         """
         if self.BASE_HEAP <= ptr < self.END_HEAP:
             return True
@@ -396,9 +465,10 @@ class ProcessState(object):
 
     def is_stack_ptr(self, ptr: Addr) -> bool:
         """
-        Check whether a given address is coming from the stack area.
+        Check whether a given address is pointing in stack area.
 
         :param ptr: Address to check
+        :type ptr: :py:obj:`tritondse.types.Addr`
         :return: True if pointer points to the stack area (allocated or not).
         """
         if self.BASE_STACK <= ptr < self.END_STACK:
@@ -409,8 +479,10 @@ class ProcessState(object):
     def process_instruction(self, instruction: Instruction) -> bool:
         """
         Process the given triton instruction on this process state.
-        :param instruction:
-        :return:
+
+        :param instruction: Triton Instruction object
+        :type instruction: `Instruction <https://triton.quarkslab.com/documentation/doxygen/py_Instruction_page.html>`_
+        :return: True if the processing of the instruction succeeded (False otherwise)
         """
         self.__pcs_updated = False
         __len_pcs = self.tt_ctx.getPathPredicateSize()
@@ -440,10 +512,11 @@ class ProcessState(object):
     def last_branch_constraint(self) -> PathConstraint:
         """
         Return the last PathConstraint object added in the path predicate.
-        Should be called after ``is_path_predicate_updated``.
+        Should be called after :py:meth:`is_path_predicate_updated`.
 
-        :raise: IndexError if the path predicate is empty
-        :return:
+        :raise IndexError: if the path predicate is empty
+        :return: the path constraint object as returned by Triton
+        :rtype: `PathConstraint <https://triton.quarkslab.com/documentation/doxygen/py_PathConstraint_page.html>`_
         """
         return self.tt_ctx.getPathConstraints()[-1]
 
@@ -451,13 +524,22 @@ class ProcessState(object):
     @property
     def current_instruction(self) -> Optional[Instruction]:
         """
-        Return the current Instruction.
+        The current instruction being executed. *(None if not set yet)*
+
+        :rtype: Optional[`Instruction <https://triton.quarkslab.com/documentation/doxygen/py_Instruction_page.html>`_]
         """
         return self.__current_inst
 
 
     def get_memory_string(self, addr: Addr) -> str:
-        """ Returns a string from a memory address """
+        """ Read a string in process memory at the given address
+
+        .. warning:: The memory read is unbounded. Thus the memory is iterated up until
+                     finding a 0x0.
+
+        :returns: the string read in memory
+        :rtype: str
+        """
         s = ""
         index = 0
         while True:
@@ -473,7 +555,9 @@ class ProcessState(object):
         Get the symbolic expression associated with the given register.
 
         :param register: register string, or Register object
-        :return: Symbolic Expression of the register
+        :type register: Union[str, :py:obj:`tritondse.types.Register`]
+        :return: SymbolicExpression of the register as returned by Triton
+        :rtype: `SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_
         """
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register  # if str transform to reg
         sym_reg = self.tt_ctx.getSymbolicRegister(reg)
@@ -483,15 +567,17 @@ class ProcessState(object):
             return sym_reg
 
 
-    def write_symbolic_register(self, register: Union[str, Register], expr: Union[AstNode, Expression], comment = "") -> None:
+    def write_symbolic_register(self, register: Union[str, Register], expr: Union[AstNode, Expression], comment: str = "") -> None:
         """
         Assign the given symbolic expression to the register. The given expression can either be a SMT AST node
         or directly an Expression (SymbolicExpression).
 
         :param register: register identifier (str or Register)
-        :param expr: expression to assign (AstNode or Expression)
-        :param comment: Comment to add on the symbolic expression
-        :return: None
+        :type register: Union[str, :py:obj:`tritondse.types.Register`]
+        :param expr: expression to assign (`AstNode <https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_
+               or `SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_)
+        :param comment: Comment to add on the symbolic expression created
+        :type comment: str
         """
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register  # if str transform to reg
         exp = expr if hasattr(expr, "getAst") else self.tt_ctx.newSymbolicExpression(expr, f"assign {reg.getName()}: {comment}")
@@ -505,9 +591,12 @@ class ProcessState(object):
         That function should not be used on big memory chunks.
 
         :param addr: Memory address
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param size: memory size in bytes
-        :raise: RuntimeError If the size if not aligned
+        :type size: :py:obj:`tritondse.types.ByteSize`
+        :raise RuntimeError: If the size if not aligned
         :return: Symbolic Expression associated with the memory
+        :rtype: `SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_
         """
         if size == 1:
             return self.read_symbolic_memory_byte(addr)
@@ -523,7 +612,9 @@ class ProcessState(object):
         Thin wrapper to retrieve the symbolic expression of a single bytes in memory.
 
         :param addr: Memory address
+        :type addr: :py:obj:`tritondse.types.Addr`
         :return: Symbolic Expression associated with the memory
+        :rtype: `SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_
         """
         res = self.tt_ctx.getSymbolicMemory(addr)
         if res is None:
@@ -537,8 +628,11 @@ class ProcessState(object):
         That function should not be used on big memory chunks.
 
         :param addr: Memory address
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param size: memory size in bytes
+        :type size: :py:obj:`tritondse.types.ByteSize`
         :return: Symbolic Expression associated with the memory
+        :rtype: `SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_
         """
         if size == 1:
             return self.read_symbolic_memory_byte(addr)
@@ -554,10 +648,12 @@ class ProcessState(object):
         That function should not be used on big memory chunks.
 
         :param addr: Memory address
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param size: memory size in bytes
-        :param expr: Symbolic Expression or AST to assign
-        :raise: RuntimeError If the size if not aligned
-        :return: None
+        :type size: :py:obj:`tritondse.types.ByteSize`
+        :param expr: expression to assign (`AstNode <https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_
+                     or `SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_)
+        :raise RuntimeError: if the size if not aligned
         """
         expr = expr if hasattr(expr, "getAst") else self.tt_ctx.newSymbolicExpression(expr, f"assign memory")
         if size in [1, 2, 4, 8, 16, 32, 64]:
@@ -576,8 +672,9 @@ class ProcessState(object):
            you should do it in a per-byte manner with this method.
 
         :param addr: Memory address
-        :param expr: Byte Expression or AST to assign
-        :return: None
+        :type addr: :py:obj:`tritondse.types.Addr`
+        :param expr: byte expression to assign (`AstNode <https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_
+                     or `SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_)
         """
         expr = expr if hasattr(expr, "getAst") else self.tt_ctx.newSymbolicExpression(expr, f"assign memory")
         ast = expr.getAst()
@@ -592,7 +689,9 @@ class ProcessState(object):
         is symbolic
 
         :param addr: Memory address
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param size: size of the memory range to check
+        :type size: :py:obj:`tritondse.types.ByteSize`
         :return: True if at least one byte of the memory is symbolic, false otherwise
         """
         for i in range(addr, addr+size):
@@ -603,23 +702,23 @@ class ProcessState(object):
 
     def push_constraint(self, constraint: AstNode) -> None:
         """
-        Thin wrapper on underneath triton context function to add a path
-        constraint.
+        Thin wrapper on the triton context underneath to add a path constraint.
 
         :param constraint: Constraint expression to add
-        :return: None
+        :type constraint: `AstNode <https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_
         """
         self.tt_ctx.pushPathConstraint(constraint)
 
 
     def concretize_register(self, register: Union[str, Register]) -> None:
         """
-        Concretize the given register with the given value. If no value is provided the
-        current register concrete value is used. This operation allows given the register
-        a constant and staying sound!
+        Concretize the given register with its current concrete value.
+        **This operation is sound** as it will also add a path constraint
+        to enforce that the symbolic register value is equal to its concrete
+        value.
 
         :param register: Register identifier (str or Register)
-        :return: None
+        :type register: Union[str, :py:obj:`tritondse.types.Register`]
         """
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register
         if self.tt_ctx.isRegisterSymbolized(reg):
@@ -630,12 +729,14 @@ class ProcessState(object):
 
     def concretize_memory_int(self, addr: Addr, size: ByteSize) -> None:
         """
-        Concretize the given memory with its current integer value. This operation is sound and
-        allows restraining the memory value to its constant value.
+        Concretize the given memory with its current concrete value.
+        **This operation is sound** and allows restraining the memory
+        value to its constant value.
 
         :param addr: Address to concretize
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param size: Size of the integer to concretize
-        :return: None
+        :type size: :py:obj:`tritondse.types.ByteSize`
         """
         value = self.read_memory_int(addr, size)
         if self.tt_ctx.isMemorySymbolized(MemoryAccess(addr, size)):
@@ -648,8 +749,9 @@ class ProcessState(object):
         Concretize the given range of memory with its current value.
 
         :param addr: Address to concretize
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param size: Size of the memory buffer to concretize
-        :return: None
+        :type size: :py:obj:`tritondse.types.ByteSize`
         """
         data = self.read_memory_bytes(addr, size)
         if self.is_memory_symbolic(addr, size):
@@ -659,11 +761,11 @@ class ProcessState(object):
 
     def concretize_argument(self, index: int) -> None:
         """
-        Concretize the given function parameter according to the calling convention.
-        This operation is sound !
+        Concretize the given function parameter following the calling convention
+        of the architecture.
 
         :param index: Argument index
-        :return: None
+        :type index: int
         """
         try:
             self.concretize_register(self._get_argument_register(index))
@@ -675,11 +777,14 @@ class ProcessState(object):
 
     def get_argument_value(self, i: int) -> int:
         """
-        Return the integer value of parameters following the call convention.
-        Thus the value originate either from a register or the stack.
+        Get the integer value of parameters following the call convention.
+        The value originate either from a register or the stack depending
+        on the ith argument requested.
 
         :param i: Ith argument of the function
+        :type i: int
         :return: integer value of the parameter
+        :rtype: int
         """
         try:
             return self.read_register(self._get_argument_register(i))
@@ -693,6 +798,7 @@ class ProcessState(object):
 
         :param i: Ith function parameter
         :return: Symbolic expression associated
+        :rtype: `SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_
         """
         try:
             return self.read_symbolic_register(self._get_argument_register(i))
@@ -711,13 +817,28 @@ class ProcessState(object):
         return self.get_argument_value(i), self.get_argument_symbolic(i)
 
 
-    def get_string_argument(self, i: int) -> str:
-        """ Return the string on the given function parameter """
-        return self.get_memory_string(self.get_argument_value(i))
+    def get_string_argument(self, idx: int) -> str:
+        """Read a string for which address is a function parameter.
+        The function first get the argument value, and then dereference
+        the string located at that address.
+
+        :param idx: argument index
+        :type idx: int
+        :returns: memory string
+        :rtype: str
+        """
+        return self.get_memory_string(self.get_argument_value(idx))
 
 
     def get_format_string(self, addr: Addr) -> str:
-        """ Returns a formatted string from a memory address """
+        """
+        Returns a formatted string in Python format from a format string
+        located in memory at ``addr``.
+
+        :param addr: Address to concretize
+        :type addr: :py:obj:`tritondse.types.Addr`
+        :rtype: str
+        """
         return self.get_memory_string(addr)                                             \
                .replace("%s", "{}").replace("%d", "{}").replace("%#02x", "{:#02x}")     \
                .replace("%#x", "{:#x}").replace("%x", "{:x}").replace("%02X", "{:02X}") \
@@ -728,9 +849,20 @@ class ProcessState(object):
                .replace("%03d", "{:03d}").replace("%p", "{:#x}").replace("%i", "{}")
 
 
-    def get_format_arguments(self, s: str, args: list):
-        """ Returns the formated arguments """
-        s_str = self.get_memory_string(s)
+    def get_format_arguments(self, fmt_addr: Addr, args: List[int]) -> List[Union[int, str]]:
+        """
+        Read the format string at ``fmt_addr``. For each format item
+        which are strings, dereference that associated string and replaces it
+        in ``args``.
+
+        :param fmt_addr: Address to concretize
+        :type fmt_addr: :py:obj:`tritondse.types.Addr`
+        :param args: Parameters associated with the format string
+        :type args: List[int]
+        :rtype: List[Union[int, str]]
+        """
+        # FIXME: Modifies inplace args (which is not very nice)
+        s_str = self.get_memory_string(fmt_addr)
         postString = [i for i, x in enumerate([i for i, c in enumerate(s_str) if c == '%']) if s_str[x+1] == "s"]
         for p in postString:
             args[p] = self.get_memory_string(args[p])
@@ -739,9 +871,12 @@ class ProcessState(object):
 
     def get_stack_value(self, index: int) -> int:
         """
-        Returns the value at the index position of the stack
+        Returns the value at the ith position further in the stack
+
         :param index: The index position from the top of the stack
+        :type index: int
         :return: the value got
+        :rtype: int
         """
         addr = self.cpu.stack_pointer + (index * self.ptr_size)
         return self.read_memory_int(addr, self.ptr_size)
@@ -749,7 +884,9 @@ class ProcessState(object):
 
     def pop_stack_value(self) -> int:
         """
-        Pop a stack value
+        Pop a stack value, and the re-increment the stack pointer value.
+        This operation is fully concrete.
+
         :return: int
         """
         val = self.read_memory_ptr(self.cpu.stack_pointer)
@@ -758,15 +895,19 @@ class ProcessState(object):
 
     def push_stack_value(self, value: int) -> None:
         """
-        Push a stack value
+        Push a stack value. It then decreement the stack pointer value.
 
         :param value: The value to push
-        :return: None
         """
         self.write_memory_ptr(self.cpu.stack_pointer-self.ptr_size, value)
         self.cpu.stack_pointer -= self.ptr_size
 
     def is_halt_instruction(self) -> bool:
-        """ Return true if on halt instruction architecture independent (in theory) """
+        """
+        Check if the the current instruction is corresponding to an 'halt' instruction
+        in the target architecture.
+
+        :returns: Return true if on halt instruction architecture independent
+        """
         halt_opc = self._archinfo.halt_inst
         return self.__current_inst.getType() == halt_opc
