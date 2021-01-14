@@ -316,6 +316,9 @@ def rtn_calloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         ptr = 0
     else:
         ptr = pstate.heap_allocator.alloc(nmemb * size)
+        # Once the ptr allocated, the memory area must be filled with zero
+        for index in range(nmemb * size):
+            pstate.write_symbolic_memory_byte(ptr+index, pstate.actx.bv(0, 8))
 
     # Return value
     return ptr
