@@ -1557,6 +1557,169 @@ def rtn_strcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return dst
 
 
+def rtn_strerror(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The strerror behavior.
+
+    :param se: The current symbolic execution instance
+    :param pstate: The current process state
+    :return: a concrete value
+    """
+    logging.debug('strerror hooked')
+
+    sys_errlist = [
+        b"Success",
+        b"Operation not permitted",
+        b"No such file or directory",
+        b"No such process",
+        b"Interrupted system call",
+        b"Input/output error",
+        b"No such device or address",
+        b"Argument list too long",
+        b"Exec format error",
+        b"Bad file descriptor",
+        b"No child processes",
+        b"Resource temporarily unavailable",
+        b"Cannot allocate memory",
+        b"Permission denied",
+        b"Bad address",
+        b"Block device required",
+        b"Device or resource busy",
+        b"File exists",
+        b"Invalid cross-device link",
+        b"No such device",
+        b"Not a directory",
+        b"Is a directory",
+        b"Invalid argument",
+        b"Too many open files in system",
+        b"Too many open files",
+        b"Inappropriate ioctl for device",
+        b"Text file busy",
+        b"File too large",
+        b"No space left on device",
+        b"Illegal seek",
+        b"Read-only file system",
+        b"Too many links",
+        b"Broken pipe",
+        b"Numerical argument out of domain",
+        b"Numerical result out of range",
+        b"Resource deadlock avoided",
+        b"File name too long",
+        b"No locks available",
+        b"Function not implemented",
+        b"Directory not empty",
+        b"Too many levels of symbolic links",
+        None,
+        b"No message of desired type",
+        b"Identifier removed",
+        b"Channel number out of range",
+        b"Level 2 not synchronized",
+        b"Level 3 halted",
+        b"Level 3 reset",
+        b"Link number out of range",
+        b"Protocol driver not attached",
+        b"No CSI structure available",
+        b"Level 2 halted",
+        b"Invalid exchange",
+        b"Invalid request descriptor",
+        b"Exchange full",
+        b"No anode",
+        b"Invalid request code",
+        b"Invalid slot",
+        None,
+        b"Bad font file format",
+        b"Device not a stream",
+        b"No data available",
+        b"Timer expired",
+        b"Out of streams resources",
+        b"Machine is not on the network",
+        b"Package not installed",
+        b"Object is remote",
+        b"Link has been severed",
+        b"Advertise error",
+        b"Srmount error",
+        b"Communication error on send",
+        b"Protocol error",
+        b"Multihop attempted",
+        b"RFS specific error",
+        b"Bad message",
+        b"Value too large for defined data type",
+        b"Name not unique on network",
+        b"File descriptor in bad state",
+        b"Remote address changed",
+        b"Can not access a needed shared library",
+        b"Accessing a corrupted shared library",
+        b".lib section in a.out corrupted",
+        b"Attempting to link in too many shared libraries",
+        b"Cannot exec a shared library directly",
+        b"Invalid or incomplete multibyte or wide character",
+        b"Interrupted system call should be restarted",
+        b"Streams pipe error",
+        b"Too many users",
+        b"Socket operation on non-socket",
+        b"Destination address required",
+        b"Message too long",
+        b"Protocol wrong type for socket",
+        b"Protocol not available",
+        b"Protocol not supported",
+        b"Socket type not supported",
+        b"Operation not supported",
+        b"Protocol family not supported",
+        b"Address family not supported by protocol",
+        b"Address already in use",
+        b"Cannot assign requested address",
+        b"Network is down",
+        b"Network is unreachable",
+        b"Network dropped connection on reset",
+        b"Software caused connection abort",
+        b"Connection reset by peer",
+        b"No buffer space available",
+        b"Transport endpoint is already connected",
+        b"Transport endpoint is not connected",
+        b"Cannot send after transport endpoint shutdown",
+        b"Too many references: cannot splice",
+        b"Connection timed out",
+        b"Connection refused",
+        b"Host is down",
+        b"No route to host",
+        b"Operation already in progress",
+        b"Operation now in progress",
+        b"Stale NFS file handle",
+        b"Structure needs cleaning",
+        b"Not a XENIX named type file",
+        b"No XENIX semaphores available",
+        b"Is a named type file",
+        b"Remote I/O error",
+        b"Disk quota exceeded",
+        b"No medium found",
+        b"Wrong medium type",
+        b"Operation canceled",
+        b"Required key not available",
+        b"Key has expired",
+        b"Key has been revoked",
+        b"Key was rejected by service",
+        b"Owner died",
+        b"State not recoverable"
+    ]
+
+    # Get arguments
+    errnum = pstate.get_argument_value(0)
+    try:
+        str = sys_errlist[errnum]
+    except:
+        # invalid errnum
+        str = b'Error'
+
+    # TODO: We allocate the string at every hit of this function with a
+    # potential memory leak. We should allocate the sys_errlist only once
+    # and then refer to this table instead of allocate string.
+
+    ptr = pstate.heap_allocator.alloc(len(str) + 1)
+    pstate.write_memory_bytes(ptr, str + b'\0')
+
+    return ptr
+
+
 def rtn_strlen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strlen behavior.
@@ -1804,6 +1967,7 @@ SUPPORTED_ROUTINES = {
     'strchr':                  rtn_strchr,
     'strcmp':                  rtn_strcmp,
     'strcpy':                  rtn_strcpy,
+    'strerror':                rtn_strerror,
     'strlen':                  rtn_strlen,
     'strncasecmp':             rtn_strncasecmp,
     'strncmp':                 rtn_strncmp,
