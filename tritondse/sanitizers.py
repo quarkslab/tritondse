@@ -1,10 +1,10 @@
 import logging
 
-from triton              import MemoryAccess, CPUSIZE
+from triton              import MemoryAccess, CPUSIZE, Instruction
 from tritondse.callbacks import CbType, ProbeInterface
 from tritondse.seed      import Seed, SeedStatus
-from tritondse.types     import Architecture
-
+from tritondse.types     import Architecture, Addr, Tuple
+from tritondse           import SymbolicExecutor, ProcessState
 
 
 def mk_new_crashing_seed(se, model) -> Seed:
@@ -26,26 +26,37 @@ def mk_new_crashing_seed(se, model) -> Seed:
 
 class UAFSanitizer(ProbeInterface):
     """
-    The UAF sanitizer
-        - UFM.DEREF.MIGHT: Use after free
-        - UFM.FFM.MUST: Double free
-        - UFM.FFM.MIGHT: Double free
+    Use-After-Free Sanitizer.
+    It is able to detect UaF and double-free. It works by hooking
+    all memory read/write if it points to the heap in a freed area
+    then the Use-After-Free is detected. It also hooks the free
+    routine to detect double-free.
     """
     def __init__(self):
         super(UAFSanitizer, self).__init__()
-        self.cbs.append((CbType.MEMORY_READ, None, self.memory_read))
-        self.cbs.append((CbType.MEMORY_WRITE, None, self.memory_write))
-        self.cbs.append((CbType.PRE_RTN, 'free', self.free_routine))
+        self.cbs.append((CbType.MEMORY_READ, None, self._memory_read))
+        self.cbs.append((CbType.MEMORY_WRITE, None, self._memory_write))
+        self.cbs.append((CbType.PRE_RTN, 'free', self._free_routine))
 
 
     @staticmethod
-    def check(se, pstate, ptr, desc):
+    def check(se: SymbolicExecutor, pstate: ProcessState, ptr: Addr, description: str = None) -> bool:
         """
-        The entry point of the sanitizer. This function check if a bug is present
+        Checks whether the given ``ptr`` is symptomatic of a Use-After-Free by querying
+        various methods of :py:obj:`tritondse.heap_allocator.HeapAllocator`.
+
+        :param se: symbolic executor
+        :type se: SymbolicExecutor
+        :param pstate: process state
+        :type pstate: ProcessState
+        :param ptr: pointer address to check
+        :type ptr: :py:obj:`tritondse.types.Addr`
+        :param description: description string printed in logger if an issue is detected
         :return: True if the bug is present
         """
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
-            logging.critical(desc)
+            if description:
+                logging.critical(description)
             se.seed.status = SeedStatus.CRASH
             pstate.stop = True
             return True
@@ -53,42 +64,49 @@ class UAFSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def memory_read(se, pstate, mem):
+    def _memory_read(se, pstate, mem):
         return UAFSanitizer.check(se, pstate, mem.getAddress(), f'UAF detected at {mem}')
 
 
     @staticmethod
-    def memory_write(se, pstate, mem, value):
+    def _memory_write(se, pstate, mem, value):
         return UAFSanitizer.check(se, pstate, mem.getAddress(), f'UAF detected at {mem}')
 
 
     @staticmethod
-    def free_routine(se, pstate, name, addr):
+    def _free_routine(se, pstate, name, addr):
         ptr = se.pstate.get_argument_value(0)
         return UAFSanitizer.check(se, pstate, ptr, f'Double free detected at {addr:#x}')
 
 
 class NullDerefSanitizer(ProbeInterface):
     """
-    The null deref sanitizer
-        - NPD.FUNC.MUST
+    Null Dereference Sanitizer.
+    Simply checks if any memory read or write is performed at address 0.
+    If so an error is raised.
     """
     def __init__(self):
         super(NullDerefSanitizer, self).__init__()
-        self.cbs.append((CbType.MEMORY_READ, None, self.memory_read))
-        self.cbs.append((CbType.MEMORY_WRITE, None, self.memory_write))
+        self.cbs.append((CbType.MEMORY_READ, None, self._memory_read))
+        self.cbs.append((CbType.MEMORY_WRITE, None, self._memory_write))
 
 
     @staticmethod
-    def check(se, pstate, mem, desc):
+    def check(se: SymbolicExecutor, pstate: ProcessState, ptr: Addr, description: str = None) -> bool:
         """
-        The entry point of the sanitizer. This function check if a bug is present
+        Checks that the ``ptr`` given is basically not 0.
+
+        :param se: symbolic executor
+        :type se: SymbolicExecutor
+        :param pstate: process state
+        :type pstate: ProcessState
+        :param ptr: pointer address to check
+        :type ptr: :py:obj:`tritondse.types.Addr`
+        :param description: description string printed in logger if an issue is detected
         :return: True if the bug is present
         """
-        ptr = mem.getAddress()
-        valid_access = False
 
-        # The execution has not started yet
+         # The execution has not started yet
         if pstate.current_instruction is None:
             return False
 
@@ -108,8 +126,10 @@ class NullDerefSanitizer(ProbeInterface):
         # nous ne connaissons pas la taille d'une instruction, ici, en fetchant en fin de
         # page on déclenche ce sanitizer...
 
-        if ptr == 0 or pstate.is_valid_memory_mapping(ptr, padding_segment=16) == False:
-            logging.critical(desc)
+        # FIXME: Why do we call is_valid_memory_mapping ? It is not a "Null Deref vulnerability", it is more a segmentation error
+        if ptr == 0 or not pstate.is_valid_memory_mapping(ptr, padding_segment=16):
+            if description:
+                logging.critical(description)
             se.seed.status = SeedStatus.CRASH
             pstate.stop = True
             return True
@@ -118,54 +138,72 @@ class NullDerefSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def memory_read(se, pstate, mem):
-        return NullDerefSanitizer.check(se, pstate, mem, f'Invalid memory access when reading at {mem} from {pstate.current_instruction}')
+    def _memory_read(se, pstate, mem):
+        return NullDerefSanitizer.check(se, pstate, mem.getAddress(), f'Invalid memory access when reading at {mem} from {pstate.current_instruction}')
 
 
     @staticmethod
-    def memory_write(se, pstate, mem, value):
-        return NullDerefSanitizer.check(se, pstate, mem, f'Invalid memory access when writting at {mem} from {pstate.current_instruction}')
+    def _memory_write(se, pstate, mem, value):
+        return NullDerefSanitizer.check(se, pstate, mem.getAddress(), f'Invalid memory access when writting at {mem} from {pstate.current_instruction}')
 
 
 
 class FormatStringSanitizer(ProbeInterface):
     """
-    The format string sanitizer
-        - SV.TAINTED.FMTSTR
-        - SV.FMTSTR.GENERIC
+    Format String Sanitizer.
+    This probes hooks standard libc functions like 'printf', 'fprintf', 'sprintf',
+    'dprintf', 'snprintf' and if one of them is triggered it checks the format string.
+    If the format string is symbolic then it is user controlled. A warning is shown
+    but the execution not interrupted. However the sanitizer tries through SMT to
+    generate format strings with many '%s'. If satisfiable a new input is generated
+    which will then be added to inputs to process. That subsequent input might lead
+    to a crash.
     """
     def __init__(self):
         super(FormatStringSanitizer, self).__init__()
-        self.cbs.append((CbType.PRE_RTN, 'printf',  self.xprintf_arg0_routine))
-        self.cbs.append((CbType.PRE_RTN, 'fprintf', self.xprintf_arg1_routine))
-        self.cbs.append((CbType.PRE_RTN, 'sprintf', self.xprintf_arg1_routine))
-        self.cbs.append((CbType.PRE_RTN, 'dprintf', self.xprintf_arg1_routine))
-        self.cbs.append((CbType.PRE_RTN, 'snprintf', self.xprintf_arg1_routine))
+        self.cbs.append((CbType.PRE_RTN, 'printf',  self._xprintf_arg0_routine))
+        self.cbs.append((CbType.PRE_RTN, 'fprintf', self._xprintf_arg1_routine))
+        self.cbs.append((CbType.PRE_RTN, 'sprintf', self._xprintf_arg1_routine))
+        self.cbs.append((CbType.PRE_RTN, 'dprintf', self._xprintf_arg1_routine))
+        self.cbs.append((CbType.PRE_RTN, 'snprintf', self._xprintf_arg1_routine))
 
 
     @staticmethod
-    def solve_query(se, pstate, query):
+    def _solve_query(se, pstate, query):
         model = pstate.tt_ctx.getModel(query)
         if model:
             return mk_new_crashing_seed(se, model)
 
 
     @staticmethod
-    def check(se, pstate, addr, string_ptr):
+    def check(se, pstate, fmt_ptr, extra_data: Tuple[str, Addr] = None):
         """
-        The entry point of the sanitizer. This function check if a bug is present
+        Checks that the format string at ``fmt_ptr`` does not contain
+        symbolic bytes. If so shows an alert and tries to generate new
+        inputs with as many '%s' as possible.
+
+        :param se: symbolic executor
+        :type se: SymbolicExecutor
+        :param pstate: process state
+        :type pstate: ProcessState
+        :param fmt_ptr: pointer address to check
+        :type fmt_ptr: :py:obj:`tritondse.types.Addr`
+        :param extra_data: additionnal infos given by the callbacks on routines (indicating function address)
+        :type extra_data: Tuple[str, :py:obj:`tritondse.types.Addr`]
         :return: True if the bug is present
         """
         symbolic_cells = []
 
         # Count the number of cells which is symbolic
-        while se.pstate.tt_ctx.getConcreteMemoryValue(string_ptr):
-            if se.pstate.tt_ctx.isMemorySymbolized(string_ptr):
-                symbolic_cells.append(string_ptr)
-            string_ptr += 1
+        cur_ptr = fmt_ptr
+        while se.pstate.read_memory_int(cur_ptr, 1):  # while different from 0
+            if se.pstate.is_memory_symbolic(cur_ptr, 1):
+                symbolic_cells.append(cur_ptr)
+            cur_ptr += 1
 
         if symbolic_cells:
-            logging.warning(f'Potential format string of {len(symbolic_cells)} symbolic memory cells at {addr:#x}')
+            extra = f"(function {extra_data[0]}@{extra_data[1]:#x})" if extra_data else ""
+            logging.warning(f'Potential format string of length {len(symbolic_cells)} on {fmt_ptr:x} {extra}')
             se.seed.status = SeedStatus.OK_DONE
             actx = pstate.tt_ctx.getAstContext()
             path_pred = pstate.tt_ctx.getPathPredicate()
@@ -173,14 +211,15 @@ class FormatStringSanitizer(ProbeInterface):
             nopp_seeds = []
 
             for i in range(int(len(symbolic_cells) / 2)):
-                cell1  = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
-                cell2  = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
+                # FIXME: Does not check that cell1 and cell2 are contiguous
+                cell1 = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
+                cell2 = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
                 query_with_pp = actx.land([path_pred, cell1 == ord('%'), cell2 == ord('s')])
                 query_no_pp = actx.land([cell1 == ord('%'), cell2 == ord('s')])
-                s = FormatStringSanitizer.solve_query(se, pstate, query_with_pp)
+                s = FormatStringSanitizer._solve_query(se, pstate, query_with_pp)
                 if s:
                     pp_seeds.append(s)
-                s = FormatStringSanitizer.solve_query(se, pstate, query_no_pp) # This method may be incorrect but help to discover bugs
+                s = FormatStringSanitizer._solve_query(se, pstate, query_no_pp) # This method may be incorrect but help to discover bugs
                 if s:
                     nopp_seeds.append(s)
 
@@ -201,22 +240,26 @@ class FormatStringSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def xprintf_arg0_routine(se, pstate, name, addr):
+    def _xprintf_arg0_routine(se, pstate, name, addr):
         string_ptr = se.pstate.get_argument_value(0)
-        FormatStringSanitizer.check(se, pstate, addr, string_ptr)
+        FormatStringSanitizer.check(se, pstate, string_ptr, (name, addr))
 
 
     @staticmethod
-    def xprintf_arg1_routine(se, pstate, name, addr):
+    def _xprintf_arg1_routine(se, pstate, name, addr):
         string_ptr = se.pstate.get_argument_value(1)
-        FormatStringSanitizer.check(se, pstate, addr, string_ptr)
+        FormatStringSanitizer.check(se, pstate, string_ptr, (name, addr))
 
 
 
 class IntegerOverflowSanitizer(ProbeInterface):
     """
-    The integer overflow sanitizer
-        - NUM.OVERFLOW
+    Integer Overflow Sanitizer.
+    This probe checks on every instructions that the overflow
+    flag is not set. If so mark the input as a crashing input.
+    If not, but the value is symbolic, via SMT solving to make
+    it to be set (and thus to overflow). If possible generates
+    a new input to be executed.
     """
     def __init__(self):
         super(IntegerOverflowSanitizer, self).__init__()
@@ -224,9 +267,16 @@ class IntegerOverflowSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def check(se, pstate, instruction):
+    def check(se: SymbolicExecutor, pstate: ProcessState, instruction: Instruction) -> bool:
         """
         The entry point of the sanitizer. This function check if a bug is present
+
+        :param se: symbolic executor
+        :type se: SymbolicExecutor
+        :param pstate: process state
+        :type pstate: ProcessState
+        :param instruction: Instruction that has just been executed
+        :type instruction: `Instruction <https://triton.quarkslab.com/documentation/doxygen/py_Instruction_page.html>`_
         :return: True if the bug is present
         """
         # This probe is only available for X86_64 and AARCH64
