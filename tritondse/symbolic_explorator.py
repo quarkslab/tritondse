@@ -27,19 +27,21 @@ class ExplorationStatus(Enum):
 
 class SymbolicExplorator(object):
     """
-    This class is used to represent the symbolic exploration.
+    Symbolic Exploration. This class is in charge of iterating
+    executions with the different seeds available in the workspace
+    and generated along the way.
     """
     def __init__(self, config: Config, program: Program):
-        self.program       = program
-        self.config        = config
-        self.cbm           = CallbackManager(program)
+        self.program: Program     = program  #: Program being analyzed
+        self.config: Config       = config   #: Configuration file
+        self.cbm: CallbackManager = CallbackManager(program)
         self._stop          = False
         self.ts            = time.time()
         self.uid_counter   = 0
-        self.status = ExplorationStatus.NOT_RUNNING
+        self.status: ExplorationStatus = ExplorationStatus.NOT_RUNNING  #: status of the execution
 
         # Initialize the workspace
-        self.workspace = Workspace(self.config.workspace)
+        self.workspace: Workspace = Workspace(self.config.workspace)  #: workspace object
         self.workspace.initialize(flush=False)
 
         # Save both the program and configuration in the workspace (for later resume if needed)
@@ -48,17 +50,26 @@ class SymbolicExplorator(object):
         self.workspace.get_metadata_file_path(self.program.path.name).chmod(stat.S_IRWXU)  # Set the binary to be executable
 
         # Initialize coverage
-        self.coverage = GlobalCoverage(self.config.coverage_strategy, self.workspace, self.config.branch_solving_strategy)
+        self.coverage: GlobalCoverage = GlobalCoverage(self.config.coverage_strategy, self.workspace, self.config.branch_solving_strategy)
+        """ GlobalCoverage object holding information about the global coverage.
+        *(not really meant to be manipulated by the user)*
+        """
 
         # Initialize the seed manager
-        self.seeds_manager = SeedManager(self.config, self.cbm, self.coverage, self.workspace)
+        self.seeds_manager: SeedManager = SeedManager(self.config, self.cbm, self.coverage, self.workspace)
+        """ Manager of seed, holding all seeds related data and various statistics """
 
         # running executors (for debugging purposes)
-        self.last_executors = None
+        self.last_executors: SymbolicExecutor = None  #: last symbolic executor executed
 
     @property
     def callback_manager(self) -> CallbackManager:
-        """ Returns the callback manager """
+        """
+        CallbackManager global instance that will be transmitted to
+        all :py:obj:`SymbolicExecutor`.
+
+        :rtype: CallbackManager
+        """
         return self.cbm
 
 
@@ -66,7 +77,7 @@ class SymbolicExplorator(object):
         return time.time() - self.ts
 
 
-    def worker(self, seed, uid):
+    def _worker(self, seed, uid):
         """ Worker thread """
         logging.info(f'Pick-up seed: {seed.filename} (fresh: {seed.is_fresh()})')
 
@@ -94,14 +105,19 @@ class SymbolicExplorator(object):
         logging.info(f"Elapsed time: {self._fmt_elpased(self.__time_delta())}\n")
 
 
-    def step(self):
+    def step(self) -> None:
+        """
+        Perform a single exploration step. That means it execute
+        a single :py:obj:`SymbolicExecutor`. Then it gives the hand
+        back to the user.
+        """
         # Take an input
         seed = self.seeds_manager.pick_seed()
 
         # Execution into a thread
         t = threading.Thread(
             name='\033[0;%dm[exec:%08d]\033[0m' % ((31 + (self.uid_counter % 4)), self.uid_counter),
-            target=self.worker,
+            target=self._worker,
             args=[seed, self.uid_counter],
             daemon=True
         )
@@ -116,7 +132,13 @@ class SymbolicExplorator(object):
 
 
     def explore(self) -> ExplorationStatus:
-        """ The symbolic exploration start form here """
+        """
+        Start the symbolic exploration. That function
+        holds until the exploration is interrupted or finished.
+
+        :returns: the status of the exploration
+        :rtype: ExplorationStatus
+        """
         self.status = ExplorationStatus.RUNNING
 
         try:
@@ -139,13 +161,18 @@ class SymbolicExplorator(object):
 
 
     def add_input_seed(self, seed: Union[bytes, Seed]) -> None:
-        """ Add the given bytes as input for the exploration """
+        """
+        Add the given bytes or Seed object as input for the exploration.
+
+        :param seed: input seed to add in the pending inputs to process
+        :type seed: Union[bytes, Seed]
+        """
         seed = seed if isinstance(seed, Seed) else Seed(seed)
         self.seeds_manager.add_new_seed(seed)
 
 
     def stop_exploration(self) -> None:
-        """ Interrupt exploration """
+        """ Interrupt the exploration """
         self._stop = True
 
 
