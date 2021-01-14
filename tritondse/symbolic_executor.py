@@ -4,7 +4,7 @@ import time
 import random
 import os
 import resource
-from typing import Optional, Union, List
+from typing import Optional, Union, List, NoReturn
 
 # third party imports
 from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess
@@ -24,9 +24,30 @@ from tritondse.heap_allocator import AllocatorException
 
 class SymbolicExecutor(object):
     """
-    This class is used to represent the symbolic execution.
+    Single Program Execution Class.
+    That module, is in charge of performing the process loading from the given
+    program.
     """
+
     def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = Seed(), workspace: Workspace = None, uid=0, callbacks=None):
+        """
+
+        :param config: configuration file to use
+        :type config: Config
+        :param pstate: ProcessState instanciated (but not loaded)
+        :type pstate: ProcessState
+        :param program: Program to execute
+        :type program: Program
+        :param seed: input file to inject either in stdin or argv (optional)
+        :type seed: Seed
+        :param workspace: Workspace to use. If None it will be instanciated
+        :type workspace: Optional[Workspace]
+        :param uid: Unique ID. Given by :py:obj:`SymbolicExplorator` to identify uniquely executions
+        :type uid: int
+        :param callbacks: callbacks to bind on this execution before running *(instanciated if empty !)*
+        :type callbacks: CallbackManager
+        """
+        # FIXME: Change interface, remove ProcessState
         self.program    = program           # The program to execute
         self.pstate     = pstate            # The process state
         self.config     = config            # The config
@@ -52,29 +73,48 @@ class SymbolicExecutor(object):
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
 
     @property
-    def execution_time(self):
+    def execution_time(self) -> int:
+        """
+        Time taken for the execution in seconds
+
+        .. warning:: Only relevant at the end of the execution
+
+        :return: execution time (in s)
+        """
         return self.end_time - self.start_time
 
     @property
     def pending_seeds(self) -> List[Seed]:
-        """ Return the list of pending seeds gathered during execution """
+        """
+        List of pending seeds gathered during execution.
+
+        .. warning:: Only relevant at the end of execution
+
+        :returns: list of new seeds generated
+        :rtype: List[Seed]
+        """
         return self._pending_seeds
 
     def enqueue_seed(self, seed: Seed) -> None:
         """
-        Add a seed to the queue of seed to be executed in later iterations
+        Add a seed to the queue of seed to be executed in later iterations.
+        This function is meant to be used by user callbacks.
+
         :param seed: Seed to be added
-        :return: None
+        :type seed: Seed
         """
         self._pending_seeds.append(seed)
 
     @property
     def callback_manager(self) -> CallbackManager:
-        """ Returns the callback manager """
+        """
+        Get the callback manager associated with the execution.
+
+        :rtype: CallbackManager"""
         return self.cbm
 
 
-    def __init_optimization(self):
+    def __init_optimization(self) -> None:
         self.pstate.tt_ctx.setMode(MODE.ALIGNED_MEMORY, True)
         self.pstate.tt_ctx.setMode(MODE.AST_OPTIMIZATIONS, True)
         self.pstate.tt_ctx.setMode(MODE.CONSTANT_FOLDING, True)
@@ -82,7 +122,7 @@ class SymbolicExecutor(object):
         self.pstate.tt_ctx.setSolverTimeout(self.config.smt_timeout)
 
 
-    def __schedule_thread(self):
+    def __schedule_thread(self) -> None:
         if self.pstate.threads[self.pstate.tid].count <= 0:
 
             # Call all callbacks related to threads
@@ -175,7 +215,7 @@ class SymbolicExecutor(object):
 
             # Simulate routines
             try:
-                self.routines_handler(instruction)
+                self._routines_handler(instruction)
             except AllocatorException as e:
                 logging.info(f'An exception has been raised: {e}')
                 self.seed.status = SeedStatus.CRASH
@@ -202,7 +242,7 @@ class SymbolicExecutor(object):
                 self.pstate.write_symbolic_register(reg, ret_val, f"(routine {routine_name}")
 
 
-    def routines_handler(self, instruction: Instruction):
+    def _routines_handler(self, instruction: Instruction):
         """
         This function handle external routines calls. When the .plt jmp on an external
         address, we call the appropriate Python routine and setup the returned value
@@ -300,16 +340,23 @@ class SymbolicExecutor(object):
                 else:
                     logging.warning(f"symbol {sname} imported but unsupported")
 
-    def abort(self):
-        """ Abort the current execution """
+    def abort(self) -> NoReturn:
+        """
+        Abort the current execution. It works by raising
+        an exception which is caught by the emulation function
+        that takes care of returning appropriately afterward.
+
+        :raise RuntimeError: to abort execution from anywhere
+        """
         raise RuntimeError('Execution aborted')
 
 
-    def run(self):
+    def run(self) -> None:
         """
-        Execute the program (one trace)
-        :raise: RuntimeError if something wrong during the execution
-        :return: None
+        Execute the program.
+
+        If the :py:attr:`tritondse.Config.execution_timeout` is not set
+        the execution might hang forever if the program does.
         """
 
         self.start_time = time.time()
@@ -352,7 +399,8 @@ class SymbolicExecutor(object):
 
 
     @staticmethod
-    def mem_usage_str():
+    def mem_usage_str() -> str:
+        """ debug function to track memory consumption of an execution """
         size, resident, shared, _, _, _, _ = (int(x) for x in open(f"/proc/{os.getpid()}/statm").read().split(" "))
         resident = resident * resource.getpagesize()
         units = [(float(1024), "Kb"), (float(1024 **2), "Mb"), (float(1024 **3), "Gb")]
