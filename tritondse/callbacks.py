@@ -1,7 +1,7 @@
 # built-in imports
+from __future__ import annotations
 from enum   import Enum, auto
-from typing import Callable, Tuple, List, Optional
-from copy   import deepcopy
+from typing import Callable, Tuple, List, Optional, Union
 
 # third-party imports
 from triton import CALLBACK, Instruction, MemoryAccess
@@ -52,7 +52,7 @@ ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], N
 class ProbeInterface(object):
     """ The Probe interface """
     def __init__(self):
-        self.cbs = [] # [(CbType, arg, callback)]
+        self.cbs: List[Tuple[CbType, Optional[str], Callable]] = []  #: list of callback infos
 
 
 class CallbackManager(object):
@@ -64,6 +64,10 @@ class CallbackManager(object):
     """
 
     def __init__(self, p: Program):
+        """
+        :param p: Program used to explore *(used to extract function)*
+        :type p: Program
+        """
         self.p = p
         self._se = None
 
@@ -87,7 +91,7 @@ class CallbackManager(object):
 
     def is_empty(self) -> bool:
         """
-        Check whether a callback as alreday been registered or not
+        Check whether a callback has alreday been registered or not
 
         :return: True if no callback were registered
         """
@@ -160,7 +164,7 @@ class CallbackManager(object):
         used to keep a reference on the SymbolicExecutor object;
 
         :param se: SymbolicExecutor on which to bind callbacks
-        :return: None
+        :type se: SymbolicExecutor
         """
         assert not self.is_binded()
 
@@ -188,12 +192,14 @@ class CallbackManager(object):
         of the associated instruction.
 
         :param pos: When to trigger the callback (before or after) execution of the instruction
+        :type pos: CbPos
         :param addr: Address where to trigger the callback
+        :type addr: :py:obj:`tritondse.types.Addr`
         :param callback: callback function
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.AddrCallback`
         """
         if addr not in self._pc_addr_cbs:
-            self._pc_addr_cbs[addr] = {CbPos.BEFORE: [], CbPos.AFTER:[]}
+            self._pc_addr_cbs[addr] = {CbPos.BEFORE: [], CbPos.AFTER: []}
 
         self._pc_addr_cbs[addr][pos].append(callback)
         self._empty = False
@@ -203,20 +209,23 @@ class CallbackManager(object):
         """
         Register pre address callback
 
-        :param addr: Address where to trigger
-        :param callback: Callback function to call
-        :return: None
+        :param addr: Address where to trigger the callback
+        :type addr: :py:obj:`tritondse.types.Addr`
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.AddrCallback`
         """
         self.register_addr_callback(CbPos.BEFORE, addr, callback)
 
 
     def register_post_addr_callback(self, addr: Addr, callback: AddrCallback) -> None:
         """
-        Register post-address callback
+        Register post-address callback. Equivalent to register a pre-address on the
+        return site. *(assume the function returns)*
 
-        :param addr: Address where to trigger callback
-        :param callback: Callback function
-        :return: None
+        :param addr: Address where to trigger the callback
+        :type addr: :py:obj:`tritondse.types.Addr`
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.AddrCallback`
         """
         self.register_addr_callback(CbPos.AFTER, addr, callback)
 
@@ -225,7 +234,8 @@ class CallbackManager(object):
         """
         Get all the pre/post callbacks for a given address.
 
-        :param addr: Address for which to retrieve callbacks
+        :param addr: Address where to trigger the callback
+        :type addr: :py:obj:`tritondse.types.Addr`
         :return: tuple of lists containing callback functions for pre/post respectively
         """
         cbs = self._pc_addr_cbs.get(addr, None)
@@ -241,9 +251,11 @@ class CallbackManager(object):
         The address of the function is resolved through lief. Thus finding
         the function is conditioned by LIEF.
 
-        :param func_name: Function
-        :param callback: Callback to be called
-        :return: True if registeration succeeded, False otherwise
+        :param func_name: Function name
+        :type func_name: str
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.AddrCallback`
+        :return: True if registration succeeded, False otherwise
         """
         f = self.p.find_function(func_name)
         if f:
@@ -258,9 +270,10 @@ class CallbackManager(object):
         Register a callback triggered on each instruction executed, before or after its
         side effects have been applied to ProcessState.
 
-        :param pos: Before/After execution of the instruction
+        :param pos: before, after execution of the instruction
+        :type pos: CbPos
         :param callback: callback function to trigger
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.InstrCallback`
         """
         self._instr_cbs[pos].append(callback)
         self._empty = False
@@ -271,7 +284,7 @@ class CallbackManager(object):
         Register a pre-execution callback on all instruction executed by the engine.
 
         :param callback: callback function to trigger
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.InstrCallback`
         """
         self.register_instruction_callback(CbPos.BEFORE, callback)
 
@@ -281,14 +294,14 @@ class CallbackManager(object):
         Register a post-execution callback on all instruction executed by the engine.
 
         :param callback: callback function to trigger
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.InstrCallback`
         """
         self.register_instruction_callback(CbPos.AFTER, callback)
 
 
     def get_instruction_callbacks(self) -> Tuple[List[InstrCallback], List[InstrCallback]]:
         """
-        Get all the pre/post callbacks for insrtuctions.
+        Get all the pre/post callbacks for instructions.
 
         :return: tuple of lists containing callback functions for pre/post respectively
         """
@@ -299,10 +312,10 @@ class CallbackManager(object):
         """
         Register a callback executed after program loading, registers and memory
         initialization. Thus this callback is called just before executing the
-        first instruction
+        first instruction.
 
         :param callback: Callback function to trigger
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.SymExCallback`
         """
         self._pre_exec.append(callback)
         self._empty = False
@@ -315,7 +328,7 @@ class CallbackManager(object):
         exit (or crash)
 
         :param callback: Callback function to trigger
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.SymExCallback`
         """
         self._post_exec.append(callback)
         self._empty = False
@@ -323,7 +336,7 @@ class CallbackManager(object):
 
     def get_execution_callbacks(self) -> Tuple[List[SymExCallback], List[SymExCallback]]:
         """
-        Get all the pre/post callbacks for the current symbolic execution
+        Get all the pre/post callbacks for the current symbolic execution.
 
         :return: tuple of lists containing callback functions for pre/post respectively
         """
@@ -336,7 +349,7 @@ class CallbackManager(object):
         memory of the process state.
 
         :param callback: Callback function to be called
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.MemCallback`
         """
         self._mem_read_cbs.append(callback)
         self._empty = False
@@ -348,7 +361,7 @@ class CallbackManager(object):
         of the process.
 
         :param callback: Callback function to be called
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.MemCallback`
         """
         self._mem_write_cbs.append(callback)
         self._empty = False
@@ -359,7 +372,7 @@ class CallbackManager(object):
         Register a callback on each register read during the symbolic execution.
 
         :param callback: Callback function to be called
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.RegReadCallback`
         """
         self._reg_read_cbs.append(callback)
         self._empty = False
@@ -370,18 +383,18 @@ class CallbackManager(object):
         Register a callback on each register write during the symbolic execution.
 
         :param callback: Callback function to be called
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.RegReadCallback`
         """
         self._reg_write_cbs.append(callback)
         self._empty = False
 
 
-    def register_thread_context_switch_callback(self, callback: ThreadContext) -> None:
+    def register_thread_context_switch_callback(self, callback: ThreadCallback) -> None:
         """
         Register a callback triggered upon each thread context switch during the execution.
 
         :param callback: Callback to be called
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.ThreadCallback`
         """
         self._ctx_switch.append(callback)
         self._empty = False
@@ -390,6 +403,7 @@ class CallbackManager(object):
     def get_context_switch_callback(self) -> List[ThreadCallback]:
         """
         Get the list of all function callback to call when thread is being scheduled.
+
         :return: List of callbacks defined when thread is being scheduled
         """
         return self._ctx_switch
@@ -402,7 +416,7 @@ class CallbackManager(object):
         It thus allow to post-process the input before it getting put in the queue.
 
         :param callback: callback function
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.NewInputCallback`
         """
         self._new_input_cbs.append(callback)
         self._empty = False
@@ -420,11 +434,11 @@ class CallbackManager(object):
 
     def register_pre_imported_routine_callback(self, routine_name: str, callback: RtnCallback) -> None:
         """
-        Register a callback before call to imported routines
+        Register a callback before call to an imported routines
 
         :param routine_name: the routine name
         :param callback: callback function
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.RtnCallback`
         """
         if routine_name in self._pre_rtn_cbs:
             self._pre_rtn_cbs[routine_name].append(callback)
@@ -435,11 +449,11 @@ class CallbackManager(object):
 
     def register_post_imported_routine_callback(self, routine_name: str, callback: RtnCallback) -> None:
         """
-        Register a callback after the call to imported routines
+        Register a callback, called after the call to imported routines.
 
         :param routine_name: the routine name
         :param callback: callback function
-        :return: None
+        :type callback: :py:obj:`tritondse.callbacks.RtnCallback`
         """
         if routine_name in self._post_rtn_cbs:
             self._post_rtn_cbs[routine_name].append(callback)
@@ -450,10 +464,10 @@ class CallbackManager(object):
 
     def get_imported_routine_callbacks(self, routine_name: str) -> Tuple[List[RtnCallback], List[RtnCallback]]:
         """
-        Get the list of all callback for an imported routine
+        Get the list of all callbacks for an imported routine
 
         :param routine_name: the routine name
-        :return: List of callbacks
+        :return: Tuple of list of callbacks (for pre and post)
         """
         pre_ret = (self._pre_rtn_cbs[routine_name] if routine_name in self._pre_rtn_cbs else [])
         post_ret = (self._post_rtn_cbs[routine_name] if routine_name in self._post_rtn_cbs else [])
@@ -462,10 +476,13 @@ class CallbackManager(object):
 
     def register_probe_callback(self, probe: ProbeInterface) -> None:
         """
-        Register a probe callback.
+        Register a probe. That function will iterate the ``cbs`` attribute
+        of the object, and will register each entries in self.
+
+        .. warning:: Does not implement all CbType
 
         :param probe: a probe interface
-        :return: None
+        :type probe: ProbeInterface
         """
         for (kind, arg, cb) in probe.cbs:
             if kind == CbType.MEMORY_READ:
@@ -485,6 +502,7 @@ class CallbackManager(object):
         their own instance off the CallbackManager.
 
         :return: Fresh instance of CallbackManager
+        :rtype: CallbackManager
         """
         cbs = CallbackManager(self.p)
 
