@@ -1,6 +1,6 @@
 from collections     import namedtuple
 from tritondse.types import Architecture, Addr
-from triton          import OPCODE
+from triton          import OPCODE, TritonContext
 
 Arch = namedtuple("Arch", "ret_reg pc_reg bp_reg sp_reg sys_reg reg_args halt_inst")
 
@@ -14,10 +14,37 @@ ARCHS = {
 
 class CpuState(dict):
     """
-    Class to abstract the CPU interface with Triton and TritonDSE.
+    Thin wrapper on a TritonContext, to allow accessing
+    and modifying registers in a Pythonic way. It also
+    abstract base, stack, and program counter for architecture
+    agnostic operations. This class performs all actions
+    on the TritonContext, and does not hold any information.
+    It is just acting as a proxy
+
+    .. note:: This class adds dynamically attributes corresponding
+              to register. Thus attributes will vary from an architecture
+              to the other.
+
+    >>> cpu.rax
+    12
+    >>> cpu.rax += 1
+    >>> cpu.rax
+    13
+
+    No data is stored, all operations are performed on the
+    TritonContext:
+
+    >>> cpu.__ctx.getConcreteRegisterValue(cpu.rsp)
+    0x7ff6540
+    >>> cpu.stack_pointer += 8
+    >>> cpu.__ctx.getConcreteRegisterValue(cpu.rsp)
+    0x7ff6548
+
+    .. note:: The user is not meant to instanciate it manually, and must
+              use it through :py:obj:`ProcessState`.
     """
 
-    def __init__(self, ctx, arch_info):
+    def __init__(self, ctx: TritonContext, arch_info: Arch):
         super(CpuState, self).__init__()
         self.__ctx = ctx
         self.__archinfo = arch_info
@@ -52,9 +79,10 @@ class CpuState(dict):
 
 
     @property
-    def program_counter(self) -> Addr:
+    def program_counter(self) -> int:
         """
-        :return: The value of the program counter
+        :return: The value of the program counter (RIP for x86, PC for ARM ..)
+        :rtype: int
         """
         return getattr(self, self.__archinfo.pc_reg)
 
@@ -65,13 +93,13 @@ class CpuState(dict):
         Set a value to the program counter
 
         :param value: Value to set
-        :return: None
+        :type value: int
         """
         setattr(self, self.__archinfo.pc_reg, value)
 
 
     @property
-    def base_pointer(self) -> Addr:
+    def base_pointer(self) -> int:
         """
         :return: The value of the base pointer register
         """
@@ -90,7 +118,7 @@ class CpuState(dict):
 
 
     @property
-    def stack_pointer(self) -> Addr:
+    def stack_pointer(self) -> int:
         """
         :return: The value of the stack pointer register
         """
@@ -103,6 +131,6 @@ class CpuState(dict):
         Set a value to the stack pointer register
 
         :param value: Value to set
-        :return: None
+        :type value: int
         """
         setattr(self, self.__archinfo.sp_reg, value)
