@@ -12,3 +12,12 @@ SymbolicExplorator
     :undoc-members:
     :exclude-members:
 
+
+
+SeedManager
+-----------
+
+.. autoclass:: tritondse.seeds_manager.SeedManager
+    :members:
+    :undoc-members:
+    :exclude-members:
