@@ -1,50 +1,53 @@
+from __future__ import annotations
+
 import sys
 from enum    import IntEnum, Enum, auto
 from pathlib import Path
 from triton  import ARCH, SOLVER
 from typing  import Union, TypeVar, Tuple
 
-# Type representing file either as a file, either as a Path object
+
 PathLike = Union[str, Path]
+"""Type representing file either as a file, either as a Path object"""
 
-# Integer representing an address
 Addr = int
+"""Integer representing an address"""
 
-# Integer representing a relative address
 rAddr = int
+"""Integer representing a relative address"""
 
-# Integer representing a value in bits
 BitSize = int
+"""Integer representing a value in bits"""
 
-# Integer representing a value in bytes
 ByteSize = int
+"""Integer representing a value in bytes"""
 
 Input = bytes
 """ Type representing an Input (which is bytes) """
 
 Register = TypeVar('Register')
-"""Register object as returned by Triton"""
+"""Register identifier as used by Triton *(not the Register object itself)*"""
 
 Registers = TypeVar('Registers')
-"""Set of registers as returned by Triton"""
+"""Set of registers as used by Triton"""
 
 PathConstraint = TypeVar('PathConstraint')
-""" PathConstraint object as returned by Triton"""
+""" `PathConstraint <https://triton.quarkslab.com/documentation/doxygen/py_PathConstraint_page.html>`_ object as returned by Triton"""
 
 AstNode = TypeVar('AstNode')
-""" SMT logic formula as returned by Triton """
+""" SMT logic formula as returned by Triton (`AstNode <https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_) """
 
 Model = TypeVar('Model')
-""" Solver Model as returned by Triton """
+""" Solver `Model <https://triton.quarkslab.com/documentation/doxygen/py_SolverModel_page.html>`_ as returned by Triton """
 
 Expression = TypeVar('Expression')
-""" Symbolic Expression as returned by Triton (SymbolicExpression) """
+""" Symbolic Expression as returned by Triton (`SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_) """
 
 Edge = Tuple[Addr, Addr]
 """ Type representing a edge in the program """
 
 PathHash = str
-""" Type representing the hash of path to uniquely identify any path """
+"""Type representing the hash of path to uniquely identify any path """
 
 
 if sys.version_info.minor >= 8:
@@ -61,11 +64,13 @@ if sys.version_info.minor >= 8:
         constraint: AstNode
 else:
     PathBranch = TypeVar('PathBranch')
-    """ PathConstraint object as returned by Triton"""
+    """ PathBranchobject as returned by Triton.
+    Thus it is a dictionnary with the keys:
+    """
 
 
 class Architecture(IntEnum):
-    """ Common architecture Enum fully compatible with Triton ARCH """
+    """ Common architecture Enum fully compatible with Triton `ARCH <https://triton.quarkslab.com/documentation/doxygen/py_ARCH_page.html>`_ """
     AARCH64 = ARCH.AARCH64
     ARM32   = ARCH.ARM32
     X86     = ARCH.X86

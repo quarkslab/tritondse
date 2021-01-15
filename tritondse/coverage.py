@@ -209,16 +209,16 @@ class GlobalCoverage(CoverageSingleRun):
         The function iterate the given path predicate and yield PatchConstraint to
         consider as-is and PathBranch representing the new branch to take. It acts
         as a black-box so that the SeedManager does not have to know what strategy
-        is being used under the hood. From an impementation perspective the goal
+        is being used under the hood. From an implementation perspective the goal
         of the function is to manipulate the path WITHOUT doing any SMT related things.
 
         .. todo:: Need to implement strategies for a given target returning, all
-           occurences, only the first, only the last etc. At the moment only the first.
+                  occurences, only the first, only the last etc. At the moment only the first.
 
         :param path_constraints: list of path constraint to iterate
         :return: generator of path constraint and branches to solve. The first tuple
-        item is a list of PathConstraint to add in the path predicate and the second
-        is the branch to solve (but not to keep in path predicate)
+                 item is a list of PathConstraint to add in the path predicate and the second
+                 is the branch to solve (but not to keep in path predicate)
         """
         pending_csts = []
         current_hash = hashlib.md5()  # Current path hash for PATH coverage
