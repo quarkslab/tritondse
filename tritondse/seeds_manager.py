@@ -6,11 +6,10 @@ from typing      import Generator
 from collections import Counter
 
 # local imports
-from tritondse.config            import Config
 from tritondse.seed              import Seed, SeedStatus
 from tritondse.callbacks         import CallbackManager
 from tritondse.coverage          import GlobalCoverage
-from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritizerWorklist
+from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritizerWorklist, SeedScheduler
 from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.types             import Solver, Model
@@ -19,18 +18,40 @@ from tritondse.types             import Solver, Model
 
 class SeedManager:
     """
-    This class is used to represent the seeds management.
+    Seed Manager.
+    This class is in charge of providing the next seed to execute by prioritizing
+    them. It also holds various sets of pending seeds, corpus, crashes etc and
+    manages them in the workspace.
+
+    It contains basically 2 types of seeds which are:
+
+    * pending seeds (kept in the seed scheduler). These are the seeds that might
+      be selected to be run
+    * seed consumed (corpus, crash, hangs) which are seeds not meant to be re-executed
+      as they cannot lead to new paths, all candidate paths are UNSAT etc.
     """
-    def __init__(self, config: Config, callbacks: CallbackManager, coverage: GlobalCoverage, workspace: Workspace):
-        self.config     = config
-        self.workspace  = workspace
-        self.coverage   = coverage
-        #self.worklist   = WorklistAddressToSet(config, self.coverage) # TODO: Use the appropriate worklist according to config and the strategy wanted
-        self.worklist   = FreshSeedPrioritizerWorklist(self)
-        self.cbm        = callbacks
-        self.corpus     = set()
-        self.crash      = set()
-        self.hangs      = set()
+    def __init__(self, coverage: GlobalCoverage, workspace: Workspace, smt_queries_limit: int, scheduler: SeedScheduler = None):
+        """
+        :param coverage: global coverage object. The instance will be updated by the seed manager
+        :type coverage: GlobalCoverage
+        :param workspace: workspace instance object.
+        :type workspace: Workspace
+        :param smt_queries_limit: maximum number of queries for  a given execution
+        :type smt_queries_limit: int
+        :param scheduler: seed scheduler object to use as scheduling strategy
+        :type scheduler: SeedScheduler
+        """
+        self.smt_queries_limit = smt_queries_limit
+        self.workspace = workspace
+        self.coverage  = coverage
+        if scheduler is None:
+            self.worklist = FreshSeedPrioritizerWorklist(self)
+        else:
+            self.worklist = scheduler
+
+        self.corpus = set()
+        self.crash  = set()
+        self.hangs  = set()
 
         self.__load_seed_workspace()
 
@@ -60,7 +81,11 @@ class SeedManager:
         Check if a seed is a new one (not into corpus, crash and hangs)
 
         :param seed: The seed to test
-        :return: True if the is a new one
+        :type seed: Seed
+        :return: True if the seed is a new one
+
+        .. warning:: That function does not check that the seed
+                     is not in the pending seeds queue
         """
         return sum(seed in x for x in [self.corpus, self.crash, self.hangs]) == 0
 
@@ -68,10 +93,12 @@ class SeedManager:
     def add_seed_queue(self, seed: Seed) -> None:
         """
         Add a seed to to appropriate internal queue depending
-        on its status.
+        on its status. If it is new it is added in pending seed,
+        if OK, HANG or CRASH it the appropriate set.
+        **Note that the seed is not written in the workspace**
 
-        :param seed: Seed to add in internal queue
-        :return: None
+        :param seed: Seed to add in an internal queue
+        :type seed: Seed
         """
         # Add the seed to the appropriate list
         if seed.status == SeedStatus.NEW:
@@ -88,13 +115,14 @@ class SeedManager:
 
     def post_execution(self, execution: SymbolicExecutor, seed: Seed) -> None:
         """
-        This function is called after each execution. This function does:
-            - update the code coverage
-            - update the worklist
+        Function called after each execution. It updates the global
+        code coverage object, and tries to generate new paths through
+        SMT in accordance with the seed scheduling strategy.
 
-        :param execution: The current exection
+        :param execution: The current execution
+        :type execution: SymbolicExecutor
         :param seed: The seed of the execution
-        :return: None
+        :type seed: Seed
         """
 
         # Update instructions covered from the last execution into our exploration coverage
@@ -172,7 +200,7 @@ class SeedManager:
             while True:
                 # If smt_queries_limit is zero: unlimited queries
                 # If smt_queries_limit is negative: no query
-                if self.config.smt_queries_limit < 0:
+                if self.smt_queries_limit < 0:
                     logging.info(f'The configuration is defined as: no query')
                     break
 
@@ -194,7 +222,7 @@ class SeedManager:
                 model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
                 status = Solver(status)
                 smt_queries += 1
-                logging.info(f'Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {time.time() - ts:.02f}s) [{self.pp_smt_status(status)}]')
+                logging.info(f'Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {time.time() - ts:.02f}s) [{self._pp_smt_status(status)}]')
 
                 if status == Solver.SAT:
                     self._stat_branch_reverted[covitem] += 1  # Update stats
@@ -227,7 +255,7 @@ class SeedManager:
                     assert False
 
                 # Check if we reached the limit of query
-                if self.config.smt_queries_limit and smt_queries >= self.config.smt_queries_limit:
+                if self.smt_queries_limit and smt_queries >= self.smt_queries_limit:
                     logging.info(f'Limit of query reached. Stop asking for models')
                     break
 
@@ -242,7 +270,7 @@ class SeedManager:
         # Solve the constraint
         model, status = execution.pstate.tt_ctx.getModel(branch['constraint'], status=True)
         status = Solver(status)
-        logging.info(f'Yolo query solve:{self.coverage.pp_item(covitem)} [{self.pp_smt_status(status)}]')
+        logging.info(f'Yolo query solve:{self.coverage.pp_item(covitem)} [{self._pp_smt_status(status)}]')
 
         if status == Solver.SAT:
             self._yolo_map.add(covitem)
@@ -264,7 +292,7 @@ class SeedManager:
             content[k] = v.getValue()
 
         # Calling callback if user defined one
-        for cb in self.cbm.get_new_input_callback():
+        for cb in exec.cbm.get_new_input_callback():
             cont = cb(exec, exec.pstate, content)
             # if the callback return a new input continue with that one
             content = cont if cont is not None else content
@@ -273,23 +301,34 @@ class SeedManager:
         return Seed(bytes(content))
 
 
-    def pick_seed(self):
-        """ Return a seed from the worklist """
+    def pick_seed(self) -> Seed:
+        """
+        Get the next seed to be executed by querying it
+        in the seed scheduler.
+
+        :returns: Seed to execute from the pending seeds
+        :rtype: Seed
+        """
         return self.worklist.pick()
 
 
     def seeds_available(self) -> bool:
-        """ Returns true if seeds are still in the worklist """
+        """
+        Checks whether or not there is still pending seeds to process.
+
+        :returns: True if seeds are still pending
+        """
         return self.worklist.has_seed_remaining()
 
 
-    def is_seed_new(self, seed: Seed) -> bool:
-        """ Returns True whether the seed is entirely new for the SeedManager or not """
-        return seed is not None and seed not in self.corpus and seed not in self.crash and seed not in self.hangs
-
-
     def add_new_seed(self, seed: Seed) -> None:
-        """ Add a new seed """
+        """
+        Add the given seed in the manager.
+        The function uses its type to know where to add the seed.
+
+        :param seed: seed to add
+        :type seed: Seed
+        """
         if self.is_new_seed(seed):
             self._add_seed(seed)
             logging.debug(f'Seed {seed.filename} dumped [{seed.status.name}]')
@@ -304,15 +343,27 @@ class SeedManager:
 
 
     def drop_seed(self, seed: Seed) -> None:
-        """ Remove a seed from the workspace """
+        """
+        Drop a seed that is not of interest anymore.
+        The function thus switch its status to ``OK_DONE``
+        and move it in the corpus. *(the seed is not removed
+        from the corpus)*
+
+        :param seed: seed object to drop
+        :type seed: Seed
+        """
         logging.info(f"droping seed {seed.get_hash()} as it cannot improve coverage anymore")
         seed.status = SeedStatus.OK_DONE
         self.add_seed_queue(seed)  # Will put it in the corpus
         self.workspace.update_seed_location(seed)  # Will put it in the corpus in files
 
 
-    def post_exploration(self):
-        """ This function is called after the exploration and just print some stats """
+    def post_exploration(self) -> None:
+        """
+        Function called at the end of exploration. It perform
+        some stats printing, but would also perform any clean
+        up tasks. *(not meant to be called by the user)*
+        """
         # Do things you would do at the very end of exploration
         # (or just before it becomes idle)
         count = sum(x for x in self._stat_branch_reverted.values())
@@ -322,7 +373,7 @@ class SeedManager:
         self.worklist.post_exploration()
 
 
-    def pp_smt_status(self, status: Solver):
+    def _pp_smt_status(self, status: Solver):
         """ The pretty print function of the solver status """
         mapper = {Solver.SAT: 92, Solver.UNSAT: 91, Solver.TIMEOUT: 93, Solver.UNKNOWN: 95}
         return f"\033[{mapper[status]}m{status.name}\033[0m"

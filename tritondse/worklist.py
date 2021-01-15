@@ -3,7 +3,15 @@ import logging
 from tritondse.coverage import GlobalCoverage
 
 
-class WorklistAddressToSet(object):
+class SeedScheduler:
+    """
+    Abstract class for all seed selection strategies.
+    """
+    pass
+    # TODO: defining prototypes that must be implemented by subclasses
+
+
+class WorklistAddressToSet(SeedScheduler):
     """
     This worklist classifies seeds by addresses. We map a seed X to an
     address Y, if the seed X has been generated to reach the address Y.
@@ -97,7 +105,7 @@ class WorklistAddressToSet(object):
 
 
 
-class WorklistRand(object):
+class WorklistRand(SeedScheduler):
     """
     This worklist deals with seeds without any classification. It uses a Set
     for insertion and pop (which is random) for picking seeds.
@@ -145,7 +153,7 @@ class WorklistRand(object):
 
 
 
-class FreshSeedPrioritizerWorklist(object):
+class FreshSeedPrioritizerWorklist(SeedScheduler):
     """
     This worklist works as follow:
         - return first fresh seeds first to get them executed (to improve coverage)
