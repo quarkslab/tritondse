@@ -1,43 +1,107 @@
 import logging
 
-from tritondse.coverage import GlobalCoverage
+from typing import Dict, Set
+from tritondse.seed import Seed
+from tritondse.coverage import GlobalCoverage, CovItem
 
 
 class SeedScheduler:
     """
     Abstract class for all seed selection strategies.
+    This class provides the base methods that all
+    subclasses should implement to be compliant with
+    the interface.
     """
-    pass
-    # TODO: defining prototypes that must be implemented by subclasses
+    def has_seed_remaining(self) -> bool:
+        """
+        Returns true if there are still seeds to be processed in the scheduler
+
+        :returns: true if there are seeds to process
+        """
+        raise NotImplementedError()
+
+
+    def add(self, seed: Seed) -> None:
+        """
+        Add a new seed in the scheduler
+
+        :param seed: Seed to add in the scheduler
+        :type seed: Seed
+        """
+        raise NotImplementedError()
+
+
+    def update_worklist(self, coverage: GlobalCoverage) -> None:
+        """
+        Call after every execution.
+        That function might help the scheduler with some of its internal states.
+        For instance the scheduler is keep somes seed meant to cover an address
+        which is now covered, it can just drop these seeds.
+
+        :param coverage: global coverage of the exploration
+        :type coverage: GlobalCoverage
+        """
+        raise NotImplementedError()
+
+
+    def can_solve_models(self) -> bool:
+        """
+        Function called by the seed manager to know if it can
+        start negating branches to discover new paths. Some seed
+        scheduler might want to run concretely all inputs first
+        before starting negating branches.
+
+        :return: true if the :py:obj:`SeedManager` can negate branches
+        """
+        raise NotImplementedError()
+
+
+    def pick(self) -> Seed:
+        """
+        Return the next seed to execute.
+
+        :returns: seed to execute
+        :rtype: Seed
+        """
+        raise NotImplementedError()
+
+
+    def post_exploration(self) -> None:
+        """
+        Called at the end of the exploration to perform
+        some clean-up or anything else.
+        """
+        raise NotImplementedError()
+
 
 
 class WorklistAddressToSet(SeedScheduler):
     """
     This worklist classifies seeds by addresses. We map a seed X to an
     address Y, if the seed X has been generated to reach the address Y.
-    When the method pick() is called, we return a seed which will leads
-    to reach new instructions according to the state coverage.
+    When the method pick() is called, seeds covering a new address 'Y'
+    are selected first. Otherwise anyone is taken.
     """
-    def __init__(self, manager):
+    def __init__(self, manager: 'SeedManager'):
         self.manager = manager
         self.cov = None
         self.worklist = dict() # {CovItem: set(Seed)}
 
 
-    def __len__(self):
-        """ Returns the size of the worklist """
+    def __len__(self) -> int:
+        """ Number of pending seeds to execute """
         count = 0
         for k, v in self.worklist.items():
             count += len(v)
         return count
 
 
-    def has_seed_remaining(self):
+    def has_seed_remaining(self) -> bool:
         """ Returns true if there are still seeds in the worklist """
         return len(self) != 0
 
 
-    def add(self, seed):
+    def add(self, seed: Seed) -> None:
         """ Add a seed to the worklist """
         for obj in seed.coverage_objectives:
             if obj in self.worklist:
@@ -46,18 +110,29 @@ class WorklistAddressToSet(SeedScheduler):
                 self.worklist[obj] = {seed}
 
 
-    def update_worklist(self, coverage: GlobalCoverage):
-        """ Update the coverage state of the worklist with the global one """
+    def update_worklist(self, coverage: GlobalCoverage) -> None:
+        """ Update the coverage state of the woklist with the global one """
         self.cov = coverage
 
 
     def can_solve_models(self) -> bool:
-        """ Always true """
+        """
+        Always true.
+        This strategy always allows solving branches. As a consequence
+        it might try to solve a branch already covered in a seed not run yet.
+        But this enables iterating a seed only once.
+
+        :returns: True
+        """
         return True
 
 
-    def pick(self):
-        """ Return the next seed to execute """
+    def pick(self) -> Seed:
+        """ Return the next seed to execute
+
+        :returns: next seed to execute (first one covering new addresses, otherwise any other)
+        :rtype: Seed
+        """
         seed_picked = None
         item_picked = None
         to_remove = set()
@@ -100,87 +175,104 @@ class WorklistAddressToSet(SeedScheduler):
         return seed_picked
 
 
-    def post_exploration(self):
+    def post_exploration(self) -> None:
+        """ Does nothing """
         pass
 
 
 
 class WorklistRand(SeedScheduler):
     """
-    This worklist deals with seeds without any classification. It uses a Set
-    for insertion and pop (which is random) for picking seeds.
+    Trivial strategy that returns any Seed without any classification.
+    It uses a Set for insertion and pop (which is random) for picking seeds.
     """
-    def __init__(self, manager):
+    def __init__(self, manager: 'SeedManager'):
         self.worklist = set() # set(Seed)
 
 
-    def __len__(self):
-        """ Returns the size of the worklist """
+    def __len__(self) -> int:
+        """ Number of pending seeds to execute """
         return len(self.worklist)
 
 
-    def has_seed_remaining(self):
+    def has_seed_remaining(self) -> bool:
         """ Returns true if there are still seeds in the worklist """
         return len(self) != 0
 
 
-    def add(self, seed):
-        """ Add a seed to the worklist """
+    def add(self, seed: Seed) -> None:
+        """ Add a seed to the worklist
+
+        :param seed: Seed to add to this rand scheduler
+        :type seed: Seed
+        """
         self.worklist.add(seed)
 
 
-    def update_worklist(self, coverage: GlobalCoverage):
+    def update_worklist(self, coverage: GlobalCoverage) -> None:
         """ Update the coverage state of the worklist with the global one """
         self.cov = coverage
 
 
     def can_solve_models(self) -> bool:
         """ Always true """
-        return True  # This worklist always enable
+        return True
 
 
-    def pick(self):
+    def pick(self) -> Seed:
         """
         Return the next seed to execute. The method pop() removes a random element
         from the set and returns the removed element. Unlike, a stack a
         random element is popped off the set.
+
+        :returns: next seed to executre
+        :rtype: Seed
         """
         return self.worklist.pop()
 
 
-    def post_exploration(self):
+    def post_exploration(self) -> None:
+        """ Does nothing """
         pass
 
 
 
 class FreshSeedPrioritizerWorklist(SeedScheduler):
     """
+    Strategy that first execute all seeds with negating branches
+    in order to get the most updated coverage and which then re-run
+    all relevant seeds to negate their branches.
+
     This worklist works as follow:
         - return first fresh seeds first to get them executed (to improve coverage)
         - keep the seed in the worklist up until it gets dropped or thoroughtly processed
         - if no fresh seed is available, iterates seed that will generate coverage
     """
-    def __init__(self, manager):
+    def __init__(self, manager: 'SeedManager'):
         self.manager = manager
         self.fresh = []       # Seed never processed (list to make sure we can pop first one received)
         self.worklist = dict() # CovItem -> set(Seed)
 
 
-    def __len__(self):
-        """ Returns the size of the worklist """
+    def __len__(self) -> int:
+        """ Number of pending seeds to execute """
         s = set()
         for seeds in self.worklist.values():
             s.update(seeds)
         return len(self.fresh) + len(s)
 
 
-    def has_seed_remaining(self):
+    def has_seed_remaining(self) -> bool:
         """ Returns true if there are still seeds in the worklist """
         return len(self) != 0
 
 
-    def add(self, seed):
-        """ Add a seed to the worklist """
+    def add(self, seed: Seed) -> None:
+        """ Add a seed to the worklist
+
+        :param seed: seed to add to the scheduler
+        :type seed: Seed
+        """
         if seed.coverage_objectives:  # If the seed already have coverage objectives
             for item in seed.coverage_objectives:  # Add it in our worklist
                 if item in self.worklist:
@@ -192,7 +284,7 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
             self.fresh.append(seed)
 
 
-    def update_worklist(self, coverage: GlobalCoverage):
+    def update_worklist(self, coverage: GlobalCoverage) -> None:
         """ Update the coverage state of the worklist with the global one """
         # Iterate the worklist to see if some items have now been covered
         # and are thus not interesting anymore
@@ -206,11 +298,15 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
 
 
     def can_solve_models(self) -> bool:
-        """ Returns True if the set of fresh seeds is empty """
+        """
+        Returns True if there are no "fresh" seeds to execute.
+
+        :returns: True if all fresh seeds have been executed.
+        """
         return not self.fresh
 
 
-    def pick(self) -> 'Seed':
+    def pick(self) -> Seed:
         """ Return the next seed to execute """
         # Pop first fresh seed
         if self.fresh:
@@ -234,7 +330,11 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
         return seed
 
 
-    def post_exploration(self):
+    def post_exploration(self) -> None:
+        """
+        At the end of the execution, print the worklist to know
+        its state before exit.
+        """
         s = " ".join(str(x) for x in self.worklist)
         logging.info(f"Many not covered items: {s}")
         # TODO: Save them in the workspace
