@@ -16,10 +16,6 @@ from tritondse.seed           import SeedStatus
 def rtn_ctype_b_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __ctype_b_loc behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('__ctype_b_loc hooked')
 
@@ -79,10 +75,6 @@ def rtn_ctype_b_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_errno_location(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __errno_location behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('__errno_location hooked')
 
@@ -96,10 +88,6 @@ def rtn_errno_location(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __libc_start_main behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('__libc_start_main hooked')
 
@@ -150,10 +138,6 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_stack_chk_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __stack_chk_fail behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('__stack_chk_fail hooked')
     logging.critical('*** stack smashing detected ***: terminated')
@@ -165,10 +149,6 @@ def rtn_stack_chk_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_xstat(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __xstat behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('__xstat hooked')
 
@@ -205,12 +185,13 @@ def rtn_xstat(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
 
 def rtn_abort(se: 'SymbolicExecutor', pstate: 'ProcessState'):
-    """
-    The abort behavior.
+    """::
 
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
+        void abort(void);
+
+    Mark the input seed as OK and stop execution.
+
+    [`Man Page <https://man7.org/linux/man-pages/man3/abort.3.html>`_]
     """
     logging.debug('abort hooked')
     se.seed.status = SeedStatus.OK_DONE
@@ -219,12 +200,25 @@ def rtn_abort(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
 # int atoi(const char *nptr);
 def rtn_atoi(se: 'SymbolicExecutor', pstate: 'ProcessState'):
-    """
-    The atoi behavior.
+    """::
 
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
+        int atoi(const char *nptr);
+
+    **Description**: The atoi() function converts the initial portion of the string
+    pointed to by nptr to int.  The behavior is the same as
+
+    Concrete: /
+
+    Symbolic: Represent the return value symbolically with 10 nested if
+    to represent the value.
+
+    .. warning:: The function does not support all possibles representation
+                 of an integer. It does not support negative integer nor values
+                 prefixed by spaces.
+
+    [`Man Page <https://man7.org/linux/man-pages/man3/abort.3.html>`_]
+
+    :return: Symbolic value of the integer base on the symbolic string ``nptr``
     """
     logging.debug('atoi hooked')
 
@@ -297,10 +291,6 @@ def rtn_atoi(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_calloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The calloc behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('calloc hooked')
 
@@ -328,10 +318,6 @@ def rtn_calloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_clock_gettime(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The clock_gettime behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('clock_gettime hooked')
 
@@ -361,10 +347,6 @@ def rtn_clock_gettime(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_exit(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The exit behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('exit hooked')
     arg = pstate.get_argument_value(0)
@@ -375,10 +357,6 @@ def rtn_exit(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_fclose(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fclose behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('fclose hooked')
 
@@ -402,10 +380,6 @@ def rtn_fclose(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fgets behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('fgets hooked')
 
@@ -450,10 +424,6 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fopen behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('fopen hooked')
 
@@ -484,10 +454,6 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_fprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fprintf behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('fprintf hooked')
 
@@ -523,10 +489,6 @@ def rtn_fprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_fputc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fputc behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('fputc hooked')
 
@@ -563,10 +525,6 @@ def rtn_fputc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_fputs(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fputs behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('fputs hooked')
 
@@ -603,10 +561,6 @@ def rtn_fputs(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fread behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('fread hooked')
 
@@ -649,10 +603,6 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_free(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The free behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('free hooked')
 
@@ -666,10 +616,6 @@ def rtn_free(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_fwrite(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fwrite behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('fwrite hooked')
 
@@ -705,10 +651,6 @@ def rtn_fwrite(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_gettimeofday(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The gettimeofday behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('gettimeofday hooked')
 
@@ -735,10 +677,6 @@ def rtn_gettimeofday(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_malloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The malloc behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('malloc hooked')
 
@@ -753,10 +691,6 @@ def rtn_malloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_memcmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memcmp behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('memcmp hooked')
 
@@ -785,10 +719,6 @@ def rtn_memcmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_memcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memcpy behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('memcpy hooked')
 
@@ -810,10 +740,6 @@ def rtn_memcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_memmem(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memmem behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('memmem hooked')
 
@@ -844,10 +770,6 @@ def rtn_memmem(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_memmove(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memmove behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('memmove hooked')
 
@@ -870,10 +792,6 @@ def rtn_memmove(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_memset(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memset behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('memset hooked')
 
@@ -896,10 +814,6 @@ def rtn_memset(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_printf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The printf behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('printf hooked')
 
@@ -927,10 +841,6 @@ def rtn_printf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_pthread_create(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_create behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('pthread_create hooked')
 
@@ -977,10 +887,6 @@ def rtn_pthread_create(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_pthread_exit(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_exit behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('pthread_exit hooked')
 
@@ -997,10 +903,6 @@ def rtn_pthread_exit(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_pthread_join(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_join behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('pthread_join hooked')
 
@@ -1022,10 +924,6 @@ def rtn_pthread_join(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_pthread_mutex_destroy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_mutex_destroy behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('pthread_mutex_destroy hooked')
 
@@ -1039,10 +937,6 @@ def rtn_pthread_mutex_destroy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_pthread_mutex_init(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_mutex_init behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('pthread_mutex_init hooked')
 
@@ -1058,10 +952,6 @@ def rtn_pthread_mutex_init(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_pthread_mutex_lock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_mutex_lock behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('pthread_mutex_lock hooked')
 
@@ -1086,10 +976,6 @@ def rtn_pthread_mutex_lock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_pthread_mutex_unlock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_mutex_unlock behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('pthread_mutex_unlock hooked')
 
@@ -1105,10 +991,6 @@ def rtn_pthread_mutex_unlock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_puts(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The puts behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('puts hooked')
 
@@ -1124,10 +1006,6 @@ def rtn_puts(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_rand(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The rand behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('rand hooked')
     return random.randrange(0, 0xffffffff)
@@ -1136,10 +1014,6 @@ def rtn_rand(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The read behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('read hooked')
 
@@ -1181,10 +1055,6 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_sem_destroy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_destroy behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('sem_destroy hooked')
 
@@ -1201,10 +1071,6 @@ def rtn_sem_destroy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_sem_getvalue(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_getvalue behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('sem_getvalue hooked')
 
@@ -1224,10 +1090,6 @@ def rtn_sem_getvalue(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_sem_init(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_init behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('sem_init hooked')
 
@@ -1246,10 +1108,6 @@ def rtn_sem_init(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_sem_post(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_post behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('sem_post hooked')
 
@@ -1266,10 +1124,6 @@ def rtn_sem_post(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_sem_timedwait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_timedwait behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('sem_timedwait hooked')
 
@@ -1311,10 +1165,6 @@ def rtn_sem_timedwait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_sem_trywait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_trywait behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('sem_trywait hooked')
 
@@ -1343,10 +1193,6 @@ def rtn_sem_trywait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_sem_wait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_wait behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('sem_wait hooked')
 
@@ -1373,10 +1219,6 @@ def rtn_sem_wait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_sleep(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sleep behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('sleep hooked')
 
@@ -1392,10 +1234,6 @@ def rtn_sleep(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_sprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sprintf behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('sprintf hooked')
 
@@ -1431,10 +1269,6 @@ def rtn_sprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_strcasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strcasecmp behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('strcasecmp hooked')
 
@@ -1467,10 +1301,6 @@ def rtn_strcasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_strchr(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strchr behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('strchr hooked')
 
@@ -1498,10 +1328,6 @@ def rtn_strchr(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_strcmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strcmp behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('strcmp hooked')
 
@@ -1532,10 +1358,6 @@ def rtn_strcmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_strcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strcpy behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('strcpy hooked')
 
@@ -1723,10 +1545,6 @@ def rtn_strerror(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_strlen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strlen behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('strlen hooked')
 
@@ -1759,10 +1577,6 @@ def rtn_strlen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_strncasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strncasecmp behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('strncasecmp hooked')
 
@@ -1786,10 +1600,6 @@ def rtn_strncasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_strncmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strncmp behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('strncmp hooked')
 
@@ -1811,10 +1621,6 @@ def rtn_strncmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_strncpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strncpy behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('strncpy hooked')
 
@@ -1840,10 +1646,6 @@ def rtn_strncpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_strtok_r(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strtok_r behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('strtok_r hooked')
 
@@ -1889,10 +1691,6 @@ def rtn_strtok_r(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 def rtn_strtoul(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strtoul behavior.
-
-    :param se: The current symbolic execution instance
-    :param pstate: The current process state
-    :return: Whether a concrete or a symbolic value
     """
     logging.debug('strtoul hooked')
 
