@@ -71,7 +71,17 @@ autodoc_type_aliases = {
     'BitSize': 'tritondse.types.BitSize',
     'ByteSize': 'tritondse.types.ByteSize',
     'Input': 'tritondse.types.Input',
-    'PathHash': 'tritondse.types.PathHash'
+    'PathHash': 'tritondse.types.PathHash',
+    'AddrCallback': 'tritondse.callbacks.AddrCallback',
+    'InstrCallback': 'tritondse.callbacks.InstrCallback',
+    'MemReadCallback': 'tritondse.callbacks.MemReadCallback',
+    'MemWriteCallback': 'tritondse.callbacks.MemWriteCallback',
+    'NewInputCallback': 'tritondse.callbacks.NewInputCallback',
+    'RegReadCallback': 'tritondse.callbacks.RegReadCallback',
+    'RegWriteCallback': 'tritondse.callbacks.RegWriteCallback',
+    'RtnCallback': 'tritondse.callbacks.RtnCallback',
+    'SymExCallback': 'tritondse.callbacks.SymExCallback',
+    'ThreadCallback': 'tritondse.callbacks.ThreadCallback',
 }
 
 # For internationalization
