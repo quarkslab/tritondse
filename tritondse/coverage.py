@@ -1,5 +1,5 @@
 # built-in imports
-import os
+from __future__ import annotations
 import json
 import logging
 import hashlib
@@ -16,14 +16,18 @@ from tritondse.types     import Addr, PathConstraint, PathBranch, Solver, PathHa
 
 CovItem = Union[Addr, Edge, PathHash]
 """
-Abstract type representing a coverage item
-that can be an address an edge a path etc..
+Variant type representing a coverage item.
+It can be:
+
+* an address :py:obj:`tritondse.types.Addr` for block coverage
+* an edge :py:obj:`tritondse.types.Edge` for edge coverage
+* a string :py:obj:`tritondse.types.PathHash` for path coverage
 """
 
 
 class CoverageStrategy(IntEnum):
     """
-    Enum that defines the strategy of coverage
+    Coverage strategy enum.
     """
     CODE_COVERAGE = 0
     PATH_COVERAGE = 1
@@ -32,8 +36,13 @@ class CoverageStrategy(IntEnum):
 
 class BranchCheckStrategy(IntEnum):
     """
-    Enum that defines the strategy with which the new path
-    enumeration will be performed
+    Branch strategy enumerate.
+    It defines the manner with which branches are checked with SMT
+    on a single trace, namely a :py:obj:`CoverageSingleRun`. For a
+    given branch that has not been covered strategies are:
+
+    * ``ALL_NOT_COVERED``: check by SMT all occurences
+    * ``FIRST_LAST_NOT_COVERED``: check only the first and last occurence in the trace
     """
     ALL_NOT_COVERED = 0
     FIRST_LAST_NOT_COVERED = 1
@@ -41,33 +50,52 @@ class BranchCheckStrategy(IntEnum):
 
 class CoverageSingleRun(object):
     """
-    This class is used to represent the coverage of an execution.
+    Coverage produced by a **Single Execution**
+    Depending on the strategy given to the constructor
+    it stores different data.
     """
 
     def __init__(self, strategy: CoverageStrategy):
-        self.strategy = strategy
+        """
+        :param strategy: Strategy to employ
+        :type strategy: CoverageStrategy
+        """
+        self.strategy: CoverageStrategy = strategy  #: Coverage strategy
 
         # For instruction coverage
-        self.instructions = Counter()
-        self.not_instructions = set()
+        self.instructions: Dict[Addr, int] = Counter()
+        """ Instruction coverage. Counter for code coverage) """
+        self.not_instructions: Set[Addr] = set()
+        """ Instruction not covered in the trace (targets of branching conditions
+        never taken). It represent what can be covered by the trace (input), with
+        the branches were negated. We call it coverage objectives."""
 
         # For edge coverage
-        self.edges = Counter()
+        self.edges: Dict[Edge, int] = Counter()
+        """ Edge coverage counter in case of edge coverage """
         self.not_edges = set()
+        """ Edges not covered by the trace. Thus coverage objectives. """
 
         # For path coverage
-        self.paths = set()
+        self.paths: Set[str] = set()
+        """ Path covered by the trace. It uses the path predicate.
+        Thus solely symbolic branches are used to compute paths."""
         self.not_paths = set()
-        self.current_path = []  # Hold all addresses currently forming the path taken
+        """ Paths not taken by the trace. Thus coverage objectives. """
+        self.current_path: List[Addr] = []
+        """ List of addresses forming the path currently being taken """
+
         self.current_path_hash = hashlib.md5()
 
 
-    def add_covered_address(self, address: Addr):
+    def add_covered_address(self, address: Addr) -> None:
         """
-        Add an instruction address to our covered instructions list.
+        Add an instruction address covered.
+        *(Called by :py:obj:`SymbolicExecutor` for each
+        instruction executed)*
 
-        :param adresses: The address of the instruction
-        :return: None
+        :param address: The address of the instruction
+        :type address: :py:obj:`tritondse.types.Addr`
         """
         self.instructions[address] += 1
         self.not_instructions.discard(address)  # remove address from non-covered if inside
@@ -81,11 +109,11 @@ class CoverageSingleRun(object):
         tupe (src address, dst address). For path coverage, the branch encoding
         is the MD5 of the conjunction of all taken branch addresses.
 
-        :param program_counter: The address of the branch instruction
+        :param program_counter: The address taken in by the branch
+        :type program_counter: :py:obj:`tritondse.types.Addr`
         :param pc: Information of the branch condition and its constraints
-        :return: None
+        :type pc: `PathConstraint <https://triton.quarkslab.com/documentation/doxygen/py_PathConstraint_page.html>`_
         """
-
         if pc.isMultipleBranches():
             # Retrieve both branches
             branches = pc.getBranchConstraints()
@@ -145,18 +173,20 @@ class CoverageSingleRun(object):
 
     def post_execution(self) -> None:
         """
-        This function is called after each execution.
-
-        :return: None
+        Function is called after each execution
+        for post processing or clean-up. *(Not
+        doing anythin at the moment)*
         """
         pass
 
 
     def is_covered(self, item: CovItem) -> bool:
         """
-        Return whether the item has been covered or not
+        Return whether the item has been covered or not.
+        **The item should match the strategy**
 
         :param item: An address, an edge or a path
+        :type item: CovItem
         :return: bool
         """
         if self.strategy == CoverageStrategy.CODE_COVERAGE:
@@ -185,7 +215,11 @@ class CoverageSingleRun(object):
 
 class GlobalCoverage(CoverageSingleRun):
     """
-    This class is used to represent the coverage of an execution.
+    Global Coverage.
+    Represent the overall coverage of the exploration.
+    It is filled by iteratively call merge with the
+    :py:obj:`CoverageSingleRun` objects created during
+    exploration.
     """
 
     INSTRUCTION_COVERAGE_FILE = "instruction_coverage.json"
@@ -193,6 +227,14 @@ class GlobalCoverage(CoverageSingleRun):
     PATH_COVERAGE_FILE = "path_coverage.json"
 
     def __init__(self, strategy: CoverageStrategy, workspace: Workspace, branch_strategy: BranchCheckStrategy):
+        """
+        :param strategy: Coverage strategy to use
+        :type strategy: CoverageStrategy
+        :param workspace: Execution workspace (for saving loading the coverage)
+        :type workspace: Workspace
+        :param branch_strategy: Branch checking strategies
+        :type branch_strategy: BranchCheckStrategy
+        """
         super().__init__(strategy)
         self.workspace = workspace
         self.branch_strategy = branch_strategy
@@ -201,7 +243,10 @@ class GlobalCoverage(CoverageSingleRun):
         self.load_coverage()
 
         # Keep pending items to be covered (code, edge, path)
-        self.pending_coverage = set()
+        self.pending_coverage: Set[CovItem] = set()
+        """ Set of pending coverage items. These are items for which a branch
+        as already been solved and 
+        """
 
 
     def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[List[PathConstraint], PathBranch, CovItem], Solver, None]:
@@ -306,8 +351,8 @@ class GlobalCoverage(CoverageSingleRun):
         """
         Merge a CoverageSingeRun instance into this instance
 
-        :param other: The CoverageSingleRun to merge into our GlobalCoverage instance
-        :return: None
+        :param other: The CoverageSingleRun to merge into self
+        :type other: CoverageSingleRun
         """
         assert self.strategy == other.strategy
 
@@ -331,9 +376,10 @@ class GlobalCoverage(CoverageSingleRun):
 
     def can_improve_coverage(self, other: CoverageSingleRun) -> bool:
         """
-        Check if some off the non-covered are not already in the global coverage
+        Check if some of the non-covered are not already in the global coverage
+        Used to know if an input is relevant to keep or not
 
-        :param other: The CoverageSingleRun to check with our global coverage state
+        :param other: The CoverageSingleRun to check against our global coverage state
         :return: bool
         """
         return bool(self.new_items_to_cover(other))
@@ -341,8 +387,8 @@ class GlobalCoverage(CoverageSingleRun):
 
     def new_items_to_cover(self, other: CoverageSingleRun) -> Set[CovItem]:
         """
-        Return all addreses, edges, paths that the given CoverageSingleRun
-        can cover if we invert their branches
+        Return all coverage items (addreses, edges, paths) that the given CoverageSingleRun
+        can cover if it is possible to negate their branches
 
         :param other: The CoverageSingleRun to check with our global coverage state
         :return: A set of CovItem
@@ -359,8 +405,6 @@ class GlobalCoverage(CoverageSingleRun):
     def save_coverage(self) -> None:
         """
         Save the coverage in the workspace
-
-        :return: None
         """
         # Save instruction coverage
         if self.instructions:
@@ -378,8 +422,6 @@ class GlobalCoverage(CoverageSingleRun):
     def load_coverage(self) -> None:
         """
         Load the coverage from the workspace
-
-        :return: None
         """
         # Load instruction coverage
         data = self.workspace.get_metadata_file(self.INSTRUCTION_COVERAGE_FILE)
@@ -401,5 +443,7 @@ class GlobalCoverage(CoverageSingleRun):
 
 
     def post_exploration(self) -> None:
-        """ Function called at the very end of the exploration """
+        """ Function called at the very end of the exploration.
+        It saves the coverage in the workspace.
+        """
         self.save_coverage()
