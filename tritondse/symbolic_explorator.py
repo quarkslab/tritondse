@@ -11,6 +11,7 @@ from tritondse.process_state     import ProcessState
 from tritondse.program           import Program
 from tritondse.seed              import Seed
 from tritondse.seeds_manager     import SeedManager
+from tritondse.worklist          import SeedScheduler
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.callbacks         import CallbackManager
 from tritondse.workspace         import Workspace
@@ -31,7 +32,7 @@ class SymbolicExplorator(object):
     executions with the different seeds available in the workspace
     and generated along the way.
     """
-    def __init__(self, config: Config, program: Program):
+    def __init__(self, config: Config, program: Program, seed_scheduler: SeedScheduler = None):
         self.program: Program     = program  #: Program being analyzed
         self.config: Config       = config   #: Configuration file
         self.cbm: CallbackManager = CallbackManager(program)
@@ -56,7 +57,7 @@ class SymbolicExplorator(object):
         """
 
         # Initialize the seed manager
-        self.seeds_manager: SeedManager = SeedManager(self.config, self.cbm, self.coverage, self.workspace)
+        self.seeds_manager: SeedManager = SeedManager(self.coverage, self.workspace, self.config.smt_queries_limit, seed_scheduler)
         """ Manager of seed, holding all seeds related data and various statistics """
 
         # running executors (for debugging purposes)
