@@ -36,24 +36,7 @@ runtime and it has not been tested on other types of programs.
     :caption: Python API
     :maxdepth: 3
 
-    api/program
-    api/configuration
-    api/callbacks
-    api/process
-    api/executor
-    api/explorator
-    api/sanitizers
-    api/seeds
-    api/workspace
-    api/types
-
-.. toctree::
-    :caption: Advanced API
-    :maxdepth: 3
-
-    dev_doc/coverage
-    dev_doc/routines
-    dev_doc/seedscheduling
+    api
 
 
 Indices and tables
