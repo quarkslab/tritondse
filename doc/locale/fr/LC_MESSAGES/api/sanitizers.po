@@ -1,0 +1,174 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, Quarkslab
+# This file is distributed under the same license as the tritondse package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tritondse \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: ../../api/sanitizers.rst:2
+msgid "Sanitizers"
+msgstr ""
+
+#: of tritondse.sanitizers.FormatStringSanitizer:1
+#: tritondse.sanitizers.IntegerOverflowSanitizer:1
+#: tritondse.sanitizers.NullDerefSanitizer:1
+#: tritondse.sanitizers.UAFSanitizer:1
+msgid "Bases: :class:`tritondse.callbacks.ProbeInterface`"
+msgstr ""
+
+#: of tritondse.sanitizers.FormatStringSanitizer:1
+#, python-format
+msgid ""
+"Format String Sanitizer. This probes hooks standard libc functions like "
+"'printf', 'fprintf', 'sprintf', 'dprintf', 'snprintf' and if one of them "
+"is triggered it checks the format string. If the format string is "
+"symbolic then it is user controlled. A warning is shown but the execution"
+" not interrupted. However the sanitizer tries through SMT to generate "
+"format strings with many '%s'. If satisfiable a new input is generated "
+"which will then be added to inputs to process. That subsequent input "
+"might lead to a crash."
+msgstr ""
+"Sanitizer de chaîne de format. Cette probe intercepte les fonctions de la libc telles que "
+"'printf', 'fprintf', 'sprintf', 'dprintf', 'snprintf' et si l'une d'entre elles "
+"est appelée la vérification à lieu. Si la chaîne de format est symbolique "
+"elle est controllée par l'utilisateur. Un message d'alerte est affiché mais l'exécution "
+"n'est pas interrompue. Cependant, le sanitizer essaye de générer par SMT une chaîne de "
+"format contenant autant de '%s' que possible. Si la formule est satisfiable un nouvelle "
+"entrée est générée et elle sera ensuite ajoutée à la queue. Cet entrée elle, pourra "
+"eventuellement mener à un crash."
+
+#: ../../docstring of tritondse.sanitizers.FormatStringSanitizer.cbs:1
+#: tritondse.sanitizers.IntegerOverflowSanitizer.cbs:1
+#: tritondse.sanitizers.NullDerefSanitizer.cbs:1
+#: tritondse.sanitizers.UAFSanitizer.cbs:1
+msgid "list of callback infos"
+msgstr "liste des callbacks à enregistrer"
+
+#: of tritondse.sanitizers.FormatStringSanitizer.check:1
+#, python-format
+msgid ""
+"Checks that the format string at ``fmt_ptr`` does not contain symbolic "
+"bytes. If so shows an alert and tries to generate new inputs with as many"
+" '%s' as possible."
+msgstr ""
+"Vérifie que la chaîne de format ``fmt_ptr`` ne contient aucun octets symboliques. "
+"Dans ce cas, une alerte est montrée et essaye de générer une nouvelle entrée fautive."
+
+#: of tritondse.sanitizers.FormatStringSanitizer.check
+#: tritondse.sanitizers.IntegerOverflowSanitizer.check
+#: tritondse.sanitizers.NullDerefSanitizer.check
+#: tritondse.sanitizers.UAFSanitizer.check
+msgid "Parameters"
+msgstr "Paramètres"
+
+#: of tritondse.sanitizers.FormatStringSanitizer.check:5
+#: tritondse.sanitizers.IntegerOverflowSanitizer.check:3
+#: tritondse.sanitizers.NullDerefSanitizer.check:3
+#: tritondse.sanitizers.UAFSanitizer.check:4
+msgid "symbolic executor"
+msgstr "exécuteur symbolique"
+
+#: of tritondse.sanitizers.FormatStringSanitizer.check:7
+#: tritondse.sanitizers.IntegerOverflowSanitizer.check:5
+#: tritondse.sanitizers.NullDerefSanitizer.check:5
+#: tritondse.sanitizers.UAFSanitizer.check:6
+msgid "process state"
+msgstr "process"
+
+#: of tritondse.sanitizers.FormatStringSanitizer.check:9
+#: tritondse.sanitizers.NullDerefSanitizer.check:7
+#: tritondse.sanitizers.UAFSanitizer.check:8
+msgid "pointer address to check"
+msgstr "adresse du pointeur à vérifier"
+
+#: of tritondse.sanitizers.FormatStringSanitizer.check:11
+msgid ""
+"additionnal infos given by the callbacks on routines (indicating function"
+" address)"
+msgstr ""
+"informations additionnelles fournies par la routine (indique l'adresse de la fonction)"
+
+#: of tritondse.sanitizers.FormatStringSanitizer.check
+#: tritondse.sanitizers.IntegerOverflowSanitizer.check
+#: tritondse.sanitizers.NullDerefSanitizer.check
+#: tritondse.sanitizers.UAFSanitizer.check
+msgid "Returns"
+msgstr "Renvoi"
+
+#: of tritondse.sanitizers.FormatStringSanitizer.check:13
+#: tritondse.sanitizers.IntegerOverflowSanitizer.check:9
+#: tritondse.sanitizers.NullDerefSanitizer.check:10
+#: tritondse.sanitizers.UAFSanitizer.check:11
+msgid "True if the bug is present"
+msgstr "Vrai si le bug est présent"
+
+#: of tritondse.sanitizers.IntegerOverflowSanitizer:1
+msgid ""
+"Integer Overflow Sanitizer. This probe checks on every instructions that "
+"the overflow flag is not set. If so mark the input as a crashing input. "
+"If not, but the value is symbolic, via SMT solving to make it to be set "
+"(and thus to overflow). If possible generates a new input to be executed."
+msgstr ""
+"Sanitizer de débordement d'entiers. Cette probe vérifie sur toutes les instructions "
+"que le drapeau d'overflow n'est pas positionné. Si c'est le cas, marque l'entrée "
+"comme crash. Sinon, et si la valeur est symbolique, une requête SMT est effectuée "
+"pour regarder si un overflow peux avoir lieu. Si c'est le cas génère une nouvelle entrée à exécuter."
+
+#: of tritondse.sanitizers.IntegerOverflowSanitizer.check:1
+msgid "The entry point of the sanitizer. This function check if a bug is present"
+msgstr ""
+"Le point d'entré du sanitizer. Cette fonction vérifie si le bug est présent où non."
+
+#: of tritondse.sanitizers.IntegerOverflowSanitizer.check:7
+msgid "Instruction that has just been executed"
+msgstr "Instruction qui vient juste d'être exécutée"
+
+#: of tritondse.sanitizers.NullDerefSanitizer:1
+msgid ""
+"Null Dereference Sanitizer. Simply checks if any memory read or write is "
+"performed at address 0. If so an error is raised."
+msgstr ""
+"Sanitizer de déréférencement de pointeur null. Vérifie simplement si toutes lecture ou "
+"écriture en mémoire est effectuée à l'adresse 0. Dans ce cas une erreur est levée."
+
+#: of tritondse.sanitizers.NullDerefSanitizer.check:1
+msgid "Checks that the ``ptr`` given is basically not 0."
+msgstr "Vérifie que ``ptr`` donné n'est pas 0."
+
+#: of tritondse.sanitizers.NullDerefSanitizer.check:9
+#: tritondse.sanitizers.UAFSanitizer.check:10
+msgid "description string printed in logger if an issue is detected"
+msgstr "chaîne de description de l'erreur à afficher en cas de détection."
+
+#: of tritondse.sanitizers.UAFSanitizer:1
+msgid ""
+"Use-After-Free Sanitizer. It is able to detect UaF and double-free. It "
+"works by hooking all memory read/write if it points to the heap in a "
+"freed area then the Use-After-Free is detected. It also hooks the free "
+"routine to detect double-free."
+msgstr ""
+"Sanitizer de Use-After-Free. Il est capable de détecter UaF et double-free. Ca "
+"marche en interceptant toutes les lectures/écritures mémoires pointant dans le tas. "
+"Si la zone a été libérée alors le UaF est détecté. Ca marche aussi en interceptant "
+"la routine free pour la détection de double-free."
+
+#: of tritondse.sanitizers.UAFSanitizer.check:1
+msgid ""
+"Checks whether the given ``ptr`` is symptomatic of a Use-After-Free by "
+"querying various methods of "
+":py:obj:`tritondse.heap_allocator.HeapAllocator`."
+msgstr ""
+"Vérifie si ``ptr`` est symptomatique d'un Use-After-Free en requêtant différentes méthodes de "
+":py:obj:`tritondse.heap_allocator.HeapAllocator`."

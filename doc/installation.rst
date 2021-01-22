@@ -1,5 +1,5 @@
-Installation
-============
+TritonDSE Installation
+======================
 
 Installing tritondse requires a valid Triton installation. Then all dependencies can
 be installed through pip. Installation steps are:

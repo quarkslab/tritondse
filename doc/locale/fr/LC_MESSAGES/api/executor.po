@@ -1,0 +1,156 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, Quarkslab
+# This file is distributed under the same license as the tritondse package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tritondse \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: ../../api/executor.rst:2
+msgid "SymbolicExecutor"
+msgstr ""
+
+#: of tritondse.symbolic_executor.SymbolicExecutor:1
+msgid ""
+"Single Program Execution Class. That module, is in charge of performing "
+"the process loading from the given program."
+msgstr ""
+"Classe qui représente une seule exécution. Ce module effectue le chargement du programme puis de l'exécuter."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor
+#: tritondse.symbolic_executor.SymbolicExecutor.enqueue_seed
+msgid "Parameters"
+msgstr "Paramètres"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor:5
+msgid "configuration file to use"
+msgstr "fichier de configuration à utiliser"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor:7
+msgid "ProcessState instanciated (but not loaded)"
+msgstr "ProcessState instanciée *(mais pas chargé)*"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor:9
+msgid "Program to execute"
+msgstr "Programme à exécuter"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor:11
+msgid "input file to inject either in stdin or argv (optional)"
+msgstr "fichier d'entrée à injecter dans stdin ou argv (optionnel)"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor:13
+msgid "Workspace to use. If None it will be instanciated"
+msgstr ""
+"Workspace à utiliser. Si None une nouvelle instance est créée"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor:15
+msgid ""
+"Unique ID. Given by :py:obj:`SymbolicExplorator` to identify uniquely "
+"executions"
+msgstr ""
+"Identifiant unique de l'exécution donné par :py:obj:`SymbolicExplorator`"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor:17
+msgid ""
+"callbacks to bind on this execution before running *(instanciated if "
+"empty !)*"
+msgstr ""
+"CallbackManager à attacher avant l'exécution *(instancié si vide)*"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.abort:1
+msgid ""
+"Abort the current execution. It works by raising an exception which is "
+"caught by the emulation function that takes care of returning "
+"appropriately afterward."
+msgstr ""
+"Interrompt l'exécution courante. Fonctionne en levant une exception qui est "
+"attrapée par la fonction d'émulation qui va alors renvoyer le code de retour approprié."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.abort
+msgid "Raises"
+msgstr "Exceptions"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.abort:5
+msgid "to abort execution from anywhere"
+msgstr "pour interrompre l'exécution depuis n'importe où"
+
+#: of tritondse.SymbolicExecutor.callback_manager:1
+msgid "Get the callback manager associated with the execution."
+msgstr "Récupère le CallbackManager associé à l'exécution"
+
+#: of tritondse.SymbolicExecutor.callback_manager
+#: tritondse.SymbolicExecutor.pending_seeds
+msgid "Return type"
+msgstr "Type de retour"
+
+#: ../../docstring of tritondse.SymbolicExecutor.coverage:1
+msgid "Coverage of the execution"
+msgstr "Couverture de l'exécution"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.enqueue_seed:1
+msgid ""
+"Add a seed to the queue of seed to be executed in later iterations. This "
+"function is meant to be used by user callbacks."
+msgstr ""
+"Ajoute une graine dans la queue des graines en attente d'exécution. Cette fonction "
+"est l'interface privilégiée pour l'utilisateur."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.enqueue_seed:4
+msgid "Seed to be added"
+msgstr "Graine à ajouter"
+
+#: of tritondse.SymbolicExecutor.execution_time:1
+msgid "Time taken for the execution in seconds"
+msgstr "Temps d'exécution en secondes"
+
+#: of tritondse.SymbolicExecutor.execution_time:3
+msgid "Only relevant at the end of the execution"
+msgstr "Uniquement pertinent à la fin de l'exécution"
+
+#: of tritondse.SymbolicExecutor.execution_time
+#: tritondse.SymbolicExecutor.pending_seeds
+msgid "Returns"
+msgstr "Renvoi"
+
+#: of tritondse.SymbolicExecutor.execution_time:5
+msgid "execution time (in s)"
+msgstr "temps d'exécution (en sec)"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.mem_usage_str:1
+msgid "debug function to track memory consumption of an execution"
+msgstr "fonction de debug pour suivre la consommation mémoire d'une exécution"
+
+#: of tritondse.SymbolicExecutor.pending_seeds:1
+msgid "List of pending seeds gathered during execution."
+msgstr "Listes des nouvelles graines qui ont été générées pendant l'exécution."
+
+#: of tritondse.SymbolicExecutor.pending_seeds:3
+msgid "Only relevant at the end of execution"
+msgstr "Uniquement pertinent à la fin de l'exécution"
+
+#: of tritondse.SymbolicExecutor.pending_seeds:5
+msgid "list of new seeds generated"
+msgstr "liste des nouvelles graines générées"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.run:1
+msgid "Execute the program."
+msgstr "Exécute le programme."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.run:3
+msgid ""
+"If the :py:attr:`tritondse.Config.execution_timeout` is not set the "
+"execution might hang forever if the program does."
+msgstr ""
+"Si :py:attr:`tritondse.Config.execution_timeout` n'est pas configuré l'exécution "
+"peux boucler à l'infini si le programme le fait."

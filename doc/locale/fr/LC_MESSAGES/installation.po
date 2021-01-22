@@ -1,0 +1,54 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, Quarkslab
+# This file is distributed under the same license as the tritondse package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tritondse \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: ../../installation.rst:2
+msgid "TritonDSE Installation"
+msgstr "Installation de TritonDSE"
+
+#: ../../installation.rst:4
+msgid ""
+"Installing tritondse requires a valid Triton installation. Then all "
+"dependencies can be installed through pip. Installation steps are:"
+msgstr "Installer tritondse requiert une installation valide de Triton."
+"Après cela, toutes les dépendances peuvent être installées avec pip."
+"Les étapes d'installation sont: "
+
+#: ../../installation.rst:7
+msgid ""
+"installing Triton (cf. `Documentation "
+"<https://triton.quarkslab.com/documentation/doxygen/index.html#install_sec>`_)"
+msgstr ""
+"installer Triton (cf. `Documentation "
+"<https://triton.quarkslab.com/documentation/doxygen/index.html#install_sec>`_)"
+
+#: ../../installation.rst:8
+msgid "installing tritondse with:"
+msgstr "installer tritondse avec:"
+
+#: ../../installation.rst:15
+msgid ""
+"As of the version 0.11 of LIEF, it can be installed in the same manner on"
+" an ARM, Aarch64 Linux as it now chip a version of LIEF for that "
+"architecture. *(otherwise requires to be installed manually by compiling "
+"it)*."
+msgstr ""
+"À partir de la version 0.11.0 de LIEF, tritondse peut être installé de la même "
+"manière sur ARM, Aarch64 car LIEF fournit une version compilée Aarch64 sur pypi. "
+"*(autrement l'installation est beaucoup plus longue puisque pip télécharge les sources
+et les compilent)*."

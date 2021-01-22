@@ -1,5 +1,5 @@
-Python API
-----------
+tritondse API
+-------------
 
 .. toctree::
     :caption: Python API
