@@ -1,0 +1,94 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, Quarkslab
+# This file is distributed under the same license as the tritondse package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tritondse \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: ../../api/types.rst:2
+msgid "Types"
+msgstr ""
+
+#: of tritondse.types.Architecture:1
+msgid ""
+"Common architecture Enum fully compatible with Triton `ARCH "
+"<https://triton.quarkslab.com/documentation/doxygen/py_ARCH_page.html>`_"
+msgstr ""
+"Enum representant l'architecture compatible avec Triton `ARCH "
+"<https://triton.quarkslab.com/documentation/doxygen/py_ARCH_page.html>`_"
+
+#: of tritondse.types.AstNode:1
+msgid ""
+"SMT logic formula as returned by Triton (`AstNode "
+"<https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_)"
+msgstr ""
+"Formule SMT tel que retournée par Triton (`AstNode "
+"<https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_)"
+
+#: of tritondse.types.Edge:1
+msgid "Type representing a edge in the program"
+msgstr "Représente une arête dans le programme"
+
+#: of tritondse.types.Expression:1
+msgid ""
+"Symbolic Expression as returned by Triton (`SymbolicExpression "
+"<https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_)"
+msgstr ""
+"Expression Symbolique telle que retournée par Triton (`SymbolicExpression "
+"<https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_)"
+
+#: of tritondse.types.Model:1
+msgid ""
+"Solver `Model "
+"<https://triton.quarkslab.com/documentation/doxygen/py_SolverModel_page.html>`_"
+" as returned by Triton"
+msgstr ""
+"Modèle SMT de solveur `Model "
+"<https://triton.quarkslab.com/documentation/doxygen/py_SolverModel_page.html>`_"
+" tel que renvoyé par Triton"
+
+#: of tritondse.types.PathBranch:1
+msgid ""
+"PathBranch object as returned by Triton. Thus it is a dictionnary with the"
+" keys:"
+msgstr ""
+"Objet PathBranch tel que renvoyé par Triton. C'est donc un dictionnaire avec les clés:"
+
+#: of tritondse.types.PathConstraint:1
+msgid ""
+"`PathConstraint "
+"<https://triton.quarkslab.com/documentation/doxygen/py_PathConstraint_page.html>`_"
+" object as returned by Triton"
+msgstr ""
+"`PathConstraint "
+"<https://triton.quarkslab.com/documentation/doxygen/py_PathConstraint_page.html>`_"
+" tel que renvoyé par Triton"
+
+#: of tritondse.types.PathLike:1
+msgid "Type representing file either as a file, either as a Path object"
+msgstr "Chemin vers un fichier sous forme de string ou d'objet :py:obj:`Path`"
+
+#: of tritondse.types.Register:1
+msgid "Register identifier as used by Triton *(not the Register object itself)*"
+msgstr "Identifiant de registre tel qu'utilisé par Triton *(pas l'objet Register lui-même)*"
+
+#: of tritondse.types.Registers:1
+msgid "Set of registers as used by Triton"
+msgstr "Ensemble des registres tel qu'utilisé par Triton"
+
+#: of tritondse.types.Solver:1
+msgid "Common Solver Enum fully compatible with Triton ARCH"
+msgstr "Enum commun representation le status obtenu pour la résolution (valeur compatibles avec Triton ARCH)"
+

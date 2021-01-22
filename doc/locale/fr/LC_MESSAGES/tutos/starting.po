@@ -1,0 +1,57 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020, Quarkslab
+# This file is distributed under the same license as the tritondse package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: tritondse \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.0\n"
+
+#: ../../tutos/starting.rst:2
+msgid "Getting Started"
+msgstr ""
+
+#: ../../tutos/starting.rst:4
+msgid ""
+"Introduire un petit use-case bête où l'on couvre les branches d'un petit "
+"programme."
+msgstr ""
+
+#: ../../tutos/starting.rst:6
+msgid "Faire un notebook de ça !"
+msgstr ""
+
+#: ../../tutos/starting.rst:9
+msgid "Loading a program"
+msgstr ""
+
+#: ../../tutos/starting.rst:13
+msgid "Creating a process"
+msgstr ""
+
+#: ../../tutos/starting.rst:18
+msgid "Single execution"
+msgstr ""
+
+#: ../../tutos/starting.rst:22
+msgid "Launching exploration"
+msgstr ""
+
+#: ../../tutos/starting.rst:26
+msgid "Configuration"
+msgstr ""
+
+#: ../../tutos/starting.rst:30
+msgid "Workspace & Corpus"
+msgstr ""
+
