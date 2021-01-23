@@ -30,8 +30,8 @@ msgid ""
 "Seed input. Holds the bytes buffer of the content a status after "
 "execution but also some metadata of code portions it is meant to cover."
 msgstr ""
-"Graine d'entrée. Contient les octets du contenu, le status après exécution mais aussi "
-"quelques méta-données indiquant les portions de code à couvrir."
+"Graine d'entrée. Contient les octets du contenu, le statut après exécution mais aussi "
+"quelques méta données indiquant les portions de code à couvrir."
 
 #: of tritondse.seed.Seed tritondse.seed.Seed.__init__
 #: tritondse.seed.Seed.from_file
@@ -46,17 +46,17 @@ msgstr "contenu de l'entrée. Par défaut c'est b\"\" *(considéré dans ce cas 
 
 #: of tritondse.seed.Seed:7 tritondse.seed.Seed.__init__:3
 msgid "status of the seed if already known"
-msgstr "status de la graine si déjà connu"
+msgstr "statut de la graine si déjà connue"
 
 #: of tritondse.seed.Seed.__eq__:1
 msgid "Equality check based on content."
-msgstr "Vérification d'égalité basé sur le contenu de la graine"
+msgstr "Vérification d'égalité basée sur le contenu de la graine"
 
 #: of tritondse.seed.Seed.__eq__ tritondse.seed.Seed.filename
 #: tritondse.seed.Seed.from_file tritondse.seed.Seed.is_bootstrap_seed
 #: tritondse.seed.Seed.is_fresh
 msgid "Returns"
-msgstr "Renvoi"
+msgstr "Renvoie"
 
 #: of tritondse.seed.Seed.__eq__:3
 msgid "true if content of both seeds are equal"
@@ -84,7 +84,7 @@ msgstr "Taille du contenu de la graine."
 
 #: of tritondse.seed.Seed.__weakref__:1
 msgid "list of weak references to the object (if defined)"
-msgstr "liste de 'weak' reférences vers l'objet *(si défini)*"
+msgstr "liste de 'weak' références vers l'objet *(si défini)*"
 
 #: ../../docstring of tritondse.seed.Seed.content:1
 msgid "content of the seed"
@@ -99,14 +99,14 @@ msgstr ""
 
 #: of tritondse.seed.Seed.filename:4
 msgid "formatted intended filename of the seed"
-msgstr "nom de fichier formatté"
+msgstr "nom de fichier formaté"
 
 #: of tritondse.seed.Seed.from_file:1
 msgid ""
-"Read a seed from a file. The status can optionally given as it cannot be "
+"Read a seed from a file. The status can be optionally given as it cannot be "
 "determined from the file."
 msgstr ""
-"Lis la graine dans un fichier. Le status peux optionnellement donné car il ne peux pas "
+"Lit la graine dans un fichier. Le statut peut optionnellement être donné car il ne peut pas "
 "être déterminé à partir du fichier."
 
 #: of tritondse.seed.Seed.from_file:4
@@ -115,7 +115,7 @@ msgstr "chemin de la graine"
 
 #: of tritondse.seed.Seed.from_file:6
 msgid "status of the seed if any, otherwise :py:obj:`SeedStatus.NEW`"
-msgstr "status de la graine, s'il n'est pas positionné elle est: :py:obj:`SeedStatus.NEW`"
+msgstr "statut de la graine, s'il n'est pas positionné elle est: :py:obj:`SeedStatus.NEW`"
 
 #: of tritondse.seed.Seed.from_file:9
 msgid "fresh seed instance"
@@ -135,8 +135,8 @@ msgid ""
 "processing in the engine as its size will be automatically adapted to the"
 " size read (in stdin for instance)"
 msgstr ""
-"Une graine de démarrage est une graine vide (b\"\"). Elle sera traitée différement "
-"car elle sera initialisée avec des zeros et la taille sera adaptée à la taille maximum lues (dans stdin par exemple)."
+"Une graine de démarrage est une graine vide (b\"\"). Elle sera traitée différemment "
+"car elle sera initialisée avec des zéros et la taille sera adaptée à la taille maximum lues (dans stdin par exemple)."
 
 #: of tritondse.seed.Seed.is_bootstrap_seed:5
 msgid "true if the seed is a bootstrap seed"
@@ -157,7 +157,7 @@ msgstr "vrai si la graine n'a jamais été exécutée"
 
 #: of tritondse.seed.Seed.status:1
 msgid "Status of the seed."
-msgstr "Status de la graine"
+msgstr "Statut de la graine"
 
 #: of tritondse.seed.SeedStatus:1
 msgid "Bases: :class:`enum.Enum`"
@@ -169,6 +169,6 @@ msgid ""
 " At the end of a :py:obj:`SymbolicExecutor` run one of these status must "
 "have set to the seed."
 msgstr ""
-"Enum qui représente le status d'une graine. Le status est assigné au cours "
-"de son exécution. À la fin, d'une exécution de :py:obj:`SymbolicExecutor` un status "
+"Enum qui représente le statut d'une graine. Le statut est assigné au cours "
+"de son exécution. À la fin d'une exécution de :py:obj:`SymbolicExecutor` un statut "
 "doit avoir été assigné à la graine."

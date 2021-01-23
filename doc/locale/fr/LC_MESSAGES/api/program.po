@@ -30,8 +30,8 @@ msgid ""
 msgstr ""
 "Représente un programme *(chargé en mémoire)*. Cette classe encapsule "
 "`LIEF <https://lief.quarkslab.com/doc/latest>`_ pour représenter un programme "
-"et fournis tous les fonctionnalités permettant de \"charger\" un programme "
-"quelqu'en soit le format."
+"et fournit tous les fonctionnalités permettant de \"charger\" un programme "
+"quel qu'en soit le format."
 
 #: of tritondse.program.Program tritondse.program.Program.find_function
 msgid "Parameters"
@@ -63,11 +63,11 @@ msgstr "Type de retour"
 
 #: of tritondse.Program.endianness:1
 msgid "Endianness of the program as defined in binary headers."
-msgstr "Endianness du programme définis dans les en-têtes du binaire"
+msgstr "Endianness du programme défini dans les en-têtes du binaire"
 
 #: of tritondse.Program.entry_point:1
 msgid "Program entrypoint address as defined in the binary headers"
-msgstr "Point d'entré du programme définis dans les en-têtes du binaire"
+msgstr "Point d'entré du programme défini dans les en-têtes du binaire"
 
 #: of tritondse.Program.entry_point:3
 msgid ":py:obj:`tritondse.types.Addr`"
@@ -86,7 +86,7 @@ msgstr "Nom de la fonction"
 #: tritondse.program.Program.imported_variable_symbols_relocations
 #: tritondse.program.Program.memory_segments
 msgid "Returns"
-msgstr "Renvoi"
+msgstr "Renvoie"
 
 #: of tritondse.program.Program.find_function:5
 msgid "Function object if found"
@@ -94,7 +94,7 @@ msgstr "Objet fonction si trouvé"
 
 #: of tritondse.Program.format:1
 msgid "Binary format. Supported formats by lief are: ELF, PE, MachO"
-msgstr "Format du binaire. Les formats supported par lief sont: ELF, PE, MachO"
+msgstr "Format du binaire. Les formats supportés par lief sont: ELF, PE, MachO"
 
 #: of tritondse.program.Program.imported_functions_relocations:1
 msgid ""

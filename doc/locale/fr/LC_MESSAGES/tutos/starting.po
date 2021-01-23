@@ -33,19 +33,19 @@ msgstr ""
 
 #: ../../tutos/starting.rst:9
 msgid "Loading a program"
-msgstr ""
+msgstr "Chargement d'un programme"
 
 #: ../../tutos/starting.rst:13
 msgid "Creating a process"
-msgstr ""
+msgstr "Création d'un process"
 
 #: ../../tutos/starting.rst:18
 msgid "Single execution"
-msgstr ""
+msgstr "Simple exécution"
 
 #: ../../tutos/starting.rst:22
 msgid "Launching exploration"
-msgstr ""
+msgstr "Lancement d'une exploration"
 
 #: ../../tutos/starting.rst:26
 msgid "Configuration"

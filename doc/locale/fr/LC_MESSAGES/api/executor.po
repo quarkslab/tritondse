@@ -39,7 +39,7 @@ msgstr "fichier de configuration à utiliser"
 
 #: of tritondse.symbolic_executor.SymbolicExecutor:7
 msgid "ProcessState instanciated (but not loaded)"
-msgstr "ProcessState instanciée *(mais pas chargé)*"
+msgstr "ProcessState instancié *(mais pas chargé)*"
 
 #: of tritondse.symbolic_executor.SymbolicExecutor:9
 msgid "Program to execute"
@@ -52,14 +52,14 @@ msgstr "fichier d'entrée à injecter dans stdin ou argv (optionnel)"
 #: of tritondse.symbolic_executor.SymbolicExecutor:13
 msgid "Workspace to use. If None it will be instanciated"
 msgstr ""
-"Workspace à utiliser. Si None une nouvelle instance est créée"
+"Workspace à utiliser. Si None, une nouvelle instance est créée"
 
 #: of tritondse.symbolic_executor.SymbolicExecutor:15
 msgid ""
 "Unique ID. Given by :py:obj:`SymbolicExplorator` to identify uniquely "
 "executions"
 msgstr ""
-"Identifiant unique de l'exécution donné par :py:obj:`SymbolicExplorator`"
+"Identifiant unique de l'exécution donnée par :py:obj:`SymbolicExplorator`"
 
 #: of tritondse.symbolic_executor.SymbolicExecutor:17
 msgid ""
@@ -121,11 +121,11 @@ msgstr "Uniquement pertinent à la fin de l'exécution"
 #: of tritondse.SymbolicExecutor.execution_time
 #: tritondse.SymbolicExecutor.pending_seeds
 msgid "Returns"
-msgstr "Renvoi"
+msgstr "Renvoie"
 
 #: of tritondse.SymbolicExecutor.execution_time:5
 msgid "execution time (in s)"
-msgstr "temps d'exécution (en sec)"
+msgstr "temps d'exécution (en secondes)"
 
 #: of tritondse.symbolic_executor.SymbolicExecutor.mem_usage_str:1
 msgid "debug function to track memory consumption of an execution"
@@ -152,5 +152,5 @@ msgid ""
 "If the :py:attr:`tritondse.Config.execution_timeout` is not set the "
 "execution might hang forever if the program does."
 msgstr ""
-"Si :py:attr:`tritondse.Config.execution_timeout` n'est pas configuré l'exécution "
-"peux boucler à l'infini si le programme le fait."
+"Si :py:attr:`tritondse.Config.execution_timeout` n'est pas configuré, l'exécution "
+"peux boucler à l'infini si le programme ne s'arrête pas."

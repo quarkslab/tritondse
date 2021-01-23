@@ -46,15 +46,15 @@ msgstr "Paramètres"
 
 #: of tritondse.workspace.Workspace:6
 msgid "Root directory of the workspace. Created if not existing"
-msgstr "Dossier racine de l'espace de travail. Il est créée s'il n'existe pas"
+msgstr "Dossier racine de l'espace de travail. Il est créé s'il n'existe pas"
 
 #: of tritondse.workspace.Workspace.get_metadata_file:1
 msgid ""
 "Read a metadata file from the workspace on disk. Data is read as a "
 "string. If the given file does not exists, None is returned"
 msgstr ""
-"Lis un fichier de méta-donnée dans l'espace de travail. Les données sont "
-"lues comme une string. Si le fichier n'existe pas None est renvoyé."
+"Lit un fichier de méta données dans l'espace de travail. Les données sont "
+"lues comme une string. Si le fichier n'existe pas, None est renvoyé."
 
 #: of tritondse.workspace.Workspace.get_metadata_file:5
 msgid "file name (can also be a path)"
@@ -67,7 +67,7 @@ msgstr "nom de fichier *(peux aussi être de type Path)*"
 #: tritondse.workspace.Workspace.iter_hangs
 #: tritondse.workspace.Workspace.iter_worklist
 msgid "Returns"
-msgstr "Renvoi"
+msgstr "Renvoie"
 
 #: of tritondse.workspace.Workspace.get_metadata_file:7
 msgid "File content as string if existing"
@@ -86,7 +86,7 @@ msgid ""
 "Get a file path in the workspace directory that the user can write into. "
 "Might be called for the user to write on its own the file content."
 msgstr ""
-"Récupère un chemin dans l'espace de travail, dans lequel l'utilisateur peux écrire. "
+"Récupère un chemin dans l'espace de travail, dans lequel l'utilisateur peut écrire. "
 "Peut être appelé par l'utilisateur pour écrire lui-même le contenu du fichier."
 
 #: of tritondse.workspace.Workspace.get_metadata_file_path:5
@@ -101,7 +101,7 @@ msgstr "chemin absolu (qu'il existe ou non)"
 msgid ""
 "Initialize the workspace by creating all required subfolders if not "
 "already existing."
-msgstr "Initialise l'espace de travail en créant tous les sous-dossiers nécessaires "
+msgstr "Initialise l'espace de travail en créant tous les sous dossiers nécessaires "
 "s'ils n'existent pas déjà."
 
 #: of tritondse.workspace.Workspace.initialize:4
@@ -139,8 +139,8 @@ msgid ""
 "Save a, arbitrary file in the workspace by providing the relative path of"
 " the file. If ``override`` is True, erase the previous file if any."
 msgstr ""
-"Sauvegarde un fichier arbitraire dans l'espac de travail en fournissant son "
-"chemin relatif. Si ``override`` est activé, écrse le précédent fichier s'il en est un."
+"Sauvegarde un fichier arbitraire dans l'espace de travail en fournissant son "
+"chemin relatif. Si ``override`` est activé, écrase le précédent fichier s'il en est un."
 
 #: of tritondse.workspace.Workspace.save_file:4
 msgid "relative path of the file"
@@ -159,7 +159,7 @@ msgid ""
 "Save ``content`` in a file ``name`` in the metadata directory. The name "
 "should be a file name not a path."
 msgstr ""
-"Sauvegarde ``content`` dans le fichier ``name`` dans le sous-dossier de méta-données. Le nom "
+"Sauvegarde ``content`` dans le fichier ``name`` dans le sous dossier de méta données. Le nom "
 "doit être un nom de fichier pas un chemin."
 
 #: of tritondse.workspace.Workspace.save_metadata_file:4
@@ -172,7 +172,7 @@ msgstr "contenu du fichier à écrire"
 
 #: of tritondse.workspace.Workspace.save_seed:1
 msgid "Save the current seed in the workspace directory matching its status."
-msgstr "Sauvegarde la graine courante dans l'espace de travail en fonction de son status."
+msgstr "Sauvegarde la graine courante dans l'espace de travail en fonction de son statut."
 
 #: of tritondse.workspace.Workspace.save_seed:3
 msgid "Seed to save"
@@ -185,7 +185,7 @@ msgid ""
 "it is fully consumed."
 msgstr ""
 "Déplace un graine initialement située dans la queue jusqu'à son dossier final "
-"en fonction de son status. Typiquement, une graine est déplacée du dossier de graines "
+"en fonction de son statut. Typiquement, une graine est déplacée du dossier de graines "
 "en attente jusqu'au dossier de corpus final quand celle-ci a entièrement été traitée."
 
 #: of tritondse.workspace.Workspace.update_seed_location:5

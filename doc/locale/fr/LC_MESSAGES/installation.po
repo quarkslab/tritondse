@@ -49,6 +49,6 @@ msgid ""
 "it)*."
 msgstr ""
 "À partir de la version 0.11.0 de LIEF, tritondse peut être installé de la même "
-"manière sur ARM, Aarch64 car LIEF fournit une version compilée Aarch64 sur pypi. "
+"manière sur ARM et Aarch64 car LIEF fournit une version compilée Aarch64 sur pypi. "
 "*(autrement l'installation est beaucoup plus longue puisque pip télécharge les sources
-et les compilent)*."
+et les compiles*."
