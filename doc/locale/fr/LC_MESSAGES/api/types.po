@@ -26,7 +26,7 @@ msgid ""
 "Common architecture Enum fully compatible with Triton `ARCH "
 "<https://triton.quarkslab.com/documentation/doxygen/py_ARCH_page.html>`_"
 msgstr ""
-"Enum representant l'architecture compatible avec Triton `ARCH "
+"Enum représentant l'architecture compatible avec Triton `ARCH "
 "<https://triton.quarkslab.com/documentation/doxygen/py_ARCH_page.html>`_"
 
 #: of tritondse.types.AstNode:1
@@ -34,7 +34,7 @@ msgid ""
 "SMT logic formula as returned by Triton (`AstNode "
 "<https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_)"
 msgstr ""
-"Formule SMT tel que retournée par Triton (`AstNode "
+"Formule SMT telle que retournée par Triton (`AstNode "
 "<https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_)"
 
 #: of tritondse.types.Edge:1
@@ -82,13 +82,13 @@ msgstr "Chemin vers un fichier sous forme de string ou d'objet :py:obj:`Path`"
 
 #: of tritondse.types.Register:1
 msgid "Register identifier as used by Triton *(not the Register object itself)*"
-msgstr "Identifiant de registre tel qu'utilisé par Triton *(pas l'objet Register lui-même)*"
+msgstr "Identifiant de registre tel que utilisé par Triton *(pas l'objet Register lui-même)*"
 
 #: of tritondse.types.Registers:1
 msgid "Set of registers as used by Triton"
-msgstr "Ensemble des registres tel qu'utilisé par Triton"
+msgstr "Ensemble des registres tel que utilisé par Triton"
 
 #: of tritondse.types.Solver:1
 msgid "Common Solver Enum fully compatible with Triton ARCH"
-msgstr "Enum commun representation le status obtenu pour la résolution (valeur compatibles avec Triton ARCH)"
+msgstr "Enum commun représentation le statut obtenu pour la résolution (valeur compatibles avec Triton ARCH)"
 

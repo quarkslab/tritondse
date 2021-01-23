@@ -38,7 +38,7 @@ msgid ""
 "**Description**: The atoi() function converts the initial portion of the "
 "string pointed to by nptr to int.  The behavior is the same as"
 msgstr ""
-"**Description**: La fonction ``atoi()`` convertis la string en paramètre en entier. "
+"**Description**: La fonction ``atoi()`` convertit la string en paramètre en entier. "
 "Le comportement est le même que"
 
 #: of tritondse.routines.rtn_atoi:8
@@ -57,12 +57,12 @@ msgid ""
 "The function does not support all possibles representation of an integer."
 " It does not support negative integer nor values prefixed by spaces."
 msgstr ""
-"Cette fonction ne supporte pas toutes les représentation possible d'un entier. "
+"Cette fonction ne supporte pas toutes les représentations possibles d'un entier. "
 "Elle ne supporte par exemple pas les entiers négatifs, ni les chaînes préfixées par des espaces."
 
 #: of tritondse.routines.rtn_atoi tritondse.routines.rtn_strerror
 msgid "Returns"
-msgstr "Renvoi"
+msgstr "Renvoie"
 
 #: of tritondse.routines.rtn_atoi:19
 msgid "Symbolic value of the integer base on the symbolic string ``nptr``"
@@ -266,7 +266,7 @@ msgstr "Paramètres"
 
 #: of tritondse.routines.rtn_strerror:3
 msgid "The current symbolic execution instance"
-msgstr "L'instance courrante de l'exécution symbolique"
+msgstr "L'instance courante de l'exécution symbolique"
 
 #: of tritondse.routines.rtn_strerror:4
 msgid "The current process state"
@@ -314,5 +314,5 @@ msgstr ""
 
 #: ../../dev_doc/routines.rst:18
 msgid "**tritondse** does not support Windows and thus none of its API functions."
-msgstr "**tritondse** ne supporte pas Windows et donc aucunes de ces fonctions d'API."
+msgstr "**tritondse** ne supporte pas Windows et donc aucune de ses fonction d'API."
 

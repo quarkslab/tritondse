@@ -48,7 +48,7 @@ msgstr "Paramètres"
 
 #: of tritondse.symbolic_explorator.SymbolicExplorator.add_input_seed:3
 msgid "input seed to add in the pending inputs to process"
-msgstr "graine d'entrée à ajouter en queue des entrée à exécuter"
+msgstr "graine d'entrée à ajouter en queue des entrées à exécuter"
 
 #: of tritondse.SymbolicExplorator.callback_manager:1
 msgid ""
@@ -89,11 +89,11 @@ msgstr ""
 #: tritondse.seeds_manager.SeedManager.seeds_available
 #: tritondse.symbolic_explorator.SymbolicExplorator.explore
 msgid "Returns"
-msgstr "Renvoi"
+msgstr "Renvoie"
 
 #: of tritondse.symbolic_explorator.SymbolicExplorator.explore:4
 msgid "the status of the exploration"
-msgstr "status de l'exploration"
+msgstr "statut de l'exploration"
 
 #: ../../docstring of tritondse.SymbolicExplorator.last_executors:1
 msgid "last symbolic executor executed"
@@ -109,7 +109,7 @@ msgstr "Objet manager de graines, contenant toutes les graines et les informatio
 
 #: ../../docstring of tritondse.SymbolicExplorator.status:1
 msgid "status of the execution"
-msgstr "status de l'exécution"
+msgstr "statut de l'exécution"
 
 #: of tritondse.symbolic_explorator.SymbolicExplorator.step:1
 msgid ""
@@ -142,7 +142,7 @@ msgid ""
 "execute by prioritizing them. It also holds various sets of pending "
 "seeds, corpus, crashes etc and manages them in the workspace."
 msgstr ""
-"Manager de Graines. Cette classe à en charge de fournir la prochaine graine "
+"Manager de Graines. Cette classe a en charge de fournir la prochaine graine "
 "à exécuter en priorisant la plus adaptée. Elle content aussi différents ensemble "
 "de graines, corpus, crashes et manage les fichiers associés dans l'espace de travail."
 
@@ -157,7 +157,7 @@ msgid ""
 "might be selected to be run"
 msgstr ""
 "graines en attente *(conservées dans le scheduler)*. Ce sont les graines "
-"suceptibles d'être choisies afin d'être exécutées"
+"susceptibles d'être choisies afin d'être exécutées"
 
 #: of tritondse.seeds_manager.SeedManager:10
 msgid ""
@@ -179,7 +179,7 @@ msgstr "instance de workspace"
 
 #: of tritondse.seeds_manager.SeedManager:17
 msgid "maximum number of queries for  a given execution"
-msgstr "nombre maximum de requêtes pour une exécution donée"
+msgstr "nombre maximum de requêtes pour une exécution donnée"
 
 #: of tritondse.seeds_manager.SeedManager:19
 msgid "seed scheduler object to use as scheduling strategy"
@@ -202,8 +202,8 @@ msgid ""
 "it is new it is added in pending seed, if OK, HANG or CRASH it the "
 "appropriate set. **Note that the seed is not written in the workspace**"
 msgstr ""
-"Ajoute la graine dans la queue interne appropriée en fonction de son status. Si "
-"elle est nouvelle elle est mise dans la queue en attente. Si elle est OK, HANG ou "
+"Ajoute la graine dans la queue interne appropriée en fonction de son statut. Si "
+"elle est nouvelle, elle est mise dans la queue en attente. Si elle est OK, HANG ou "
 "CRASH elle va dans le set idoine. **La graine n'est pas écrite dans le workspace**"
 
 #: of tritondse.seeds_manager.SeedManager.add_seed_queue:6
@@ -216,7 +216,7 @@ msgid ""
 " status to ``OK_DONE`` and move it in the corpus. *(the seed is not "
 "removed from the corpus)*"
 msgstr ""
-"Jête une graine qui n'est plus d'aucun intérêt. La fonction la passe en "
+"Jette une graine qui n'est plus d'aucun intérêt. La fonction la passe en "
 "OK_DONE et la déplace dans le corpus final *(la graine n'est pas supprimée du corpus)*."
 
 #: of tritondse.seeds_manager.SeedManager.drop_seed:6
@@ -257,8 +257,8 @@ msgid ""
 "the seed scheduling strategy."
 msgstr ""
 "Fonction appelée après chaque exécution. Elle met à jour la couverture "
-"globale, et essaye de généerer de nouveaux chemins par SMT *(en accord avec "
-la stratégie de scheduling)*."
+"globale, et essaye de générer de nouveaux chemins par SMT *(en accord avec "
+"la stratégie de scheduling)*."
 
 #: of tritondse.seeds_manager.SeedManager.post_execution:5
 msgid "The current execution"
@@ -274,15 +274,15 @@ msgid ""
 "printing, but would also perform any clean up tasks. *(not meant to be "
 "called by the user)*"
 msgstr ""
-"Fonction appelé à la fin de l'exploration. Elle effectue des stats mais "
+"Fonction appelée à la fin de l'exploration. Elle effectue des statistiques mais "
 "effectue aussi éventuellement des tâches de nettoyage. *(ne doit pas être appelée par l'utilisateur)*"
 
 #: of tritondse.seeds_manager.SeedManager.seeds_available:1
 msgid "Checks whether or not there is still pending seeds to process."
-msgstr "Vérifie s'il reste des graines en attente à exécuter."
+msgstr "Vérifie s'il reste des graines en attentes à exécuter."
 
 #: of tritondse.seeds_manager.SeedManager.seeds_available:3
 msgid "True if seeds are still pending"
 msgstr ""
-"Vrai si des graines sont en attente"
+"Vrai si des graines sont en attentes"
 

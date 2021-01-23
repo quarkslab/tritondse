@@ -42,12 +42,12 @@ msgid ""
 msgstr ""
 "Sanitizer de chaîne de format. Cette probe intercepte les fonctions de la libc telles que "
 "'printf', 'fprintf', 'sprintf', 'dprintf', 'snprintf' et si l'une d'entre elles "
-"est appelée la vérification à lieu. Si la chaîne de format est symbolique "
-"elle est controllée par l'utilisateur. Un message d'alerte est affiché mais l'exécution "
+"est appelée, la vérification a lieu. Si la chaîne de format est symbolique, "
+"elle est contrôlée par l'utilisateur. Un message d'alerte est affiché mais l'exécution "
 "n'est pas interrompue. Cependant, le sanitizer essaye de générer par SMT une chaîne de "
-"format contenant autant de '%s' que possible. Si la formule est satisfiable un nouvelle "
-"entrée est générée et elle sera ensuite ajoutée à la queue. Cet entrée elle, pourra "
-"eventuellement mener à un crash."
+"format contenant autant de '%s' que possible. Si la formule est satisfiable, un nouvelle "
+"entrée est générée et elle sera ensuite ajoutée à la queue. Cette entrée, pourra "
+"éventuellement mener à un crash."
 
 #: ../../docstring of tritondse.sanitizers.FormatStringSanitizer.cbs:1
 #: tritondse.sanitizers.IntegerOverflowSanitizer.cbs:1
@@ -63,7 +63,7 @@ msgid ""
 "bytes. If so shows an alert and tries to generate new inputs with as many"
 " '%s' as possible."
 msgstr ""
-"Vérifie que la chaîne de format ``fmt_ptr`` ne contient aucun octets symboliques. "
+"Vérifie que la chaîne de format ``fmt_ptr`` ne contient aucun octet symbolique. "
 "Dans ce cas, une alerte est montrée et essaye de générer une nouvelle entrée fautive."
 
 #: of tritondse.sanitizers.FormatStringSanitizer.check
@@ -105,7 +105,7 @@ msgstr ""
 #: tritondse.sanitizers.NullDerefSanitizer.check
 #: tritondse.sanitizers.UAFSanitizer.check
 msgid "Returns"
-msgstr "Renvoi"
+msgstr "Renvoie"
 
 #: of tritondse.sanitizers.FormatStringSanitizer.check:13
 #: tritondse.sanitizers.IntegerOverflowSanitizer.check:9
@@ -121,15 +121,15 @@ msgid ""
 "If not, but the value is symbolic, via SMT solving to make it to be set "
 "(and thus to overflow). If possible generates a new input to be executed."
 msgstr ""
-"Sanitizer de débordement d'entiers. Cette probe vérifie sur toutes les instructions "
-"que le drapeau d'overflow n'est pas positionné. Si c'est le cas, marque l'entrée "
+"Sanitizer de débordement d'entier. Cette probe vérifie que sur toutes les instructions "
+"le drapeau d'overflow n'est pas positionné. Si c'est le cas, marque l'entrée "
 "comme crash. Sinon, et si la valeur est symbolique, une requête SMT est effectuée "
-"pour regarder si un overflow peux avoir lieu. Si c'est le cas génère une nouvelle entrée à exécuter."
+"pour regarder si un overflow peut avoir lieu. Si c'est le cas, génère une nouvelle entrée à exécuter."
 
 #: of tritondse.sanitizers.IntegerOverflowSanitizer.check:1
 msgid "The entry point of the sanitizer. This function check if a bug is present"
 msgstr ""
-"Le point d'entré du sanitizer. Cette fonction vérifie si le bug est présent où non."
+"Le point d'entré du sanitizer. Cette fonction vérifie si le bug est présent ou non."
 
 #: of tritondse.sanitizers.IntegerOverflowSanitizer.check:7
 msgid "Instruction that has just been executed"
@@ -161,7 +161,7 @@ msgid ""
 msgstr ""
 "Sanitizer de Use-After-Free. Il est capable de détecter UaF et double-free. Ca "
 "marche en interceptant toutes les lectures/écritures mémoires pointant dans le tas. "
-"Si la zone a été libérée alors le UaF est détecté. Ca marche aussi en interceptant "
+"Si la zone a été libérée alors le UaF est détecté. Cela marche aussi en interceptant "
 "la routine free pour la détection de double-free."
 
 #: of tritondse.sanitizers.UAFSanitizer.check:1

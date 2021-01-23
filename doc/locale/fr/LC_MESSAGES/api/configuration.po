@@ -43,7 +43,7 @@ msgid ""
 msgstr ""
 "Stratégie de résolution des branches lors d'une seule exécution. Pour une branche "
 "non-couverte donnée, cela permet de configurer si le moteur essaye de résoudre toutes "
-"les occurences de cette branch ou alors le faire de manière moins récurrente. Valeur par défaut: "
+"les occurrences de cette branche ou alors le faire de manière moins récurrente. Valeur par défaut: "
 ":py:obj:`BranchCheckStrategy.FIRST_LAST_NOT_COVERED`"
 
 
@@ -93,7 +93,7 @@ msgstr "Chemin"
 #: of tritondse.config.Config.from_file tritondse.config.Config.from_json
 #: tritondse.config.Config.to_json
 msgid "Returns"
-msgstr "Renvoi"
+msgstr "Renvoie"
 
 #: of tritondse.config.Config.from_file:4 tritondse.config.Config.from_json:4
 msgid "A fresh instance of Config"
@@ -101,7 +101,7 @@ msgstr "Nouvelle instance de Config"
 
 #: of tritondse.config.Config.from_json:1
 msgid "Load a configuration from a json input to a new instance of Config"
-msgstr "Charge une configuration à partir d'un JSON d'entré en une nouvelle instance de Config"
+msgstr "Charge une configuration à partir d'un fichier JSON en une nouvelle instance de Config"
 
 #: of tritondse.config.Config.from_json:3
 msgid "The JSON text"
@@ -143,8 +143,8 @@ msgid ""
 "Symbolize reads on ``stdin``. Thus the content of a buffer read in the "
 "file descriptor 0 will be symbolized. *(default: False)*"
 msgstr ""
-"Symbolise les lectures sur ``stdin``. Le contenu du buffer lu dont le contenu est "
-"issue du *file descriptor* 0 sera symbolisé. *(défaut: False)*"
+"Symbolise les lectures sur ``stdin``. Le contenu du buffer lu issu "
+"du *file descriptor* 0 sera symbolisé. *(défaut: False)*"
 
 #: ../../docstring of tritondse.Config.symbolize_stdin:4
 msgid ""
@@ -172,7 +172,7 @@ msgid ""
 "instruction will increment the time representation of the execution by "
 "100us. *(default: 0.00001)*"
 msgstr ""
-"Coefficient d'incrémentation du temps pour chaque instruction exécutées. Cela permet "
+"Coefficient d'incrémentation du temps pour chaque instruction exécutée. Cela permet "
 "d'obtenir un comportement déterministe lors d'un appel à une fonction tel que ``gettimeofday()``, etc. "
 "Par exemple, si 0.0001 est défini, chaque instruction exécutée va incrémenter la représentation de "
 "l'écoulement du temps de 100us. *(défaut: 0.00001)*"
@@ -183,7 +183,7 @@ msgstr "Sauvegarde la configuration courante dans le fichier"
 
 #: of tritondse.config.Config.to_json:1
 msgid "Convert the current configuration to a json output"
-msgstr "Convertis la configuration en JSON"
+msgstr "Converti la configuration en JSON"
 
 #: of tritondse.config.Config.to_json:3
 msgid "JSON text"
