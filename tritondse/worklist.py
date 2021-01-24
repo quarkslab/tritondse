@@ -239,7 +239,7 @@ class WorklistRand(SeedScheduler):
 
 class FreshSeedPrioritizerWorklist(SeedScheduler):
     """
-    Strategy that first execute all seeds with negating branches
+    Strategy that first execute all seeds without negating branches
     in order to get the most updated coverage and which then re-run
     all relevant seeds to negate their branches.
 
