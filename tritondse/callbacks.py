@@ -47,6 +47,7 @@ RegWriteCallback = Callable[['SymbolicExecutor', ProcessState, Register, int], N
 RtnCallback      = Callable[['SymbolicExecutor', ProcessState, str, Addr], None]
 SymExCallback    = Callable[['SymbolicExecutor', ProcessState], None]
 ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
+ExplorationStepCallback = Callable[['SymbolicExplorator'], None]
 
 
 class ProbeInterface(object):
@@ -70,6 +71,9 @@ class CallbackManager(object):
         """
         self.p = p
         self._se = None
+
+        # SymbolicExplorator callbacks
+        self._step_cbs = []  # Callback called between each exploration steps
 
         # SymbolicExecutor callbacks
         self._pc_addr_cbs   = {}  # addresses reached
@@ -334,6 +338,17 @@ class CallbackManager(object):
         self._empty = False
 
 
+    def register_exploration_step_callback(self, callback: ExplorationStepCallback) -> None:
+        """
+        Register a callback executed before each exploration step. The object
+        given in parameter is the SymbolicExplorator itself.
+
+        :param callback: Callback function to trigger
+        :type callback: :py:obj:`tritondse.callbacks.ExplorationStepCallback`
+        """
+        self._step_cbs.append(callback)
+        # self._empty = False  # Does not impact the emptiness of the callbackmanager
+
     def get_execution_callbacks(self) -> Tuple[List[SymExCallback], List[SymExCallback]]:
         """
         Get all the pre/post callbacks for the current symbolic execution.
@@ -431,6 +446,13 @@ class CallbackManager(object):
         """
         return self._new_input_cbs
 
+    def get_exploration_step_callbacks(self) -> List[ExplorationStepCallback]:
+        """
+        Get all the exploration step callbacks
+
+        :return: list containing callbacks
+        """
+        return self._step_cbs
 
     def register_pre_imported_routine_callback(self, routine_name: str, callback: RtnCallback) -> None:
         """

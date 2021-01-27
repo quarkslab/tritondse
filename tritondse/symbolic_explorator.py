@@ -63,6 +63,9 @@ class SymbolicExplorator(object):
         # running executors (for debugging purposes)
         self.last_executors: SymbolicExecutor = None  #: last symbolic executor executed
 
+        # General purpose attributes
+        self._exec_count = 0
+
     @property
     def callback_manager(self) -> CallbackManager:
         """
@@ -73,6 +76,15 @@ class SymbolicExplorator(object):
         """
         return self.cbm
 
+    @property
+    def execution_count(self) -> int:
+        """
+        Get the number of execution performed.
+
+        :return: number of execution performed
+        :rtype: int
+        """
+        return self._exec_count
 
     def __time_delta(self):
         return time.time() - self.ts
@@ -95,6 +107,9 @@ class SymbolicExplorator(object):
         self.last_executors = execution
         execution.run()
 
+        # increment exec_count
+        self._exec_count += 1
+
         if self.config.exploration_limit and (uid+1) >= self.config.exploration_limit:
             logging.info('Exploration limit reached')
             self._stop = True
@@ -114,6 +129,10 @@ class SymbolicExplorator(object):
         """
         # Take an input
         seed = self.seeds_manager.pick_seed()
+
+        # Iterate the callback to be called at each steps
+        for cb in self.cbm.get_exploration_step_callbacks():
+            cb(self)
 
         # Execution into a thread
         t = threading.Thread(

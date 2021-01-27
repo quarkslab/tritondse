@@ -164,6 +164,14 @@ class CoverageSingleRun(object):
 
 
     @property
+    def unique_path_covered(self) -> int:
+        """
+        :return: The number of unique paths covered
+        """
+        return len(self.paths)
+
+
+    @property
     def total_instruction_executed(self) -> int:
         """
         :return: The number of total instruction executed
