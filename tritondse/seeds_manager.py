@@ -1,14 +1,14 @@
 # built-in imports
 import logging
 import time
-
+import json
 from typing      import Generator
 from collections import Counter
 
 # local imports
 from tritondse.seed              import Seed, SeedStatus
 from tritondse.callbacks         import CallbackManager
-from tritondse.coverage          import GlobalCoverage
+from tritondse.coverage          import GlobalCoverage, CovItem
 from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritizerWorklist, SeedScheduler
 from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
@@ -55,6 +55,8 @@ class SeedManager:
 
         self.__load_seed_workspace()
 
+        self._solv_count = 0
+        self._solv_status = {Solver.SAT: 0, Solver.UNSAT: 0, Solver.UNKNOWN: 0, Solver.TIMEOUT: 0}
         self._stat_branch_reverted = Counter()
         self._stat_branch_fail = Counter()
         self._yolo_map = set()  # CovItem
@@ -113,7 +115,7 @@ class SeedManager:
             assert False
 
 
-    def post_execution(self, execution: SymbolicExecutor, seed: Seed) -> None:
+    def post_execution(self, execution: SymbolicExecutor, seed: Seed, solve_new_path: int = True) -> None:
         """
         Function called after each execution. It updates the global
         code coverage object, and tries to generate new paths through
@@ -123,6 +125,8 @@ class SeedManager:
         :type execution: SymbolicExecutor
         :param seed: The seed of the execution
         :type seed: Seed
+        :param solve_new_path: Whether or not to solve constraint to find new paths
+        :type solve_new_path: bool
         """
 
         # Update instructions covered from the last execution into our exploration coverage
@@ -147,9 +151,9 @@ class SeedManager:
         elif seed.status == SeedStatus.OK_DONE:
             if self.coverage.can_improve_coverage(execution.coverage):
                 items = self.coverage.new_items_to_cover(execution.coverage)
-                seed.coverage_objectives =items  # Set its new objectives
+                seed.coverage_objectives = items  # Set its new objectives
 
-                if self.worklist.can_solve_models():     # No fresh seeds pending thus can solve model
+                if self.worklist.can_solve_models() and solve_new_path:     # No fresh seeds pending thus can solve model
                     logging.info(f'Seed {seed.get_hash()} generate new coverage')
                     self._generate_new_inputs(execution)
                 else:
@@ -166,8 +170,10 @@ class SeedManager:
         else:
             assert False
 
-        logging.info(f"Worklist: {len(self.worklist)} (fresh:{len(self.worklist.fresh)}) Corpus:{len(self.corpus)} Crash:{len(self.crash)}")
-        logging.info(f"Coverage objectives:{len(self.worklist.worklist)} instruction: {self.coverage.unique_instruction_covered} edges:{self.coverage.unique_edge_covered}")
+
+        logging.info(f"Corpus:{len(self.corpus)} Crash:{len(self.crash)}")
+        self.worklist.post_execution()
+        logging.info(f"Coverage instruction:{self.coverage.unique_instruction_covered} edges:{self.coverage.unique_edge_covered}")
 
 
     def _generate_new_inputs(self, execution: SymbolicExecutor):
@@ -221,20 +227,16 @@ class SeedManager:
                 ts = time.time()
                 model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
                 status = Solver(status)
+                self._update_solve_stats(covitem, status)
                 smt_queries += 1
                 logging.info(f'Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {time.time() - ts:.02f}s) [{self._pp_smt_status(status)}]')
 
                 if status == Solver.SAT:
-                    self._stat_branch_reverted[covitem] += 1  # Update stats
-                    if covitem in self._stat_branch_fail:
-                        self._stat_branch_fail.pop(covitem)
-
                     new_seed = self._mk_new_seed(execution, execution.seed, model)
                     # Trick to keep track of which target a seed is meant to cover
                     new_seed.coverage_objectives.add(covitem)
                     yield new_seed  # Yield the seed to get it added in the worklist
                 elif status == Solver.UNSAT:
-                    self._stat_branch_fail[covitem] += 1
                     pass
                 elif status == Solver.TIMEOUT:
                     pass
@@ -262,6 +264,15 @@ class SeedManager:
         except StopIteration:  # We have iterated the whole path generator
             pass
 
+    def _update_solve_stats(self, covitem: CovItem, status: Solver):
+        self._solv_count += 1
+        self._solv_status[status] += 1
+        if status == Solver.SAT:
+            self._stat_branch_reverted[covitem] += 1  # Update stats
+            if covitem in self._stat_branch_fail:
+                self._stat_branch_fail.pop(covitem)
+        elif status == Solver.UNSAT:
+            self._stat_branch_fail[covitem] += 1
 
     def _yolo_solve(self, execution, branch, covitem):
         if covitem in self._yolo_map:
@@ -366,11 +377,17 @@ class SeedManager:
         """
         # Do things you would do at the very end of exploration
         # (or just before it becomes idle)
-        count = sum(x for x in self._stat_branch_reverted.values())
-        count_fail = sum(x for x in self._stat_branch_fail.values())
-        logging.info(f"Branches reverted: {count} (unique: {len(self._stat_branch_reverted)})")
-        logging.info(f"Branches still fail: {count_fail} (unique: {len(self._stat_branch_fail)})")
-        self.worklist.post_exploration()
+        stats = {
+            "total_solving_attempt": self._solv_count,
+            "branch_reverted": self._stat_branch_reverted,
+            "branch_not_solved": self._stat_branch_fail,
+            "UNSAT": self._solv_status[Solver.UNSAT],
+            "SAT": self._solv_status[Solver.SAT],
+            "TIMEOUT": self._solv_status[Solver.UNSAT]
+        }
+        self.workspace.save_metadata_file("solving_stats.json", json.dumps(stats, indent=2))
+        logging.info(f"Branches reverted: {len(self._stat_branch_reverted)}  Branches still fail: {len(self._stat_branch_fail)}")
+        self.worklist.post_exploration(self.workspace)
 
 
     def _pp_smt_status(self, status: Solver):

@@ -113,10 +113,9 @@ class SymbolicExplorator(object):
         if self.config.exploration_limit and (uid+1) >= self.config.exploration_limit:
             logging.info('Exploration limit reached')
             self._stop = True
-            return
 
         # Some analysis in post execution
-        self.seeds_manager.post_execution(execution, seed)
+        self.seeds_manager.post_execution(execution, seed, not self._stop)
 
         logging.info(f"Elapsed time: {self._fmt_elpased(self.__time_delta())}\n")
 
