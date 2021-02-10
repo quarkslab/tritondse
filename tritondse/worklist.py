@@ -1,8 +1,11 @@
+# built-in imports
+import json
 import logging
 
-from typing import Dict, Set
+# Local imports
 from tritondse.seed import Seed
-from tritondse.coverage import GlobalCoverage, CovItem
+from tritondse.coverage import GlobalCoverage
+from tritondse.workspace import Workspace
 
 
 class SeedScheduler:
@@ -12,6 +15,7 @@ class SeedScheduler:
     subclasses should implement to be compliant with
     the interface.
     """
+
     def has_seed_remaining(self) -> bool:
         """
         Returns true if there are still seeds to be processed in the scheduler
@@ -66,12 +70,20 @@ class SeedScheduler:
         raise NotImplementedError()
 
 
-    def post_exploration(self) -> None:
+    def post_execution(self) -> None:
+        """
+        Called at the end of each execution after the generation of new seeds through SMT.
+        Last thing called before starting the next iteration.
+        """
+        pass
+
+
+    def post_exploration(self, workspace: Workspace) -> None:
         """
         Called at the end of the exploration to perform
         some clean-up or anything else.
         """
-        raise NotImplementedError()
+        pass
 
 
 
@@ -175,12 +187,6 @@ class WorklistAddressToSet(SeedScheduler):
         return seed_picked
 
 
-    def post_exploration(self) -> None:
-        """ Does nothing """
-        pass
-
-
-
 class WorklistRand(SeedScheduler):
     """
     Trivial strategy that returns any Seed without any classification.
@@ -229,12 +235,6 @@ class WorklistRand(SeedScheduler):
         :rtype: Seed
         """
         return self.worklist.pop()
-
-
-    def post_exploration(self) -> None:
-        """ Does nothing """
-        pass
-
 
 
 class FreshSeedPrioritizerWorklist(SeedScheduler):
@@ -329,12 +329,15 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
                 self.worklist.pop(it)
         return seed
 
+    def post_execution(self) -> None:
+        """
+        Solely used to show intermediate statistics
+        """
+        logging.info(f"Seed Scheduler: worklist:{len(self.worklist)} Coverage objectives:{len(self.worklist)}  (fresh:{len(self.fresh)})")
 
-    def post_exploration(self) -> None:
+    def post_exploration(self, workspace: Workspace) -> None:
         """
         At the end of the execution, print the worklist to know
         its state before exit.
         """
-        s = " ".join(str(x) for x in self.worklist)
-        logging.info(f"Many not covered items: {s}")
-        # TODO: Save them in the workspace
+        workspace.save_metadata_file("coverage_objectives.json", json.dumps(list(self.worklist.keys())))
