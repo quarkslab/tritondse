@@ -383,7 +383,7 @@ class SeedManager:
             "branch_not_solved": self._stat_branch_fail,
             "UNSAT": self._solv_status[Solver.UNSAT],
             "SAT": self._solv_status[Solver.SAT],
-            "TIMEOUT": self._solv_status[Solver.UNSAT]
+            "TIMEOUT": self._solv_status[Solver.TIMEOUT]
         }
         self.workspace.save_metadata_file("solving_stats.json", json.dumps(stats, indent=2))
         logging.info(f"Branches reverted: {len(self._stat_branch_reverted)}  Branches still fail: {len(self._stat_branch_fail)}")
