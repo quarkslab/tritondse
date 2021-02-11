@@ -333,7 +333,7 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
         """
         Solely used to show intermediate statistics
         """
-        logging.info(f"Seed Scheduler: worklist:{len(self.worklist)} Coverage objectives:{len(self.worklist)}  (fresh:{len(self.fresh)})")
+        logging.info(f"Seed Scheduler: worklist:{len(self)} Coverage objectives:{len(self.worklist)}  (fresh:{len(self.fresh)})")
 
     def post_exploration(self, workspace: Workspace) -> None:
         """
