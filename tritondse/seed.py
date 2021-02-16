@@ -72,6 +72,9 @@ class Seed(object):
         """ Sets the status of the seed """
         self._status = value
 
+    def is_status_set(self) -> bool:
+        """ Checks whether a status has already been assigned to the seed. """
+        return self.status != SeedStatus.NEW
 
     def __len__(self) -> int:
         """

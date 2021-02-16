@@ -227,7 +227,7 @@ class SymbolicExecutor(object):
                 self.seed.status = SeedStatus.HANG
                 return
 
-        if self.seed.status == SeedStatus.NEW:
+        if not self.seed.is_status_set():  # Set a status if it has not already been done
             self.seed.status = SeedStatus.OK_DONE
         return
 
