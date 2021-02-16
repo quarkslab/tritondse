@@ -56,6 +56,7 @@ class SeedManager:
         self.__load_seed_workspace()
 
         self._solv_count = 0
+        self._solv_time_sum = 0
         self._solv_status = {Solver.SAT: 0, Solver.UNSAT: 0, Solver.UNKNOWN: 0, Solver.TIMEOUT: 0}
         self._stat_branch_reverted = Counter()
         self._stat_branch_fail = Counter()
@@ -226,10 +227,11 @@ class SeedManager:
                 # Solve the constraint
                 ts = time.time()
                 model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
+                solve_time = time.time() - ts
                 status = Solver(status)
                 self._update_solve_stats(covitem, status)
                 smt_queries += 1
-                logging.info(f'Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {time.time() - ts:.02f}s) [{self._pp_smt_status(status)}]')
+                logging.info(f'Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {solve_time:.02f}s) [{self._pp_smt_status(status)}]')
 
                 if status == Solver.SAT:
                     new_seed = self._mk_new_seed(execution, execution.seed, model)
@@ -264,8 +266,9 @@ class SeedManager:
         except StopIteration:  # We have iterated the whole path generator
             pass
 
-    def _update_solve_stats(self, covitem: CovItem, status: Solver):
+    def _update_solve_stats(self, covitem: CovItem, status: Solver, solving_time: int):
         self._solv_count += 1
+        self._solv_time_sum += solving_time
         self._solv_status[status] += 1
         if status == Solver.SAT:
             self._stat_branch_reverted[covitem] += 1  # Update stats
@@ -378,6 +381,7 @@ class SeedManager:
         # Do things you would do at the very end of exploration
         # (or just before it becomes idle)
         stats = {
+            "total_solving_time": self._solv_time_sum,
             "total_solving_attempt": self._solv_count,
             "branch_reverted": self._stat_branch_reverted,
             "branch_not_solved": self._stat_branch_fail,
