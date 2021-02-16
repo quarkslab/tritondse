@@ -61,7 +61,7 @@ class SymbolicExplorator(object):
         """ Manager of seed, holding all seeds related data and various statistics """
 
         # running executors (for debugging purposes)
-        self.last_executors: SymbolicExecutor = None  #: last symbolic executor executed
+        self.current_executor: SymbolicExecutor = None  #: last symbolic executor executed
 
         # General purpose attributes
         self._exec_count = 0
@@ -104,7 +104,7 @@ class SymbolicExplorator(object):
         logging.info(f"Initialize ProcessState with thread scheduling: {self.config.thread_scheduling}")
         pstate = ProcessState(self.config.thread_scheduling, self.config.time_inc_coefficient)
         execution = SymbolicExecutor(self.config, pstate, self.program, seed=seed, workspace=self.workspace, uid=uid, callbacks=cbs)
-        self.last_executors = execution
+        self.current_executor = execution
         execution.run()
 
         # increment exec_count

@@ -229,7 +229,7 @@ class SeedManager:
                 model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
                 solve_time = time.time() - ts
                 status = Solver(status)
-                self._update_solve_stats(covitem, status)
+                self._update_solve_stats(covitem, status, solve_time)
                 smt_queries += 1
                 logging.info(f'Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {solve_time:.02f}s) [{self._pp_smt_status(status)}]')
 
@@ -266,7 +266,7 @@ class SeedManager:
         except StopIteration:  # We have iterated the whole path generator
             pass
 
-    def _update_solve_stats(self, covitem: CovItem, status: Solver, solving_time: int):
+    def _update_solve_stats(self, covitem: CovItem, status: Solver, solving_time: float):
         self._solv_count += 1
         self._solv_time_sum += solving_time
         self._solv_status[status] += 1
