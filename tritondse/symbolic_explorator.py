@@ -4,6 +4,7 @@ import threading
 import gc
 from enum   import Enum
 from typing import Union
+from pathlib import Path
 import stat
 
 from tritondse.config            import Config
@@ -49,6 +50,9 @@ class SymbolicExplorator(object):
         self.workspace.save_file("config.json", self.config.to_json())
         self.workspace.save_file(self.program.path.name, self.program.path.read_bytes())
         self.workspace.get_metadata_file_path(self.program.path.name).chmod(stat.S_IRWXU)  # Set the binary to be executable
+
+        # Configure logfile
+        self._configure_file_logger()
 
         # Initialize coverage
         self.coverage: GlobalCoverage = GlobalCoverage(self.config.coverage_strategy, self.workspace, self.config.branch_solving_strategy)
@@ -199,3 +203,11 @@ class SymbolicExplorator(object):
         m, s = divmod(seconds, 60)
         h, m = divmod(m, 60)
         return (f"{int(h)}h" if h else '')+f"{int(m)}m{int(s)}s"
+
+
+    def _configure_file_logger(self) -> None:
+        """ Configure the filehandler to log to file """
+        hldr = logging.FileHandler(self.workspace.logfile_path)
+        hldr.setLevel(logging.DEBUG)
+        hldr.setFormatter(logging.Formatter("%(asctime)s %(threadName)s [%(levelname)s] %(message)s"))
+        logging.root.addHandler(hldr)
