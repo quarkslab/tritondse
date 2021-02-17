@@ -383,8 +383,8 @@ class SeedManager:
         stats = {
             "total_solving_time": self._solv_time_sum,
             "total_solving_attempt": self._solv_count,
-            "branch_reverted": self._stat_branch_reverted,
-            "branch_not_solved": self._stat_branch_fail,
+            "branch_reverted": {str(k): v for k, v in self._stat_branch_reverted.items()}, # convert covitem to str whatever it is
+            "branch_not_solved": {str(k): v for k, v in self._stat_branch_fail.items()},  # convert covitem to str whatever it is
             "UNSAT": self._solv_status[Solver.UNSAT],
             "SAT": self._solv_status[Solver.SAT],
             "TIMEOUT": self._solv_status[Solver.TIMEOUT]
