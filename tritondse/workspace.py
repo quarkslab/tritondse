@@ -25,6 +25,7 @@ class Workspace(object):
     HANG_DIR = "hangs"
     WORKLIST_DIR = "worklist"
     METADATA_DIR = "metadata"
+    LOG_FILE = "tritondse.log"
 
     def __init__(self, root_dir: PathLike):
         """
@@ -206,3 +207,7 @@ class Workspace(object):
                 p.write_bytes(content)
             else:
                 assert False
+
+    @property
+    def logfile_path(self):
+        return self.root_dir / self.LOG_FILE
