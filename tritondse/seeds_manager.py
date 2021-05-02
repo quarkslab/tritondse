@@ -146,7 +146,7 @@ class SeedManager:
             self.drop_seed(seed)
 
         elif seed.status in [SeedStatus.HANG, SeedStatus.CRASH]:
-            self.add_seed_queue(seed)
+            self.archive_seed(seed)
             # NOTE: Do not perform further processing on the seed (like generating inputs from it)
 
         elif seed.status == SeedStatus.OK_DONE:
@@ -157,20 +157,17 @@ class SeedManager:
                 if self.worklist.can_solve_models() and solve_new_path:     # No fresh seeds pending thus can solve model
                     logging.info(f'Seed {seed.get_hash()} generate new coverage')
                     self._generate_new_inputs(execution)
+                    self.archive_seed(seed)
                 else:
                     logging.info(f"Seed {seed.get_hash()} push back in worklist (to unstack fresh)")
                     seed.status = SeedStatus.NEW  # Reset its status for later run
-
-                self.add_seed_queue(seed)     # will be pushed in worklist, or corpus
+                    self.add_seed_queue(seed)  # will be pushed back in worklist
             else:
-                self.corpus.add(seed)
-                # Move the current seed into the right directory (and remove it from worklist)
-                self.workspace.update_seed_location(seed)
-                logging.warning(f'Seed {seed.get_hash()} dumped cannot generate new coverage [{seed.status.name}]')
+                self.archive_seed(seed)
+                logging.warning(f'Seed {seed.get_hash()} archived cannot generate new coverage [{seed.status.name}]')
 
         else:
             assert False
-
 
         logging.info(f"Corpus:{len(self.corpus)} Crash:{len(self.crash)}")
         self.worklist.post_execution()
@@ -217,9 +214,9 @@ class SeedManager:
                 path_predicate.extend(x.getTakenPredicate() for x in p_prefix)
 
                 # Yolo solve without path_predicate
-                s = self._yolo_solve(execution, branch, covitem)
-                if s:
-                    yield s
+                # s = self._yolo_solve(execution, branch, covitem)
+                # if s:
+                #     yield s
 
                 # Create the constraint
                 constraint = actx.land(path_predicate + [branch['constraint']])
@@ -355,7 +352,6 @@ class SeedManager:
         self.add_seed_queue(seed)
         self.workspace.save_seed(seed)
 
-
     def drop_seed(self, seed: Seed) -> None:
         """
         Drop a seed that is not of interest anymore.
@@ -366,11 +362,23 @@ class SeedManager:
         :param seed: seed object to drop
         :type seed: Seed
         """
-        logging.info(f"droping seed {seed.get_hash()} as it cannot improve coverage anymore")
-        seed.status = SeedStatus.OK_DONE
+        self.archive_seed(seed)
+
+    def archive_seed(self, seed: Seed, status: SeedStatus = None) -> None:
+        """
+        Send a seed in the corpus. As such, the seed
+        is not meant to be used anymore (for finding
+        new seeds).
+
+        :param seed: seed object
+        :type seed: Seed
+        :param status: optional status to assign the seed
+        :type status: SeedStatus
+        """
+        if status:
+            seed.status = status
         self.add_seed_queue(seed)  # Will put it in the corpus
         self.workspace.update_seed_location(seed)  # Will put it in the corpus in files
-
 
     def post_exploration(self) -> None:
         """
