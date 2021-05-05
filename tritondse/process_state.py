@@ -27,7 +27,7 @@ class ProcessState(object):
     it provides a user-friendly API to access data in both the concrete and symbolic
     state of Triton.
     """
-    def __init__(self, thread_scheduling: int, time_inc_coefficient: float):
+    def __init__(self, thread_scheduling: int = 200, time_inc_coefficient: float = 0.0001):
         """
 
         :param thread_scheduling: Thread scheduling value, see :py:attr:`tritondse.Config.thread_scheduling`
