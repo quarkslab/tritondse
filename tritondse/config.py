@@ -15,17 +15,34 @@ class Config(object):
     parameter
     """
 
-    def __init__(self, debug: bool = True):
+    def __init__(self,
+                 symbolize_argv: bool = False,
+                 symbolize_stdin: bool = False,
+                 pipe_stdout: bool = False,
+                 pipe_stderr: bool = False,
+                 skip_sleep_routine: bool = False,
+                 smt_timeout: int = 5000,
+                 execution_timeout: int = 0,
+                 exploration_timeout: int = 0,
+                 exploration_limit: int = 0,
+                 thread_scheduling: int = 200,
+                 smt_queries_limit: int = 1200,
+                 coverage_strategy: CoverageStrategy = CoverageStrategy.CODE_COVERAGE,
+                 branch_solving_strategy: BranchCheckStrategy = BranchCheckStrategy.FIRST_LAST_NOT_COVERED,
+                 debug: bool = False,
+                 workspace: str = "workspace",
+                 program_argv: List[str] = None,
+                 time_inc_coefficient: float = 0.00001):
         """
         :param debug: Enable debugging logging
         :type debug: bool
         """
 
-        self.symbolize_argv: bool = False
+        self.symbolize_argv: bool = symbolize_argv
         """ Symbolize parameters given on the command line. They are then injected on the
         libc_start_main function call. *(default: False)*"""
 
-        self.symbolize_stdin: bool = False
+        self.symbolize_stdin: bool = symbolize_stdin
         """ Symbolize reads on ``stdin``. Thus the content of a buffer read in the file
         descriptor 0 will be symbolized. *(default: False)*
         
@@ -33,39 +50,39 @@ class Config(object):
                      as a single symbolization point is supported at the moment
         """
         
-        self.pipe_stdout: bool = False
+        self.pipe_stdout: bool = pipe_stdout
         """ Pipe the program stdout to Python's stdout. *(default: False)*"""
 
-        self.pipe_stderr: bool = False
+        self.pipe_stderr: bool = pipe_stderr
         """ Pipe the program stderr to Python's stderr *(default: False)*"""
 
-        self.skip_sleep_routine: bool = False
+        self.skip_sleep_routine: bool = skip_sleep_routine
         """ Whether to emulate sleeps routine or not *(default: False)*"""
 
-        self.smt_timeout: int = 5000
+        self.smt_timeout: int = smt_timeout
         """ Timeout for a single SMT query in milliseconds *(default: 10)*"""
 
-        self.execution_timeout: int = 0
+        self.execution_timeout: int = execution_timeout
         """ Timeout of a single execution. If it is triggered the associated
         input file is marked as 'hanging'. In seconds, 0 means unlimited *(default: 0)*"""
 
-        self.exploration_timeout: int = 0
+        self.exploration_timeout: int = exploration_timeout
         """ Overall timeout of the exploration in seconds. 0 means unlimited *(default: 0)* """
 
-        self.exploration_limit: int = 0
+        self.exploration_limit: int = exploration_limit
         """ Number of execution iterations. 0 means unlimited *(default: 0)*"""
 
-        self.thread_scheduling: int = 200
+        self.thread_scheduling: int = thread_scheduling
         """ Number of instructions to execute before switching to the next thread.
         At the moment all threads are scheduled in a round-robin manner *(default: 200)*"""
 
-        self.smt_queries_limit: int = 1200
+        self.smt_queries_limit: int = smt_queries_limit
         """ Limit of SMT queries to perform for a single execution *(default: 1200)*"""
 
-        self.coverage_strategy: CoverageStrategy = CoverageStrategy.CODE_COVERAGE
+        self.coverage_strategy: CoverageStrategy = coverage_strategy
         """ Coverage strategy to apply for the whole exploration, default: :py:obj:`CoverageStrategy.CODE_COVERAGE`"""
 
-        self.branch_solving_strategy: BranchCheckStrategy = BranchCheckStrategy.FIRST_LAST_NOT_COVERED
+        self.branch_solving_strategy: BranchCheckStrategy = branch_solving_strategy
         """ Branch solving strategy to apply for a single execution. For a given non-covered
         branch allows changing whether we try to solve it at all occurences or more seldomly.
         default: :py:obj:`BranchCheckStrategy.FIRST_LAST_NOT_COVERED`
@@ -76,13 +93,13 @@ class Config(object):
         FIXME: What if the value is changed during execution ?
         """
 
-        self.workspace: str = "workspace"
+        self.workspace: str = workspace
         """ Workspace directory to use. *(default: 'workspace')* """
 
-        self.program_argv: List[str] = []
+        self.program_argv: List[str] = [] if program_argv is None else program_argv
         """ Concrete program argument as given on the command line."""
 
-        self.time_inc_coefficient: float = 0.00001
+        self.time_inc_coefficient: float = time_inc_coefficient
         """ Time increment coefficient at each instruction to provide a deterministic
         behavior when calling time functions (e.g gettimeofday(), clock_gettime(), ...).
         For example, if 0.0001 is defined, each instruction will increment the time representation
