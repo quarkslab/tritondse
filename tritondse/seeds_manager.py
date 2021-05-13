@@ -294,13 +294,23 @@ class SeedManager:
 
 
     def _mk_new_seed(self, exec: SymbolicExecutor, seed: Seed, model: Model) -> Seed:
-        # Current content before getting model
-        content = bytearray(seed.content)
-        # For each byte of the seed, we assign the value provided by the solver.
-        # If the solver provide no model for some bytes of the seed, their value
-        # stay unmodified (with their current value).
-        for k, v in sorted(model.items()):
-            content[k] = v.getValue()
+        if exec.config.symbolize_stdin:
+            content = bytearray(seed.content)                 # Create the new seed buffer
+            for i, sv in enumerate(exec.symbolic_seed):       # Enumerate symvars associated with each bytes
+                if sv.getId() in model:                       # If solver provided a new value for the symvar
+                    content[i] = model[sv.getId()].getValue() # Replace it in the bytearray
+
+        elif exec.config.symbolize_argv:
+            args = [bytearray(x) for x in seed.content.split()]
+            for c_arg, sym_arg in zip(args, exec.symbolic_seed):
+                for i, sv in enumerate(sym_arg):
+                    if sv.getId() in model:
+                        c_arg[i] = model[sv.getId()].getValue()
+            content = b" ".join(args)  # Recreate a full argv string
+
+        else:
+            logging.error("In _mk_new_seed() without neither stdin nor argv seed injection loc")
+            return Seed()  # Return dummy seed
 
         # Calling callback if user defined one
         for cb in exec.cbm.get_new_input_callback():
@@ -310,7 +320,6 @@ class SeedManager:
 
         # Create the Seed object and assign the new model
         return Seed(bytes(content))
-
 
     def pick_seed(self) -> Seed:
         """

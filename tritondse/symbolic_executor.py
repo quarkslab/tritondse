@@ -55,6 +55,7 @@ class SymbolicExecutor(object):
         if self.workspace is None:
             self.workspace = Workspace(config.workspace)
         self.seed       = seed              # The current seed used to the execution
+        self.symbolic_seed = []           # Will hold SymVars of every bytes of the seed
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy) #: Coverage of the execution
         self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
         self.uid        = uid               # Unique identifier meant to unique accross Exploration instances
@@ -359,6 +360,9 @@ class SymbolicExecutor(object):
         the execution might hang forever if the program does.
         """
 
+        if not self._check_input_injection_loc():
+            return
+
         self.start_time = time.time()
         # Initialize the process_state architecture (at this point arch is sure to be supported)
         logging.debug(f"Loading program {self.program.path.name} [{self.program.architecture}]")
@@ -397,6 +401,25 @@ class SymbolicExecutor(object):
         logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.tt_ctx.getPathPredicateSize()}")
         logging.info(f"Memory usage: {self.mem_usage_str()}")
 
+    def _check_input_injection_loc(self) -> bool:
+        """ Make sure only stdin or argv are symbolized """
+        sum = self.config.symbolize_stdin + self.config.symbolize_argv
+        if sum == 0:
+            logging.warning("No input injection location selected (neither stdin nor argv) thus user-defined")
+            return True  # We allow not defining seed injection point. If so the user has to do it manually
+        elif sum == 2:
+            logging.error("Cannot inject input on both stdin and argv in the same time")
+            return False
+        else:
+            return True
+
+    @property
+    def exitcode(self) -> int:
+        """ Exit code value of the process. The value
+        is simply the concrete value of the register
+        marked as return_register (rax, on x86, r0 on ARM..)
+        """
+        return self.pstate.read_register(self.pstate.return_register) & 0xFF
 
     @staticmethod
     def mem_usage_str() -> str:
