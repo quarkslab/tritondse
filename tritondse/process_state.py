@@ -13,7 +13,8 @@ from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction
 from tritondse.thread_context import ThreadContext
 from tritondse.program        import Program
 from tritondse.heap_allocator import HeapAllocator
-from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, AstNode, Registers
+from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
+                                     AstNode, Registers, SolverStatus, Model
 from tritondse.arch           import ARCHS, CpuState
 
 
@@ -709,6 +710,13 @@ class ProcessState(object):
         """
         self.tt_ctx.pushPathConstraint(constraint)
 
+    def get_path_constraints(self) -> List[AstNode]:
+        """
+        Get the list of all path constraints set in the Triton context.
+
+        :return: list of constraints
+        """
+        return self.tt_ctx.getPathConstraints()
 
     def concretize_register(self, register: Union[str, Register]) -> None:
         """
@@ -911,3 +919,14 @@ class ProcessState(object):
         """
         halt_opc = self._archinfo.halt_inst
         return self.__current_inst.getType() == halt_opc
+
+    def solve_constraint(self, constraint: AstNode) -> Tuple[SolverStatus, Model]:
+        """
+        Solve the given constraint one the current symbolic state and returns both
+        a Solver status and a model. If not SAT the model returned is empty.
+
+        :param constraint: AstNode constraint to solve
+        :return: tuple of status and model
+        """
+        model, status = self.tt_ctx.getModel(constraint, status=True)
+        return SolverStatus(status), model
