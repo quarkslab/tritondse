@@ -60,7 +60,6 @@ class SeedManager:
         self._solv_status = {Solver.SAT: 0, Solver.UNSAT: 0, Solver.UNKNOWN: 0, Solver.TIMEOUT: 0}
         self._stat_branch_reverted = Counter()
         self._stat_branch_fail = Counter()
-        self._yolo_map = set()  # CovItem
 
 
     def __load_seed_workspace(self):
@@ -188,7 +187,7 @@ class SeedManager:
 
     def __iter_new_inputs(self, execution: SymbolicExecutor) -> Generator[Seed, None, None]:
         # Get the astContext
-        actx = execution.pstate.tt_ctx.getAstContext()
+        actx = execution.pstate.actx
 
         # We start with any input. T (Top)
         path_predicate = [actx.equal(actx.bvtrue(), actx.bvtrue())]
@@ -198,7 +197,7 @@ class SeedManager:
 
         # Solver status
         status = None
-        path_generator = self.coverage.iter_new_paths(execution.pstate.tt_ctx.getPathConstraints())
+        path_generator = self.coverage.iter_new_paths(execution.pstate.get_path_constraints())
 
         try:
             while True:
@@ -212,11 +211,6 @@ class SeedManager:
 
                 # Add path_prefix in path predicate
                 path_predicate.extend(x.getTakenPredicate() for x in p_prefix)
-
-                # Yolo solve without path_predicate
-                # s = self._yolo_solve(execution, branch, covitem)
-                # if s:
-                #     yield s
 
                 # Create the constraint
                 constraint = actx.land(path_predicate + [branch['constraint']])
@@ -273,25 +267,6 @@ class SeedManager:
                 self._stat_branch_fail.pop(covitem)
         elif status == Solver.UNSAT:
             self._stat_branch_fail[covitem] += 1
-
-    def _yolo_solve(self, execution, branch, covitem):
-        if covitem in self._yolo_map:
-            return  # do not try to revert the branch if we already succeeded
-
-        # Solve the constraint
-        model, status = execution.pstate.tt_ctx.getModel(branch['constraint'], status=True)
-        status = Solver(status)
-        logging.info(f'Yolo query solve:{self.coverage.pp_item(covitem)} [{self._pp_smt_status(status)}]')
-
-        if status == Solver.SAT:
-            self._yolo_map.add(covitem)
-            new_seed = self._mk_new_seed(execution, execution.seed, model)
-            # Trick to keep track of which target a seed is meant to cover
-            new_seed.coverage_objectives.add(covitem)
-            return new_seed  # Yield the seed to get it added in the worklist
-        else:
-            return None
-
 
     def _mk_new_seed(self, exec: SymbolicExecutor, seed: Seed, model: Model) -> Seed:
         if exec.config.symbolize_stdin:
