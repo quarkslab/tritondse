@@ -116,11 +116,9 @@ class SymbolicExecutor(object):
 
 
     def __init_optimization(self) -> None:
-        self.pstate.tt_ctx.setMode(MODE.ALIGNED_MEMORY, True)
-        self.pstate.tt_ctx.setMode(MODE.AST_OPTIMIZATIONS, True)
-        self.pstate.tt_ctx.setMode(MODE.CONSTANT_FOLDING, True)
-        self.pstate.tt_ctx.setMode(MODE.ONLY_ON_SYMBOLIZED, True)
-        self.pstate.tt_ctx.setSolverTimeout(self.config.smt_timeout)
+        for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:
+            self.pstate.set_triton_mode(mode, True)
+        self.pstate.set_solver_timeout(self.config.smt_timeout)
 
 
     def __schedule_thread(self) -> None:
@@ -153,7 +151,7 @@ class SymbolicExecutor(object):
 
             # Fetch opcodes
             pc = self.pstate.cpu.program_counter
-            opcodes = self.pstate.tt_ctx.getConcreteMemoryAreaValue(pc, 16)
+            opcodes = self.pstate.read_memory_bytes(pc, 16)
 
             if (self.pstate.tid and pc == 0) or self.pstate.threads[self.pstate.tid].killed:
                 logging.info('End of thread: %d' % self.pstate.tid)
@@ -172,8 +170,8 @@ class SymbolicExecutor(object):
                 logging.debug('Thread id %d is joined on thread id %d' % (self.pstate.tid, joined))
                 continue
 
-            if not self.pstate.tt_ctx.isConcreteMemoryValueDefined(pc, CPUSIZE.BYTE):
-                logging.error('Instruction not mapped: 0x%x' % pc)
+            if not self.pstate.is_memory_defined(pc, CPUSIZE.BYTE):
+                logging.error(f"Instruction not mapped: 0x{pc:x}")
                 break
 
             # Create the Triton instruction
@@ -288,7 +286,7 @@ class SymbolicExecutor(object):
 
             if self.pstate.architecture == Architecture.AARCH64:
                 # Get the return address
-                ret_addr = self.pstate.tt_ctx.getConcreteRegisterValue(self.pstate.tt_ctx.registers.x30)
+                ret_addr = self.pstate.read_register('x30')
 
             elif self.pstate.architecture == Architecture.X86_64:
                 # Get the return address and restore RSP (simulate RET)
@@ -331,10 +329,10 @@ class SymbolicExecutor(object):
         for sname, rel_addr in self.program.imported_variable_symbols_relocations():
                 logging.debug(f"Hooking {sname} at {rel_addr:#x}")
                 if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
-                    if self.pstate.tt_ctx.getArchitecture() == ARCH.X86_64:
+                    if self.pstate.architecture == Architecture.X86_64:
                         self.pstate.write_memory_ptr(rel_addr, SUPORTED_GVARIABLES[sname])
 
-                    elif self.pstate.tt_ctx.getArchitecture() == ARCH.AARCH64:
+                    elif self.pstate.architecture == Architecture.AARCH64:
                         self.pstate.write_memory_ptr(rel_addr, cur_linkage_address)
                         self.pstate.write_memory_ptr(cur_linkage_address, SUPORTED_GVARIABLES[sname])
                         cur_linkage_address += self.pstate.ptr_size
@@ -398,7 +396,7 @@ class SymbolicExecutor(object):
 
         self.end_time = time.time()
         logging.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time:.02f}s)")
-        logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.tt_ctx.getPathPredicateSize()}")
+        logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.path_predicate_size}")
         logging.info(f"Memory usage: {self.mem_usage_str()}")
 
     def _check_input_injection_loc(self) -> bool:

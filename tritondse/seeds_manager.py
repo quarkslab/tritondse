@@ -217,7 +217,7 @@ class SeedManager:
 
                 # Solve the constraint
                 ts = time.time()
-                status, model = execution.pstate.solve_constraint(constraint)
+                status, model = execution.pstate.solve(constraint, with_pp=False)  # Do not use path predicate as we are iterating it
                 solve_time = time.time() - ts
                 self._update_solve_stats(covitem, status, solve_time)
                 smt_queries += 1
