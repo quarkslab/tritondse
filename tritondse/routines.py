@@ -101,8 +101,8 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         # Push the return value to jump into the main() function
         pstate.push_stack_value(main)
 
-    # Define concrete value of argc
-    argc = len(se.config.program_argv)
+    # Define concrete value of argc (from either the seed or the program_argv)
+    argc = len(se.seed.content.split()) if se.config.symbolize_argv else len(se.config.program_argv)
     pstate.write_register(pstate._get_argument_register(0), argc)
     logging.debug(f"argc = {argc}")
 
@@ -111,17 +111,26 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     addrs = list()
 
     index = 0
-    for argv in se.config.program_argv:
-        b_argv = argv.encode("latin-1")
+
+    if se.config.symbolize_argv:  # Use the seed provided (and ignore config.program_argv !!)
+        argvs = [x for x in se.seed.content.split()]
+    else:  # use the config argv
+        argvs = [x.encode("latin-1") for x in se.config.program_argv]  # Convert it from str to bytes
+
+    for i, arg in enumerate(argvs):
         addrs.append(base)
-        pstate.write_memory_bytes(base, b_argv + b'\x00')
-        # TODO: Si symbolize_args is True
-        #for indexCell in range(len(argv)):
-        #    if se.config.symbolize_argv:
-        #        var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(base+indexCell, CPUSIZE.BYTE))
-        #        var.setAlias('argv[%d][%d]' %(index, indexCell))
-        logging.debug(f"argv[{index}] = {repr(pstate.read_memory_bytes(base, len(b_argv)))}")
-        base += len(b_argv) + 1
+        pstate.write_memory_bytes(base, arg + b'\x00')
+
+        if se.config.symbolize_argv: # If the symbolic input injection point is a argv
+            sym_seed = []
+            for char_idx in range(len(arg)):  # Iterate each char and symbolize the address
+                var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(base + char_idx, CPUSIZE.BYTE))
+                var.setComment(f"argv[{i}][{char_idx}]")
+                sym_seed.append(var)
+            se.symbolic_seed.append(sym_seed)  # In this case the symbolic seed is a List[List[SymVar]]
+
+        logging.debug(f"argv[{index}] = {repr(pstate.read_memory_bytes(base, len(arg)))}")
+        base += len(arg) + 1
         index += 1
 
     b_argv = base
@@ -404,6 +413,7 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         for index in range(minsize):
             var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
+            se.symbolic_seed.append(var)  # Add the symbolic var
 
         logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
         return buff_ast
@@ -584,6 +594,7 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         for index in range(minsize):
             var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(arg0 + index, CPUSIZE.BYTE))
             var.setComment('stdin[%d]' % index)
+            se.symbolic_seed.append(var)
 
         logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
         # TODO: Could return the read value as a symbolic one

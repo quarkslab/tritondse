@@ -30,7 +30,7 @@ class Config(object):
                  coverage_strategy: CoverageStrategy = CoverageStrategy.CODE_COVERAGE,
                  branch_solving_strategy: BranchCheckStrategy = BranchCheckStrategy.FIRST_LAST_NOT_COVERED,
                  debug: bool = False,
-                 workspace: str = "workspace",
+                 workspace: str = "",
                  program_argv: List[str] = None,
                  time_inc_coefficient: float = 0.00001):
         """
