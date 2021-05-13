@@ -77,7 +77,7 @@ class Architecture(IntEnum):
     X86_64  = ARCH.X86_64
 
 
-class Solver(IntEnum):
+class SolverStatus(IntEnum):
     """ Common Solver Enum fully compatible with Triton ARCH """
     SAT     = SOLVER.SAT
     UNSAT   = SOLVER.UNSAT

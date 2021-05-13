@@ -11,7 +11,7 @@ from enum        import IntEnum
 
 # local imports
 from tritondse.workspace import Workspace
-from tritondse.types     import Addr, PathConstraint, PathBranch, Solver, PathHash, Edge
+from tritondse.types     import Addr, PathConstraint, PathBranch, SolverStatus, PathHash, Edge
 
 
 CovItem = Union[Addr, Edge, PathHash]
@@ -257,7 +257,7 @@ class GlobalCoverage(CoverageSingleRun):
         """
 
 
-    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[List[PathConstraint], PathBranch, CovItem], Solver, None]:
+    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[List[PathConstraint], PathBranch, CovItem], SolverStatus, None]:
         """
         The function iterate the given path predicate and yield PatchConstraint to
         consider as-is and PathBranch representing the new branch to take. It acts
@@ -308,7 +308,7 @@ class GlobalCoverage(CoverageSingleRun):
                         # If the not taken branch is new wrt coverage
                         if new and is_ok_with_branch_strategy(item, i):
                             res = yield pending_csts, branch, item
-                            if res == Solver.SAT:  # If path was satisfiable add it to pending coverage
+                            if res == SolverStatus.SAT:  # If path was satisfiable add it to pending coverage
                                 self.pending_coverage.add(item)
 
                             pending_csts = []  # reset pending constraint added

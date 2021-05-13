@@ -12,7 +12,7 @@ from tritondse.coverage          import GlobalCoverage, CovItem
 from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritizerWorklist, SeedScheduler
 from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
-from tritondse.types             import Solver, Model
+from tritondse.types             import SolverStatus, Model
 
 
 
@@ -57,7 +57,7 @@ class SeedManager:
 
         self._solv_count = 0
         self._solv_time_sum = 0
-        self._solv_status = {Solver.SAT: 0, Solver.UNSAT: 0, Solver.UNKNOWN: 0, Solver.TIMEOUT: 0}
+        self._solv_status = {SolverStatus.SAT: 0, SolverStatus.UNSAT: 0, SolverStatus.UNKNOWN: 0, SolverStatus.TIMEOUT: 0}
         self._stat_branch_reverted = Counter()
         self._stat_branch_fail = Counter()
 
@@ -217,21 +217,20 @@ class SeedManager:
 
                 # Solve the constraint
                 ts = time.time()
-                model, status = execution.pstate.tt_ctx.getModel(constraint, status=True)
+                status, model = execution.pstate.solve_constraint(constraint)
                 solve_time = time.time() - ts
-                status = Solver(status)
                 self._update_solve_stats(covitem, status, solve_time)
                 smt_queries += 1
                 logging.info(f'Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {solve_time:.02f}s) [{self._pp_smt_status(status)}]')
 
-                if status == Solver.SAT:
+                if status == SolverStatus.SAT:
                     new_seed = self._mk_new_seed(execution, execution.seed, model)
                     # Trick to keep track of which target a seed is meant to cover
                     new_seed.coverage_objectives.add(covitem)
                     yield new_seed  # Yield the seed to get it added in the worklist
-                elif status == Solver.UNSAT:
+                elif status == SolverStatus.UNSAT:
                     pass
-                elif status == Solver.TIMEOUT:
+                elif status == SolverStatus.TIMEOUT:
                     pass
                     # TODO
                     # while status == Solver.TIMEOUT:
@@ -244,7 +243,7 @@ class SeedManager:
                     #     smt_queries += 1
                     #     logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
 
-                elif status == Solver.UNKNOWN:
+                elif status == SolverStatus.UNKNOWN:
                     pass
                 else:
                     assert False
@@ -257,15 +256,15 @@ class SeedManager:
         except StopIteration:  # We have iterated the whole path generator
             pass
 
-    def _update_solve_stats(self, covitem: CovItem, status: Solver, solving_time: float):
+    def _update_solve_stats(self, covitem: CovItem, status: SolverStatus, solving_time: float):
         self._solv_count += 1
         self._solv_time_sum += solving_time
         self._solv_status[status] += 1
-        if status == Solver.SAT:
+        if status == SolverStatus.SAT:
             self._stat_branch_reverted[covitem] += 1  # Update stats
             if covitem in self._stat_branch_fail:
                 self._stat_branch_fail.pop(covitem)
-        elif status == Solver.UNSAT:
+        elif status == SolverStatus.UNSAT:
             self._stat_branch_fail[covitem] += 1
 
     def _mk_new_seed(self, exec: SymbolicExecutor, seed: Seed, model: Model) -> Seed:
@@ -377,16 +376,16 @@ class SeedManager:
             "total_solving_attempt": self._solv_count,
             "branch_reverted": {str(k): v for k, v in self._stat_branch_reverted.items()}, # convert covitem to str whatever it is
             "branch_not_solved": {str(k): v for k, v in self._stat_branch_fail.items()},  # convert covitem to str whatever it is
-            "UNSAT": self._solv_status[Solver.UNSAT],
-            "SAT": self._solv_status[Solver.SAT],
-            "TIMEOUT": self._solv_status[Solver.TIMEOUT]
+            "UNSAT": self._solv_status[SolverStatus.UNSAT],
+            "SAT": self._solv_status[SolverStatus.SAT],
+            "TIMEOUT": self._solv_status[SolverStatus.TIMEOUT]
         }
         self.workspace.save_metadata_file("solving_stats.json", json.dumps(stats, indent=2))
         logging.info(f"Branches reverted: {len(self._stat_branch_reverted)}  Branches still fail: {len(self._stat_branch_fail)}")
         self.worklist.post_exploration(self.workspace)
 
 
-    def _pp_smt_status(self, status: Solver):
+    def _pp_smt_status(self, status: SolverStatus):
         """ The pretty print function of the solver status """
-        mapper = {Solver.SAT: 92, Solver.UNSAT: 91, Solver.TIMEOUT: 93, Solver.UNKNOWN: 95}
+        mapper = {SolverStatus.SAT: 92, SolverStatus.UNSAT: 91, SolverStatus.TIMEOUT: 93, SolverStatus.UNKNOWN: 95}
         return f"\033[{mapper[status]}m{status.name}\033[0m"
