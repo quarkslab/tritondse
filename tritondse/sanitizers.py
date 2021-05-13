@@ -4,7 +4,7 @@ import logging
 from triton              import MemoryAccess, CPUSIZE, Instruction
 from tritondse.callbacks import CbType, ProbeInterface
 from tritondse.seed      import Seed, SeedStatus
-from tritondse.types     import Architecture, Addr, Tuple
+from tritondse.types     import Architecture, Addr, Tuple, SolverStatus
 from tritondse           import SymbolicExecutor, ProcessState
 
 
@@ -170,13 +170,6 @@ class FormatStringSanitizer(ProbeInterface):
 
 
     @staticmethod
-    def _solve_query(se, pstate, query):
-        model = pstate.tt_ctx.getModel(query)
-        if model:
-            return mk_new_crashing_seed(se, model)
-
-
-    @staticmethod
     def check(se, pstate, fmt_ptr, extra_data: Tuple[str, Addr] = None):
         """
         Checks that the format string at ``fmt_ptr`` does not contain
@@ -206,23 +199,23 @@ class FormatStringSanitizer(ProbeInterface):
             extra = f"(function {extra_data[0]}@{extra_data[1]:#x})" if extra_data else ""
             logging.warning(f'Potential format string of length {len(symbolic_cells)} on {fmt_ptr:x} {extra}')
             se.seed.status = SeedStatus.OK_DONE
-            actx = pstate.tt_ctx.getAstContext()
-            path_pred = pstate.tt_ctx.getPathPredicate()
             pp_seeds = []
             nopp_seeds = []
 
             for i in range(int(len(symbolic_cells) / 2)):
                 # FIXME: Does not check that cell1 and cell2 are contiguous
-                cell1 = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
-                cell2 = pstate.tt_ctx.getMemoryAst(MemoryAccess(symbolic_cells.pop(0), CPUSIZE.BYTE))
-                query_with_pp = actx.land([path_pred, cell1 == ord('%'), cell2 == ord('s')])
-                query_no_pp = actx.land([cell1 == ord('%'), cell2 == ord('s')])
-                s = FormatStringSanitizer._solve_query(se, pstate, query_with_pp)
-                if s:
-                    pp_seeds.append(s)
-                s = FormatStringSanitizer._solve_query(se, pstate, query_no_pp) # This method may be incorrect but help to discover bugs
-                if s:
-                    nopp_seeds.append(s)
+                cell1 = pstate.read_symbolic_memory_byte(symbolic_cells.pop(0)).getAst()
+                cell2 = pstate.read_symbolic_memory_byte(symbolic_cells.pop(0)).getAst()
+
+                # Try to solve once with the path predicate
+                st, model = pstate.solve([cell1 == ord('%'), cell2 == ord('s')], with_pp=True)
+                if st == SolverStatus.SAT and model:
+                    pp_seeds.append(mk_new_crashing_seed(se, model))
+
+                # Try once again without the path predicate (may be incorrect but help to discover bug)
+                st, model = pstate.solve_no_pp([cell1 == ord('%'), cell2 == ord('s')])
+                if st == SolverStatus.SAT and model:
+                    pp_seeds.append(mk_new_crashing_seed(se, model))
 
             # If found some seeds
             if pp_seeds:
@@ -283,8 +276,8 @@ class IntegerOverflowSanitizer(ProbeInterface):
         # This probe is only available for X86_64 and AARCH64
         assert(pstate.architecture == Architecture.X86_64 or pstate.architecture == Architecture.AARCH64)
 
-        rf = (pstate.tt_ctx.registers.of if pstate.architecture == Architecture.X86_64 else pstate.tt_ctx.registers.v)
-        flag = pstate.tt_ctx.getRegisterAst(pstate.tt_ctx.registers.rf)
+        rf = (pstate.registers.of if pstate.architecture == Architecture.X86_64 else pstate.registers.v)
+        flag = pstate.read_symbolic_register(rf)
         if flag.evaluate():
             logging.warning(f'Integer overflow at {instruction}')
             # FIXME: What if it's normal behavior?
@@ -292,7 +285,7 @@ class IntegerOverflowSanitizer(ProbeInterface):
             return True
 
         if flag.isSymbolized():
-            model = pstate.tt_ctx.getModel(flag == 1)
+            _, model = pstate.solve_no_pp(flag == 1)
             if model:
                 logging.warning(f'Potential integer overflow at {instruction}')
                 crash_seed = mk_new_crashing_seed(se, model)

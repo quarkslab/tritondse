@@ -122,12 +122,10 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         pstate.write_memory_bytes(base, arg + b'\x00')
 
         if se.config.symbolize_argv: # If the symbolic input injection point is a argv
-            sym_seed = []
-            for char_idx in range(len(arg)):  # Iterate each char and symbolize the address
-                var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(base + char_idx, CPUSIZE.BYTE))
-                var.setComment(f"argv[{i}][{char_idx}]")
-                sym_seed.append(var)
-            se.symbolic_seed.append(sym_seed)  # In this case the symbolic seed is a List[List[SymVar]]
+
+            # Symbolize the argv string
+            sym_vars = pstate.symbolize_memory_bytes(base, len(arg), f"argv[i]")
+            se.symbolic_seed.append(sym_vars)  # Set symbolic_seed to be able to retrieve them in generated models
 
         logging.debug(f"argv[{index}] = {repr(pstate.read_memory_bytes(base, len(arg)))}")
         base += len(arg) + 1
@@ -410,10 +408,8 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         else:
             se.seed.content = b'\x00' * minsize
 
-        for index in range(minsize):
-            var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
-            var.setComment('stdin[%d]' % index)
-            se.symbolic_seed.append(var)  # Add the symbolic var
+        sym_vars = pstate.symbolize_memory_bytes(buff, minsize, 'stdin')
+        se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
 
         logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
         return buff_ast
@@ -591,10 +587,9 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         else:
             se.seed.content = b'\x00' * minsize
 
-        for index in range(minsize):
-            var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(arg0 + index, CPUSIZE.BYTE))
-            var.setComment('stdin[%d]' % index)
-            se.symbolic_seed.append(var)
+        # Symbolize the whole buffer
+        sym_vars = pstate.symbolize_memory_bytes(arg0, minsize, 'stdin')
+        se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
 
         logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
         # TODO: Could return the read value as a symbolic one
@@ -1046,9 +1041,9 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         else:
             se.seed.content = b'\x00' * minsize
 
-        for index in range(minsize):
-            var = pstate.tt_ctx.symbolizeMemory(MemoryAccess(buff + index, CPUSIZE.BYTE))
-            var.setComment('stdin[%d]' % index)
+        # Symbolize the whole buffer
+        sym_vars = pstate.symbolize_memory_bytes(buff, minsize, 'stdin')
+        se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
 
         logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
         # TODO: Could return the read value as a symbolic one
@@ -1234,7 +1229,7 @@ def rtn_sleep(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logging.debug('sleep hooked')
 
     # Get arguments
-    if se.config.skip_sleep_routine == False:
+    if not se.config.skip_sleep_routine:
         t = pstate.get_argument_value(0)
         time.sleep(t)
 
@@ -1265,14 +1260,14 @@ def rtn_sprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # FIXME: todo
 
     # FIXME: THIS SEEMS NOT OK
-    for index, c in enumerate(s):
-        pstate.tt_ctx.concretizeMemory(buff + index)
-        pstate.tt_ctx.setConcreteMemoryValue(buff + index, ord(c))
-        pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(buff + index, 1)) == ord(c))
-
-    # including the terminating null byte ('\0')
-    pstate.tt_ctx.setConcreteMemoryValue(buff + len(s), 0x00)
-    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(buff + len(s), 1)) == 0x00)
+    # for index, c in enumerate(s):
+    #     pstate.tt_ctx.concretizeMemory(buff + index)
+    #     pstate.tt_ctx.setConcreteMemoryValue(buff + index, ord(c))
+    #     pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(buff + index, 1)) == ord(c))
+    #
+    # # including the terminating null byte ('\0')
+    # pstate.tt_ctx.setConcreteMemoryValue(buff + len(s), 0x00)
+    # pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(buff + len(s), 1)) == 0x00)
 
     return len(s)
 

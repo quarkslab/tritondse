@@ -7,14 +7,14 @@ from typing import Union, Callable, Tuple, Optional, List
 
 
 # third-party
-from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction
+from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, MODE
 
 # local imports
 from tritondse.thread_context import ThreadContext
 from tritondse.program        import Program
 from tritondse.heap_allocator import HeapAllocator
 from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
-                                     AstNode, Registers, SolverStatus, Model
+                                     AstNode, Registers, SolverStatus, Model, SymbolicVariable
 from tritondse.arch           import ARCHS, CpuState
 
 
@@ -110,6 +110,25 @@ class ProcessState(object):
 
         # The memory mapping of the program ({vaddr_s : vaddr_e})
         self.__program_segments_mapping = {}
+
+    def set_triton_mode(self, mode: MODE, value: int = True) -> None:
+        """
+        Set the given mode in the TritonContext.
+
+        :param mode: mode to set in triton context
+        :param value: value to set (default True)
+        :return: None
+        """
+        self.tt_ctx.setMode(mode, value)
+
+    def set_solver_timeout(self, timeout: int) -> None:
+        """
+        Set the timeout for all subsequent queries.
+
+        :param timeout: timeout in milliseconds
+        :return: None
+        """
+        self.tt_ctx.setSolverTimeout(timeout)
 
 
     def get_unique_thread_id(self) -> int:
@@ -313,6 +332,18 @@ class ProcessState(object):
                 return True
         return False
 
+    def is_memory_defined(self, ptr: Addr, size: ByteSize) -> bool:
+        """
+        Returns whether the given range of addresses has previously
+        been written or not.
+
+        :param ptr: The pointer to check
+        :type ptr: :py:obj:`tritondse.types.Addr`
+        :param size: Size of the memory range to check
+        :return: True if all addresses have been defined
+        """
+        return self.tt_ctx.isConcreteMemoryValueDefined(ptr, size)
+
 
     def read_register(self, register: Union[str, Register]) -> int:
         """
@@ -503,6 +534,15 @@ class ProcessState(object):
 
         return ret
 
+    @property
+    def path_predicate_size(self) -> int:
+        """
+        Get the size of the path predicate (conjonction
+        of all branches and additionnals constraints added)
+
+        :return: size of the predicate
+        """
+        return self.tt_ctx.getPathPredicateSize()
 
     def is_path_predicate_updated(self) -> bool:
         """ Return whether or not the path predicate has been updated """
@@ -920,13 +960,88 @@ class ProcessState(object):
         halt_opc = self._archinfo.halt_inst
         return self.__current_inst.getType() == halt_opc
 
-    def solve_constraint(self, constraint: AstNode) -> Tuple[SolverStatus, Model]:
+    def solve(self, constraint: Union[AstNode, List[AstNode]], with_pp: bool = True) -> Tuple[SolverStatus, Model]:
         """
         Solve the given constraint one the current symbolic state and returns both
-        a Solver status and a model. If not SAT the model returned is empty.
+        a Solver status and a model. If not SAT the model returned is empty. Argument
+        ``with_pp`` enables checking the constraint taking in account the path predicate.
+
+        :param constraint: AstNode or list of AstNodes constraints to solve
+        :param with_pp: whether to take in account path predicate
+        :return: tuple of status and model
+        """
+        if with_pp:
+            cst = constraint if isinstance(constraint, list) else [constraint]
+            final_cst = self.actx.land([self.tt_ctx.getPathPredicate()]+cst)
+        else:
+            final_cst = self.actx.land(constraint) if isinstance(constraint, list) else constraint
+
+        model, status = self.tt_ctx.getModel(final_cst, status=True)
+        return SolverStatus(status), model
+
+    def solve_no_pp(self, constraint: Union[AstNode, List[AstNode]]) -> Tuple[SolverStatus, Model]:
+        """
+        Helper function that solve a constraint forcing not to use
+        the path predicate.
+
+        .. warning:: Solving a query without the path predicate gives theoretically
+                     unsound results.
 
         :param constraint: AstNode constraint to solve
         :return: tuple of status and model
         """
-        model, status = self.tt_ctx.getModel(constraint, status=True)
-        return SolverStatus(status), model
+        return self.solve(constraint, with_pp=False)
+
+    def symbolize_register(self, register: Union[str, Register], alias: str = None) -> SymbolicVariable:
+        """
+        Symbolize the given register. This a proxy for the symbolizeRegister
+        Triton function.
+
+        :param register: string of the register or Register object
+        :type register: Union[str, :py:obj:`tritondse.types.Register`]
+        :param alias: alias name to give to the symbolic variable
+        :type alias: str
+        :return: Triton Symbolic variable created
+        """
+        reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register  # if str get reg
+        if alias:
+            var = self.tt_ctx.symbolizeRegister(reg, alias)
+        else:
+            var = self.tt_ctx.symbolizeRegister(reg)
+        return var
+
+    def symbolize_memory_byte(self, addr: Addr, alias: str = None) -> SymbolicVariable:
+        """
+        Symbolize the given memory cell. Returns the associated
+        SymbolicVariable
+
+        :param addr: Address to symbolize
+        :type addr: :py:obj:`tritondse.types.Addr`
+        :param alias: alias to give the variable
+        :type size: str
+        :return: newly created symbolic variable
+        :rtype: :py:obj:`tritondse.types.SymbolicVariable`
+        """
+        if alias:
+            return self.tt_ctx.symbolizeMemory(MemoryAccess(addr, CPUSIZE.BYTE), alias)
+        else:
+            return self.tt_ctx.symbolizeMemory(MemoryAccess(addr, CPUSIZE.BYTE))
+
+    def symbolize_memory_bytes(self, addr: Addr, size: ByteSize, alias_prefix: str = None) -> List[SymbolicVariable]:
+        """
+        Symbolize a range of memory addresses. Can optionally provide an alias
+        prefix.
+
+        :param addr: Address at which to read data
+        :type addr: :py:obj:`tritondse.types.Addr`
+        :param size: Number of bytes to symbolize
+        :type size: :py:obj:`tritondse.types.ByteSize`
+        :param alias_prefix: prefix name to give the variable
+        :type alias_prefix: str
+        :return: list of Symbolic variables created
+        :rtype: List[:py:obj:`tritondse.types.SymbolicVariable`]
+        """
+        if alias_prefix:
+            return [self.symbolize_memory_byte(addr+i, alias_prefix+f"[{i}]") for i in range(size)]
+        else:
+            return [self.symbolize_memory_byte(addr+i) for i in range(size)]
