@@ -124,7 +124,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         if se.config.symbolize_argv: # If the symbolic input injection point is a argv
 
             # Symbolize the argv string
-            sym_vars = pstate.symbolize_memory_bytes(base, len(arg), f"argv[i]")
+            sym_vars = pstate.symbolize_memory_bytes(base, len(arg), f"argv[{i}]")
             se.symbolic_seed.append(sym_vars)  # Set symbolic_seed to be able to retrieve them in generated models
 
         logging.debug(f"argv[{index}] = {repr(pstate.read_memory_bytes(base, len(arg)))}")
