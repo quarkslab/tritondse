@@ -221,11 +221,11 @@ class FormatStringSanitizer(ProbeInterface):
             if pp_seeds:
                 s = pp_seeds[-1]
                 se.enqueue_seed(s)  # Only keep last seed
-                logging.warning(f'Found model that might lead to a crash: {s.get_hash()} (with path predicate)')
+                logging.warning(f'Found model that might lead to a crash: {s.hash} (with path predicate)')
             if nopp_seeds:
                 s = nopp_seeds[-1]
                 se.enqueue_seed(s)  # Only keep last seed
-                logging.warning(f'Found model that might lead to a crash: {s.get_hash()} (without path predicate)')
+                logging.warning(f'Found model that might lead to a crash: {s.hash} (without path predicate)')
 
             # Do not stop the execution, just continue the execution
             pstate.stop = False

@@ -103,17 +103,8 @@ class Seed(object):
         """
         return hash(self.content)
 
-
-    def get_size(self) -> int:
-        """
-        Size of the seed content in bytes
-
-        :rtype: int
-        """
-        return len(self.content)
-
-
-    def get_hash(self) -> str:
+    @property
+    def hash(self) -> str:
         """
         MD5 hash of the seed content
 
@@ -122,6 +113,14 @@ class Seed(object):
         m = hashlib.md5(self.content)
         return m.hexdigest()
 
+    @property
+    def size(self) -> int:
+        """
+        Size of the seed content in bytes
+
+        :rtype: int
+        """
+        return len(self.content)
 
     @property
     def filename(self):
@@ -132,7 +131,7 @@ class Seed(object):
         :returns: formatted intended filename of the seed
         :rtype: str
         """
-        return f'{self.get_hash()}.{self.get_size():08x}.tritondse.cov'
+        return f'{self.hash}.{self.size:08x}.tritondse.cov'
 
 
     @staticmethod

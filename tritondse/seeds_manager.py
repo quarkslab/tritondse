@@ -141,7 +141,7 @@ class SeedManager:
 
         # Update the current seed queue
         if seed.status == SeedStatus.NEW:
-            logging.error(f"seed not meant to be NEW at the end of execution ({seed.get_hash()}) (dropped)")
+            logging.error(f"seed not meant to be NEW at the end of execution ({seed.hash}) (dropped)")
             self.drop_seed(seed)
 
         elif seed.status in [SeedStatus.HANG, SeedStatus.CRASH]:
@@ -154,16 +154,16 @@ class SeedManager:
                 seed.coverage_objectives = items  # Set its new objectives
 
                 if self.worklist.can_solve_models() and solve_new_path:     # No fresh seeds pending thus can solve model
-                    logging.info(f'Seed {seed.get_hash()} generate new coverage')
+                    logging.info(f'Seed {seed.hash} generate new coverage')
                     self._generate_new_inputs(execution)
                     self.archive_seed(seed)
                 else:
-                    logging.info(f"Seed {seed.get_hash()} push back in worklist (to unstack fresh)")
+                    logging.info(f"Seed {seed.hash} push back in worklist (to unstack fresh)")
                     seed.status = SeedStatus.NEW  # Reset its status for later run
                     self.add_seed_queue(seed)  # will be pushed back in worklist
             else:
                 self.archive_seed(seed)
-                logging.info(f'Seed {seed.get_hash()} archived cannot generate new coverage [{seed.status.name}]')
+                logging.info(f'Seed {seed.hash} archived cannot generate new coverage [{seed.status.name}]')
 
         else:
             assert False
