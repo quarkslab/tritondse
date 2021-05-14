@@ -28,11 +28,9 @@ class ProcessState(object):
     it provides a user-friendly API to access data in both the concrete and symbolic
     state of Triton.
     """
-    def __init__(self, thread_scheduling: int = 200, time_inc_coefficient: float = 0.0001):
+    def __init__(self, time_inc_coefficient: float = 0.0001):
         """
-
-        :param thread_scheduling: Thread scheduling value, see :py:attr:`tritondse.Config.thread_scheduling`
-        :param time_coefficient: Time coefficient to represent execution time of an instruction see: :py:attr:`tritondse.Config.time_inc_coefficient`
+        :param time_inc_coefficient: Time coefficient to represent execution time of an instruction see: :py:attr:`tritondse.Config.time_inc_coefficient`
         """
         # Memory mapping
         self.BASE_PLT   = 0x01000000
@@ -73,14 +71,14 @@ class ProcessState(object):
         self.heap_allocator = HeapAllocator(self.BASE_HEAP, self.END_HEAP)
 
         # Unique thread id incrementation
-        self.utid = 0
+        self._utid = 0
 
         # Current thread id
-        self.tid = self.utid
+        self._tid = self._utid
 
         # Threads contexts
-        self.threads = {
-            self.utid: ThreadContext(self.tid, thread_scheduling)
+        self._threads = {
+            self._tid: ThreadContext(self._tid)
         }
 
         # Thread mutext init magic number
@@ -99,7 +97,6 @@ class ProcessState(object):
         self.load_addr = 0
 
         # Configuration values
-        self.thread_scheduling_count = thread_scheduling
         self.time_inc_coefficient = time_inc_coefficient
 
         # Runtime temporary variables
@@ -110,6 +107,82 @@ class ProcessState(object):
 
         # The memory mapping of the program ({vaddr_s : vaddr_e})
         self.__program_segments_mapping = {}
+
+    @property
+    def threads(self) -> List[ThreadContext]:
+        """
+        Gives a list of all threads currently active
+        :return:
+        """
+        return list(self._threads.values())
+
+    @property
+    def current_thread(self) -> ThreadContext:
+        """
+        Gives the current thread selected
+        :return: current thread
+        :rtype: ThreadContext
+        """
+        return self._threads[self._tid]
+
+    def switch_thread(self, thread: ThreadContext) -> bool:
+        """
+        Change the current thread to the one given in parameter.
+        Thus save the current context, and restore the one of the
+        thread given in parameter. It also resets the counter of
+        the thread restored. If the current_thread is dead, it will
+        also remove it !
+
+        :param thread: thread to restore ThreadContext
+        :return: True if the switch worked fine
+        """
+        assert (thread.tid in self._threads)
+
+        try:
+            if self.current_thread.is_dead():
+                del self._threads[self._tid]
+                # TODO: Finding all other threads joining it / (or locked by it ?) to unlock them
+            else:  # Do a normal switch
+                # Reset the counter and save its context
+                self.current_thread.save(self.tt_ctx)
+
+            # Schedule to the next thread
+            thread.count = 0  # Reset the counter
+            thread.restore(self.tt_ctx)
+            self._tid = thread.tid
+            return True
+
+        except Exception as e:
+            logging.error(f"Error while doing context switch: {e}")
+            return False
+
+    def spawn_new_thread(self, new_pc: Addr, args: Addr) -> ThreadContext:
+        """
+        Create a new thread in the process state. Parameters are the
+        new program counter and a pointer to arguments to provide the thread.
+
+        :param new_pc: new program counter (function to execution)
+        :param args: arguments
+        :return: thread context newly created
+        """
+        tid = self._get_unique_thread_id()
+        thread = ThreadContext(tid)
+        thread.save(self.tt_ctx)
+
+        # Concretize pc, bp, sp, and first (argument)
+        regs = [self.program_counter_register, self.stack_pointer_register, self.base_pointer_register, self._get_argument_register(0)]
+        for reg in regs:
+            if reg.getId() in thread.sregs:
+                del thread.sregs[reg.getId()]
+
+        thread.cregs[self.program_counter_register.getId()] = new_pc  # set new pc
+        thread.cregs[self._get_argument_register(0).getId()] = args   # set args pointer
+        thread.cregs[self.base_pointer_register.getId()] = (self.BASE_STACK - ((1 << 28) * tid))
+        thread.cregs[self.stack_pointer_register.getId()] = (self.BASE_STACK - ((1 << 28) * tid))
+
+        # Add the thread in the pool of threads
+        self._threads[tid] = thread
+        return thread
 
     def set_triton_mode(self, mode: MODE, value: int = True) -> None:
         """
@@ -131,14 +204,14 @@ class ProcessState(object):
         self.tt_ctx.setSolverTimeout(timeout)
 
 
-    def get_unique_thread_id(self) -> int:
+    def _get_unique_thread_id(self) -> int:
         """ Return a new unique thread id. Used by thread related functions
         when spawning a new thread.
 
         :returns: new thread identifier
         """
-        self.utid += 1
-        return self.utid
+        self._utid += 1
+        return self._utid
 
 
     def get_unique_file_id(self) -> int:

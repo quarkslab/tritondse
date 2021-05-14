@@ -856,35 +856,10 @@ def rtn_pthread_create(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg2 = pstate.get_argument_value(2) # void *(*start_routine) (void *)
     arg3 = pstate.get_argument_value(3) # void *arg
 
-    tid = pstate.get_unique_thread_id()
-    thread = ThreadContext(tid, pstate.thread_scheduling_count)
-    thread.save(pstate.tt_ctx)
-
-    # Concretize pc
-    if pstate.program_counter_register.getId() in thread.sregs:
-        del thread.sregs[pstate.program_counter_register.getId()]
-
-    # Concretize bp
-    if pstate.base_pointer_register.getId() in thread.sregs:
-        del thread.sregs[pstate.base_pointer_register.getId()]
-
-    # Concretize sp
-    if pstate.stack_pointer_register.getId() in thread.sregs:
-        del thread.sregs[pstate.stack_pointer_register.getId()]
-
-    # Concretize arg0
-    if pstate._get_argument_register(0).getId() in thread.sregs:
-        del thread.sregs[pstate._get_argument_register(0).getId()]
-
-    thread.cregs[pstate.program_counter_register.getId()] = arg2
-    thread.cregs[pstate._get_argument_register(0).getId()] = arg3
-    thread.cregs[pstate.base_pointer_register.getId()] = (pstate.BASE_STACK - ((1 << 28) * tid))
-    thread.cregs[pstate.stack_pointer_register.getId()] = (pstate.BASE_STACK - ((1 << 28) * tid))
-
-    pstate.threads.update({tid: thread})
+    th = pstate.spawn_new_thread(arg2, arg3)
 
     # Save out the thread id
-    pstate.write_memory_ptr(arg0, tid)
+    pstate.write_memory_ptr(arg0, th.tid)
 
     # Return value
     return 0
@@ -900,7 +875,10 @@ def rtn_pthread_exit(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg0 = pstate.get_argument_value(0)
 
     # Kill the thread
-    pstate.threads[pstate.tid].killed = True
+    pstate.current_thread.kill()
+
+    # FIXME: I guess the thread exiting never return, so should not continue
+    # FIXME: iterating instructions
 
     # Return value
     return None
@@ -917,11 +895,11 @@ def rtn_pthread_join(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg1 = pstate.get_argument_value(1)
 
     if arg0 in pstate.threads:
-        pstate.threads[pstate.tid].joined = arg0
-        logging.info('Thread id %d joined thread id %d' % (pstate.tid, arg0))
+        pstate.current_thread.join_thread(arg0)
+        logging.info(f"Thread id {pstate.current_thread.tid} joined thread id {arg0}")
     else:
-        pstate.threads[pstate.tid].joined = None
-        logging.debug('Thread id %d already destroyed' % arg0)
+        pstate.current_thread.cancel_join()
+        logging.debug(f"Thread id {arg0} already destroyed")
 
     # Return value
     return 0
@@ -968,10 +946,10 @@ def rtn_pthread_mutex_lock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # If the thread has been initialized and unused, define the tid has lock
     if mutex == pstate.PTHREAD_MUTEX_INIT_MAGIC:
         logging.debug('mutex unlocked')
-        pstate.write_memory_ptr(arg0, pstate.tid)
+        pstate.write_memory_ptr(arg0, pstate.current_thread.tid)
 
     # The mutex is locked and we are not allowed to continue the execution
-    elif mutex != pstate.tid:
+    elif mutex != pstate.current_thread.tid:
         logging.debug('mutex locked')
         pstate.mutex_locked = True
 

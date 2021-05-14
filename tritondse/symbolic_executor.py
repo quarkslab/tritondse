@@ -20,6 +20,7 @@ from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks      import CallbackManager
 from tritondse.workspace      import Workspace
 from tritondse.heap_allocator import AllocatorException
+from tritondse.thread_context import ThreadContext
 
 
 class SymbolicExecutor(object):
@@ -121,27 +122,48 @@ class SymbolicExecutor(object):
         self.pstate.set_solver_timeout(self.config.smt_timeout)
 
 
+    def _fetch_next_thread(self, threads: List[ThreadContext]) -> Optional[ThreadContext]:
+        """
+        Given a list of threads, returns the next to execute. Iterating
+        threads in a round-robin style picking the next item in the list.
+
+        :param threads: list of threads
+        :return: thread context
+        """
+        cur_idx = threads.index(self.pstate.current_thread)
+
+        tmp_list = threads[cur_idx+1:]+threads[:cur_idx]  # rotate list (and exclude current_item)
+        for th in tmp_list:
+            if th.is_running():
+                return th  # Return the first thread that is properly running
+        return None
+
+
     def __schedule_thread(self) -> None:
-        if self.pstate.threads[self.pstate.tid].count <= 0:
+        threads_list = self.pstate.threads
 
-            # Call all callbacks related to threads
-            for cb in self.cbm.get_context_switch_callback():
-                cb(self, self.pstate, self.pstate.threads[self.pstate.tid])
+        if len(threads_list) == 1:  # If there is only one thread no need to schedule another thread
+            return
 
-            # Reset the counter and save its context
-            self.pstate.threads[self.pstate.tid].count = self.config.thread_scheduling
-            self.pstate.threads[self.pstate.tid].save(self.pstate.tt_ctx)
-            # Schedule to the next thread
-            while True:
-                self.pstate.tid = (self.pstate.tid + 1) % len(self.pstate.threads.keys())
-                try:
-                    self.pstate.threads[self.pstate.tid].count = self.config.thread_scheduling
-                    self.pstate.threads[self.pstate.tid].restore(self.pstate.tt_ctx)
-                    break
-                except Exception:
-                    continue
+        if self.pstate.current_thread.count > self.config.thread_scheduling:
+            # Select the next thread to execute
+            next_th = self._fetch_next_thread(threads_list)
+
+            if next_th:  # We found another thread to schedule
+
+                # Call all callbacks related to threads
+                for cb in self.cbm.get_context_switch_callback():
+                    cb(self, self.pstate, self.pstate.current_thread)
+
+                # Save current context and restore new thread context (+kill current if dead)
+                self.pstate.switch_thread(next_th)
+
+            else:  # There are other thread but not other one is available (thus keep current one)
+                self.pstate.current_thread.count = 0  # Reset its counter
+
         else:
-            self.pstate.threads[self.pstate.tid].count -= 1
+            # Increment the instruction counter of the thread (a bit in advance but it does not matter)
+            self.pstate.current_thread.count += 1
 
 
     def __emulate(self):
@@ -149,34 +171,27 @@ class SymbolicExecutor(object):
             # Schedule thread if it's time
             self.__schedule_thread()
 
-            # Fetch opcodes
+            if not self.pstate.current_thread.is_running():
+                logging.warning(f"After scheduling current thread is not running (probably in a deadlock state)")
+                break  # Were not able to find a suitable thread thus exit emulation
+
+            # Fetch program counter (of the thread selected), at this point the current thread should be running!
             pc = self.pstate.cpu.program_counter
-            opcodes = self.pstate.read_memory_bytes(pc, 16)
 
-            if (self.pstate.tid and pc == 0) or self.pstate.threads[self.pstate.tid].killed:
-                logging.info('End of thread: %d' % self.pstate.tid)
-                if pc == 0 and self.pstate.threads[self.pstate.tid].killed is False:
-                    logging.warning('PC=0, is it normal?')
-                    # TODO: Exit for debug
-                    os._exit(-1)
-                del self.pstate.threads[self.pstate.tid]
-                self.pstate.tid = random.choice(list(self.pstate.threads.keys()))
-                self.pstate.threads[self.pstate.tid].count = self.config.thread_scheduling
-                self.pstate.threads[self.pstate.tid].restore(self.pstate.tt_ctx)
-                continue
-
-            joined = self.pstate.threads[self.pstate.tid].joined
-            if joined and joined in self.pstate.threads:
-                logging.debug('Thread id %d is joined on thread id %d' % (self.pstate.tid, joined))
-                continue
+            if pc == 0:
+                logging.error(f"PC=0, is it normal ? (stop)")
+                break
 
             if not self.pstate.is_memory_defined(pc, CPUSIZE.BYTE):
                 logging.error(f"Instruction not mapped: 0x{pc:x}")
                 break
 
+            # Fetch opcodes (as we now have a valid thread ond pc)
+            opcodes = self.pstate.read_memory_bytes(pc, 16)
+
             # Create the Triton instruction
             instruction = Instruction(pc, opcodes)
-            instruction.setThreadId(self.pstate.tid)
+            instruction.setThreadId(self.pstate.current_thread.tid)
 
             # Trigger pre-address callback
             pre_cbs, post_cbs = self.cbm.get_address_callbacks(pc)
@@ -273,7 +288,7 @@ class SymbolicExecutor(object):
                 self.pstate.mutex_locked = False
                 self.pstate.cpu.program_counter = instruction.getAddress()
                 # It's locked, so switch to another thread
-                self.pstate.threads[self.pstate.tid].count = 0
+                self.pstate.current_thread.count = self.config.thread_scheduling+1
                 return
 
             # Do not continue the execution if we are in a locked semaphore
@@ -281,7 +296,7 @@ class SymbolicExecutor(object):
                 self.pstate.semaphore_locked = False
                 self.pstate.cpu.program_counter = instruction.getAddress()
                 # It's locked, so switch to another thread
-                self.pstate.threads[self.pstate.tid].count = 0
+                self.pstate.current_thread.count = self.config.thread_scheduling+1
                 return
 
             if self.pstate.architecture == Architecture.AARCH64:
