@@ -1,6 +1,7 @@
 # built-in imports
 from __future__ import annotations
-from enum   import Enum, auto
+import logging
+from enum import Enum, auto
 from typing import Callable, Tuple, List, Optional, Union
 
 # third-party imports
@@ -170,7 +171,9 @@ class CallbackManager(object):
         :param se: SymbolicExecutor on which to bind callbacks
         :type se: SymbolicExecutor
         """
-        assert not self.is_binded()
+        if self.is_binded() and self._se != se:
+            logging.warning("Callback_manager already binded (on a different executor instance)")
+        # assert not self.is_binded()
 
         self._se = se
 
@@ -545,3 +548,54 @@ class CallbackManager(object):
         cbs._empty         = self._empty
 
         return cbs
+
+    def unregister_callback(self, callback: Callable) -> None:
+        """
+        Unregister the given callback from the manager.
+
+        :param callback: callback to remove
+        :return: None
+        """
+        for addr, itms in self._pc_addr_cbs:
+            for loc in CbPos:
+                if callback in itms[loc]:
+                    itms[loc].remove(callback)
+
+        for loc in CbPos:
+            if callback in self._instr_cbs[loc]:
+                self._instr_cbs[loc].remove(callback)
+
+        for cb_list in [self._step_cbs, self._pre_exec, self._post_exec, self._ctx_switch, self._new_input_cbs,
+                        self._mem_read_cbs, self._mem_write_cbs, self._reg_read_cbs, self._reg_write_cbs]:
+            if callback in cb_list:
+                cb_list.remove(callback)
+
+        for d in [self._pre_rtn_cbs, self._post_rtn_cbs]:
+            for cb_list in d.values():
+                if callback in cb_list:
+                    cb_list.remove(callback)
+
+    def reset(self) -> None:
+        """
+        Reset all callbacks
+        :return:
+        """
+        # SymbolicExplorator callbacks
+        self._step_cbs = []  # Callback called between each exploration steps
+
+        # SymbolicExecutor callbacks
+        self._pc_addr_cbs   = {}  # addresses reached
+        self._instr_cbs     = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
+        self._pre_exec      = []  # before execution
+        self._post_exec     = []  # after execution
+        self._ctx_switch    = []  # on each thread context switch (implementing pre/post?)
+        self._new_input_cbs = []  # each time an SMT model is get
+        self._pre_rtn_cbs   = {}  # before imported routine calls ({str: [RtnCallback]})
+        self._post_rtn_cbs  = {}  # after imported routine calls ({str: [RtnCallback]})
+
+        # Triton callbacks
+        self._mem_read_cbs  = []  # memory reads
+        self._mem_write_cbs = []  # memory writes
+        self._reg_read_cbs  = []  # register reads
+        self._reg_write_cbs = []  # register writes
+        self._empty         = True
