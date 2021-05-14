@@ -163,7 +163,7 @@ class SeedManager:
                     self.add_seed_queue(seed)  # will be pushed back in worklist
             else:
                 self.archive_seed(seed)
-                logging.warning(f'Seed {seed.get_hash()} archived cannot generate new coverage [{seed.status.name}]')
+                logging.info(f'Seed {seed.get_hash()} archived cannot generate new coverage [{seed.status.name}]')
 
         else:
             assert False

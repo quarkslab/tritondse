@@ -556,7 +556,7 @@ class CallbackManager(object):
         :param callback: callback to remove
         :return: None
         """
-        for addr, itms in self._pc_addr_cbs:
+        for addr, itms in self._pc_addr_cbs.items():
             for loc in CbPos:
                 if callback in itms[loc]:
                     itms[loc].remove(callback)
