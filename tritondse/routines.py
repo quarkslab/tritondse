@@ -978,9 +978,10 @@ def rtn_puts(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     logging.debug('puts hooked')
 
+    arg0 = pstate.get_string_argument(0)
+
     # Get arguments
     if se.config.pipe_stdout:  # Only perform printing if pipe_stdout activated
-        arg0 = pstate.get_string_argument(0)
         sys.stdout.write(arg0 + '\n')
         sys.stdout.flush()
 
