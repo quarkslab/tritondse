@@ -15,7 +15,7 @@ from tritondse.coverage       import CoverageSingleRun
 from tritondse.process_state  import ProcessState
 from tritondse.program        import Program
 from tritondse.seed           import Seed, SeedStatus
-from tritondse.types          import Expression, Architecture
+from tritondse.types          import Expression, Architecture, Addr
 from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks      import CallbackManager
 from tritondse.workspace      import Workspace
@@ -69,6 +69,7 @@ class SymbolicExecutor(object):
 
         # List of new seeds filled during the execution and flushed by explorator
         self._pending_seeds = []
+        self._run_to_target = None
 
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
@@ -177,6 +178,9 @@ class SymbolicExecutor(object):
 
             # Fetch program counter (of the thread selected), at this point the current thread should be running!
             pc = self.pstate.cpu.program_counter
+
+            if pc == self._run_to_target:  # Hit the location we wanted to reach
+                break
 
             if pc == 0:
                 logging.error(f"PC=0, is it normal ? (stop)")
@@ -363,6 +367,19 @@ class SymbolicExecutor(object):
         :raise RuntimeError: to abort execution from anywhere
         """
         raise RuntimeError('Execution aborted')
+
+
+    def run_to(self, addr: Addr) -> None:
+        """
+        Execute the programm up until hit the given the address.
+        Mostly used to obtain the :py:obj:`ProcessState` at the
+        state of the location to perform manual checks.
+
+        :param addr: Address where to stop
+        :return: None
+        """
+        self._run_to_target = addr
+        self.run()
 
 
     def run(self) -> None:
