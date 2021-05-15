@@ -15,7 +15,7 @@ from tritondse.coverage       import CoverageSingleRun
 from tritondse.process_state  import ProcessState
 from tritondse.program        import Program
 from tritondse.seed           import Seed, SeedStatus
-from tritondse.types          import Expression, Architecture, Addr
+from tritondse.types          import Expression, Architecture, Addr, Model
 from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks      import CallbackManager
 from tritondse.workspace      import Workspace
@@ -463,3 +463,37 @@ class SymbolicExecutor(object):
             else:  # We are on the right unit
                 return "%.2f%s" % (resident/unit, s)
         return "%dB" % resident
+
+    def mk_new_seed_from_model(self, model: Model) -> Seed:
+        """
+        Given a SMT Model creates a new Seed.
+
+        :param model: SMT model
+        :return: new seed object
+        """
+        if self.config.symbolize_stdin:
+            content = bytearray(self.seed.content)  # Create the new seed buffer
+            for i, sv in enumerate(self.symbolic_seed):  # Enumerate symvars associated with each bytes
+                if sv.getId() in model:  # If solver provided a new value for the symvar
+                    content[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
+
+        elif self.config.symbolize_argv:
+            args = [bytearray(x) for x in self.seed.content.split()]
+            for c_arg, sym_arg in zip(args, self.symbolic_seed):
+                for i, sv in enumerate(sym_arg):
+                    if sv.getId() in model:
+                        c_arg[i] = model[sv.getId()].getValue()
+            content = b" ".join(args)  # Recreate a full argv string
+
+        else:
+            logging.error("In _mk_new_seed() without neither stdin nor argv seed injection loc")
+            return Seed()  # Return dummy seed
+
+        # Calling callback if user defined one
+        for cb in self.cbm.get_new_input_callback():
+            cont = cb(self, self.pstate, content)
+            # if the callback return a new input continue with that one
+            content = cont if cont is not None else content
+
+        # Create the Seed object and assign the new model
+        return Seed(bytes(content))
