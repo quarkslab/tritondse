@@ -25,7 +25,7 @@ class CbType(Enum):
     CTX_SWITCH = auto()
     MEMORY_READ = auto()
     MEMORY_WRITE = auto()
-    PORT_RTN = auto()
+    POST_RTN = auto()
     POST_ADDR = auto()
     POST_EXEC = auto()
     POST_INST = auto()
@@ -35,7 +35,7 @@ class CbType(Enum):
     PRE_RTN = auto()
     REG_READ = auto()
     REG_WRITE = auto()
-    SMT_MODEL = auto()
+    NEW_INPUT = auto()
 
 
 AddrCallback     = Callable[['SymbolicExecutor', ProcessState, Addr], None]
@@ -54,7 +54,15 @@ ExplorationStepCallback = Callable[['SymbolicExplorator'], None]
 class ProbeInterface(object):
     """ The Probe interface """
     def __init__(self):
-        self.cbs: List[Tuple[CbType, Optional[str], Callable]] = []  #: list of callback infos
+        self._cbs: List[Tuple[CbType, Callable, Optional[str]]] = []  #: list of callback infos
+
+    @property
+    def callbacks(self) -> List[Tuple[CbType, Callable, Optional[str]]]:
+        return self._cbs
+
+    def _add_callback(self, typ: CbType, callback: Callable, arg: str = None):
+        """ Add a callback """
+        self._cbs.append((typ, callback, arg))
 
 
 class CallbackManager(object):
@@ -499,7 +507,7 @@ class CallbackManager(object):
         return pre_ret, post_ret
 
 
-    def register_probe_callback(self, probe: ProbeInterface) -> None:
+    def register_probe(self, probe: ProbeInterface) -> None:
         """
         Register a probe. That function will iterate the ``cbs`` attribute
         of the object, and will register each entries in self.
@@ -509,15 +517,28 @@ class CallbackManager(object):
         :param probe: a probe interface
         :type probe: ProbeInterface
         """
-        for (kind, arg, cb) in probe.cbs:
-            if kind == CbType.MEMORY_READ:
-                self.register_memory_read_callback(cb)
-
-            elif kind == CbType.MEMORY_WRITE:
-                self.register_memory_write_callback(cb)
-
-            elif kind == CbType.PRE_RTN:
+        for (kind, arg, cb) in probe.callbacks:
+            if kind == CbType.PRE_RTN:
                 self.register_pre_imported_routine_callback(arg, cb)
+            elif kind == CbType.POST_RTN:
+                self.register_post_imported_routine_callback(arg, cb)
+            else:
+                mapping = {
+                    CbType.CTX_SWITCH: self.register_thread_context_switch_callback,
+                    CbType.MEMORY_READ: self.register_memory_read_callback,
+                    CbType.MEMORY_WRITE: self.register_memory_write_callback,
+                    CbType.POST_ADDR: self.register_post_addr_callback,
+                    CbType.POST_EXEC: self.register_post_execution_callback,
+                    CbType.POST_INST: self.register_post_instuction_callback,
+                    CbType.PRE_ADDR: self.register_pre_addr_callback,
+                    CbType.PRE_EXEC: self.register_pre_execution_callback,
+                    CbType.PRE_INST: self.register_pre_instruction_callback,
+                    CbType.REG_READ: self.register_register_read_callback,
+                    CbType.REG_WRITE: self.register_register_write_callback,
+                    CbType.NEW_INPUT: self.register_new_input_callback,
+                }
+                mapping[kind](cb)
+
 
     def fork(self) -> 'CallbackManager':
         """

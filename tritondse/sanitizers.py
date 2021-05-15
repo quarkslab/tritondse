@@ -35,9 +35,9 @@ class UAFSanitizer(ProbeInterface):
     """
     def __init__(self):
         super(UAFSanitizer, self).__init__()
-        self.cbs.append((CbType.MEMORY_READ, None, self._memory_read))
-        self.cbs.append((CbType.MEMORY_WRITE, None, self._memory_write))
-        self.cbs.append((CbType.PRE_RTN, 'free', self._free_routine))
+        self._add_callback(CbType.MEMORY_READ, self._memory_read)
+        self._add_callback(CbType.MEMORY_WRITE, self._memory_write)
+        self._add_callback(CbType.PRE_RTN, self._free_routine, 'free')
 
 
     @staticmethod
@@ -88,8 +88,8 @@ class NullDerefSanitizer(ProbeInterface):
     """
     def __init__(self):
         super(NullDerefSanitizer, self).__init__()
-        self.cbs.append((CbType.MEMORY_READ, None, self._memory_read))
-        self.cbs.append((CbType.MEMORY_WRITE, None, self._memory_write))
+        self._add_callback(CbType.MEMORY_READ, self._memory_read)
+        self._add_callback(CbType.MEMORY_WRITE, self._memory_write)
 
 
     @staticmethod
@@ -162,11 +162,11 @@ class FormatStringSanitizer(ProbeInterface):
     """
     def __init__(self):
         super(FormatStringSanitizer, self).__init__()
-        self.cbs.append((CbType.PRE_RTN, 'printf',  self._xprintf_arg0_routine))
-        self.cbs.append((CbType.PRE_RTN, 'fprintf', self._xprintf_arg1_routine))
-        self.cbs.append((CbType.PRE_RTN, 'sprintf', self._xprintf_arg1_routine))
-        self.cbs.append((CbType.PRE_RTN, 'dprintf', self._xprintf_arg1_routine))
-        self.cbs.append((CbType.PRE_RTN, 'snprintf', self._xprintf_arg1_routine))
+        self._add_callback(CbType.PRE_RTN,  self._xprintf_arg0_routine, 'printf')
+        self._add_callback(CbType.PRE_RTN, self._xprintf_arg1_routine, 'fprintf')
+        self._add_callback(CbType.PRE_RTN, self._xprintf_arg1_routine, 'sprintf')
+        self._add_callback(CbType.PRE_RTN, self._xprintf_arg1_routine, 'dprintf')
+        self._add_callback(CbType.PRE_RTN, self._xprintf_arg1_routine, 'snprintf')
 
 
     @staticmethod
@@ -257,7 +257,7 @@ class IntegerOverflowSanitizer(ProbeInterface):
     """
     def __init__(self):
         super(IntegerOverflowSanitizer, self).__init__()
-        self.cbs.append((CbType.POST_INST, None, self.check))
+        self._add_callback(CbType.POST_INST, self.check)
 
 
     @staticmethod
