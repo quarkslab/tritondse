@@ -24,12 +24,10 @@ runtime and it has not been tested on other types of programs.
         :caption: Tutorials
         :maxdepth: 3
 
-        Getting Started <tutos/starting>
-        Playing with Hooks <tutos/hooks>
-        Solving a crackme #1 <tutos/crackme>
-        Managing seeds <tutos/seeds>
-        Using sanitizers <tutos/sanitizers>
-        Intrinsic functions <tutos/intrinsic>
+        Getting Started <tutos/starting.ipynb>
+        Hooks <tutos/hooks.ipynb>
+        Seeds <tutos/seeds.ipynb>
+        Sanitizers & Probes <tutos/sanitizers.ipynb>
 
 
 .. toctree::
