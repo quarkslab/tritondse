@@ -400,19 +400,23 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.concretize_argument(2)
 
     if fd == 0 and se.config.symbolize_stdin:
-        # We use fd as concret value
-        pstate.push_constraint(size_ast.getAst() == minsize)
-
-        if se.seed:
-            pstate.write_memory_bytes(buff, se.seed.content[:minsize])
+        if se.is_seed_injected():
+            logging.warning("fgets reading stdin, while seed already injected (return EOF)")
+            return 0
         else:
-            se.seed.content = b'\x00' * minsize
+            # We use fd as concret value
+            pstate.push_constraint(size_ast.getAst() == minsize)
 
-        sym_vars = pstate.symbolize_memory_bytes(buff, minsize, 'stdin')
-        se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+            if se.seed:
+                pstate.write_memory_bytes(buff, se.seed.content[:minsize])
+            else:
+                se.seed.content = b'\x00' * minsize
 
-        logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
-        return buff_ast
+            sym_vars = pstate.symbolize_memory_bytes(buff, minsize, 'stdin')
+            se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+
+            logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
+            return buff_ast
 
     if fd in pstate.fd_table:
         # We use fd as concret value
@@ -582,18 +586,22 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # FIXME: pushPathConstraint
 
     if arg3 == 0 and se.config.symbolize_stdin:
-        if se.seed:
-            pstate.write_memory_bytes(arg0, se.seed.content[:minsize])
+        if se.is_seed_injected():
+            logging.warning("fread reading stdin, while seed already injected (return EOF)")
+            return 0
         else:
-            se.seed.content = b'\x00' * minsize
+            if se.seed:
+                pstate.write_memory_bytes(arg0, se.seed.content[:minsize])
+            else:
+                se.seed.content = b'\x00' * minsize
 
-        # Symbolize the whole buffer
-        sym_vars = pstate.symbolize_memory_bytes(arg0, minsize, 'stdin')
-        se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+            # Symbolize the whole buffer
+            sym_vars = pstate.symbolize_memory_bytes(arg0, minsize, 'stdin')
+            se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
 
-        logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
-        # TODO: Could return the read value as a symbolic one
-        return minsize
+            logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
+            # TODO: Could return the read value as a symbolic one
+            return minsize
 
     elif arg3 in pstate.fd_table:
         data = pstate.fd_table[arg3].read(arg1 * arg2)
@@ -1015,19 +1023,24 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.concretize_argument(0)
 
     if fd == 0 and se.config.symbolize_stdin:
-        pstate.push_constraint(size_ast.getAst() == minsize)
-        if se.seed:
-            pstate.write_memory_bytes(buff, se.seed.content[:minsize])
+        if se.is_seed_injected():
+            logging.warning("reading stdin, while seed already injected (return EOF)")
+            return 0
         else:
-            se.seed.content = b'\x00' * minsize
+            pstate.push_constraint(size_ast.getAst() == minsize)
+            if se.seed:
+                pstate.write_memory_bytes(buff, se.seed.content[:minsize])
+            else:
+                se.seed.content = b'\x00' * minsize
 
-        # Symbolize the whole buffer
-        sym_vars = pstate.symbolize_memory_bytes(buff, minsize, 'stdin')
-        se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+            # Symbolize the whole buffer
+            sym_vars = pstate.symbolize_memory_bytes(buff, minsize, 'stdin')
+            se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
 
-        logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
-        # TODO: Could return the read value as a symbolic one
-        return minsize
+            logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
+            # TODO: Could return the read value as a symbolic one
+            return minsize
+
 
     if fd in pstate.fd_table:
         pstate.concretize_argument(2)
