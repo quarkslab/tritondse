@@ -277,19 +277,21 @@ class IntegerOverflowSanitizer(ProbeInterface):
         assert(pstate.architecture == Architecture.X86_64 or pstate.architecture == Architecture.AARCH64)
 
         rf = (pstate.registers.of if pstate.architecture == Architecture.X86_64 else pstate.registers.v)
-        flag = pstate.read_symbolic_register(rf)
-        if flag.evaluate():
+
+        if pstate.read_register(rf):
             logging.warning(f'Integer overflow at {instruction}')
             # FIXME: What if it's normal behavior?
             se.seed.status = SeedStatus.CRASH
             return True
 
-        if flag.isSymbolized():
-            _, model = pstate.solve_no_pp(flag == 1)
-            if model:
-                logging.warning(f'Potential integer overflow at {instruction}')
-                crash_seed = mk_new_crashing_seed(se, model)
-                se.enqueue_seed(crash_seed)
-                return True
+        else:  # if no overflow took place check if symbolic and if so, if it can be 1
+            if pstate.is_register_symbolic(rf):
+                sym_flag = pstate.read_symbolic_register(rf)
+                _, model = pstate.solve_no_pp(sym_flag.getAst() == 1)
+                if model:
+                    logging.warning(f'Potential integer overflow at {instruction}')
+                    crash_seed = mk_new_crashing_seed(se, model)
+                    se.enqueue_seed(crash_seed)
+                    return True
 
         return False
