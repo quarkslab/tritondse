@@ -116,6 +116,13 @@ class SymbolicExecutor(object):
         :rtype: CallbackManager"""
         return self.cbm
 
+    def is_seed_injected(self) -> bool:
+        """
+        Get whether or not the seed has been injected.
+
+        :return: True if the seed has already been inserted
+        """
+        return bool(self.symbolic_seed)
 
     def __init_optimization(self) -> None:
         for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:
