@@ -517,7 +517,7 @@ class CallbackManager(object):
         :param probe: a probe interface
         :type probe: ProbeInterface
         """
-        for (kind, arg, cb) in probe.callbacks:
+        for kind, cb, arg in probe.callbacks:
             if kind == CbType.PRE_RTN:
                 self.register_pre_imported_routine_callback(arg, cb)
             elif kind == CbType.POST_RTN:
