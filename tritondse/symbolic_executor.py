@@ -283,11 +283,18 @@ class SymbolicExecutor(object):
 
             # Trigger pre-address callback
             pre_cbs, post_cbs = self.cbm.get_imported_routine_callbacks(routine_name)
-            for cb in pre_cbs:
-                cb(self, self.pstate, routine_name, pc)
 
-            # Emulate the routine and the return value
-            ret_val = routine(self, self.pstate)
+            ret_val = None
+            for cb in pre_cbs:
+                ret = cb(self, self.pstate, routine_name, pc)
+                if ret:  # if the callback return a value the function behavior will be skipped
+                    ret_val = ret
+                    break  # Set the ret val and break
+
+            if ret_val is None:  # If no ret_val has been set by any callback function call the supported routine
+                # Emulate the routine and the return value
+                ret_val = routine(self, self.pstate)
+
             self.__handle_external_return(routine_name, ret_val)
 
             # Trigger post-address callbacks
@@ -338,18 +345,19 @@ class SymbolicExecutor(object):
         for fname, rel_addr in self.program.imported_functions_relocations():
             if fname in SUPPORTED_ROUTINES:  # if the routine name is supported
                 logging.debug(f"Hooking {fname} at {rel_addr:#x}")
-
                 # Add link to the routine and got tables
                 self.rtn_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
-
-                # Apply relocation to our custom address in process memory
-                self.pstate.write_memory_ptr(rel_addr, cur_linkage_address)
-
-                # Increment linkage address number
-                cur_linkage_address += self.pstate.ptr_size
             else:
-                pass
-                #logging.warning(f"function {fname} imported but unsupported")
+                logging.warning(f"function {fname} imported but unsupported")
+                # Add link to a default stub function
+                self.rtn_table[cur_linkage_address] = (fname, self.__default_stub)
+
+            # Apply relocation to our custom address in process memory
+            self.pstate.write_memory_ptr(rel_addr, cur_linkage_address)
+
+            # Increment linkage address number
+            cur_linkage_address += self.pstate.ptr_size
+
 
         # Link imported symbols
         for sname, rel_addr in self.program.imported_variable_symbols_relocations():
@@ -364,6 +372,16 @@ class SymbolicExecutor(object):
                         cur_linkage_address += self.pstate.ptr_size
                 else:
                     logging.warning(f"symbol {sname} imported but unsupported")
+
+
+    def __default_stub(self, se: 'SymbolicExecutor', pstate: ProcessState):
+        rtn_name, _ = self.rtn_table[pstate.cpu.program_counter]
+        logging.warning(f"calling {rtn_name} which is unsupported")
+        if self.config.skip_unsupported_import:
+            return None  # Like if function did nothing
+        else:
+            self.abort()
+
 
     def abort(self) -> NoReturn:
         """

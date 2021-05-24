@@ -32,7 +32,8 @@ class Config(object):
                  debug: bool = False,
                  workspace: str = "",
                  program_argv: List[str] = None,
-                 time_inc_coefficient: float = 0.00001):
+                 time_inc_coefficient: float = 0.00001,
+                 skip_unsupported_import: bool = False):
         """
         :param debug: Enable debugging logging
         :type debug: bool
@@ -106,6 +107,10 @@ class Config(object):
         of the execution by 100us. *(default: 0.00001)*
         """
 
+        self.skip_unsupported_import: bool = skip_unsupported_import
+        """ Whether or not to stop the emulation when hitting a external
+        call to a function that is not supported.
+        """
 
     def __str__(self):
         return "\n".join(f"{k.ljust(21)}= {v}" for k, v in self.__dict__.items())

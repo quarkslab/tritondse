@@ -10,7 +10,7 @@ from triton import CALLBACK, Instruction, MemoryAccess
 # local imports
 from tritondse.process_state  import ProcessState
 from tritondse.program        import Program
-from tritondse.types          import Addr, Input, Register
+from tritondse.types          import Addr, Input, Register, Expression
 from tritondse.thread_context import ThreadContext
 
 
@@ -45,7 +45,7 @@ MemWriteCallback = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int
 NewInputCallback = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
 RegReadCallback  = Callable[['SymbolicExecutor', ProcessState, Register], None]
 RegWriteCallback = Callable[['SymbolicExecutor', ProcessState, Register, int], None]
-RtnCallback      = Callable[['SymbolicExecutor', ProcessState, str, Addr], None]
+RtnCallback      = Callable[['SymbolicExecutor', ProcessState, str, Addr], Optional[Union[int, Expression]]]
 SymExCallback    = Callable[['SymbolicExecutor', ProcessState], None]
 ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
 ExplorationStepCallback = Callable[['SymbolicExplorator'], None]
