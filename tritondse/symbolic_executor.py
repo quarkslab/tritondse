@@ -522,3 +522,20 @@ class SymbolicExecutor(object):
 
         # Create the Seed object and assign the new model
         return Seed(bytes(content))
+
+    def inject_symbolic_input(self, addr: Addr, seed: Seed, var_prefix: str = "input") -> None:
+        """
+        Inject the given seed at the given address in memory. Then
+        all memory bytes are symbolized.
+
+        :param addr: address at which to inject input
+        :param seed: Seed to inject in memory
+        :param var_prefix: prefix name to give the symbolic variables
+        :return: None
+        """
+        # Write concrete bytes in memory
+        self.pstate.write_memory_bytes(addr, seed.content)
+
+        # Symbolize bytes
+        sym_vars = self.pstate.symbolize_memory_bytes(addr, seed.size, var_prefix)
+        self.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
