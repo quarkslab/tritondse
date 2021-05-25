@@ -10,7 +10,7 @@ from typing import Union
 from triton                   import CPUSIZE, MemoryAccess
 from tritondse.thread_context import ThreadContext
 from tritondse.types          import Architecture
-from tritondse.seed           import SeedStatus
+from tritondse.seed           import SeedStatus, Seed
 
 
 def rtn_ctype_b_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -407,13 +407,9 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             # We use fd as concret value
             pstate.push_constraint(size_ast.getAst() == minsize)
 
-            if se.seed:
-                pstate.write_memory_bytes(buff, se.seed.content[:minsize])
-            else:
-                se.seed.content = b'\x00' * minsize
+            content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
 
-            sym_vars = pstate.symbolize_memory_bytes(buff, minsize, 'stdin')
-            se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+            se.inject_symbolic_input(buff, Seed(content), "stdin")
 
             logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
             return buff_ast
@@ -590,14 +586,10 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             logging.warning("fread reading stdin, while seed already injected (return EOF)")
             return 0
         else:
-            if se.seed:
-                pstate.write_memory_bytes(arg0, se.seed.content[:minsize])
-            else:
-                se.seed.content = b'\x00' * minsize
 
-            # Symbolize the whole buffer
-            sym_vars = pstate.symbolize_memory_bytes(arg0, minsize, 'stdin')
-            se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+            content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+
+            se.inject_symbolic_input(arg0, Seed(content), "stdin")
 
             logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
             # TODO: Could return the read value as a symbolic one
@@ -1028,14 +1020,10 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             return 0
         else:
             pstate.push_constraint(size_ast.getAst() == minsize)
-            if se.seed:
-                pstate.write_memory_bytes(buff, se.seed.content[:minsize])
-            else:
-                se.seed.content = b'\x00' * minsize
 
-            # Symbolize the whole buffer
-            sym_vars = pstate.symbolize_memory_bytes(buff, minsize, 'stdin')
-            se.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+            content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+
+            se.inject_symbolic_input(buff, Seed(content), "stdin")
 
             logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
             # TODO: Could return the read value as a symbolic one
