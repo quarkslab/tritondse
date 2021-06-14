@@ -30,15 +30,12 @@ class SymbolicExecutor(object):
     program.
     """
 
-    def __init__(self, config: Config, pstate: ProcessState, program: Program, seed: Seed = Seed(), workspace: Workspace = None, uid=0, callbacks=None):
+    def __init__(self, config: Config, pstate: ProcessState = None, seed: Seed = Seed(), workspace: Workspace = None, uid=0, callbacks=None):
         """
-
         :param config: configuration file to use
         :type config: Config
         :param pstate: ProcessState instanciated (but not loaded)
         :type pstate: ProcessState
-        :param program: Program to execute
-        :type program: Program
         :param seed: input file to inject either in stdin or argv (optional)
         :type seed: Seed
         :param workspace: Workspace to use. If None it will be instanciated
@@ -49,10 +46,16 @@ class SymbolicExecutor(object):
         :type callbacks: CallbackManager
         """
         # FIXME: Change interface, remove ProcessState
-        self.program    = program           # The program to execute
-        self.pstate     = pstate            # The process state
-        self.config     = config            # The config
-        self.workspace  = workspace         # The current workspace
+        self.config = config    # The config
+        self.program = None     # The program to execute
+
+        if pstate:              # If received a ProcessState take it 'as-is'
+            self.pstate = pstate
+            self._configure_pstate()
+        else:
+            self.pstate = None  # else should be loaded through load_program
+
+        self.workspace  = workspace                             # The current workspace
         if self.workspace is None:
             self.workspace = Workspace(config.workspace)
         self.seed       = seed              # The current seed used to the execution
@@ -74,6 +77,19 @@ class SymbolicExecutor(object):
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
+
+    def load_program(self, program: Program) -> None:
+        """
+        Load the given program in the symbolic executor's ProcessState.
+        It override the current ProcessState if any.
+
+        :param program: Program to load
+        :return: None
+        """
+        self.program = program
+        self.pstate = ProcessState.from_program(program)
+        self._configure_pstate()
+        self._map_dynamic_symbols()
 
     @property
     def execution_time(self) -> int:
@@ -124,9 +140,10 @@ class SymbolicExecutor(object):
         """
         return bool(self.symbolic_seed)
 
-    def __init_optimization(self) -> None:
+    def _configure_pstate(self) -> None:
         for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:
             self.pstate.set_triton_mode(mode, True)
+        self.pstate.time_inc_coefficient = self.config.time_inc_coefficient
         self.pstate.set_solver_timeout(self.config.smt_timeout)
 
 
@@ -332,47 +349,34 @@ class SymbolicExecutor(object):
             self.pstate.cpu.program_counter = ret_addr
 
 
-    def _apply_dynamic_relocations(self) -> None:
+    def _map_dynamic_symbols(self) -> None:
         """
         Apply dynamic relocations of imported functions and imported symbols
         regardless of the architecture or executable format
         .. FIXME: This function does not apply all possible relocations
         :return: None
         """
-        cur_linkage_address = self.pstate.BASE_PLT
+        for symbol, (addr, is_func) in self.pstate.dynamic_symbol_table.items():
 
-        # Link imported functions
-        for fname, rel_addr in self.program.imported_functions_relocations():
-            if fname in SUPPORTED_ROUTINES:  # if the routine name is supported
-                logging.debug(f"Hooking {fname} at {rel_addr:#x}")
+            if symbol in SUPPORTED_ROUTINES:  # if the routine name is supported
                 # Add link to the routine and got tables
-                self.rtn_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
-            else:
+                self.rtn_table[addr] = (symbol, SUPPORTED_ROUTINES[symbol])
+
+            elif symbol in SUPORTED_GVARIABLES:
+                if self.pstate.architecture == Architecture.X86_64:
+                    self.pstate.write_memory_ptr(addr, SUPORTED_GVARIABLES[symbol])  # write directly at addr
+                elif self.pstate.architecture == Architecture.AARCH64:
+                    val = self.pstate.read_memory_ptr(addr)
+                    self.pstate.write_memory_ptr(val, SUPORTED_GVARIABLES[symbol])
+
+            else:  # the symbol is not supported
                 if self.uid == 0:  # print warning if first uid (so that it get printed once)
-                    logging.warning(f"function {fname} imported but unsupported")
-                # Add link to a default stub function
-                self.rtn_table[cur_linkage_address] = (fname, self.__default_stub)
-
-            # Apply relocation to our custom address in process memory
-            self.pstate.write_memory_ptr(rel_addr, cur_linkage_address)
-
-            # Increment linkage address number
-            cur_linkage_address += self.pstate.ptr_size
-
-
-        # Link imported symbols
-        for sname, rel_addr in self.program.imported_variable_symbols_relocations():
-                logging.debug(f"Hooking {sname} at {rel_addr:#x}")
-                if sname in SUPORTED_GVARIABLES:  # if the routine name is supported
-                    if self.pstate.architecture == Architecture.X86_64:
-                        self.pstate.write_memory_ptr(rel_addr, SUPORTED_GVARIABLES[sname])
-
-                    elif self.pstate.architecture == Architecture.AARCH64:
-                        self.pstate.write_memory_ptr(rel_addr, cur_linkage_address)
-                        self.pstate.write_memory_ptr(cur_linkage_address, SUPORTED_GVARIABLES[sname])
-                        cur_linkage_address += self.pstate.ptr_size
+                    logging.warning(f"symbol {symbol} imported but unsupported")
+                if is_func:
+                    # Add link to a default stub function
+                    self.rtn_table[addr] = (symbol, self.__default_stub)
                 else:
-                    logging.warning(f"symbol {sname} imported but unsupported")
+                    pass # do nothing on unsupported symbols
 
 
     def __default_stub(self, se: 'SymbolicExecutor', pstate: ProcessState):
@@ -415,6 +419,9 @@ class SymbolicExecutor(object):
         If the :py:attr:`tritondse.Config.execution_timeout` is not set
         the execution might hang forever if the program does.
         """
+        if self.pstate is None:
+            logging.error(f"ProcessState is None (have you called load_program ?")
+            return
 
         if not self._check_input_injection_loc():
             return
@@ -423,16 +430,8 @@ class SymbolicExecutor(object):
         # Initialize the process_state architecture (at this point arch is sure to be supported)
         logging.debug(f"Loading program {self.program.path.name} [{self.program.architecture}]")
 
-        # Initialize ProcessState context & optimizations
-        self.pstate.initialize_context(self.program.architecture)
-        self.__init_optimization()
-
         # bind dbm callbacks on the process state (newly initialized)
         self.cbm.bind_to(self)  # bind call
-
-        # Load the program in process memory and apply dynamic relocations
-        self.pstate.load_program(self.program)
-        self._apply_dynamic_relocations()
 
         # Let's emulate the binary from the entry point
         logging.info('Starting emulation')
