@@ -7,7 +7,8 @@ Arch = namedtuple("Arch", "ret_reg pc_reg bp_reg sp_reg sys_reg reg_args halt_in
 ARCHS = {
     Architecture.X86:     Arch('eax', 'eip', 'ebp', 'esp', 'eax', [], OPCODE.X86.HLT),
     Architecture.X86_64:  Arch('rax', 'rip', 'rbp', 'rsp', 'rax', ['rdi', 'rsi', 'rdx', 'rcx', 'r8', 'r9'], OPCODE.X86.HLT),
-    Architecture.AARCH64: Arch('x0', 'pc', 'sp', 'sp', 'x8', ['x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7'], OPCODE.AARCH64.HLT)
+    Architecture.AARCH64: Arch('x0', 'pc', 'sp', 'sp', 'x8', ['x0', 'x1', 'x2', 'x3', 'x4', 'x5', 'x6', 'x7'], OPCODE.AARCH64.HLT),
+    Architecture.ARM32:   Arch('r0', 'pc', 'r11', 'sp', 'r7', ['r0', 'r1', 'r2', 'r3'], OPCODE.ARM32.HLT)
     # ARM ?
 }
 
