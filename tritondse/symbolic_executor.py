@@ -65,7 +65,7 @@ class SymbolicExecutor(object):
         # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
 
         # create callback object if not provided as argument, and bind callbacks to the current process state
-        self.cbm = callbacks if callbacks is not None else CallbackManager(self.program)
+        self.cbm = callbacks if callbacks is not None else CallbackManager()
 
         # List of new seeds filled during the execution and flushed by explorator
         self._pending_seeds = []
