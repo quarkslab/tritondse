@@ -9,7 +9,6 @@ from triton import CALLBACK, Instruction, MemoryAccess
 
 # local imports
 from tritondse.process_state  import ProcessState
-from tritondse.program        import Program
 from tritondse.types          import Addr, Input, Register, Expression
 from tritondse.thread_context import ThreadContext
 
@@ -73,12 +72,7 @@ class CallbackManager(object):
     be made in Log(N). All callbacks are designed to be read-only
     """
 
-    def __init__(self, p: Program):
-        """
-        :param p: Program used to explore *(used to extract function)*
-        :type p: Program
-        """
-        self.p = p
+    def __init__(self):
         self._se = None
 
         # SymbolicExplorator callbacks
@@ -101,6 +95,8 @@ class CallbackManager(object):
         self._reg_write_cbs = []  # register writes
         self._empty         = True
 
+        # Temporary mapping of function name to register
+        self._func_to_register = {}
 
     def is_empty(self) -> bool:
         """
@@ -200,6 +196,20 @@ class CallbackManager(object):
         if self._reg_write_cbs:
             se.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_REGISTER_VALUE, self._trampoline_reg_write_cb)
 
+        # Check if there is a program on which to register functions callback
+        if self._func_to_register:
+            if se.program:
+                for fname in list(self._func_to_register):
+                    cbs = self._func_to_register.pop(fname)
+                    f = se.program.find_function(fname)
+                    if f:
+                        for cb in cbs:
+                            self.register_pre_addr_callback(f.address, cb)
+                    else:
+                        logging.warning(f"can't find function {fname} in {se.program}")
+            else:
+                logging.warning(f"function callback to resolve but no program provided")
+
 
     def register_addr_callback(self, pos: CbPos, addr: Addr, callback: AddrCallback) -> None:
         """
@@ -260,24 +270,21 @@ class CallbackManager(object):
             return [], []
 
 
-    def register_function_callback(self, func_name: str, callback: AddrCallback) -> bool:
+    def register_function_callback(self, func_name: str, callback: AddrCallback) -> None:
         """
         Register a callback on the address of the given function name.
-        The address of the function is resolved through lief. Thus finding
-        the function is conditioned by LIEF.
+        The function name is only resolve when the callback manager is binded
+        to a SymbolicExecutor.
 
         :param func_name: Function name
         :type func_name: str
         :param callback: callback function
         :type callback: :py:obj:`tritondse.callbacks.AddrCallback`
-        :return: True if registration succeeded, False otherwise
         """
-        f = self.p.find_function(func_name)
-        if f:
-            self.register_pre_addr_callback(f.address, callback)
-            return True
+        if func_name in self._func_to_register:
+            self._func_to_register[func_name].append(callback)
         else:
-            return False
+            self._func_to_register[func_name] = [callback]
 
 
     def register_instruction_callback(self, pos: CbPos, callback: InstrCallback) -> None:
@@ -550,7 +557,7 @@ class CallbackManager(object):
         :return: Fresh instance of CallbackManager
         :rtype: CallbackManager
         """
-        cbs = CallbackManager(self.p)
+        cbs = CallbackManager()
 
         # SymbolicExecutor callbacks
         cbs._pc_addr_cbs   = self._pc_addr_cbs
@@ -567,6 +574,8 @@ class CallbackManager(object):
         cbs._reg_read_cbs  = self._reg_read_cbs
         cbs._reg_write_cbs = self._reg_write_cbs
         cbs._empty         = self._empty
+        # Copy temporary data
+        cbs._func_to_register = self._func_to_register
 
         return cbs
 

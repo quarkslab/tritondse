@@ -36,7 +36,7 @@ class SymbolicExplorator(object):
     def __init__(self, config: Config, program: Program, seed_scheduler: SeedScheduler = None):
         self.program: Program     = program  #: Program being analyzed
         self.config: Config       = config   #: Configuration file
-        self.cbm: CallbackManager = CallbackManager(program)
+        self.cbm: CallbackManager = CallbackManager()
         self._stop          = False
         self.ts            = time.time()
         self.uid_counter   = 0
