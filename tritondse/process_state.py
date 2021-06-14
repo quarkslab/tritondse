@@ -34,7 +34,7 @@ class ProcessState(object):
         :param time_inc_coefficient: Time coefficient to represent execution time of an instruction see: :py:attr:`tritondse.Config.time_inc_coefficient`
         """
         # Memory mapping
-        self.BASE_PLT   = 0x01000000
+        self.BASE_PLT   = 0x01000000  # Not really PLT but a dummy address space meant to contain some pointers to external symbols
         self.BASE_ARGV  = 0x02000000
         self.BASE_CTYPE = 0x03000000
         self.ERRNO_PTR  = 0x04000000
@@ -58,6 +58,9 @@ class ProcessState(object):
 
         # Signals table used by raise(), signal(), etc.
         self.signals_table = dict()
+
+        # Dynamic symbols name -> addr (where they are mapped)
+        self.dynamic_symbol_table = {}
 
         # File descriptors table used by fopen(), fprintf(), etc.
         self.fd_table = {
@@ -1150,3 +1153,41 @@ class ProcessState(object):
             else:
                 final_dict[svar] = avar.evaluate()
         return final_dict
+
+    @staticmethod
+    def from_program(program: Program) -> 'ProcessState':
+        pstate = ProcessState()
+
+        # Initialize the architecture of the processstate
+        pstate.initialize_context(program.architecture)
+
+        # Load segments of the program
+        pstate.load_program(program)
+
+        # Apply dynamic relocations
+        cur_linkage_address = pstate.BASE_PLT
+
+        # Link imported functions
+        for fname, rel_addr in program.imported_functions_relocations():
+            logging.debug(f"Hooking {fname} at {rel_addr:#x}")
+
+            # Add symbol in dynamic_symbol_table
+            pstate.dynamic_symbol_table[fname] = (cur_linkage_address, True)
+
+            # Apply relocation to our custom address in process memory
+            pstate.write_memory_ptr(rel_addr, cur_linkage_address)
+
+            # Increment linkage address number
+            cur_linkage_address += pstate.ptr_size
+
+        # Link imported symbols
+        for sname, rel_addr in program.imported_variable_symbols_relocations():
+            logging.debug(f"Hooking {sname} at {rel_addr:#x}")
+
+            # Add symbol in dynamic_symbol_table
+            pstate.dynamic_symbol_table[sname] = (cur_linkage_address, False)
+
+            pstate.write_memory_ptr(rel_addr, cur_linkage_address)  # warning: for x86-64 this the rel_addr reference directly the symbol value
+            cur_linkage_address += pstate.ptr_size                  # while on aarch64 it references a pointer to the symbol value
+
+        return pstate

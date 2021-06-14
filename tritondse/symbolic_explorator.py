@@ -106,8 +106,8 @@ class SymbolicExplorator(object):
         # Execute the binary with seeds
         cbs = None if self.cbm.is_empty() else self.cbm.fork()
         logging.info(f"Initialize ProcessState with thread scheduling: {self.config.thread_scheduling}")
-        pstate = ProcessState(self.config.time_inc_coefficient)
-        execution = SymbolicExecutor(self.config, pstate, self.program, seed=seed, workspace=self.workspace, uid=uid, callbacks=cbs)
+        execution = SymbolicExecutor(self.config, seed=seed, workspace=self.workspace, uid=uid, callbacks=cbs)
+        execution.load_program(self.program)
         self.current_executor = execution
         execution.run()
 
