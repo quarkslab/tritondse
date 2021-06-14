@@ -287,7 +287,7 @@ class SymbolicExecutor(object):
             ret_val = None
             for cb in pre_cbs:
                 ret = cb(self, self.pstate, routine_name, pc)
-                if ret:  # if the callback return a value the function behavior will be skipped
+                if ret is not None:  # if the callback return a value the function behavior will be skipped
                     ret_val = ret
                     break  # Set the ret val and break
 
@@ -348,7 +348,8 @@ class SymbolicExecutor(object):
                 # Add link to the routine and got tables
                 self.rtn_table[cur_linkage_address] = (fname, SUPPORTED_ROUTINES[fname])
             else:
-                logging.warning(f"function {fname} imported but unsupported")
+                if self.uid == 0:  # print warning if first uid (so that it get printed once)
+                    logging.warning(f"function {fname} imported but unsupported")
                 # Add link to a default stub function
                 self.rtn_table[cur_linkage_address] = (fname, self.__default_stub)
 
