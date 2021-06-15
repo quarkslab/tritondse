@@ -214,12 +214,7 @@ class SymbolicExecutor(object):
                 logging.error(f"Instruction not mapped: 0x{pc:x}")
                 break
 
-            # Fetch opcodes (as we now have a valid thread ond pc)
-            opcodes = self.pstate.read_memory_bytes(pc, 16)
-
-            # Create the Triton instruction
-            instruction = Instruction(pc, opcodes)
-            instruction.setThreadId(self.pstate.current_thread.tid)
+            instruction = self.pstate.fetch_instruction()
 
             # Trigger pre-address callback
             pre_cbs, post_cbs = self.cbm.get_address_callbacks(pc)

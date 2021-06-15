@@ -584,6 +584,21 @@ class ProcessState(object):
             return True
         return False
 
+    def fetch_instruction(self, address: Addr = None) -> Instruction:
+        """
+        Fetch the instruction at the given address. If no address
+        is specified the current program counter one is used.
+
+        :param address: address where to get the instruction from
+        :return: instruction disassembled
+        """
+        if address is None:
+            address = self.cpu.program_counter
+        data = self.read_memory_bytes(address, 16)
+        i = Instruction(address, data)
+        i.setThreadId(self.current_thread.tid)
+        self.tt_ctx.disassembly(i)
+        return i
 
     def process_instruction(self, instruction: Instruction) -> bool:
         """
@@ -596,7 +611,9 @@ class ProcessState(object):
         self.__pcs_updated = False
         __len_pcs = self.tt_ctx.getPathPredicateSize()
 
-        self.tt_ctx.disassembly(instruction)
+        if not instruction.getDisassembly():  # If the insrtuction has not been disassembled
+            self.tt_ctx.disassembly(instruction)
+
         self.__current_inst = instruction
         ret = self.tt_ctx.buildSemantics(instruction)
 
