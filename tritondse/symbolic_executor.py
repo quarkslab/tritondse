@@ -6,6 +6,7 @@ import os
 import resource
 from typing import Optional, Union, List, NoReturn
 
+
 # third party imports
 from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess
 
@@ -21,6 +22,12 @@ from tritondse.callbacks      import CallbackManager
 from tritondse.workspace      import Workspace
 from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
+
+class SkipInstructionException(Exception):
+    pass
+
+class AbortExecutionException(Exception):
+    pass
 
 
 class SymbolicExecutor(object):
@@ -216,15 +223,18 @@ class SymbolicExecutor(object):
 
             instruction = self.pstate.fetch_instruction()
 
-            # Trigger pre-address callback
-            pre_cbs, post_cbs = self.cbm.get_address_callbacks(pc)
-            for cb in pre_cbs:
-                cb(self, self.pstate, pc)
+            try:
+                # Trigger pre-address callback
+                pre_cbs, post_cbs = self.cbm.get_address_callbacks(pc)
+                for cb in pre_cbs:
+                    cb(self, self.pstate, pc)
 
-            # Trigger pre-instruction callback
-            pre_insts, post_insts = self.cbm.get_instruction_callbacks()
-            for cb in pre_insts:
-                cb(self, self.pstate, instruction)
+                # Trigger pre-instruction callback
+                pre_insts, post_insts = self.cbm.get_instruction_callbacks()
+                for cb in pre_insts:
+                    cb(self, self.pstate, instruction)
+            except SkipInstructionException as e:
+                continue
 
             # Process
             if not self.pstate.process_instruction(instruction):
@@ -389,31 +399,32 @@ class SymbolicExecutor(object):
         an exception which is caught by the emulation function
         that takes care of returning appropriately afterward.
 
-        :raise RuntimeError: to abort execution from anywhere
+        :raise AbortExecutionException: to abort execution from anywhere
         """
-        raise RuntimeError('Execution aborted')
+        raise AbortExecutionException('Execution aborted')
 
-
-    def run_to(self, addr: Addr) -> None:
+    def skip_instruction(self) -> NoReturn:
         """
-        Execute the programm up until hit the given the address.
-        Mostly used to obtain the :py:obj:`ProcessState` at the
-        state of the location to perform manual checks.
+        Skip the current instruction before it gets executed. It is only
+        relevant to call it from pre-inst or pre-addr callbacks.
 
-        :param addr: Address where to stop
-        :return: None
+        :raise SkipInstructionException: to skip the current instruction
         """
-        self._run_to_target = addr
-        self.run()
+        raise SkipInstructionException("Skip instruction")
 
-
-    def run(self) -> None:
+    def run(self, stop_at: Addr = None) -> None:
         """
         Execute the program.
 
         If the :py:attr:`tritondse.Config.execution_timeout` is not set
         the execution might hang forever if the program does.
+
+        :param stop_at: Address where to stop (if necessary)
+        :return: None
         """
+        if stop_at:
+            self._run_to_target = stop_at
+
         if self.pstate is None:
             logging.error(f"ProcessState is None (have you called load_program ?")
             return
@@ -439,7 +450,7 @@ class SymbolicExecutor(object):
 
         try:
             self.__emulate()
-        except RuntimeError as e:
+        except AbortExecutionException as e:
             pass
 
         # Iterate through post exec callbacks
