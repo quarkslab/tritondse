@@ -17,6 +17,7 @@ from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.callbacks         import CallbackManager
 from tritondse.workspace         import Workspace
 from tritondse.coverage          import GlobalCoverage
+from tritondse.types             import Addr
 
 
 class ExplorationStatus(Enum):
@@ -33,7 +34,7 @@ class SymbolicExplorator(object):
     executions with the different seeds available in the workspace
     and generated along the way.
     """
-    def __init__(self, config: Config, program: Program, seed_scheduler: SeedScheduler = None):
+    def __init__(self, config: Config, program: Program = None, seed_scheduler: SeedScheduler = None, executor_stop_at: Addr = None):
         self.program: Program     = program  #: Program being analyzed
         self.config: Config       = config   #: Configuration file
         self.cbm: CallbackManager = CallbackManager()
@@ -41,6 +42,7 @@ class SymbolicExplorator(object):
         self.ts            = time.time()
         self.uid_counter   = 0
         self.status: ExplorationStatus = ExplorationStatus.NOT_RUNNING  #: status of the execution
+        self._executor_stop_at = executor_stop_at
 
         # Initialize the workspace
         self.workspace: Workspace = Workspace(self.config.workspace)  #: workspace object
@@ -48,8 +50,9 @@ class SymbolicExplorator(object):
 
         # Save both the program and configuration in the workspace (for later resume if needed)
         self.workspace.save_file("config.json", self.config.to_json())
-        self.workspace.save_file(self.program.path.name, self.program.path.read_bytes())
-        self.workspace.get_metadata_file_path(self.program.path.name).chmod(stat.S_IRWXU)  # Set the binary to be executable
+        if self.program:  # If the program is not None
+            self.workspace.save_file(self.program.path.name, self.program.path.read_bytes())
+            self.workspace.get_metadata_file_path(self.program.path.name).chmod(stat.S_IRWXU)  # Set the binary to be executable
 
         # Configure logfile
         self._configure_file_logger()
@@ -107,9 +110,10 @@ class SymbolicExplorator(object):
         cbs = None if self.cbm.is_empty() else self.cbm.fork()
         logging.info(f"Initialize ProcessState with thread scheduling: {self.config.thread_scheduling}")
         execution = SymbolicExecutor(self.config, seed=seed, workspace=self.workspace, uid=uid, callbacks=cbs)
-        execution.load_program(self.program)
+        if self.program:  # If doing the exploration from a program
+            execution.load_program(self.program)
         self.current_executor = execution
-        execution.run()
+        execution.run(self._executor_stop_at)
 
         # increment exec_count
         self._exec_count += 1
