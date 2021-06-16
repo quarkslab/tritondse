@@ -1201,10 +1201,15 @@ class ProcessState(object):
         for sname, rel_addr in program.imported_variable_symbols_relocations():
             logging.debug(f"Hooking {sname} at {rel_addr:#x}")
 
-            # Add symbol in dynamic_symbol_table
-            pstate.dynamic_symbol_table[sname] = (cur_linkage_address, False)
+            if pstate.architecture == Architecture.X86_64:  # HACK: Keep rel_addr to directly write symbol on it
+                # Add symbol in dynamic_symbol_table
+                pstate.dynamic_symbol_table[sname] = (rel_addr, False)
+                #pstate.write_memory_ptr(rel_addr, cur_linkage_address)  # Do not write anything as symbolic executor will do it
+            else:
+                # Add symbol in dynamic_symbol_table
+                pstate.dynamic_symbol_table[sname] = (cur_linkage_address, False)
+                pstate.write_memory_ptr(rel_addr, cur_linkage_address)
 
-            pstate.write_memory_ptr(rel_addr, cur_linkage_address)  # warning: for x86-64 this the rel_addr reference directly the symbol value
-            cur_linkage_address += pstate.ptr_size                  # while on aarch64 it references a pointer to the symbol value
+            cur_linkage_address += pstate.ptr_size
 
         return pstate
