@@ -127,7 +127,7 @@ class Program(object):
             lief.ELF.ARCH.i386:    lief.ELF.RELOCATION_i386,
             lief.ELF.ARCH.x86_64:  lief.ELF.RELOCATION_X86_64
         }
-        return rel_map[self._binary.header.machine_type]
+        return rel_map[self._binary.concrete.header.machine_type]
 
 
     def _is_glob_dat(self, rel: lief.ELF.Relocation) -> bool:

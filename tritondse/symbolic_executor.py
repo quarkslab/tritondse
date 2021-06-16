@@ -368,11 +368,11 @@ class SymbolicExecutor(object):
                 self.rtn_table[addr] = (symbol, SUPPORTED_ROUTINES[symbol])
 
             elif symbol in SUPORTED_GVARIABLES:
-                if self.pstate.architecture == Architecture.X86_64:
-                    self.pstate.write_memory_ptr(addr, SUPORTED_GVARIABLES[symbol])  # write directly at addr
-                elif self.pstate.architecture == Architecture.AARCH64:
-                    val = self.pstate.read_memory_ptr(addr)
-                    self.pstate.write_memory_ptr(val, SUPORTED_GVARIABLES[symbol])
+                # if self.pstate.architecture == Architecture.X86_64:
+                self.pstate.write_memory_ptr(addr, SUPORTED_GVARIABLES[symbol])  # write directly at addr
+                # elif self.pstate.architecture == Architecture.AARCH64:
+                #     val = self.pstate.read_memory_ptr(addr)
+                #     self.pstate.write_memory_ptr(val, SUPORTED_GVARIABLES[symbol])
 
             else:  # the symbol is not supported
                 if self.uid == 0:  # print warning if first uid (so that it get printed once)
