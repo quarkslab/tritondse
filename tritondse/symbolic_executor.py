@@ -22,12 +22,7 @@ from tritondse.callbacks      import CallbackManager
 from tritondse.workspace      import Workspace
 from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
-
-class SkipInstructionException(Exception):
-    pass
-
-class AbortExecutionException(Exception):
-    pass
+from tritondse.exception      import AbortExecutionException, SkipInstructionException
 
 
 class SymbolicExecutor(object):

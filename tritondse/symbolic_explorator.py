@@ -18,6 +18,7 @@ from tritondse.callbacks         import CallbackManager
 from tritondse.workspace         import Workspace
 from tritondse.coverage          import GlobalCoverage
 from tritondse.types             import Addr
+from tritondse.exception         import StopExplorationException
 
 
 class ExplorationStatus(Enum):
@@ -175,13 +176,18 @@ class SymbolicExplorator(object):
             # Exited loop
             self.status = ExplorationStatus.STOPPED if self._stop else ExplorationStatus.IDLE
 
+            # Call all termination functions
+            self.seeds_manager.post_exploration()
+            self.coverage.post_exploration()
+
         except KeyboardInterrupt:
             logging.warning("keyboard interrupt, stop symbolic exploration")
             self.status = ExplorationStatus.STOPPED
 
-        # Call all termination functions
-        self.seeds_manager.post_exploration()
-        self.coverage.post_exploration()
+        except StopExplorationException:
+            logging.warning("Exploration interrupted (coverage not integrated)")
+            self.status = ExplorationStatus.STOPPED
+
         logging.info(f"Total time of the exploration: {self._fmt_elpased(self.__time_delta())}")
 
         return self.status
