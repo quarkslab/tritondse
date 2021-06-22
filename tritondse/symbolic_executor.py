@@ -32,12 +32,10 @@ class SymbolicExecutor(object):
     program.
     """
 
-    def __init__(self, config: Config, pstate: ProcessState = None, seed: Seed = Seed(), workspace: Workspace = None, uid=0, callbacks=None):
+    def __init__(self, config: Config, seed: Seed = Seed(), workspace: Workspace = None, uid=0, callbacks=None):
         """
         :param config: configuration file to use
         :type config: Config
-        :param pstate: ProcessState instanciated (but not loaded)
-        :type pstate: ProcessState
         :param seed: input file to inject either in stdin or argv (optional)
         :type seed: Seed
         :param workspace: Workspace to use. If None it will be instanciated
@@ -47,15 +45,10 @@ class SymbolicExecutor(object):
         :param callbacks: callbacks to bind on this execution before running *(instanciated if empty !)*
         :type callbacks: CallbackManager
         """
-        # FIXME: Change interface, remove ProcessState
         self.config = config    # The config
         self.program = None     # The program to execute
 
-        if pstate:              # If received a ProcessState take it 'as-is'
-            self.pstate = pstate
-            self._configure_pstate()
-        else:
-            self.pstate = None  # else should be loaded through load_program
+        self.pstate = None  # else should be loaded through load_program
 
         self.workspace  = workspace                             # The current workspace
         if self.workspace is None:
@@ -92,6 +85,17 @@ class SymbolicExecutor(object):
         self.pstate = ProcessState.from_program(program)
         self._configure_pstate()
         self._map_dynamic_symbols()
+
+    def load_process(self, pstate: ProcessState) -> None:
+        """
+        Load the given process state. Do nothing but
+        setting the internal ProcessState.
+
+        :param pstate: PrcoessState to set
+        :return: None
+        """
+        self.pstate = pstate
+        self._configure_pstate()
 
     @property
     def execution_time(self) -> int:
