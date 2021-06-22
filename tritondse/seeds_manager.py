@@ -135,9 +135,12 @@ class SeedManager:
 
         # Iterate all pending seeds to be added in the right location
         for s in execution.pending_seeds:
-            if not s.coverage_objectives:      # If they don't have objectives set the Ellipsis wildcard
-                s.coverage_objectives.add(...)
-            self._add_seed(s)  # will add the seed in both internal queues & workspace
+            if self.is_new_seed(s):
+                if not s.coverage_objectives:      # If they don't have objectives set the Ellipsis wildcard
+                    s.coverage_objectives.add(...)
+                self._add_seed(s)  # will add the seed in both internal queues & workspace
+            else:
+                logging.warning(f"dropping enqueued seed: {s.hash} (already seen)")
 
         # Update the current seed queue
         if seed.status == SeedStatus.NEW:
