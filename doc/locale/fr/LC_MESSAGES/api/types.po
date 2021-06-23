@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tritondse \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"POT-Creation-Date: 2021-06-23 10:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -46,7 +46,8 @@ msgid ""
 "Symbolic Expression as returned by Triton (`SymbolicExpression "
 "<https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_)"
 msgstr ""
-"Expression Symbolique telle que retournée par Triton (`SymbolicExpression "
+"Expression Symbolique telle que retournée par Triton (`SymbolicExpression"
+" "
 "<https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_)"
 
 #: of tritondse.types.Model:1
@@ -60,11 +61,13 @@ msgstr ""
 " tel que renvoyé par Triton"
 
 #: of tritondse.types.PathBranch:1
+#, fuzzy
 msgid ""
-"PathBranch object as returned by Triton. Thus it is a dictionnary with the"
+"PathBranchobject as returned by Triton. Thus it is a dictionnary with the"
 " keys:"
 msgstr ""
-"Objet PathBranch tel que renvoyé par Triton. C'est donc un dictionnaire avec les clés:"
+"Objet PathBranch tel que renvoyé par Triton. C'est donc un dictionnaire "
+"avec les clés:"
 
 #: of tritondse.types.PathConstraint:1
 msgid ""
@@ -82,13 +85,27 @@ msgstr "Chemin vers un fichier sous forme de string ou d'objet :py:obj:`Path`"
 
 #: of tritondse.types.Register:1
 msgid "Register identifier as used by Triton *(not the Register object itself)*"
-msgstr "Identifiant de registre tel que utilisé par Triton *(pas l'objet Register lui-même)*"
+msgstr ""
+"Identifiant de registre tel que utilisé par Triton *(pas l'objet Register"
+" lui-même)*"
 
 #: of tritondse.types.Registers:1
 msgid "Set of registers as used by Triton"
 msgstr "Ensemble des registres tel que utilisé par Triton"
 
-#: of tritondse.types.Solver:1
+#: of tritondse.types.SolverStatus:1
 msgid "Common Solver Enum fully compatible with Triton ARCH"
-msgstr "Enum commun représentation le statut obtenu pour la résolution (valeur compatibles avec Triton ARCH)"
+msgstr ""
+"Enum commun représentation le statut obtenu pour la résolution (valeur "
+"compatibles avec Triton ARCH)"
+
+#: of tritondse.types.SymbolicVariable:1
+#, fuzzy
+msgid ""
+"Symbolic Variable as returned by Triton (`SymbolicExpression "
+"<https://triton.quarkslab.com/documentation/doxygen/py_SymbolicVariable_page.html>`_)"
+msgstr ""
+"Expression Symbolique telle que retournée par Triton (`SymbolicExpression"
+" "
+"<https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_)"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tritondse \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"POT-Creation-Date: 2021-06-23 10:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,41 +17,486 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.0\n"
 
-#: ../../tutos/starting.rst:2
+#: ../../tutos/starting.ipynb:9
 msgid "Getting Started"
-msgstr ""
+msgstr "Démarrer"
 
-#: ../../tutos/starting.rst:4
+#: ../../tutos/starting.ipynb:11
 msgid ""
-"Introduire un petit use-case bête où l'on couvre les branches d'un petit "
-"programme."
+"This tutorial introduces the TritonDSE library providing a high-level "
+"easy to use interface for Triton."
 msgstr ""
+"Ce tutoriel introduit la bibliothèque TritonDSE qui fournit une API haut-"
+"niveau à Triton."
 
-#: ../../tutos/starting.rst:6
-msgid "Faire un notebook de ça !"
+#: ../../tutos/starting.ipynb:30
+msgid ""
+"Disclaimer: This library is experimental. Most code has been writing "
+"toward satisfying PASTIS objectives. Thus it lacks many features and the "
+"API is subject to changes."
 msgstr ""
+"Attention: Cette bibliothèque est expérimentale. L'essentiel du code a "
+"été écrit pour satisfaire les exigences du projet PASTIS. Il manque donc "
+"problablement des fonctionnalités et l'API est sujette à changement."
 
-#: ../../tutos/starting.rst:9
-msgid "Loading a program"
+#: ../../tutos/starting.ipynb:45
+msgid ""
+"Tritondse works in pure emulation so it theoretically have to model all "
+"program side-effects syscalls etc. This is not possible so it works in a "
+"very opportunistic manner. As of now limitations are the following:"
+msgstr ""
+"TritonDSE fonctionne en pure émulation, il doit donc modéliser tous les "
+"effets de bords appels systèmes etc. Comme il est impossible d'être "
+"exhaustif, ce support est ajouté de manière opportuniste. Pour le moment "
+"les limitations sont les suivantes:"
+
+#: ../../tutos/starting.ipynb:47
+msgid "Limited to Linux ELF binaries"
+msgstr "Limité aux binaires ELF Linux"
+
+#: ../../tutos/starting.ipynb:48
+msgid "Only support a subset of libc function calls *(no C++ runtime functions)*"
+msgstr ""
+"Seul un sous-ensemble des fonctions de la libc sont supportées *(aucune "
+"du runtime C++)*"
+
+#: ../../tutos/starting.ipynb:49
+msgid "No modeling of syscalls, *(they have to be modeled manually)*"
+msgstr ""
+"Aucune modélisation des appels systèmes *(ils doivent donc être modelisés"
+" manuellement)*"
+
+#: ../../tutos/starting.ipynb:50
+msgid ""
+"TritonDSE have the same weaknesses than Triton in model floating point, "
+"or some specific instruction sets."
+msgstr ""
+"TritonDSE a les mêmes limitations que Triton pour la modélisation des "
+"flottants ou d'autres jeux d'instruction spécifiques."
+
+#: ../../tutos/starting.ipynb:62
+#, fuzzy
+msgid "I. Loading a program"
 msgstr "Chargement d'un programme"
 
-#: ../../tutos/starting.rst:13
-msgid "Creating a process"
-msgstr "Création d'un process"
+#: ../../tutos/starting.ipynb:73
+msgid ""
+"For the purpose of this tutorial any samples can be used but we are going"
+" to use to following crackme that can be downloaded `here "
+"<../../../_static/crackme_xor>`__. We are first going to create a "
+"``Program`` object which is solely a thin wrapper on `LIEF "
+"<https://lief.quarkslab.com>`__."
+msgstr ""
+"Pour ce tutoriel nous allons utiliser le crackme qui peux être téléchargé"
+" `ici <../../../_static/crackme_xor>`__. On va d'abord créer un objet "
+"``Program`` qui est un wrapper sur `LIEF <https://lief.quarkslab.com>`__."
 
-#: ../../tutos/starting.rst:18
-msgid "Single execution"
-msgstr "Simple exécution"
+#: ../../tutos/starting.ipynb:120
+msgid ""
+"By the default the ``Program`` only expose few fields required to peform "
+"the loading of the program. Thus segments or imported functions are "
+"exposed. The main utility is being able to retrieve a function object "
+"*(as LIEF object)*"
+msgstr ""
+"Par défaut un ``Program`` expose uniquement les champs requis pour "
+"effectuer le chargement du programme. Ainsi, les segments et les "
+"relocations sont exposées. La principale utilitée de cet objet est de "
+"pouvoir récupérer les fonctions *(comme object LIEF)*."
 
-#: ../../tutos/starting.rst:22
-msgid "Launching exploration"
-msgstr "Lancement d'une exploration"
+#: ../../tutos/starting.ipynb:193
+msgid ""
+"To perform any specific processing using directly the LIEF Binary object "
+"it can be retrieved *(even though it is not directly exposed)*"
+msgstr ""
+"Pour effectuer des traitements spécifiques sur l'objet LIEF il peux être "
+"récupéré *(même s'il n'est pas directement exposé)*."
 
-#: ../../tutos/starting.rst:26
-msgid "Configuration"
+#: ../../tutos/starting.ipynb:235
+#, fuzzy
+msgid "II. Single Execution"
+msgstr "II. Exécution simple"
+
+#: ../../tutos/starting.ipynb:246
+msgid ""
+"Now we need to load the program in the process state and then start the "
+"program at its entrypoint by providing it a concrete input that will "
+"either be injected in *stdin* or on argv depending on the need. Hopefully"
+" everything is done transparently by ``SymbolicExecutor``."
+msgstr ""
+"Il faut maintenant charger le program dans un objet ``ProcessState`` est "
+"ensuite démarrer l'exécution symbolique sur le point d'entré du program "
+"avec une graine donnée. Cela est fait de manière transparente par l'objet"
+" ``SymbolicExecutor``."
+
+#: ../../tutos/starting.ipynb:293
+msgid ""
+"This object is in charge of performing a single execution with the given "
+"configuration on the process state using the given program."
+msgstr ""
+"Cet objet est en charge d'effectuer une exécution avec la configuration "
+"et le programme donné."
+
+#: ../../tutos/starting.ipynb:295
+msgid ""
+"The ``run`` methods will take care of loading the program, performing the"
+" dynamic relocations (PLT stuff etc) and then to start emulating from the"
+" entrypoint."
+msgstr ""
+"La méthode ``load_program`` charge le programme et initialise l'état "
+"mémoire interne. Il effectue aussi toutes les relocations et positionne "
+"le pointeur d'instruction sur le point d'entré."
+
+#: ../../tutos/starting.ipynb:316
+msgid ""
+"We now have successfully performed a single run of our program. After "
+"execution, the ``ProcessState`` has been updated and represent the "
+"program after execution and a ``CoverageSingleRun`` as been produced "
+"which represent to coverage generated by the execution."
+msgstr ""
+"Le programme a été exécuté et l'objet ``ProcessState`` a été mis à jour "
+"au fil de l'exécution. Un objet ``CoverageSingleRun`` représentant le "
+"couverture de l'exécution a aussi été produit."
+
+#: ../../tutos/starting.ipynb:388
+msgid "III. Manipulating concrete state"
+msgstr "III. Manipuler l'état concret"
+
+#: ../../tutos/starting.ipynb:390
+msgid ""
+"A process can be manipulated and modified at any time during the "
+"execution. Both the concrete state and symbolic state can be modified."
+msgstr ""
+"Un process peut être manipulé et modifié à n'importe quel moment de "
+"l'exécution. Aussi bien l'état concret que l'état symbolique peuvent être"
+" modifiés."
+
+#: ../../tutos/starting.ipynb:392
+msgid "Process infos:"
+msgstr "Information du processus:"
+
+#: ../../tutos/starting.ipynb:444
+msgid "a. Reading, writing registers (function API)"
+msgstr "a. Lire, écrire un registre (API fonctionnelle)"
+
+#: ../../tutos/starting.ipynb:446
+msgid ""
+"Most of the API enables addressing register either by an enum identifier "
+"*(triton one)* or directly with theirs string."
+msgstr ""
+"La plupart des fonctions de l'API identifient un registre par l'enum "
+"Triton ou bien directement par leur nom."
+
+#: ../../tutos/starting.ipynb:487
+msgid ""
+"A ``ProcessState`` also provides some alias to access program counter, "
+"stack register, base pointer or return register in a portable way."
+msgstr ""
+"Un ``ProcessState`` fournit aussi des alias portables pour le pointeur "
+"d'instruction le pointeur de pile (et de base) ou encore le registre "
+"recevant les valeurs de retour."
+
+#: ../../tutos/starting.ipynb:531
+msgid ""
+"Then both concrete an symbolic values can be modified using a function-"
+"style API."
+msgstr ""
+"Aussi bien les valeurs concrètes que symboliques peuvent être modifiées "
+"avec l'API fonctionnelle."
+
+#: ../../tutos/starting.ipynb:575
+msgid "b. Reading, writing registers (Pythonic API)"
+msgstr "b. Lire, écrire des registres (API 'pythonic')"
+
+#: ../../tutos/starting.ipynb:586
+msgid ""
+"To ease manipulation of the registers concrete values, the "
+"``ProcessState`` introduces a ``cpu`` attributes that transparently "
+"updates the underlying triton context."
+msgstr ""
+"Pour faciliter la manipulation des valeurs concrètes de regsitre, l'objet"
+" `ProcessState`` contient un attribut ``cpu`` qui effectue les mises à "
+"jour du context triton de manière transparente."
+
+#: ../../tutos/starting.ipynb:689
+#, fuzzy
+msgid "c. Reading, writing memory"
+msgstr "c. Lire, écrire en mémoire"
+
+#: ../../tutos/starting.ipynb:691
+msgid ""
+"When manipulating memory what differs is whether we write bytes or "
+"integers. In the case of integers, the endianess will be taken in account"
+" when reading, writing in memory."
+msgstr ""
+"Lorsqu'on manipule la mémoire, on lis ou écrits soit des octets soit des "
+"entiers. Dans le cas des entiers le boutisme entre en compte pour "
+"renverser ou non les octets."
+
+#: ../../tutos/starting.ipynb:792
+msgid ""
+"The exact same functions exists for writing: ``write_memory_int``, "
+"``write_memory_ptr``, ``write_memory_bytes``."
+msgstr ""
+"Les mêmes fonctions existent pour écrire: ``write_memory_int``, "
+"``write_memory_ptr``, ``write_memory_bytes``."
+
+#: ../../tutos/starting.ipynb:803
+msgid ""
+"A ``ProcessState`` object also enables checking whether an address is "
+"mapped in memory:"
+msgstr ""
+"Un objet ``ProcessState`` permet de vérifier qu'une adresse est mappée en"
+" mémoire:"
+
+#: ../../tutos/starting.ipynb:845
+msgid "IV. Manipulating symbolic state"
+msgstr "IV. Manipuler l'état symbolique"
+
+#: ../../tutos/starting.ipynb:847
+msgid ""
+"Both symbolic registers and symbolic memory can be manipulated in a "
+"similar fashion than the concrete state."
+msgstr ""
+"L'état symbolique des registres et de la mémoire peuvent être manipulés "
+"comme l'état concrêt."
+
+#: ../../tutos/starting.ipynb:849
+msgid ""
+"One should be cautious when manipulating the symbolic state to keep it "
+"consistent with the concrete state in order to remain sound."
+msgstr ""
+"Il faut faire attention en manipulant l'état symbolic pour le garder "
+"cohérent avec l'état concrêt afin de rester correct."
+
+#: ../../tutos/starting.ipynb:860
+msgid ""
+"Symbolic values can be read written with a similar API than concrete "
+"state."
+msgstr ""
+"Des valeurs symboliques peuvent être écrites de la même manière que "
+"l'état concrêt"
+
+#: ../../tutos/starting.ipynb:905
+msgid ""
+"The same can be done on memory with ``read_symbolic_memory_byte``, "
+"``read_symbolic_memory_bytes``, ``read_symbolic_memory_int`` and theirs "
+"equivalent for writing."
+msgstr ""
+"La même chose peut être faite avec la mémoire "
+"``read_symbolic_memory_byte``, ``read_symbolic_memory_bytes``, "
+"``read_symbolic_memory_int`` et leurs équivalent pour écrire."
+
+#: ../../tutos/starting.ipynb:924
+msgid ""
+"Disclaimer: Writing an arbitrary symbolic value in a register or memory "
+"might break soundness, and the dependency with previous definition of the"
+" variable. In standard usage a user, is usually not supposed to modify "
+"symbolic values but rather to concretize values or adding new constraints"
+" in the path predicate."
+msgstr ""
+"Attention: Écrire une valeur symbolique arbitraire dans un registre ou de"
+" la mémoire peut casser la correction de l'exécution *(et écrase toute "
+"dépendances avec les précédantes définitions de la variable)*. Dans un "
+"usage standard, un utilisateur n'est pas censé modifier les valeurs "
+"symboliques. En revanche, il peux concrétiser des valeurs ou ajouter des "
+"contraintes sur des symboles (via ``push_path_constraints``)."
+
+#: ../../tutos/starting.ipynb:939
+msgid ""
+"We using the concrete value of a register *(or memory)* to produce side-"
+"effects on the system we usually have to concretize to value in order to "
+"remain sound wrt to execution. We can do it with ``concretize_register`` "
+"that will enforce the symbolic value to match the current concrete value."
+msgstr ""
+"Lors qu'on modélise un effet de bord et que pour cela on utilise une "
+"valeur concrète, il faut généralement la concrétiser pour rester correct."
+" Cela est faisable avec la fonction ``concretize_register`` qui va forcer"
+" une valeur symbolique à prendre la valeur concrète donnée (tout en "
+"restant symbolique)."
+
+#: ../../tutos/starting.ipynb:960
+msgid "We also can push our own constraints in the symbolic state."
+msgstr ""
+"Il est évidemment possible d'ajouter des contraintes symbolique au cours "
+"de l'exécution."
+
+#: ../../tutos/starting.ipynb:1006
+msgid "V. Configuration"
 msgstr ""
 
-#: ../../tutos/starting.rst:30
-msgid "Workspace & Corpus"
+#: ../../tutos/starting.ipynb:1008
+msgid ""
+"As seen before, a ``SymbolicExecutor`` takes a a ``Config`` object as "
+"input. It tunes multiple parameters that will be used during execution "
+"and exploration. These parameters are the following:"
 msgstr ""
+"Comme vu précédemment, un objet ``SymbolicExecutor`` prend un objet "
+"``Config`` en entrée. Il ajuste les paramètres à appliquer durant "
+"l'exécution et l'exploration. Ces paramètres sont les suivants: "
+
+#: ../../tutos/starting.ipynb:1010
+msgid "symbolize_argv (bool): Symbolize parameters given on the command line"
+msgstr ""
+"ymbolize_argv (bool): Symbolise les paramètres donnés sur la ligne de "
+"commande"
+
+#: ../../tutos/starting.ipynb:1011
+msgid "symbolize_stdin (bool): Symbolize reads on ``stdin``"
+msgstr "symbolize_stdin (bool): Symbolise les lectures sur ``stdin`` (la première)"
+
+#: ../../tutos/starting.ipynb:1012
+msgid "pipe_stdout (bool): Pipe the program stdout to Python’s stdout"
+msgstr ""
+"pipe_stdout (bool): Transmet la sortie standard sur la sortie standard du"
+" programme python"
+
+#: ../../tutos/starting.ipynb:1013
+msgid "pipe_stderr (bool): Pipe the program stderr to Python’s stderr"
+msgstr ""
+"pipe_stderr (bool): Transmet la sortie d'erreur sur celle du programme "
+"python"
+
+#: ../../tutos/starting.ipynb:1014
+msgid "skip_sleep_routine (bool): Whether to emulate sleeps routine or to skip it"
+msgstr ""
+"skip_sleep_routine (bool): Emuler ou non les routines de sleep (ou les "
+"sauter)"
+
+#: ../../tutos/starting.ipynb:1015
+msgid "smt_timeout (int): Timeout for a single SMT query in milliseconds"
+msgstr ""
+"smt_timeout (int): Timeout à appliquer pour une seule query SMT (en "
+"milliseconds)"
+
+#: ../../tutos/starting.ipynb:1016
+msgid "execution_timeout (int): Timeout of a single execution *(in secs)*"
+msgstr ""
+"execution_timeout (int): Timeout à appliquer sur une seule exécutino *(en"
+" secondes)*"
+
+#: ../../tutos/starting.ipynb:1017
+msgid "exploration_timeout (int): Overall timeout of the exploration (in secs)\\*"
+msgstr "exploration_timeout (int): Timeout de l'exploration *(en secs)*"
+
+#: ../../tutos/starting.ipynb:1018
+msgid ""
+"exploration_limit (int): Number of execution iterations. *(0 means "
+"unlimited)*"
+msgstr "exploration_limit (int): Nombre d'itérations d'exécutions *(0 illimité)*"
+
+#: ../../tutos/starting.ipynb:1019
+msgid ""
+"thread_scheduling (int): Number of instructions to execute before "
+"switching to the next thread"
+msgstr ""
+"thread_scheduling (int): Nombre d'instructions à exécuter dans chaque "
+"threads avant d'effectuer un context-switch"
+
+#: ../../tutos/starting.ipynb:1020
+msgid ""
+"smt_queries_limit (int): Limit of SMT queries to perform for a single "
+"execution"
+msgstr "smt_queries_limit (int): Limite de requêtes SMT à effectuer par exécution"
+
+#: ../../tutos/starting.ipynb:1021
+msgid ""
+"coverage_strategy (CoverageStrategy): Coverage strategy to apply for the "
+"whole exploration"
+msgstr ""
+"coverage_strategy (CoverageStrategy): Stratégie de couverture à appliquer"
+" pour toute l'exploration"
+
+#: ../../tutos/starting.ipynb:1022
+msgid ""
+"branch_solving_strategy (BranchCheckStrategy): Branch solving strategy to"
+" apply for a single execution"
+msgstr ""
+"branch_solving_strategy (BranchCheckStrategy): Stratégie de résolution "
+"des branches à appliquer"
+
+#: ../../tutos/starting.ipynb:1023
+msgid "debug (bool): Enable debug logging or not"
+msgstr "debug (bool): Active le debug de logging ou non"
+
+#: ../../tutos/starting.ipynb:1024
+msgid "workspace (str): Workspace directory to use"
+msgstr "workspace (str): Dossier de workspace à utiliser"
+
+#: ../../tutos/starting.ipynb:1025
+msgid ""
+"program_argv (List[str]): Concrete program argument as given on the "
+"command line"
+msgstr ""
+"program_argv (List[str]): Argument à donner en ARGV du programme *(si "
+"entrées sur stdin)*"
+
+#: ../../tutos/starting.ipynb:1026
+msgid ""
+"time_inc_coefficient (float): Execution time of each instruction *(for "
+"rdtsc)*"
+msgstr ""
+"time_inc_coefficient (float): Coefficient de temps d'exécution pour "
+"chaque instruction *(pour rdtsc)*"
+
+#: ../../tutos/starting.ipynb:1049
+#, fuzzy
+msgid "VI. Exploration"
+msgstr "VI. Exploration"
+
+#: ../../tutos/starting.ipynb:1051
+msgid ""
+"Now that we performed a single run, lets try to explore the program by "
+"symbolizing ``argv`` to see how many different paths we are able to take."
+msgstr ""
+"Maintenant que l'on a effectué une execution, on peux essayer d'explorer "
+"le programme en symbolisant ``argv`` pour voir quels sont les chemins qui"
+" ont pu être empruntés."
+
+#: ../../tutos/starting.ipynb:1179
+msgid ""
+"We now have completed a very simple exploration, where we covered two "
+"distincts paths."
+msgstr "Deux chemins ont été explorés pendant l'exécution."
+
+#: ../../tutos/starting.ipynb:1191
+msgid "VII. Workspace & Corpus"
+msgstr "VII. Workspace & Corpus"
+
+#: ../../tutos/starting.ipynb:1193
+msgid ""
+"All inputs, crashes and various metadata are stored in a workspace. "
+"Unless explicitely specified the workspace is created in "
+"*/tmp/triton_workspace/[timestamp]*. If a workspace directory is given "
+"via the ``Config`` this one is loaded *(which enables restarting an "
+"interrupted run)*."
+msgstr ""
+"Toutes les entrées, crashs et certaines métadonnées sont stockées dans "
+"l'espace de travail. À moins d'être explicitement mentionnés le dossier "
+"est crée dans le dossier */tmp/triton_workspace/[timestamp]*.Si un "
+"dossier de workspace est donné via la configuration, celui-ci est chargé "
+"*(ce qui permet de redémarrer une exploration interrompue)*."
+
+#: ../../tutos/starting.ipynb:1195
+msgid ""
+"The whole corpus and crashes generated shall now be available in this "
+"directory."
+msgstr "Le corpus et les crash générés doivent être disponibles dans ce dossier."
+
+#~ msgid ""
+#~ "Introduire un petit use-case bête "
+#~ "où l'on couvre les branches d'un "
+#~ "petit programme."
+#~ msgstr ""
+
+#~ msgid "Faire un notebook de ça !"
+#~ msgstr ""
+
+#~ msgid "Creating a process"
+#~ msgstr "Création d'un process"
+
+#~ msgid "Configuration"
+#~ msgstr ""
+
+#~ msgid "Workspace & Corpus"
+#~ msgstr ""
 

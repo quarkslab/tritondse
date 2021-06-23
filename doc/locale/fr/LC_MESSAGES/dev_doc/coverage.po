@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tritondse \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"POT-Creation-Date: 2021-06-23 10:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,9 +32,10 @@ msgid ""
 "checked with SMT on a single trace, namely a :py:obj:`CoverageSingleRun`."
 " For a given branch that has not been covered strategies are:"
 msgstr ""
-"Enum de stratégie de branche. Il définit la manière dont les branches vont être résolues "
-"par SMT sur une seule trace d'exécution, c'est à dire dans un :py:obj:`CoverageSingleRun`."
-"Pour une branche donnée qui n'a pas été couverte les stratégies sont:"
+"Enum de stratégie de branche. Il définit la manière dont les branches "
+"vont être résolues par SMT sur une seule trace d'exécution, c'est à dire "
+"dans un :py:obj:`CoverageSingleRun`.Pour une branche donnée qui n'a pas "
+"été couverte les stratégies sont:"
 
 #: of tritondse.coverage.BranchCheckStrategy:6
 msgid "``ALL_NOT_COVERED``: check by SMT all occurences"
@@ -44,7 +45,9 @@ msgstr "``ALL_NOT_COVERED``: vérifie par SMT toutes les occurrences"
 msgid ""
 "``FIRST_LAST_NOT_COVERED``: check only the first and last occurence in "
 "the trace"
-msgstr "``FIRST_LAST_NOT_COVERED``: vérifie la première et la dernière occurrence dans la trace"
+msgstr ""
+"``FIRST_LAST_NOT_COVERED``: vérifie la première et la dernière occurrence"
+" dans la trace"
 
 #: of tritondse.coverage.CovItem:1
 msgid "Variant type representing a coverage item. It can be:"
@@ -60,7 +63,9 @@ msgstr "une arête :py:obj:`tritondse.types.Edge` pour de la couverture d'arête
 
 #: of tritondse.coverage.CovItem:6
 msgid "a string :py:obj:`tritondse.types.PathHash` for path coverage"
-msgstr "une chaîne de caractères :py:obj:`tritondse.types.PathHash` pour de la couverture de chemins"
+msgstr ""
+"une chaîne de caractères :py:obj:`tritondse.types.PathHash` pour de la "
+"couverture de chemins"
 
 #: of tritondse.coverage.CoverageSingleRun:1
 msgid "Bases: :class:`object`"
@@ -71,8 +76,9 @@ msgid ""
 "Coverage produced by a **Single Execution** Depending on the strategy "
 "given to the constructor it stores different data."
 msgstr ""
-"Couverture produite sur **une seule exécution**. En fonction de la stratégie fournie au constructeur, "
-"elle emmagasine différents artefacts de couverture (CovItem)."
+"Couverture produite sur **une seule exécution**. En fonction de la "
+"stratégie fournie au constructeur, elle emmagasine différents artefacts "
+"de couverture (CovItem)."
 
 #: of tritondse.coverage.CoverageSingleRun
 #: tritondse.coverage.CoverageSingleRun.add_covered_address
@@ -112,11 +118,13 @@ msgid ""
 "branch encoding is the MD5 of the conjunction of all taken branch "
 "addresses."
 msgstr ""
-"Ajoute une branche couvertes. C'est cette fonction qui met à jour la couverture. "
-"Selon la stratégie, la branche est utilisée différemment. Pour de la couverture de blocs, "
-"seul l'adresse de l'instruction est conservée. Pour de la couverture d'arête, le tuple "
-"adresse source et adresse destination sont conservés. Enfin, pour de la couverture de chemin, "
-"l'arête est ajoutée aux précédentes déjà rencontrée puis hashé en MD5 pour encoder le chemin."
+"Ajoute une branche couvertes. C'est cette fonction qui met à jour la "
+"couverture. Selon la stratégie, la branche est utilisée différemment. "
+"Pour de la couverture de blocs, seul l'adresse de l'instruction est "
+"conservée. Pour de la couverture d'arête, le tuple adresse source et "
+"adresse destination sont conservés. Enfin, pour de la couverture de "
+"chemin, l'arête est ajoutée aux précédentes déjà rencontrée puis hashé en"
+" MD5 pour encoder le chemin."
 
 #: of tritondse.coverage.CoverageSingleRun.add_covered_branch:7
 msgid "The address taken in by the branch"
@@ -145,8 +153,9 @@ msgstr "Couverture d'instructions. (Compteur si couverture de code)."
 msgid ""
 "Return whether the item has been covered or not. **The item should match "
 "the strategy**"
-msgstr "Renvoie vrai si l'item (artefact) a été couvert ou non. **L'item doit être "
-"compatible avec la stratégie courante. "
+msgstr ""
+"Renvoie vrai si l'item (artefact) a été couvert ou non. **L'item doit "
+"être compatible avec la stratégie courante. "
 
 #: of tritondse.coverage.CoverageSingleRun.is_covered:4
 #: tritondse.coverage.CoverageSingleRun.pp_item:3
@@ -158,12 +167,14 @@ msgstr "Une adresse, une arête ou un chemin"
 #: tritondse.coverage.CoverageSingleRun.total_instruction_executed
 #: tritondse.coverage.CoverageSingleRun.unique_edge_covered
 #: tritondse.coverage.CoverageSingleRun.unique_instruction_covered
+#: tritondse.coverage.CoverageSingleRun.unique_path_covered
 #: tritondse.coverage.GlobalCoverage.can_improve_coverage
 #: tritondse.coverage.GlobalCoverage.iter_new_paths
 #: tritondse.coverage.GlobalCoverage.new_items_to_cover
 #: tritondse.coverage.GlobalCoverage.total_instruction_executed
 #: tritondse.coverage.GlobalCoverage.unique_edge_covered
 #: tritondse.coverage.GlobalCoverage.unique_instruction_covered
+#: tritondse.coverage.GlobalCoverage.unique_path_covered
 msgid "Returns"
 msgstr "Renvoie"
 
@@ -174,7 +185,9 @@ msgstr "bool"
 
 #: ../../docstring of tritondse.coverage.CoverageSingleRun.not_edges:1
 msgid "Edges not covered by the trace. Thus coverage objectives."
-msgstr "Arêtes non couvertes dans une trace. Par conséquent les objectifs de couverture"
+msgstr ""
+"Arêtes non couvertes dans une trace. Par conséquent les objectifs de "
+"couverture"
 
 #: ../../docstring of tritondse.coverage.CoverageSingleRun.not_instructions:1
 #: tritondse.coverage.GlobalCoverage.not_instructions:1
@@ -183,9 +196,10 @@ msgid ""
 "never taken). It represent what can be covered by the trace (input), with"
 " the branches were negated. We call it coverage objectives."
 msgstr ""
-"Instructions non couvertes dans la trace *(cible d'une condition de branchement "
-"jamais prise). Elles représente ce qui pourrait être couvert par l'entrée si "
-"les branches peuvent être niées. Ce sont des objectifs de couverture."
+"Instructions non couvertes dans la trace *(cible d'une condition de "
+"branchement jamais prise). Elles représente ce qui pourrait être couvert "
+"par l'entrée si les branches peuvent être niées. Ce sont des objectifs de"
+" couverture."
 
 #: ../../docstring of tritondse.coverage.CoverageSingleRun.not_paths:1
 msgid "Paths not taken by the trace. Thus coverage objectives."
@@ -197,16 +211,16 @@ msgid ""
 "Path covered by the trace. It uses the path predicate. Thus solely "
 "symbolic branches are used to compute paths."
 msgstr ""
-"Chemins couverts par la trace. Utilise le prédicat de chemin, donc seules "
-"les branches symboliques sont utilisées pour calculer le chemin."
+"Chemins couverts par la trace. Utilise le prédicat de chemin, donc seules"
+" les branches symboliques sont utilisées pour calculer le chemin."
 
 #: of tritondse.coverage.CoverageSingleRun.post_execution:1
 msgid ""
 "Function is called after each execution for post processing or clean-up. "
 "*(Not doing anythin at the moment)*"
 msgstr ""
-"Fonction appelée après chaque exécution pour effectuer un post-traitement ou "
-"du nettoyage. *(ne fait rien pour le moment)*"
+"Fonction appelée après chaque exécution pour effectuer un post-traitement"
+" ou du nettoyage. *(ne fait rien pour le moment)*"
 
 #: of tritondse.coverage.CoverageSingleRun.pp_item:1
 msgid "Pretty print a CovItem according the coverage strategy"
@@ -236,6 +250,12 @@ msgstr "Nombre d'arêtes uniques couvertes"
 msgid "The number of unique instructions covered"
 msgstr "Nombre d'instructions uniques couvertes"
 
+#: of tritondse.coverage.CoverageSingleRun.unique_path_covered:1
+#: tritondse.coverage.GlobalCoverage.unique_path_covered:1
+#, fuzzy
+msgid "The number of unique paths covered"
+msgstr "Nombre d'arêtes uniques couvertes"
+
 #: of tritondse.coverage.CoverageStrategy:1
 msgid "Coverage strategy enum."
 msgstr "Enum de stratégie de couverture"
@@ -250,9 +270,9 @@ msgid ""
 " filled by iteratively call merge with the :py:obj:`CoverageSingleRun` "
 "objects created during exploration."
 msgstr ""
-"Couverture Globale. Représente la couverture accumulée à travers toutes les exécutions. "
-"Elle est remplie itérativement à partir de :py:obj:`CoverageSingleRun` combiné à la fonction "
-"merge. "
+"Couverture Globale. Représente la couverture accumulée à travers toutes "
+"les exécutions. Elle est remplie itérativement à partir de "
+":py:obj:`CoverageSingleRun` combiné à la fonction merge. "
 
 #: of tritondse.coverage.GlobalCoverage:7
 msgid "Coverage strategy to use"
@@ -271,8 +291,9 @@ msgid ""
 "Check if some of the non-covered are not already in the global coverage "
 "Used to know if an input is relevant to keep or not"
 msgstr ""
-"Vérifie si la couverture d'un :py:obj:`CoverageSingleRun` peut améliorer la couverture "
-"globale déjà obtenue. Utilisée pour savoir s'il est pertinent de conserver une entrée ou non."
+"Vérifie si la couverture d'un :py:obj:`CoverageSingleRun` peut améliorer "
+"la couverture globale déjà obtenue. Utilisée pour savoir s'il est "
+"pertinent de conserver une entrée ou non."
 
 #: of tritondse.coverage.GlobalCoverage.can_improve_coverage:4
 msgid "The CoverageSingleRun to check against our global coverage state"
@@ -287,11 +308,12 @@ msgid ""
 " the goal of the function is to manipulate the path WITHOUT doing any SMT"
 " related things."
 msgstr ""
-"À partir d'un prédicat de chemin, renvoie sous forme de yield toutes les branches "
-"qui représentent de la nouvelle couverture à prendre. Cette fonction, agit en boîte noire "
-"pour que le SeedManager n'ait pas à avoir connaissance de la stratégie de couverture employée. "
-"D'un point de vue implémentation, le but de la fonction est de manipuler le prédicat "
-"de chemin sans effectuer de requêtes SMT."
+"À partir d'un prédicat de chemin, renvoie sous forme de yield toutes les "
+"branches qui représentent de la nouvelle couverture à prendre. Cette "
+"fonction, agit en boîte noire pour que le SeedManager n'ait pas à avoir "
+"connaissance de la stratégie de couverture employée. D'un point de vue "
+"implémentation, le but de la fonction est de manipuler le prédicat de "
+"chemin sans effectuer de requêtes SMT."
 
 #: of tritondse.coverage.GlobalCoverage.iter_new_paths:7
 msgid "Todo"
@@ -303,8 +325,9 @@ msgid ""
 "occurences, only the first, only the last etc. At the moment only the "
 "first."
 msgstr ""
-"Nécessite d'implémenter différentes stratégies pour renvoyer toutes les occurrences "
-"ou seulement la première/dernière. Pour le moment seul la première est renvoyée."
+"Nécessite d'implémenter différentes stratégies pour renvoyer toutes les "
+"occurrences ou seulement la première/dernière. Pour le moment seul la "
+"première est renvoyée."
 
 #: of tritondse.coverage.GlobalCoverage.iter_new_paths:10
 msgid "list of path constraint to iterate"
@@ -316,8 +339,9 @@ msgid ""
 "is a list of PathConstraint to add in the path predicate and the second "
 "is the branch to solve (but not to keep in path predicate)"
 msgstr ""
-"Générateur de contraintes de chemins et de branches à résoudre. Un yield renvoie "
-"une liste de contraintes à ajouter à la conjonction et une branche spécifique à nier."
+"Générateur de contraintes de chemins et de branches à résoudre. Un yield "
+"renvoie une liste de contraintes à ajouter à la conjonction et une "
+"branche spécifique à nier."
 
 #: of tritondse.coverage.GlobalCoverage.load_coverage:1
 msgid "Load the coverage from the workspace"
@@ -336,8 +360,9 @@ msgid ""
 "Return all coverage items (addreses, edges, paths) that the given "
 "CoverageSingleRun can cover if it is possible to negate their branches"
 msgstr ""
-"Renvoie tous les artefacts de couverture qu'un objet :py:obj:`CoverageSingleRun` "
-"peux potentiellement couvrir si toutes ses branches peuvent être niées."
+"Renvoie tous les artefacts de couverture qu'un objet "
+":py:obj:`CoverageSingleRun` peux potentiellement couvrir si toutes ses "
+"branches peuvent être niées."
 
 #: of tritondse.coverage.GlobalCoverage.new_items_to_cover:4
 msgid "The CoverageSingleRun to check with our global coverage state"
@@ -352,18 +377,20 @@ msgid ""
 "Set of pending coverage items. These are items for which a branch as "
 "already been solved and"
 msgstr ""
-"Ensemble d'artefacts de couverture. Cet ensemble représente tous les CovItem "
-"pour lesquels une branche à été résolue avec succès mais dont la couverture n'est "
-"pas encore effective car l'entrée associée n'a pas été exécutée."
+"Ensemble d'artefacts de couverture. Cet ensemble représente tous les "
+"CovItem pour lesquels une branche à été résolue avec succès mais dont la "
+"couverture n'est pas encore effective car l'entrée associée n'a pas été "
+"exécutée."
 
 #: of tritondse.coverage.GlobalCoverage.post_exploration:1
 msgid ""
 "Function called at the very end of the exploration. It saves the coverage"
 " in the workspace."
 msgstr ""
-"Fonction appelée à la fin de l'exploration. Elle sauvegarde la couverture dans "
-"l'espace de travail."
+"Fonction appelée à la fin de l'exploration. Elle sauvegarde la couverture"
+" dans l'espace de travail."
 
 #: of tritondse.coverage.GlobalCoverage.save_coverage:1
 msgid "Save the coverage in the workspace"
 msgstr "Sauvegarde la couverture dans l'espace de travail."
+
