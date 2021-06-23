@@ -19,7 +19,7 @@ msgstr ""
 
 #: ../../tutos/intrinsic.rst:2
 msgid "Intrinsic functions"
-msgstr ""
+msgstr "Fonction intrinsèques"
 
 #: ../../tutos/intrinsic.rst:4
 msgid ""

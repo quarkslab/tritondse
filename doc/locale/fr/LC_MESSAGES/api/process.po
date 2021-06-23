@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tritondse \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"POT-Creation-Date: 2021-06-23 10:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,10 +29,11 @@ msgid ""
 "context. At the top of this, it provides a user-friendly API to access "
 "data in both the concrete and symbolic state of Triton."
 msgstr ""
-"Process courant. Cette classe conserve tous les données liées à l'exécution du process comme "
-"l'instruction courante, le thread, le mapping mémoire, les descripteurs de fichiers etc. Elle "
-"encapsule aussi le contexte Triton au dessus duquel, elle fournie une API simple d'utilisation "
-"pour accéder aux données de l'état concret et symbolique."
+"Process courant. Cette classe conserve tous les données liées à "
+"l'exécution du process comme l'instruction courante, le thread, le "
+"mapping mémoire, les descripteurs de fichiers etc. Elle encapsule aussi "
+"le contexte Triton au dessus duquel, elle fournie une API simple "
+"d'utilisation pour accéder aux données de l'état concret et symbolique."
 
 #: of tritondse.heap_allocator.HeapAllocator
 #: tritondse.heap_allocator.HeapAllocator.alloc
@@ -44,15 +45,19 @@ msgstr ""
 #: tritondse.process_state.ProcessState.concretize_memory_bytes
 #: tritondse.process_state.ProcessState.concretize_memory_int
 #: tritondse.process_state.ProcessState.concretize_register
+#: tritondse.process_state.ProcessState.fetch_instruction
 #: tritondse.process_state.ProcessState.get_argument_symbolic
 #: tritondse.process_state.ProcessState.get_argument_value
+#: tritondse.process_state.ProcessState.get_expression_variable_values_model
 #: tritondse.process_state.ProcessState.get_format_arguments
 #: tritondse.process_state.ProcessState.get_format_string
 #: tritondse.process_state.ProcessState.get_stack_value
 #: tritondse.process_state.ProcessState.get_string_argument
 #: tritondse.process_state.ProcessState.initialize_context
 #: tritondse.process_state.ProcessState.is_heap_ptr
+#: tritondse.process_state.ProcessState.is_memory_defined
 #: tritondse.process_state.ProcessState.is_memory_symbolic
+#: tritondse.process_state.ProcessState.is_register_symbolic
 #: tritondse.process_state.ProcessState.is_stack_ptr
 #: tritondse.process_state.ProcessState.is_valid_memory_mapping
 #: tritondse.process_state.ProcessState.load_program
@@ -68,6 +73,15 @@ msgstr ""
 #: tritondse.process_state.ProcessState.read_symbolic_memory_int
 #: tritondse.process_state.ProcessState.read_symbolic_register
 #: tritondse.process_state.ProcessState.register_triton_callback
+#: tritondse.process_state.ProcessState.set_solver_timeout
+#: tritondse.process_state.ProcessState.set_triton_mode
+#: tritondse.process_state.ProcessState.solve
+#: tritondse.process_state.ProcessState.solve_no_pp
+#: tritondse.process_state.ProcessState.spawn_new_thread
+#: tritondse.process_state.ProcessState.switch_thread
+#: tritondse.process_state.ProcessState.symbolize_memory_byte
+#: tritondse.process_state.ProcessState.symbolize_memory_bytes
+#: tritondse.process_state.ProcessState.symbolize_register
 #: tritondse.process_state.ProcessState.write_memory_byte
 #: tritondse.process_state.ProcessState.write_memory_bytes
 #: tritondse.process_state.ProcessState.write_memory_int
@@ -77,23 +91,20 @@ msgstr ""
 #: tritondse.process_state.ProcessState.write_symbolic_memory_int
 #: tritondse.process_state.ProcessState.write_symbolic_register
 #: tritondse.thread_context.ThreadContext
+#: tritondse.thread_context.ThreadContext.join_thread
 #: tritondse.thread_context.ThreadContext.restore
 #: tritondse.thread_context.ThreadContext.save
 msgid "Parameters"
 msgstr "Paramètres"
 
 #: of tritondse.process_state.ProcessState:7
-#: tritondse.thread_context.ThreadContext:7
-msgid "Thread scheduling value, see :py:attr:`tritondse.Config.thread_scheduling`"
-msgstr "Nombre d'instruction à exécuter par thread, voir :py:attr:`tritondse.Config.thread_scheduling`"
-
-#: of tritondse.process_state.ProcessState:8
 msgid ""
 "Time coefficient to represent execution time of an instruction see: "
 ":py:attr:`tritondse.Config.time_inc_coefficient`"
 msgstr ""
-"Coefficient d'accroissement du temps. Dis autrement, temps d'exécution de chaque instructions "
-"voir :py:attr:`tritondse.Config.time_inc_coefficient`"
+"Coefficient d'accroissement du temps. Dis autrement, temps d'exécution de"
+" chaque instructions voir "
+":py:attr:`tritondse.Config.time_inc_coefficient`"
 
 #: of tritondse.ProcessState.architecture:1
 msgid "Architecture of the current process state"
@@ -122,6 +133,8 @@ msgstr "Architecture du process courant"
 #: tritondse.process_state.ProcessState.read_symbolic_memory_bytes
 #: tritondse.process_state.ProcessState.read_symbolic_memory_int
 #: tritondse.process_state.ProcessState.read_symbolic_register
+#: tritondse.process_state.ProcessState.symbolize_memory_byte
+#: tritondse.process_state.ProcessState.symbolize_memory_bytes
 msgid "Return type"
 msgstr "Type de retour"
 
@@ -140,7 +153,9 @@ msgstr ""
 msgid ""
 "Concretize the given function parameter following the calling convention "
 "of the architecture."
-msgstr "Concrétise le ième paramètre de la fonction *(en respectant la convention d'appel)*"
+msgstr ""
+"Concrétise le ième paramètre de la fonction *(en respectant la convention"
+" d'appel)*"
 
 #: of tritondse.process_state.ProcessState.concretize_argument:4
 msgid "Argument index"
@@ -167,8 +182,9 @@ msgid ""
 "operation is sound** and allows restraining the memory value to its "
 "constant value."
 msgstr ""
-"Concrétise la mémoire donnée avec sa valeur concrète courante. **Cette opération "
-"est correcte et permet de restreindre l'emplacement mémoire avec ça valeur constante.**"
+"Concrétise la mémoire donnée avec sa valeur concrète courante. **Cette "
+"opération est correcte et permet de restreindre l'emplacement mémoire "
+"avec ça valeur constante.**"
 
 #: of tritondse.process_state.ProcessState.concretize_memory_int:7
 msgid "Size of the integer to concretize"
@@ -180,9 +196,10 @@ msgid ""
 "operation is sound** as it will also add a path constraint to enforce "
 "that the symbolic register value is equal to its concrete value."
 msgstr ""
-"Concrétise le registre donné avec sa valeur courante dans l'état concret. "
-"**Cette opération est correcte, car elle va aussi ajouter une contrainte dans le prédicat de "
-"chemin pour indiquer que la valeur symbolique est égale à la valeur concrète."
+"Concrétise le registre donné avec sa valeur courante dans l'état concret."
+" **Cette opération est correcte, car elle va aussi ajouter une contrainte"
+" dans le prédicat de chemin pour indiquer que la valeur symbolique est "
+"égale à la valeur concrète."
 
 #: of tritondse.process_state.ProcessState.concretize_register:6
 msgid "Register identifier (str or Register)"
@@ -193,12 +210,12 @@ msgid ""
 "CpuState holding concrete values of registers *(initialized when calling "
 "load_program)*"
 msgstr ""
-"CpuState conserve les valeurs concrètes des registres *(initialisé lors de l'appel à :meth:`load_program`"
+"CpuState conserve les valeurs concrètes des registres *(initialisé lors "
+"de l'appel à :meth:`load_program`"
 
 #: of tritondse.ProcessState.current_instruction:1
 msgid "The current instruction being executed. *(None if not set yet)*"
-msgstr ""
-"L'instruction courante exécutée *(None si pas positionner)*"
+msgstr "L'instruction courante exécutée *(None si pas positionner)*"
 
 #: of tritondse.ProcessState.current_instruction:3
 msgid ""
@@ -206,36 +223,47 @@ msgid ""
 "<https://triton.quarkslab.com/documentation/doxygen/py_Instruction_page.html>`_]"
 msgstr ""
 
+#: of tritondse.ProcessState.current_thread:1
+msgid ""
+"Gives the current thread selected :return: current thread :rtype: "
+"ThreadContext"
+msgstr "Donne le thread actuel en train d'être exécuté"
 
-#: of tritondse.process_state.ProcessState.get_argument_symbolic:1
-msgid "Return the symbolic expression associated with the given ith parameter."
-msgstr ""
-"Renvoie l'expression symbolique associée au paramètre demandé."
+#: of tritondse.process_state.ProcessState.fetch_instruction:1
+msgid ""
+"Fetch the instruction at the given address. If no address is specified "
+"the current program counter one is used."
+msgstr "Récupère un objet Instruction a l'adresse donnée. Si aucune adresse n'est spécifiée "
+"le pointeur d'instruction est utilisé."
 
-#: of tritondse.process_state.ProcessState.get_argument_symbolic:3
-msgid "Ith function parameter"
-msgstr ""
-"Le ième paramètre de fonction"
+#: of tritondse.process_state.ProcessState.fetch_instruction:4
+#, fuzzy
+msgid "address where to get the instruction from"
+msgstr "adresse où écrire les données"
 
 #: of tritondse.ProcessState.last_branch_constraint
-#: tritondse.ProcessState.minus_one tritondse.arch.CpuState.base_pointer
-#: tritondse.arch.CpuState.program_counter
+#: tritondse.ProcessState.minus_one tritondse.ProcessState.path_predicate_size
+#: tritondse.arch.CpuState.base_pointer tritondse.arch.CpuState.program_counter
 #: tritondse.arch.CpuState.stack_pointer
 #: tritondse.heap_allocator.HeapAllocator.alloc
 #: tritondse.heap_allocator.HeapAllocator.is_ptr_allocated
 #: tritondse.heap_allocator.HeapAllocator.is_ptr_freed
+#: tritondse.process_state.ProcessState.fetch_instruction
 #: tritondse.process_state.ProcessState.get_argument_symbolic
 #: tritondse.process_state.ProcessState.get_argument_value
+#: tritondse.process_state.ProcessState.get_expression_variable_values_model
 #: tritondse.process_state.ProcessState.get_full_argument
 #: tritondse.process_state.ProcessState.get_memory_string
+#: tritondse.process_state.ProcessState.get_path_constraints
 #: tritondse.process_state.ProcessState.get_stack_value
 #: tritondse.process_state.ProcessState.get_string_argument
 #: tritondse.process_state.ProcessState.get_unique_file_id
-#: tritondse.process_state.ProcessState.get_unique_thread_id
 #: tritondse.process_state.ProcessState.initialize_context
 #: tritondse.process_state.ProcessState.is_halt_instruction
 #: tritondse.process_state.ProcessState.is_heap_ptr
+#: tritondse.process_state.ProcessState.is_memory_defined
 #: tritondse.process_state.ProcessState.is_memory_symbolic
+#: tritondse.process_state.ProcessState.is_register_symbolic
 #: tritondse.process_state.ProcessState.is_stack_ptr
 #: tritondse.process_state.ProcessState.is_valid_memory_mapping
 #: tritondse.process_state.ProcessState.pop_stack_value
@@ -248,8 +276,36 @@ msgstr ""
 #: tritondse.process_state.ProcessState.read_symbolic_memory_bytes
 #: tritondse.process_state.ProcessState.read_symbolic_memory_int
 #: tritondse.process_state.ProcessState.read_symbolic_register
+#: tritondse.process_state.ProcessState.set_solver_timeout
+#: tritondse.process_state.ProcessState.set_triton_mode
+#: tritondse.process_state.ProcessState.solve
+#: tritondse.process_state.ProcessState.solve_no_pp
+#: tritondse.process_state.ProcessState.spawn_new_thread
+#: tritondse.process_state.ProcessState.switch_thread
+#: tritondse.process_state.ProcessState.symbolize_memory_byte
+#: tritondse.process_state.ProcessState.symbolize_memory_bytes
+#: tritondse.process_state.ProcessState.symbolize_register
+#: tritondse.thread_context.ThreadContext.cancel_join
+#: tritondse.thread_context.ThreadContext.is_dead
+#: tritondse.thread_context.ThreadContext.is_main_thread
+#: tritondse.thread_context.ThreadContext.is_running
+#: tritondse.thread_context.ThreadContext.is_waiting_to_join
+#: tritondse.thread_context.ThreadContext.join_thread
+#: tritondse.thread_context.ThreadContext.kill
 msgid "Returns"
 msgstr "Renvoie"
+
+#: of tritondse.process_state.ProcessState.fetch_instruction:5
+msgid "instruction disassembled"
+msgstr "instruction désassemblée"
+
+#: of tritondse.process_state.ProcessState.get_argument_symbolic:1
+msgid "Return the symbolic expression associated with the given ith parameter."
+msgstr "Renvoie l'expression symbolique associée au paramètre demandé."
+
+#: of tritondse.process_state.ProcessState.get_argument_symbolic:3
+msgid "Ith function parameter"
+msgstr "Le ième paramètre de fonction"
 
 #: of tritondse.process_state.ProcessState.get_argument_symbolic:4
 msgid "Symbolic expression associated"
@@ -271,8 +327,8 @@ msgid ""
 "value originate either from a register or the stack depending on the ith "
 "argument requested."
 msgstr ""
-"Récupère la valeur entière de l'argument en suivant la convention d'appel. "
-"La valeur provient donc soit d'un registre soit de la pile."
+"Récupère la valeur entière de l'argument en suivant la convention "
+"d'appel. La valeur provient donc soit d'un registre soit de la pile."
 
 #: of tritondse.process_state.ProcessState.get_argument_value:5
 msgid "Ith argument of the function"
@@ -282,67 +338,93 @@ msgstr "ième argument de la fonction"
 msgid "integer value of the parameter"
 msgstr "valeur entière du paramètre"
 
+#: of
+#: tritondse.process_state.ProcessState.get_expression_variable_values_model:1
+msgid ""
+"Given a symbolic expression and a model, returns the valuation of all "
+"variables involved in the expression."
+msgstr "À partir d'une expression symbolique et d'un modèle, renvoie la valuation de chaque "
+"variables impliquée dans le calcul de l'expression."
+
+#: of
+#: tritondse.process_state.ProcessState.get_expression_variable_values_model:4
+#, fuzzy
+msgid "Symbolic Expression to look into"
+msgstr "Expression symbolique associée"
+
+#: of
+#: tritondse.process_state.ProcessState.get_expression_variable_values_model:5
+msgid "Model generated by the solver"
+msgstr "Modèle généré par le solveur"
+
+#: of
+#: tritondse.process_state.ProcessState.get_expression_variable_values_model:6
+msgid "dictionnary of symbolic variables and their associated value (as int)"
+msgstr "dictionnaire de variables symboliques et leurs valeur associée (entier)"
+
 #: of tritondse.process_state.ProcessState.get_format_arguments:1
 msgid ""
 "Read the format string at ``fmt_addr``. For each format item which are "
 "strings, dereference that associated string and replaces it in ``args``."
 msgstr ""
-"Lit la chaine de format à ``fmt_addr``. Pour chaque entrées qui sont des chaînes, "
-"déréference la chaîne associée et la remplace dans ``args``."
+"Lit la chaine de format à ``fmt_addr``. Pour chaque entrées qui sont des "
+"chaînes, déréference la chaîne associée et la remplace dans ``args``."
 
 #: of tritondse.process_state.ProcessState.get_format_arguments:7
 msgid "Parameters associated with the format string"
-msgstr ""
-"Paramètres associés à la chaîne de format"
+msgstr "Paramètres associés à la chaîne de format"
 
 #: of tritondse.process_state.ProcessState.get_format_string:1
 msgid ""
 "Returns a formatted string in Python format from a format string located "
 "in memory at ``addr``."
 msgstr ""
-"Renvoie une chaîne de format Python, à partir de la chaîne de format C située à ``addr``."
+"Renvoie une chaîne de format Python, à partir de la chaîne de format C "
+"située à ``addr``."
 
 #: of tritondse.process_state.ProcessState.get_full_argument:1
 msgid "Get both the concrete argument value along with its symbolic expression."
 msgstr ""
-"Récupère la valeur concrète et la valeur symbolique de l'argument sous forme de tuple."
+"Récupère la valeur concrète et la valeur symbolique de l'argument sous "
+"forme de tuple."
 
 #: of tritondse.process_state.ProcessState.get_full_argument:3
 msgid "Tuple containing concrete value and symbolic expression"
-msgstr ""
-"Tuple contenant la valeur concrète et la valeur symbolique de l'argument"
+msgstr "Tuple contenant la valeur concrète et la valeur symbolique de l'argument"
 
 #: of tritondse.process_state.ProcessState.get_memory_string:1
 msgid "Read a string in process memory at the given address"
-msgstr ""
-"Lit une chaîne de caractères en mémoire à l'adresse donnée"
+msgstr "Lit une chaîne de caractères en mémoire à l'adresse donnée"
 
 #: of tritondse.process_state.ProcessState.get_memory_string:3
 msgid ""
 "The memory read is unbounded. Thus the memory is iterated up until "
 "finding a 0x0."
-msgstr ""
-"La lecture est non-bornée. La mémoire est donc lues jusqu'à trouver un 0."
+msgstr "La lecture est non-bornée. La mémoire est donc lues jusqu'à trouver un 0."
 
 #: of tritondse.process_state.ProcessState.get_memory_string:6
 msgid "the string read in memory"
-msgstr ""
-"la string lues en mémoire"
+msgstr "la string lues en mémoire"
+
+#: of tritondse.process_state.ProcessState.get_path_constraints:1
+msgid "Get the list of all path constraints set in the Triton context."
+msgstr "Récupère la liste des contraintes de chemin"
+
+#: of tritondse.process_state.ProcessState.get_path_constraints:3
+msgid "list of constraints"
+msgstr "liste des contraintes"
 
 #: of tritondse.process_state.ProcessState.get_stack_value:1
 msgid "Returns the value at the ith position further in the stack"
-msgstr ""
-"Renvoie la valeur à la ième position plus loin dans la pile"
+msgstr "Renvoie la valeur à la ième position plus loin dans la pile"
 
 #: of tritondse.process_state.ProcessState.get_stack_value:3
 msgid "The index position from the top of the stack"
-msgstr ""
-"l'index de la position depuis le haut de la pile"
+msgstr "l'index de la position depuis le haut de la pile"
 
 #: of tritondse.process_state.ProcessState.get_stack_value:5
 msgid "the value got"
-msgstr ""
-"La valeur obtenue"
+msgstr "La valeur obtenue"
 
 #: of tritondse.process_state.ProcessState.get_string_argument:1
 msgid ""
@@ -350,47 +432,33 @@ msgid ""
 "first get the argument value, and then dereference the string located at "
 "that address."
 msgstr ""
-"Lit une chaîne de caractères donnée en paramètre d'une fonction. Cette fonction "
-"est un sucre syntaxique pour ``get_argument_value`` et ``read_memory_string``."
+"Lit une chaîne de caractères donnée en paramètre d'une fonction. Cette "
+"fonction est un sucre syntaxique pour ``get_argument_value`` et "
+"``read_memory_string``."
 
 #: of tritondse.process_state.ProcessState.get_string_argument:5
 msgid "argument index"
-msgstr ""
-"index de l'argument"
+msgstr "index de l'argument"
 
 #: of tritondse.process_state.ProcessState.get_string_argument:7
 msgid "memory string"
-msgstr ""
-"string en mémoire"
+msgstr "string en mémoire"
 
 #: of tritondse.process_state.ProcessState.get_unique_file_id:1
 msgid ""
 "Return a new unique file descriptor. Used by routines yielding new file "
 "descriptors."
 msgstr ""
-"Renvoie un nouveau descripteur de fichier unique. Utilisé par les routines retournant de nouveaux descripteurs. "
+"Renvoie un nouveau descripteur de fichier unique. Utilisé par les "
+"routines retournant de nouveaux descripteurs. "
 
 #: of tritondse.process_state.ProcessState.get_unique_file_id:4
 msgid "new file descriptor identifier"
-msgstr ""
-"nouvel identifiant de descripteur de fichier"
-
-#: of tritondse.process_state.ProcessState.get_unique_thread_id:1
-msgid ""
-"Return a new unique thread id. Used by thread related functions when "
-"spawning a new thread."
-msgstr ""
-"Renvoie un nouvel identifiant unique de thread. *(utilisé par les fonctions créant de nouveaux threads)*"
-
-#: of tritondse.process_state.ProcessState.get_unique_thread_id:4
-msgid "new thread identifier"
-msgstr ""
-"nouvel identifiant de thread"
+msgstr "nouvel identifiant de descripteur de fichier"
 
 #: of tritondse.process_state.ProcessState.initialize_context:1
 msgid "Initialize the context with the given architecture"
-msgstr ""
-"Initialise le contexte avec l'architecture donnée"
+msgstr "Initialise le contexte avec l'architecture donnée"
 
 #: of tritondse.process_state.ProcessState.initialize_context:3
 #: tritondse.process_state.ProcessState.write_memory_int:11
@@ -406,6 +474,10 @@ msgid "The architecture to initialize"
 msgstr "L'architecture à initialiser"
 
 #: of tritondse.process_state.ProcessState.initialize_context:7
+#: tritondse.process_state.ProcessState.set_solver_timeout:4
+#: tritondse.process_state.ProcessState.set_triton_mode:5
+#: tritondse.thread_context.ThreadContext.cancel_join:3
+#: tritondse.thread_context.ThreadContext.join_thread:5
 msgid "None"
 msgstr ""
 
@@ -414,7 +486,8 @@ msgid ""
 "Check if the the current instruction is corresponding to an 'halt' "
 "instruction in the target architecture."
 msgstr ""
-"Vérifie si l'instruction courante correspond bien à un 'halt' dans l'architecture cible."
+"Vérifie si l'instruction courante correspond bien à un 'halt' dans "
+"l'architecture cible."
 
 #: of tritondse.process_state.ProcessState.is_halt_instruction:4
 msgid "Return true if on halt instruction architecture independent"
@@ -435,11 +508,33 @@ msgstr "Adresse à vérifier"
 msgid "True if pointer points to the heap area *(allocated or not)*."
 msgstr "Vrai si le pointeur, adresse le tas *(que l'adresse soit allouée ou non)*"
 
+#: of tritondse.process_state.ProcessState.is_memory_defined:1
+msgid ""
+"Returns whether the given range of addresses has previously been written "
+"or not."
+msgstr "Renvoie si l'interval d'adresse donné à déjà été écrit par le passé ou non."
+
+#: of tritondse.process_state.ProcessState.is_memory_defined:4
+#: tritondse.process_state.ProcessState.is_valid_memory_mapping:3
+msgid "The pointer to check"
+msgstr "Le pointeur à vérifier"
+
+#: of tritondse.process_state.ProcessState.is_memory_defined:6
+#, fuzzy
+msgid "Size of the memory range to check"
+msgstr "taille de l'intervalle mémoire à vérifier"
+
+#: of tritondse.process_state.ProcessState.is_memory_defined:7
+msgid "True if all addresses have been defined"
+msgstr "Vrai si toutes les adresses ont déjà été définies"
+
 #: of tritondse.process_state.ProcessState.is_memory_symbolic:1
 msgid ""
 "Iterate the symbolic memory and returns whether or not at least one byte "
 "of the buffer is symbolic"
-msgstr "Itère l'intervalle mémoire donnée et renvoie vrai si au moins un octet est symbolique."
+msgstr ""
+"Itère l'intervalle mémoire donnée et renvoie vrai si au moins un octet "
+"est symbolique."
 
 #: of tritondse.process_state.ProcessState.is_memory_symbolic:4
 #: tritondse.process_state.ProcessState.read_symbolic_memory_byte:3
@@ -459,8 +554,25 @@ msgid "True if at least one byte of the memory is symbolic, false otherwise"
 msgstr "Vrai si au moins un octet de mémoire est symbolique, Faux sinon"
 
 #: of tritondse.process_state.ProcessState.is_path_predicate_updated:1
-msgid "Return true whether or not the path predicate has been updated"
-msgstr "Après exécution d'une instruction renvoie vrai si le prédicat de chemin a été mis à jour ou non"
+#, fuzzy
+msgid "Return whether or not the path predicate has been updated"
+msgstr ""
+"Après exécution d'une instruction renvoie vrai si le prédicat de chemin a"
+" été mis à jour ou non"
+
+#: of tritondse.process_state.ProcessState.is_register_symbolic:1
+msgid "Check whether or not the register is symbolic."
+msgstr "Vérifie si oui ou non le registre est symbolique."
+
+#: of tritondse.process_state.ProcessState.is_register_symbolic:3
+#: tritondse.process_state.ProcessState.read_symbolic_register:3
+msgid "register string, or Register object"
+msgstr "objet Registre ou nom sous forme de string"
+
+#: of tritondse.process_state.ProcessState.is_register_symbolic:5
+#, fuzzy
+msgid "True if the register is symbolic"
+msgstr "identifiant du registre (ou nom)"
 
 #: of tritondse.process_state.ProcessState.is_stack_ptr:1
 msgid "Check whether a given address is pointing in stack area."
@@ -472,11 +584,9 @@ msgstr "Vrai si le pointeur adresse une zone de la pile"
 
 #: of tritondse.process_state.ProcessState.is_valid_memory_mapping:1
 msgid "Check if a given address is mapped into memory maps"
-msgstr "Vérifie si l'adresse donnée est mappée en mémoire *(contenue dans les memory maps)*"
-
-#: of tritondse.process_state.ProcessState.is_valid_memory_mapping:3
-msgid "The pointer to check"
-msgstr "Le pointeur à vérifier"
+msgstr ""
+"Vérifie si l'adresse donnée est mappée en mémoire *(contenue dans les "
+"memory maps)*"
 
 #: of tritondse.process_state.ProcessState.is_valid_memory_mapping:5
 msgid "A padding to add at the end of segment if necessary"
@@ -491,8 +601,8 @@ msgid ""
 "Return the last PathConstraint object added in the path predicate. Should"
 " be called after :py:meth:`is_path_predicate_updated`."
 msgstr ""
-"Renvoie le dernier objet ``PathConstraint`` ajouté au prédicat de chemin. Doit être "
-"appelée après :py:meth:`is_path_predicate_updated`."
+"Renvoie le dernier objet ``PathConstraint`` ajouté au prédicat de chemin."
+" Doit être appelée après :py:meth:`is_path_predicate_updated`."
 
 #: of tritondse.ProcessState.last_branch_constraint
 #: tritondse.heap_allocator.HeapAllocator.alloc
@@ -521,13 +631,13 @@ msgid ""
 "Load the given program in the process state memory. It sets the program "
 "counter to the entry point and load all segments in the triton context."
 msgstr ""
-"Charge le programme donnée dans la mémoire du processus. Il configure le pointeur "
-"d'instruction sur le point d'entré, et charge tous les segments dans le contexte Triton."
+"Charge le programme donnée dans la mémoire du processus. Il configure le "
+"pointeur d'instruction sur le point d'entré, et charge tous les segments "
+"dans le contexte Triton."
 
 #: of tritondse.process_state.ProcessState.load_program:5
 msgid "Program to load in the process memory"
-msgstr ""
-"Programme à charger dans la mémoire du processus"
+msgstr "Programme à charger dans la mémoire du processus"
 
 #: of tritondse.process_state.ProcessState.load_program:7
 msgid "Base address where to load the program (if PIE)"
@@ -535,19 +645,33 @@ msgstr "adresse de base où charger le programme *(si PIE)*"
 
 #: of tritondse.ProcessState.minus_one:1
 msgid "Value -1 according to the architecture size (32 or 64 bits)"
-msgstr "Valeur -1 en fonction de la taille d'un entier dans l'architecture cible (32 ou 64 bits)"
+msgstr ""
+"Valeur -1 en fonction de la taille d'un entier dans l'architecture cible "
+"(32 ou 64 bits)"
 
 #: of tritondse.ProcessState.minus_one:3
 msgid "-1 as an unsigned Python integer"
 msgstr "-1 comme entier non-signé Python"
+
+#: of tritondse.ProcessState.path_predicate_size:1
+msgid ""
+"Get the size of the path predicate (conjonction of all branches and "
+"additionnals constraints added)"
+msgstr "Récupère la taille du prédicat de chemin (conjonction de toutes les contraintes de branches "
+"et celles ajoutées manuellement)"
+
+#: of tritondse.ProcessState.path_predicate_size:4
+#, fuzzy
+msgid "size of the predicate"
+msgstr "si le prédicat de chemin est vide"
 
 #: of tritondse.process_state.ProcessState.pop_stack_value:1
 msgid ""
 "Pop a stack value, and the re-increment the stack pointer value. This "
 "operation is fully concrete."
 msgstr ""
-"Pop une valeur concrète de la pile. *(ce qui implique l'incrémentation du pointeur de pile)*. "
-"Cette opération est complètement concrète."
+"Pop une valeur concrète de la pile. *(ce qui implique l'incrémentation du"
+" pointeur de pile)*. Cette opération est complètement concrète."
 
 #: of tritondse.process_state.ProcessState.pop_stack_value:4
 msgid "int"
@@ -556,7 +680,8 @@ msgstr "entier"
 #: of tritondse.process_state.ProcessState.process_instruction:1
 msgid "Process the given triton instruction on this process state."
 msgstr ""
-"Traite l'instruction donnée en argument *(et fait tous les mises à jour sur l'état concret et symbolique)*"
+"Traite l'instruction donnée en argument *(et fait tous les mises à jour "
+"sur l'état concret et symbolique)*"
 
 #: of tritondse.process_state.ProcessState.process_instruction:3
 msgid "Triton Instruction object"
@@ -569,12 +694,12 @@ msgstr "Vrai si le traitement de l'instruction réussi (faux sinon)"
 #: of tritondse.ProcessState.program_counter_register:1
 msgid "Return the appropriate pc register according to the arch."
 msgstr ""
-"Renvoie le registre de pointeur d'instruction (en fonction de l'architecture)"
+"Renvoie le registre de pointeur d'instruction (en fonction de "
+"l'architecture)"
 
 #: of tritondse.ProcessState.ptr_bit_size:1
 msgid "Size of a pointer in bits"
-msgstr ""
-"Taille d'un pointeur en bits"
+msgstr "Taille d'un pointeur en bits"
 
 #: of tritondse.ProcessState.ptr_bit_size:3
 msgid ":py:obj:`tritondse.types.BitSize`"
@@ -582,8 +707,7 @@ msgstr ""
 
 #: of tritondse.ProcessState.ptr_size:1
 msgid "Size of a pointer in bytes"
-msgstr ""
-"Taille d'un pointeur en octets"
+msgstr "Taille d'un pointeur en octets"
 
 #: of tritondse.ProcessState.ptr_size:3
 msgid ":py:obj:`tritondse.types.ByteSize`"
@@ -592,17 +716,16 @@ msgstr ""
 #: of tritondse.process_state.ProcessState.push_constraint:1
 msgid "Thin wrapper on the triton context underneath to add a path constraint."
 msgstr ""
-"Léger wrapper pour l'ajout d'une contrainte dans le prédicat de chemin du context triton."
+"Léger wrapper pour l'ajout d'une contrainte dans le prédicat de chemin du"
+" context triton."
 
 #: of tritondse.process_state.ProcessState.push_constraint:3
 msgid "Constraint expression to add"
-msgstr ""
-"Expression de la contrainte à ajouter"
+msgstr "Expression de la contrainte à ajouter"
 
 #: of tritondse.process_state.ProcessState.push_stack_value:1
 msgid "Push a stack value. It then decreement the stack pointer value."
-msgstr ""
-"Pousse la valeur sur la pile. *(ce qui décrémente le pointeur de pile)*."
+msgstr "Pousse la valeur sur la pile. *(ce qui décrémente le pointeur de pile)*."
 
 #: of tritondse.process_state.ProcessState.push_stack_value:3
 msgid "The value to push"
@@ -613,11 +736,13 @@ msgid ""
 "Read in the process memory ``size`` amount of bytes at ``addr``. Data "
 "read is returned as bytes."
 msgstr ""
-"Lit ``size`` octets dans la mémoire du processus à l'adresse ``addr``. Les données sont renvoyées sous forme d'octets."
+"Lit ``size`` octets dans la mémoire du processus à l'adresse ``addr``. "
+"Les données sont renvoyées sous forme d'octets."
 
 #: of tritondse.process_state.ProcessState.read_memory_bytes:4
 #: tritondse.process_state.ProcessState.read_memory_int:3
 #: tritondse.process_state.ProcessState.read_memory_ptr:3
+#: tritondse.process_state.ProcessState.symbolize_memory_bytes:4
 #: tritondse.process_state.ProcessState.write_memory_byte:4
 #: tritondse.process_state.ProcessState.write_memory_bytes:4
 #: tritondse.process_state.ProcessState.write_memory_int:4
@@ -628,56 +753,54 @@ msgstr "adresse à laquelle lire les données"
 #: tritondse.process_state.ProcessState.read_memory_int:5
 #: tritondse.process_state.ProcessState.write_memory_int:6
 msgid "Number of bytes to read"
-msgstr ""
-"Nombre d'octets à lire"
+msgstr "Nombre d'octets à lire"
 
 #: of tritondse.process_state.ProcessState.read_memory_bytes:8
 msgid "Data read"
-msgstr ""
-"Données lues"
+msgstr "Données lues"
 
 #: of tritondse.process_state.ProcessState.read_memory_int:1
 msgid ""
 "Read in the process memory a **little-endian** integer of the ``size`` at"
 " ``addr``."
 msgstr ""
-"Lit un entier en **little-endian** de la taille ``size`` à l'adresse ``addr``."
+"Lit un entier en **little-endian** de la taille ``size`` à l'adresse "
+"``addr``."
 
 #: of tritondse.process_state.ProcessState.read_memory_int:7
 #: tritondse.process_state.ProcessState.read_memory_ptr:5
 msgid "Integer value read"
-msgstr ""
-"Valeur entière lue"
+msgstr "Valeur entière lue"
 
 #: of tritondse.process_state.ProcessState.read_memory_ptr:1
 msgid ""
 "Read in the process memory a little-endian integer of size "
 ":py:attr:`tritondse.ProcessState.ptr_size`"
-msgstr ""
+msgstr "Lis un entier (little-endian) en mémoire de la taille donnée "
+":py:attr:`tritondse.ProcessState.ptr_size`"
 
 #: of tritondse.process_state.ProcessState.read_register:1
 #: tritondse.process_state.ProcessState.write_register:1
 msgid "Read the current concrete value of the given register."
-msgstr ""
-"Lit la valeur d'un registre donné"
+msgstr "Lit la valeur d'un registre donné"
 
 #: of tritondse.process_state.ProcessState.read_register:3
+#: tritondse.process_state.ProcessState.symbolize_register:4
 #: tritondse.process_state.ProcessState.write_register:3
 msgid "string of the register or Register object"
-msgstr ""
-"identifiant du registre (ou nom)"
+msgstr "identifiant du registre (ou nom)"
 
 #: of tritondse.process_state.ProcessState.read_register:5
 msgid "Integer value"
-msgstr ""
-"valeur entière"
+msgstr "valeur entière"
 
 #: of tritondse.process_state.ProcessState.read_symbolic_memory_byte:1
 msgid ""
 "Thin wrapper to retrieve the symbolic expression of a single bytes in "
 "memory."
 msgstr ""
-"Léger 'wrapper' pour récupérer l'expression symbolique d'un octet en mémoire."
+"Léger 'wrapper' pour récupérer l'expression symbolique d'un octet en "
+"mémoire."
 
 #: of tritondse.process_state.ProcessState.read_symbolic_memory_byte:5
 #: tritondse.process_state.ProcessState.read_symbolic_memory_bytes:8
@@ -691,8 +814,10 @@ msgid ""
 "Return a new Symbolic Expression representing the whole memory range "
 "given in parameter. That function should not be used on big memory "
 "chunks."
-msgstr "Renvoie une nouvelle expression symbolique représentant l'intervalle mémoire donnés. "
-"Cette fonction ne doit pas être utilisée sur de gros intervalles mémoire. "
+msgstr ""
+"Renvoie une nouvelle expression symbolique représentant l'intervalle "
+"mémoire donnés. Cette fonction ne doit pas être utilisée sur de gros "
+"intervalles mémoire. "
 
 #: of tritondse.process_state.ProcessState.read_symbolic_memory_bytes:6
 #: tritondse.process_state.ProcessState.read_symbolic_memory_int:6
@@ -708,10 +833,6 @@ msgstr "si la taille n'est pas alignée"
 msgid "Get the symbolic expression associated with the given register."
 msgstr "Récupère l'expression symbolique du registre"
 
-#: of tritondse.process_state.ProcessState.read_symbolic_register:3
-msgid "register string, or Register object"
-msgstr "objet Registre ou nom sous forme de string"
-
 #: of tritondse.process_state.ProcessState.read_symbolic_register:5
 msgid "SymbolicExpression of the register as returned by Triton"
 msgstr "SymbolicExpression du registre tel que renvoyé par Triton"
@@ -720,7 +841,9 @@ msgstr "SymbolicExpression du registre tel que renvoyé par Triton"
 msgid ""
 "Register the given ``callback`` as triton callback to hook "
 "memory/registers read/writes."
-msgstr "Enregistre ``callback`` pour intercepter une lecture/écriture, mémoire/registre."
+msgstr ""
+"Enregistre ``callback`` pour intercepter une lecture/écriture, "
+"mémoire/registre."
 
 #: of tritondse.process_state.ProcessState.register_triton_callback:4
 msgid "Callback enum type as defined by Triton"
@@ -735,8 +858,8 @@ msgid ""
 "All registers according to the current architecture defined. The object "
 "returned is the TritonContext.register object."
 msgstr ""
-"Tous les registres de l'architecture courante. C'est l'objet Triton tel que obtenu avec "
-"TritonContext.register."
+"Tous les registres de l'architecture courante. C'est l'objet Triton tel "
+"que obtenu avec TritonContext.register."
 
 #: of tritondse.ProcessState.registers:4
 msgid ":py:obj:`tritondse.types.Registers`"
@@ -744,21 +867,182 @@ msgstr ""
 
 #: of tritondse.ProcessState.return_register:1
 msgid "Return the appropriate return register according to the arch"
-msgstr ""
-"Renvoie le registre de 'retour' tel que définit par l'architecture"
+msgstr "Renvoie le registre de 'retour' tel que définit par l'architecture"
+
+#: of tritondse.process_state.ProcessState.set_solver_timeout:1
+msgid "Set the timeout for all subsequent queries."
+msgstr "Configure le timeout de toutes les requêtes SMT effectuée ensuite."
+
+#: of tritondse.process_state.ProcessState.set_solver_timeout:3
+msgid "timeout in milliseconds"
+msgstr "timeout en millisecondes"
+
+#: of tritondse.process_state.ProcessState.set_triton_mode:1
+msgid "Set the given mode in the TritonContext."
+msgstr "Positionne le mode dans le TritonContext"
+
+#: of tritondse.process_state.ProcessState.set_triton_mode:3
+msgid "mode to set in triton context"
+msgstr "mode à appliquer au contexte"
+
+#: of tritondse.process_state.ProcessState.set_triton_mode:4
+msgid "value to set (default True)"
+msgstr "valeur à positionner (True par défaut)"
+
+#: of tritondse.process_state.ProcessState.solve:1
+msgid ""
+"Solve the given constraint one the current symbolic state and returns "
+"both a Solver status and a model. If not SAT the model returned is empty."
+" Argument ``with_pp`` enables checking the constraint taking in account "
+"the path predicate."
+msgstr "Résoud la contrainte donnée sur l'état symbolique et renvoie "
+"le satisfiabilité et un modèle. Si la formule n'est pas SAT le modèle renvoyé est vide. "
+"L'argument ``with_pp`` permet de vérifier la contrainte en prenant ou non en compte "
+"le prédicat de chemin."
+
+#: of tritondse.process_state.ProcessState.solve:5
+msgid "AstNode or list of AstNodes constraints to solve"
+msgstr "AstNode ou liste de AstNodes à résoudre"
+
+#: of tritondse.process_state.ProcessState.solve:6
+msgid "whether to take in account path predicate"
+msgstr "prendre le prédicat de chemin en compte ou non"
+
+#: of tritondse.process_state.ProcessState.solve:7
+#: tritondse.process_state.ProcessState.solve_no_pp:8
+msgid "tuple of status and model"
+msgstr "tuple du status et modèle"
+
+#: of tritondse.process_state.ProcessState.solve_no_pp:1
+msgid ""
+"Helper function that solve a constraint forcing not to use the path "
+"predicate."
+msgstr "Fonction d'aide pour résoudre une contrainte en forçant à ne pas utiliser "
+"le prédicat de chemin."
+
+#: of tritondse.process_state.ProcessState.solve_no_pp:4
+msgid ""
+"Solving a query without the path predicate gives theoretically unsound "
+"results."
+msgstr "Résoud une requête sans le prédicat de chemin. Le résultat peut être incorrect !"
+
+#: of tritondse.process_state.ProcessState.solve_no_pp:7
+msgid "AstNode constraint to solve"
+msgstr "AstNode contrainte à résoudre"
+
+#: of tritondse.process_state.ProcessState.spawn_new_thread:1
+msgid ""
+"Create a new thread in the process state. Parameters are the new program "
+"counter and a pointer to arguments to provide the thread."
+msgstr "Créé un nouveau thread dans le process state. Les paramètres sont le nouveau pointeur d'instruction "
+"et un pointeur vers les arguments à fournir au thread."
+
+#: of tritondse.process_state.ProcessState.spawn_new_thread:4
+msgid "new program counter (function to execution)"
+msgstr "nouveau pointeur d'instruction (fonction à exécuter)"
+
+#: of tritondse.process_state.ProcessState.spawn_new_thread:5
+#, fuzzy
+msgid "arguments"
+msgstr "index de l'argument"
+
+#: of tritondse.process_state.ProcessState.spawn_new_thread:6
+msgid "thread context newly created"
+msgstr "ThreadContext créé"
 
 #: of tritondse.ProcessState.stack_pointer_register:1
 msgid "Return the appropriate stack pointer register according to the arch."
 msgstr ""
-"Renvoie l'identifiant du registre pointeur de pile tel que définit dans la pile."
+"Renvoie l'identifiant du registre pointeur de pile tel que définit dans "
+"la pile."
+
+#: of tritondse.process_state.ProcessState.switch_thread:1
+msgid ""
+"Change the current thread to the one given in parameter. Thus save the "
+"current context, and restore the one of the thread given in parameter. It"
+" also resets the counter of the thread restored. If the current_thread is"
+" dead, it will also remove it !"
+msgstr "Change le thread couramment exécuté par un autre. Cela déclenche la "
+"sauvegarde du contexte et la restauration de celui donné en paramètre. Si le "
+"thread courant est mort, celui-ci sera supprimé."
+
+#: of tritondse.process_state.ProcessState.switch_thread:7
+msgid "thread to restore ThreadContext"
+msgstr "ThreadContext à restaurer"
+
+#: of tritondse.process_state.ProcessState.switch_thread:8
+msgid "True if the switch worked fine"
+msgstr "Vrai si le changement de contexte s'est bien déroulé"
+
+#: of tritondse.process_state.ProcessState.symbolize_memory_byte:1
+msgid "Symbolize the given memory cell. Returns the associated SymbolicVariable"
+msgstr "Symbolise la cellule mémoire donné. Renvoir l'objet SymbolicVariable nouvellement créé."
+
+#: of tritondse.process_state.ProcessState.symbolize_memory_byte:4
+#, fuzzy
+msgid "Address to symbolize"
+msgstr "Adresse à concrétiser"
+
+#: of tritondse.process_state.ProcessState.symbolize_memory_byte:6
+msgid "alias to give the variable"
+msgstr "alias à donner à la variable"
+
+#: of tritondse.process_state.ProcessState.symbolize_memory_byte:8
+msgid "newly created symbolic variable"
+msgstr "SymbolicVariable créée"
+
+#: of tritondse.process_state.ProcessState.symbolize_memory_byte:9
+msgid ":py:obj:`tritondse.types.SymbolicVariable`"
+msgstr ""
+
+#: of tritondse.process_state.ProcessState.symbolize_memory_bytes:1
+msgid ""
+"Symbolize a range of memory addresses. Can optionally provide an alias "
+"prefix."
+msgstr "Symbolise un interval d'adresses mémoires. Peux optionnellement fournir un prefix en alias."
+
+#: of tritondse.process_state.ProcessState.symbolize_memory_bytes:6
+#, fuzzy
+msgid "Number of bytes to symbolize"
+msgstr "Nombre d'octets à lire"
+
+#: of tritondse.process_state.ProcessState.symbolize_memory_bytes:8
+msgid "prefix name to give the variable"
+msgstr "préfix de nom à donner à la variable"
+
+#: of tritondse.process_state.ProcessState.symbolize_memory_bytes:10
+msgid "list of Symbolic variables created"
+msgstr "liste de SymbolicVariable créées"
+
+#: of tritondse.process_state.ProcessState.symbolize_memory_bytes:11
+msgid "List[:py:obj:`tritondse.types.SymbolicVariable`]"
+msgstr ""
+
+#: of tritondse.process_state.ProcessState.symbolize_register:1
+msgid ""
+"Symbolize the given register. This a proxy for the symbolizeRegister "
+"Triton function."
+msgstr "Symbolise le register donné. Fonction proxy vers la fonction Triton symbolizeRegister."
+
+#: of tritondse.process_state.ProcessState.symbolize_register:6
+msgid "alias name to give to the symbolic variable"
+msgstr "alias à donner à la variable"
+
+#: of tritondse.process_state.ProcessState.symbolize_register:8
+msgid "Triton Symbolic variable created"
+msgstr "SymbolicVariable créée"
+
+#: of tritondse.ProcessState.threads:1
+msgid "Gives a list of all threads currently active :return:"
+msgstr "Donne une list de tous les threads actifs."
 
 #: of tritondse.process_state.ProcessState.write_memory_byte:1
 msgid ""
 "Write a single byte in the process memory. Can be provided as a byte or "
 "integer. Integer value should fit in a byte."
 msgstr ""
-"Écrit un seul octet dans la mémoire du processus. Peut-être fourni comme un byte "
-"ou un entier Python (qui doit tenir dans un octet)."
+"Écrit un seul octet dans la mémoire du processus. Peut-être fourni comme "
+"un byte ou un entier Python (qui doit tenir dans un octet)."
 
 #: of tritondse.process_state.ProcessState.write_memory_byte:6
 #: tritondse.process_state.ProcessState.write_memory_bytes:6
@@ -770,33 +1054,30 @@ msgid ""
 "Write multiple bytes in the process memory. Size is automatically deduced"
 " with data size."
 msgstr ""
-"Écrit plusieurs octets dans la mémoire du processus. La taille est automatiquement déduite "
-"à partir de la taille des données."
+"Écrit plusieurs octets dans la mémoire du processus. La taille est "
+"automatiquement déduite à partir de la taille des données."
 
 #: of tritondse.process_state.ProcessState.write_memory_int:1
 msgid ""
 "Write in the process memory the given integer value of the given size at "
 "a specific address."
-msgstr ""
-"Écrit une valeur entière de la taille donnée en mémoire."
+msgstr "Écrit une valeur entière de la taille donnée en mémoire."
 
 #: of tritondse.process_state.ProcessState.write_memory_int:8
 msgid "data to write represented as an integer"
-msgstr ""
-"donnée à écrire sous forme d'entier"
+msgstr "donnée à écrire sous forme d'entier"
 
 #: of tritondse.process_state.ProcessState.write_memory_int:11
 msgid "Adding a parameter to specify endianess if needed"
-msgstr ""
-"Ajouter un paramètre pour spécifier l'endianness si besoin"
+msgstr "Ajouter un paramètre pour spécifier l'endianness si besoin"
 
 #: of tritondse.process_state.ProcessState.write_memory_ptr:1
 msgid ""
 "Similar to :py:meth:`write_memory_int` but the size is automatically "
 "adjusted to be ``ptr_size``."
 msgstr ""
-"Similaire à :py:meth:`write_memory_int` mais la taille est automatiquement ajustée pour être celle d'un pointeur "
-"(``ptr_size``)."
+"Similaire à :py:meth:`write_memory_int` mais la taille est "
+"automatiquement ajustée pour être celle d'un pointeur (``ptr_size``)."
 
 #: of tritondse.process_state.ProcessState.write_memory_ptr:4
 msgid "address where to write data"
@@ -808,13 +1089,11 @@ msgstr "valeur du pointeur à écrire"
 
 #: of tritondse.process_state.ProcessState.write_register:5
 msgid "integer value to assign in the register"
-msgstr ""
-"valeur à mettre dans le registre"
+msgstr "valeur à mettre dans le registre"
 
 #: of tritondse.process_state.ProcessState.write_symbolic_memory_byte:1
 msgid "Set a single bytes symbolic at the given address"
-msgstr ""
-"Écrit un seul octet en mémoire à l'adresse donnée"
+msgstr "Écrit un seul octet en mémoire à l'adresse donnée"
 
 #: of tritondse.process_state.ProcessState.write_symbolic_memory_byte:9
 msgid ""
@@ -833,8 +1112,9 @@ msgid ""
 "Assign the given symbolic expression representing an integer to the given"
 " address. That function should not be used on big memory chunks."
 msgstr ""
-"Assigne l'expression symbolique d'un entier à l'adresse donnée en mémoire. "
-"Cette fonction ne doit pas être utilisée sur de gros intervalles mémoire."
+"Assigne l'expression symbolique d'un entier à l'adresse donnée en "
+"mémoire. Cette fonction ne doit pas être utilisée sur de gros intervalles"
+" mémoire."
 
 #: of tritondse.process_state.ProcessState.write_symbolic_memory_int:8
 #: tritondse.process_state.ProcessState.write_symbolic_register:6
@@ -858,18 +1138,15 @@ msgid ""
 "Assign the given symbolic expression to the register. The given "
 "expression can either be a SMT AST node or directly an Expression "
 "(SymbolicExpression)."
-msgstr ""
-"Assigne l'expression symbolique au registre."
+msgstr "Assigne l'expression symbolique au registre."
 
 #: of tritondse.process_state.ProcessState.write_symbolic_register:4
 msgid "register identifier (str or Register)"
-msgstr ""
-"Identifiant du registre ou nom (str)."
+msgstr "Identifiant du registre ou nom (str)."
 
 #: of tritondse.process_state.ProcessState.write_symbolic_register:8
 msgid "Comment to add on the symbolic expression created"
-msgstr ""
-"Commentaire à ajouter à l'expression symbolique créée"
+msgstr "Commentaire à ajouter à l'expression symbolique créée"
 
 #: ../../api/process.rst:12
 msgid "CpuState"
@@ -885,31 +1162,32 @@ msgid ""
 msgstr ""
 "Wrapper autour de TritonContext permettant d'accéder et de modifier très "
 "facilement les valeurs de registre de manière 'Pythonic'. Elle abstrait "
-"aussi le pointeur de base, pile et instruction pour effectuer les opérations "
-"agnostiques de l'architecture. Cette classe effectue toutes les opérations "
-"sur le TritonContext directement et ne conserve aucunes valeur interne. "
-"*(Il agit seulement comme proxy)*"
+"aussi le pointeur de base, pile et instruction pour effectuer les "
+"opérations agnostiques de l'architecture. Cette classe effectue toutes "
+"les opérations sur le TritonContext directement et ne conserve aucunes "
+"valeur interne. *(Il agit seulement comme proxy)*"
 
 #: of tritondse.arch.CpuState:8
 msgid ""
 "This class adds dynamically attributes corresponding to register. Thus "
 "attributes will vary from an architecture to the other."
 msgstr ""
-"Cette classe ajoute dynamiquement les attributs correspondant à tous les registres. "
-"Ainsi, les attributs varient d'une architecture à l'autre."
+"Cette classe ajoute dynamiquement les attributs correspondant à tous les "
+"registres. Ainsi, les attributs varient d'une architecture à l'autre."
 
 #: of tritondse.arch.CpuState:18
 msgid "No data is stored, all operations are performed on the TritonContext:"
 msgstr ""
-"Aucune données ne sont stockées, toutes les opérations sont effectuées sur le TritonContext."
+"Aucune données ne sont stockées, toutes les opérations sont effectuées "
+"sur le TritonContext."
 
 #: of tritondse.arch.CpuState:27
 msgid ""
 "The user is not meant to instanciate it manually, and must use it through"
 " :py:obj:`ProcessState`."
 msgstr ""
-"L'utilisateur n'est pas censé instancier l'objet manuellement. Il doit être utilisé via "
-" :py:obj:`ProcessState`."
+"L'utilisateur n'est pas censé instancier l'objet manuellement. Il doit "
+"être utilisé via  :py:obj:`ProcessState`."
 
 #: of tritondse.arch.CpuState.base_pointer:1
 msgid "The value of the base pointer register"
@@ -933,8 +1211,9 @@ msgid ""
 "This allocation manager also provides an API enabling checking whether a "
 "pointer is allocated freed etc."
 msgstr ""
-"Petit allocateur sur le tas. Utilisé par les fonctions 'built-in' comme malloc ou free. "
-"Ce manager fournit aussi les APIs pour vérifier si un pointeur est alloué ou libéré."
+"Petit allocateur sur le tas. Utilisé par les fonctions 'built-in' comme "
+"malloc ou free. Ce manager fournit aussi les APIs pour vérifier si un "
+"pointeur est alloué ou libéré."
 
 #: of tritondse.heap_allocator.HeapAllocator:5
 msgid ""
@@ -942,8 +1221,9 @@ msgid ""
 "freed memory areas. Thus it may not correctly model the behavior of libc "
 "allocator."
 msgstr ""
-"Cet allocateur est très simple et n'effectue aucune unification des 'chunks' libérés. "
-"Il ne modélise pas de manière précise le comportement de la libc."
+"Cet allocateur est très simple et n'effectue aucune unification des "
+"'chunks' libérés. Il ne modélise pas de manière précise le comportement "
+"de la libc."
 
 #: of tritondse.heap_allocator.HeapAllocator:9
 msgid "Class constructor. Takes heap bounds as parameter."
@@ -995,7 +1275,7 @@ msgstr "Adresse à libérer"
 
 #: of tritondse.heap_allocator.HeapAllocator.free:5
 msgid "if the pointer has already been freed or if it has never been allocated"
-msgstr ""
+msgstr "si le pointeur a déjà été libéré ou s'il n'a jamais été alloué"
 
 #: of tritondse.heap_allocator.HeapAllocator.is_ptr_allocated:1
 msgid "Check whether a given address has been allocated"
@@ -1022,23 +1302,20 @@ msgid ""
 "Class used to represent an heap allocator exception. This exception can "
 "be raised in the following conditions:"
 msgstr ""
-"Classe utilisée pour représenter une exception liée au tas. Cette exception peut "
-"être levée dans les conditions suivantes:"
+"Classe utilisée pour représenter une exception liée au tas. Cette "
+"exception peut être levée dans les conditions suivantes:"
 
 #: of tritondse.heap_allocator.AllocatorException:4
 msgid "trying to allocate data which overflow heap size"
-msgstr ""
-"en essayant d'allouer des données qui débordent du tas"
+msgstr "en essayant d'allouer des données qui débordent du tas"
 
 #: of tritondse.heap_allocator.AllocatorException:5
 msgid "trying to free a pointer already freed"
-msgstr ""
-"en essayant de libérer un pointeur déjà libéré"
+msgstr "en essayant de libérer un pointeur déjà libéré"
 
 #: of tritondse.heap_allocator.AllocatorException:6
 msgid "trying to free a non-allocated pointer"
-msgstr ""
-"en essayant de libérer un pointeur non-alloué"
+msgstr "en essayant de libérer un pointeur non-alloué"
 
 #: ../../api/process.rst:38
 msgid "ThreadContext"
@@ -1053,32 +1330,99 @@ msgid ""
 "Thread data structure holding all information related to it. Purposely "
 "used to save registers and to restore them in a TritonContext."
 msgstr ""
-"Structure représentant un thread et contenant différentes informations associées. "
-"Utilisée pour sauvegarder et restaurer les valeurs de registres dans un contexte triton."
+"Structure représentant un thread et contenant différentes informations "
+"associées. Utilisée pour sauvegarder et restaurer les valeurs de "
+"registres dans un contexte triton."
 
 #: of tritondse.thread_context.ThreadContext:5
 msgid "thread id"
-msgstr ""
-"identifiant du thread"
+msgstr "identifiant du thread"
+
+#: of tritondse.thread_context.ThreadContext.cancel_join:1
+msgid "Cancel a join operation."
+msgstr "Annule un opération de join"
+
+#: of tritondse.thread_context.ThreadContext.is_dead:1
+msgid "Returns whether the thread is killed or not"
+msgstr "Renvoie si le thread est mort ou non"
+
+#: of tritondse.thread_context.ThreadContext.is_dead:3
+msgid "boolean indicating if the thread is dead or not"
+msgstr "booléen indiquant si le thread est mort ou non"
+
+#: of tritondse.thread_context.ThreadContext.is_main_thread:1
+msgid "Returns whether or not it is the main thread (namely its id is 0)"
+msgstr "Renvoi si le thread est le principal (cad il a l'id 0)"
+
+#: of tritondse.thread_context.ThreadContext.is_main_thread:4
+msgid "bool"
+msgstr "booléen"
+
+#: of tritondse.thread_context.ThreadContext.is_running:1
+msgid "Return if the thread is properly running or not."
+msgstr "Renvoi si le thread est en train de s'exécuter ou non"
+
+#: of tritondse.thread_context.ThreadContext.is_running:3
+msgid "True if the thread is running"
+msgstr "Vrai si le thread s'exécute"
+
+#: of tritondse.thread_context.ThreadContext.is_waiting_to_join:1
+#, fuzzy
+msgid "Checks whether the thread is waiting to join another one."
+msgstr "Vérifie si l'adresse donnée pointe sur le tas."
+
+#: of tritondse.thread_context.ThreadContext.is_waiting_to_join:4
+msgid "boolean on whether it waits for another thread"
+msgstr "vrai si le thread en attend un autre"
+
+#: of tritondse.thread_context.ThreadContext.join_thread:1
+msgid "Put the thread in a join state where waits for another thread."
+msgstr "Met le thread dans un état de \"join\" d'un autre thread"
+
+#: of tritondse.thread_context.ThreadContext.join_thread:4
+msgid "id of the thread to join"
+msgstr "identifiant du thread à 'join'"
+
+#: of tritondse.thread_context.ThreadContext.kill:1
+msgid "Kill the current thread. Called when exiting the thread."
+msgstr "Tue le thread courant. Appelé quand le thread se termine."
 
 #: of tritondse.thread_context.ThreadContext.restore:1
 msgid "Restore a thread state in the given TritonContext"
-msgstr ""
-"Restaure l'état du thread dans le contexte triton donné"
+msgstr "Restaure l'état du thread dans le contexte triton donné"
 
 #: of tritondse.thread_context.ThreadContext.restore:3
 msgid "context in which to restor the current thread state"
-msgstr ""
-"Contexte dans lequel restaurer l'état du thread"
+msgstr "Contexte dans lequel restaurer l'état du thread"
 
 #: of tritondse.thread_context.ThreadContext.save:1
 msgid ""
 "Save the current thread state from the current execution. That implies "
 "keeping a reference on symbolic and concrete registers."
 msgstr ""
-"Sauvegarde l'état courant dans l'état du thread. Cela implique de garder une "
-"référence sur les registres concrets et symboliques."
+"Sauvegarde l'état courant dans l'état du thread. Cela implique de garder "
+"une référence sur les registres concrets et symboliques."
 
 #: of tritondse.thread_context.ThreadContext.save:5
 msgid "current TritonContext to save"
 msgstr "TritonContext courant à sauvegarder"
+
+#~ msgid ""
+#~ "Thread scheduling value, see "
+#~ ":py:attr:`tritondse.Config.thread_scheduling`"
+#~ msgstr ""
+#~ "Nombre d'instruction à exécuter par "
+#~ "thread, voir :py:attr:`tritondse.Config.thread_scheduling`"
+
+#~ msgid ""
+#~ "Return a new unique thread id. "
+#~ "Used by thread related functions when"
+#~ " spawning a new thread."
+#~ msgstr ""
+#~ "Renvoie un nouvel identifiant unique de"
+#~ " thread. *(utilisé par les fonctions "
+#~ "créant de nouveaux threads)*"
+
+#~ msgid "new thread identifier"
+#~ msgstr "nouvel identifiant de thread"
+

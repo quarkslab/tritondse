@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tritondse \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"POT-Creation-Date: 2021-06-23 10:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,10 +29,11 @@ msgid ""
 "enable changing the state of the execution. Events that can be caught "
 "are:"
 msgstr ""
-"Toute l'interaction du code utilisateur avec tritondse se fait via un mécanisme de callback. "
-"La plupart des callbacks ne renvoient aucune valeur de retour mais fournissent en argument toutes "
-"les variables nécessaires qui permettent de modifier l'état global de l'exécution. Les évènements "
-"qu'il est possible d'intercepter sont: "
+"Toute l'interaction du code utilisateur avec tritondse se fait via un "
+"mécanisme de callback. La plupart des callbacks ne renvoient aucune "
+"valeur de retour mais fournissent en argument toutes les variables "
+"nécessaires qui permettent de modifier l'état global de l'exécution. Les "
+"évènements qu'il est possible d'intercepter sont: "
 
 #: ../../api/callbacks.rst:11
 msgid "address reached"
@@ -64,7 +65,9 @@ msgstr "changement de contexte de thread"
 
 #: ../../api/callbacks.rst:18
 msgid "new input creation *(before it gets appended in the pool of seeds)*"
-msgstr "création d'une nouvelle entrée *(juste avant qu'elle soit ajoutée au pool d'entrées en attente)*"
+msgstr ""
+"création d'une nouvelle entrée *(juste avant qu'elle soit ajoutée au pool"
+" d'entrées en attente)*"
 
 #: ../../api/callbacks.rst:20
 msgid ""
@@ -73,9 +76,9 @@ msgid ""
 "seeds. That is especially useful to recompute some fields etc."
 msgstr ""
 "Seul l'évènement de création d'entrées accepte une valeur de retour qui "
-"est l'entrée de substitution à utiliser. Cela permet d'appliquer un post-traitement "
-"à l'entrée avant qu'elle soit ajoutée. Ce mécanisme permet d'ajuster certains champs ou "
-"certaines valeurs de l'entrée *(crc, etc)*"
+"est l'entrée de substitution à utiliser. Cela permet d'appliquer un post-"
+"traitement à l'entrée avant qu'elle soit ajoutée. Ce mécanisme permet "
+"d'ajuster certains champs ou certaines valeurs de l'entrée *(crc, etc)*"
 
 #: ../../api/callbacks.rst:26
 msgid "CallbackManager"
@@ -92,13 +95,14 @@ msgid ""
 "register an end of execution to catch to switch from on execution to the "
 "other."
 msgstr ""
-"Tous les callbacks doivent être enregistrés sur un :py:obj:`CallbackManager`."
-"Cet objet utilisé par :py:obj:`SymbolicExplorator` va ensuite être transmis à "
-" toutes les instances de :py:obj:`SymbolicExecutor` qui sera lui en mesure d'attraper tous les évènements. "
-"Dans ce contexte, les callbacks vont être déclenchées indifféremment d'une exécution à l'autre. "
-"Un utilisateur voulant discriminer une exécution d'une autre dans une callback devra récupérer "
-"l'identifiant de l'exécution."
-
+"Tous les callbacks doivent être enregistrés sur un "
+":py:obj:`CallbackManager`.Cet objet utilisé par "
+":py:obj:`SymbolicExplorator` va ensuite être transmis à  toutes les "
+"instances de :py:obj:`SymbolicExecutor` qui sera lui en mesure d'attraper"
+" tous les évènements. Dans ce contexte, les callbacks vont être "
+"déclenchées indifféremment d'une exécution à l'autre. Un utilisateur "
+"voulant discriminer une exécution d'une autre dans une callback devra "
+"récupérer l'identifiant de l'exécution."
 
 #: of tritondse.callbacks.CallbackManager:1
 msgid ""
@@ -107,14 +111,26 @@ msgid ""
 "check the presence of callback can be made in Log(N). All callbacks are "
 "designed to be read-only"
 msgstr ""
-"Classe utiliser pour agréger tous les callbacks qui peuvent être branchés dans une exécution."
-"La structure interne assure que la vérification de la présence d'une callback est faite en Log(N). "
+"Classe utiliser pour agréger tous les callbacks qui peuvent être branchés"
+" dans une exécution.La structure interne assure que la vérification de la"
+" présence d'une callback est faite en Log(N). "
 
-#: of tritondse.callbacks.CallbackManager
-#: tritondse.callbacks.CallbackManager.bind_to
+#: of tritondse.callbacks.CallbackManager.bind_to:1
+msgid ""
+"Bind callbacks on the given process state. That step is required to "
+"register callbacks on the Triton Context object. This is also used to "
+"keep a reference on the SymbolicExecutor object;"
+msgstr ""
+"Attache les callbacks sur le :class:`ProcessState`. Cette étape est "
+"requise pour enregistrer les callbacks sur un objet `TritonContext`. Cela"
+" est aussi utilisé pour garder une référence sur l'objet "
+"`SymbolicExecutor`."
+
+#: of tritondse.callbacks.CallbackManager.bind_to
 #: tritondse.callbacks.CallbackManager.get_address_callbacks
 #: tritondse.callbacks.CallbackManager.get_imported_routine_callbacks
 #: tritondse.callbacks.CallbackManager.register_addr_callback
+#: tritondse.callbacks.CallbackManager.register_exploration_step_callback
 #: tritondse.callbacks.CallbackManager.register_function_callback
 #: tritondse.callbacks.CallbackManager.register_instruction_callback
 #: tritondse.callbacks.CallbackManager.register_memory_read_callback
@@ -128,31 +144,17 @@ msgstr ""
 #: tritondse.callbacks.CallbackManager.register_pre_execution_callback
 #: tritondse.callbacks.CallbackManager.register_pre_imported_routine_callback
 #: tritondse.callbacks.CallbackManager.register_pre_instruction_callback
-#: tritondse.callbacks.CallbackManager.register_probe_callback
+#: tritondse.callbacks.CallbackManager.register_probe
 #: tritondse.callbacks.CallbackManager.register_register_read_callback
 #: tritondse.callbacks.CallbackManager.register_register_write_callback
 #: tritondse.callbacks.CallbackManager.register_thread_context_switch_callback
+#: tritondse.callbacks.CallbackManager.unregister_callback
 msgid "Parameters"
 msgstr "Paramètres"
 
-#: of tritondse.callbacks.CallbackManager:6
-msgid "Program used to explore *(used to extract function)*"
-msgstr "Programme utilisé pour l'exploration *(utilisé pour extraire des informations)*"
-
-#: of tritondse.callbacks.CallbackManager.bind_to:1
-msgid ""
-"Bind callbacks on the given process state. That step is required to "
-"register callbacks on the Triton Context object. This is also used to "
-"keep a reference on the SymbolicExecutor object;"
-msgstr ""
-"Attache les callbacks sur le :class:`ProcessState`. Cette étape est requise "
-"pour enregistrer les callbacks sur un objet `TritonContext`. Cela est aussi "
-"utilisé pour garder une référence sur l'objet `SymbolicExecutor`."
-
 #: of tritondse.callbacks.CallbackManager.bind_to:5
 msgid "SymbolicExecutor on which to bind callbacks"
-msgstr ""
-":class:`SymbolicExecutor` sur laquelle attacher les callbacks"
+msgstr ":class:`SymbolicExecutor` sur laquelle attacher les callbacks"
 
 #: of tritondse.callbacks.CallbackManager.fork:1
 msgid ""
@@ -161,20 +163,23 @@ msgid ""
 "SymbolicExecutor running concurrently will have their own instance off "
 "the CallbackManager."
 msgstr ""
-"Fork le CallbackManager courant pour en créer une nouvelle instance *(qui elle ne sera pas attachée)*. "
-"Cette méthode est utilisée par :class:`SymbolicExplorator` pour s'assurer "
-"que chaque exécuteur *(s'ils sont lancés en parallèles)* possèdent bien leur propre instance de CallbackManager."
+"Fork le CallbackManager courant pour en créer une nouvelle instance *(qui"
+" elle ne sera pas attachée)*. Cette méthode est utilisée par "
+":class:`SymbolicExplorator` pour s'assurer que chaque exécuteur *(s'ils "
+"sont lancés en parallèles)* possèdent bien leur propre instance de "
+"CallbackManager."
 
 #: of tritondse.callbacks.CallbackManager.fork
 #: tritondse.callbacks.CallbackManager.get_address_callbacks
 #: tritondse.callbacks.CallbackManager.get_context_switch_callback
 #: tritondse.callbacks.CallbackManager.get_execution_callbacks
+#: tritondse.callbacks.CallbackManager.get_exploration_step_callbacks
 #: tritondse.callbacks.CallbackManager.get_imported_routine_callbacks
 #: tritondse.callbacks.CallbackManager.get_instruction_callbacks
 #: tritondse.callbacks.CallbackManager.get_new_input_callback
 #: tritondse.callbacks.CallbackManager.is_binded
 #: tritondse.callbacks.CallbackManager.is_empty
-#: tritondse.callbacks.CallbackManager.register_function_callback
+#: tritondse.callbacks.CallbackManager.unregister_callback
 msgid "Returns"
 msgstr "Renvoie"
 
@@ -207,7 +212,9 @@ msgstr "tuple de listes contenant les callbacks pre/post respectivement"
 msgid ""
 "Get the list of all function callback to call when thread is being "
 "scheduled."
-msgstr "Récupère la liste des fonctions de callback à appeler lorsqu'un thread va s'exécuter"
+msgstr ""
+"Récupère la liste des fonctions de callback à appeler lorsqu'un thread va"
+" s'exécuter"
 
 #: of tritondse.callbacks.CallbackManager.get_context_switch_callback:3
 msgid "List of callbacks defined when thread is being scheduled"
@@ -216,6 +223,16 @@ msgstr "Liste des callbacks définies quand un thread va s'exécuter"
 #: of tritondse.callbacks.CallbackManager.get_execution_callbacks:1
 msgid "Get all the pre/post callbacks for the current symbolic execution."
 msgstr "Récupère les callbacks pre/post pour l'exécution symbolique courante."
+
+#: of tritondse.callbacks.CallbackManager.get_exploration_step_callbacks:1
+#, fuzzy
+msgid "Get all the exploration step callbacks"
+msgstr "Récupère les callbacks pre/post posées sur les instructions"
+
+#: of tritondse.callbacks.CallbackManager.get_exploration_step_callbacks:3
+#, fuzzy
+msgid "list containing callbacks"
+msgstr "liste des informations des callbacks"
 
 #: of tritondse.callbacks.CallbackManager.get_imported_routine_callbacks:1
 msgid "Get the list of all callbacks for an imported routine"
@@ -239,7 +256,9 @@ msgstr "Récupère les callbacks pre/post posées sur les instructions"
 msgid ""
 "Get the list of all function callback to call when an a new input is "
 "generated by SMT."
-msgstr "Récupère la liste des callbacks appelées lorsqu'une nouvelle entrée est générée"
+msgstr ""
+"Récupère la liste des callbacks appelées lorsqu'une nouvelle entrée est "
+"générée"
 
 #: of tritondse.callbacks.CallbackManager.get_new_input_callback:4
 msgid "List of callbacks to call on input generation"
@@ -267,7 +286,8 @@ msgstr "Vrai si aucune callback n'est enregistrée"
 msgid ""
 "Register a callback function on a given address before or after the "
 "execution of the associated instruction."
-msgstr "Enregistre une callback sur l'adresse d'une instruction avant ou après "
+msgstr ""
+"Enregistre une callback sur l'adresse d'une instruction avant ou après "
 "qu'elle soit exécutée."
 
 #: of tritondse.callbacks.CallbackManager.register_addr_callback:4
@@ -286,31 +306,41 @@ msgstr "Quand attacher la callback (avant ou après) l'exécution de l'instructi
 msgid "callback function"
 msgstr "fonction de callback"
 
+#: of tritondse.callbacks.CallbackManager.register_exploration_step_callback:1
+msgid ""
+"Register a callback executed before each exploration step. The object "
+"given in parameter is the SymbolicExplorator itself."
+msgstr "Enregistre une callback appelé avant chaque étape d'exploration. L'objet donné "
+"en paramètre est le SymbolicExplorator lui-même."
+
+#: of tritondse.callbacks.CallbackManager.register_exploration_step_callback:4
+#: tritondse.callbacks.CallbackManager.register_post_execution_callback:5
+#: tritondse.callbacks.CallbackManager.register_pre_execution_callback:5
+msgid "Callback function to trigger"
+msgstr "Fonction de callback à appeler"
+
 #: of tritondse.callbacks.CallbackManager.register_function_callback:1
+#, fuzzy
 msgid ""
 "Register a callback on the address of the given function name. The "
-"address of the function is resolved through lief. Thus finding the "
-"function is conditioned by LIEF."
+"function name is only resolve when the callback manager is binded to a "
+"SymbolicExecutor."
 msgstr ""
-"Enregistre une callback sur une fonction donnée. L'adresse de la fonction "
-"est résolue avec :mod:`lief`. Par conséquent trouver la fonction est "
+"Enregistre une callback sur une fonction donnée. L'adresse de la fonction"
+" est résolue avec :mod:`lief`. Par conséquent trouver la fonction est "
 "conditionné par LIEF."
 
 #: of tritondse.callbacks.CallbackManager.register_function_callback:5
 msgid "Function name"
 msgstr "Nom de la fonction"
 
-#: of tritondse.callbacks.CallbackManager.register_function_callback:9
-msgid "True if registration succeeded, False otherwise"
-msgstr "Vrai si l'enregistrement a réussi, Faux sinon"
-
 #: of tritondse.callbacks.CallbackManager.register_instruction_callback:1
 msgid ""
 "Register a callback triggered on each instruction executed, before or "
 "after its side effects have been applied to ProcessState."
 msgstr ""
-"Enregistre une callback appelée sur chaque instruction, avant ou après que "
-"ses effets de bord soient appliqués au :class:`ProcessState`."
+"Enregistre une callback appelée sur chaque instruction, avant ou après "
+"que ses effets de bord soient appliqués au :class:`ProcessState`."
 
 #: of tritondse.callbacks.CallbackManager.register_instruction_callback:4
 msgid "before, after execution of the instruction"
@@ -326,7 +356,9 @@ msgstr "callback à appeler"
 msgid ""
 "Register a callback that will be triggered by any read in the concrete "
 "memory of the process state."
-msgstr "Enregistre une callback appelée sur chaque lecture en mémoire dans l'état concret du programme."
+msgstr ""
+"Enregistre une callback appelée sur chaque lecture en mémoire dans l'état"
+" concret du programme."
 
 #: of tritondse.callbacks.CallbackManager.register_memory_read_callback:4
 #: tritondse.callbacks.CallbackManager.register_memory_write_callback:4
@@ -339,7 +371,9 @@ msgstr "Callback à appeler."
 msgid ""
 "Register a callback called on each write in the concrete memory state of "
 "the process."
-msgstr "Enregistre une callback appelée sur chaque écriture dans l'état mémoire concret du programme."
+msgstr ""
+"Enregistre une callback appelée sur chaque écriture dans l'état mémoire "
+"concret du programme."
 
 #: of tritondse.callbacks.CallbackManager.register_new_input_callback:1
 msgid ""
@@ -348,16 +382,16 @@ msgid ""
 "input (worklist, etc.). It thus allow to post-process the input before it"
 " getting put in the queue."
 msgstr ""
-"Enregistre une callback déclenchée quand une nouvelle entrée est générée. "
-"Cette fonction est appelée avant l'ajout de celle-ci dans le pool d'entrées. "
-"Cela permet de post-traiter l'entrée avant qu'elle soit ajoutée à la queue."
+"Enregistre une callback déclenchée quand une nouvelle entrée est générée."
+" Cette fonction est appelée avant l'ajout de celle-ci dans le pool "
+"d'entrées. Cela permet de post-traiter l'entrée avant qu'elle soit "
+"ajoutée à la queue."
 
 #: of tritondse.callbacks.CallbackManager.register_post_addr_callback:1
 msgid ""
 "Register post-address callback. Equivalent to register a pre-address on "
 "the return site. *(assume the function returns)*"
-msgstr ""
-"Enregistre une callback post-adresse."
+msgstr "Enregistre une callback post-adresse."
 
 #: of tritondse.callbacks.CallbackManager.register_post_execution_callback:1
 msgid ""
@@ -365,13 +399,8 @@ msgid ""
 "initialization. Thus this callback is called after executing upon program"
 " exit (or crash)"
 msgstr ""
-"Enregistre une callback exécutée après l'exécution de la cible, c'est à dire "
-"après le exit ou un crash."
-
-#: of tritondse.callbacks.CallbackManager.register_post_execution_callback:5
-#: tritondse.callbacks.CallbackManager.register_pre_execution_callback:5
-msgid "Callback function to trigger"
-msgstr "Fonction de callback à appeler"
+"Enregistre une callback exécutée après l'exécution de la cible, c'est à "
+"dire après le exit ou un crash."
 
 #: of
 #: tritondse.callbacks.CallbackManager.register_post_imported_routine_callback:1
@@ -393,8 +422,10 @@ msgid ""
 "Register a callback executed after program loading, registers and memory "
 "initialization. Thus this callback is called just before executing the "
 "first instruction."
-msgstr "Enregistre une callback exécutée après chargement du programme et de l'initialisation "
-"de la mémoire. Cette callback est appelée juste avant d'exécuter la première instruction."
+msgstr ""
+"Enregistre une callback exécutée après chargement du programme et de "
+"l'initialisation de la mémoire. Cette callback est appelée juste avant "
+"d'exécuter la première instruction."
 
 #: of
 #: tritondse.callbacks.CallbackManager.register_pre_imported_routine_callback:1
@@ -405,26 +436,31 @@ msgstr "Enregistre une callback appelée sur une fonction importée."
 msgid ""
 "Register a pre-execution callback on all instruction executed by the "
 "engine."
-msgstr "Enregistre une callback de pre-exécution sur chaque instructions exécutées;"
+msgstr ""
+"Enregistre une callback de pre-exécution sur chaque instructions "
+"exécutées;"
 
-#: of tritondse.callbacks.CallbackManager.register_probe_callback:1
+#: of tritondse.callbacks.CallbackManager.register_probe:1
 msgid ""
 "Register a probe. That function will iterate the ``cbs`` attribute of the"
 " object, and will register each entries in self."
-msgstr "Enregistre une probe. Cette fonction va itérer l'attribut ``cbs`` de l'object "
-"et va enregistrer chaque entrées dans 'self'."
+msgstr ""
+"Enregistre une probe. Cette fonction va itérer l'attribut ``cbs`` de "
+"l'object et va enregistrer chaque entrées dans 'self'."
 
-#: of tritondse.callbacks.CallbackManager.register_probe_callback:4
+#: of tritondse.callbacks.CallbackManager.register_probe:4
 msgid "Does not implement all CbType"
 msgstr "N'implémente pas tous les `CbType`"
 
-#: of tritondse.callbacks.CallbackManager.register_probe_callback:6
+#: of tritondse.callbacks.CallbackManager.register_probe:6
 msgid "a probe interface"
 msgstr "une probe interface"
 
 #: of tritondse.callbacks.CallbackManager.register_register_read_callback:1
 msgid "Register a callback on each register read during the symbolic execution."
-msgstr "Enregistre une callback sur chaque registre lu pendant l'exécution symbolique."
+msgstr ""
+"Enregistre une callback sur chaque registre lu pendant l'exécution "
+"symbolique."
 
 #: of tritondse.callbacks.CallbackManager.register_register_write_callback:1
 msgid "Register a callback on each register write during the symbolic execution."
@@ -435,13 +471,31 @@ msgstr "Enregistre une callback sur chaque registre écrit pendant l'exécution.
 msgid ""
 "Register a callback triggered upon each thread context switch during the "
 "execution."
-msgstr "Enregistre une callback appelée sur chaque changement de thread pendant "
+msgstr ""
+"Enregistre une callback appelée sur chaque changement de thread pendant "
 "l'exécution;"
 
 #: of
 #: tritondse.callbacks.CallbackManager.register_thread_context_switch_callback:3
 msgid "Callback to be called"
 msgstr "Callback à appeler"
+
+#: of tritondse.callbacks.CallbackManager.reset:1
+msgid "Reset all callbacks :return:"
+msgstr "Réinitialise toutes les callbacks"
+
+#: of tritondse.callbacks.CallbackManager.unregister_callback:1
+msgid "Unregister the given callback from the manager."
+msgstr "dé-enregistre une callback donnée"
+
+#: of tritondse.callbacks.CallbackManager.unregister_callback:3
+#, fuzzy
+msgid "callback to remove"
+msgstr "Callback à appeler"
+
+#: of tritondse.callbacks.CallbackManager.unregister_callback:4
+msgid "None"
+msgstr ""
 
 #: ../../api/callbacks.rst:41
 msgid "**Auxiliary enumerate:**"
@@ -453,7 +507,7 @@ msgstr "Enum qui représente le point d'injection d'une callback"
 
 #: ../../api/callbacks.rst:51
 msgid "Probe Interface"
-msgstr ""
+msgstr "Interface de Probe (sonde)"
 
 #: ../../api/callbacks.rst:53
 msgid ""
@@ -462,17 +516,14 @@ msgid ""
 "interface expect a local attriubte ``cbs`` containing callback related "
 "informations."
 msgstr ""
-"l'interface :py:obj:`ProbeInteface` est un mécanisme simple pour enregistrer "
-"plusieurs callbacks d'un coup en héritant d'une interface. Cette interface "
-"attend uniquement un attribut ``cbs`` contenant les informations relatives aux callbacks."
+"l'interface :py:obj:`ProbeInteface` est un mécanisme simple pour "
+"enregistrer plusieurs callbacks d'un coup en héritant d'une interface. "
+"Cette interface attend uniquement un attribut ``cbs`` contenant les "
+"informations relatives aux callbacks."
 
 #: of tritondse.callbacks.ProbeInterface:1
 msgid "The Probe interface"
 msgstr "L'interface Probe"
-
-#: ../../docstring of tritondse.callbacks.ProbeInterface.cbs:1
-msgid "list of callback infos"
-msgstr "liste des informations des callbacks"
 
 #: ../../api/callbacks.rst:62
 msgid "Todo"
@@ -493,3 +544,12 @@ msgstr "Enum qui représente tous les types de callbacks"
 #: ../../api/callbacks.rst:74
 msgid "Callback signatures"
 msgstr "Signature des Callbacks"
+
+#~ msgid "Program used to explore *(used to extract function)*"
+#~ msgstr ""
+#~ "Programme utilisé pour l'exploration *(utilisé"
+#~ " pour extraire des informations)*"
+
+#~ msgid "True if registration succeeded, False otherwise"
+#~ msgstr "Vrai si l'enregistrement a réussi, Faux sinon"
+

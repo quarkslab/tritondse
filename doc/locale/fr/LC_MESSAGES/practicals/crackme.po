@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tritondse \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"POT-Creation-Date: 2021-06-23 10:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.0\n"
 
-#: ../../tutos/crackme.rst:3
-msgid "Solving Crackme #1"
-msgstr "Résoudre le Crackme #1"
+#: ../../practicals/crackme.rst:2
+msgid "Crackme"
+msgstr ""
+
+#: ../../practicals/crackme.rst:4
+msgid ""
+"The following sections are a bunch of crackme challenges to solve using "
+"TritonDSE."
+msgstr "Cette section contient plusieurs crackme à résoudre en utilisant TritonDSE."
+
+#: ../../practicals/crackme.rst:8
+msgid "Hackcon-2016-angry-reverser"
+msgstr ""
+
+#: ../../practicals/crackme.rst:16
+msgid "Hackover-ctf-2015-r150"
+msgstr ""
 

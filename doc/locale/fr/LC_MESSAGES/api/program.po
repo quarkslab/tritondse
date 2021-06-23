@@ -19,7 +19,7 @@ msgstr ""
 
 #: ../../api/program.rst:2
 msgid "Program"
-msgstr ""
+msgstr "Programme"
 
 #: of tritondse.program.Program:1
 msgid ""

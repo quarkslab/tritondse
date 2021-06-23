@@ -22,7 +22,7 @@ from tritondse.callbacks      import CallbackManager
 from tritondse.workspace      import Workspace
 from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
-from tritondse.exception      import AbortExecutionException, SkipInstructionException
+from tritondse.exception      import AbortExecutionException, SkipInstructionException, StopExplorationException
 
 
 class SymbolicExecutor(object):
@@ -410,6 +410,15 @@ class SymbolicExecutor(object):
         :raise SkipInstructionException: to skip the current instruction
         """
         raise SkipInstructionException("Skip instruction")
+
+    def stop_exploration(self) -> NoReturn:
+        """
+        Function to call to stop the whole exploration of
+        the program. It raises an exception which is caught by SymbolicExplorator.
+
+        :raise StopExplorationException: to stop the exploration
+        """
+        raise StopExplorationException("Stop exploration")
 
     def run(self, stop_at: Addr = None) -> None:
         """

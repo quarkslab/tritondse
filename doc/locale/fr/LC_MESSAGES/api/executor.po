@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tritondse \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"POT-Creation-Date: 2021-06-23 15:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,10 +26,16 @@ msgid ""
 "Single Program Execution Class. That module, is in charge of performing "
 "the process loading from the given program."
 msgstr ""
-"Classe qui représente une seule exécution. Ce module effectue le chargement du programme puis de l'exécuter."
+"Classe qui représente une seule exécution. Ce module effectue le "
+"chargement du programme puis de l'exécuter."
 
 #: of tritondse.symbolic_executor.SymbolicExecutor
 #: tritondse.symbolic_executor.SymbolicExecutor.enqueue_seed
+#: tritondse.symbolic_executor.SymbolicExecutor.inject_symbolic_input
+#: tritondse.symbolic_executor.SymbolicExecutor.load_process
+#: tritondse.symbolic_executor.SymbolicExecutor.load_program
+#: tritondse.symbolic_executor.SymbolicExecutor.mk_new_seed_from_model
+#: tritondse.symbolic_executor.SymbolicExecutor.run
 msgid "Parameters"
 msgstr "Paramètres"
 
@@ -38,35 +44,24 @@ msgid "configuration file to use"
 msgstr "fichier de configuration à utiliser"
 
 #: of tritondse.symbolic_executor.SymbolicExecutor:7
-msgid "ProcessState instanciated (but not loaded)"
-msgstr "ProcessState instancié *(mais pas chargé)*"
-
-#: of tritondse.symbolic_executor.SymbolicExecutor:9
-msgid "Program to execute"
-msgstr "Programme à exécuter"
-
-#: of tritondse.symbolic_executor.SymbolicExecutor:11
 msgid "input file to inject either in stdin or argv (optional)"
 msgstr "fichier d'entrée à injecter dans stdin ou argv (optionnel)"
 
-#: of tritondse.symbolic_executor.SymbolicExecutor:13
+#: of tritondse.symbolic_executor.SymbolicExecutor:9
 msgid "Workspace to use. If None it will be instanciated"
-msgstr ""
-"Workspace à utiliser. Si None, une nouvelle instance est créée"
+msgstr "Workspace à utiliser. Si None, une nouvelle instance est créée"
 
-#: of tritondse.symbolic_executor.SymbolicExecutor:15
+#: of tritondse.symbolic_executor.SymbolicExecutor:11
 msgid ""
 "Unique ID. Given by :py:obj:`SymbolicExplorator` to identify uniquely "
 "executions"
-msgstr ""
-"Identifiant unique de l'exécution donnée par :py:obj:`SymbolicExplorator`"
+msgstr "Identifiant unique de l'exécution donnée par :py:obj:`SymbolicExplorator`"
 
-#: of tritondse.symbolic_executor.SymbolicExecutor:17
+#: of tritondse.symbolic_executor.SymbolicExecutor:13
 msgid ""
 "callbacks to bind on this execution before running *(instanciated if "
 "empty !)*"
-msgstr ""
-"CallbackManager à attacher avant l'exécution *(instancié si vide)*"
+msgstr "CallbackManager à attacher avant l'exécution *(instancié si vide)*"
 
 #: of tritondse.symbolic_executor.SymbolicExecutor.abort:1
 msgid ""
@@ -74,10 +69,13 @@ msgid ""
 "caught by the emulation function that takes care of returning "
 "appropriately afterward."
 msgstr ""
-"Interrompt l'exécution courante. Fonctionne en levant une exception qui est "
-"attrapée par la fonction d'émulation qui va alors renvoyer le code de retour approprié."
+"Interrompt l'exécution courante. Fonctionne en levant une exception qui "
+"est attrapée par la fonction d'émulation qui va alors renvoyer le code de"
+" retour approprié."
 
 #: of tritondse.symbolic_executor.SymbolicExecutor.abort
+#: tritondse.symbolic_executor.SymbolicExecutor.skip_instruction
+#: tritondse.symbolic_executor.SymbolicExecutor.stop_exploration
 msgid "Raises"
 msgstr "Exceptions"
 
@@ -103,8 +101,8 @@ msgid ""
 "Add a seed to the queue of seed to be executed in later iterations. This "
 "function is meant to be used by user callbacks."
 msgstr ""
-"Ajoute une graine dans la queue des graines en attente d'exécution. Cette fonction "
-"est l'interface privilégiée pour l'utilisateur."
+"Ajoute une graine dans la queue des graines en attente d'exécution. Cette"
+" fonction est l'interface privilégiée pour l'utilisateur."
 
 #: of tritondse.symbolic_executor.SymbolicExecutor.enqueue_seed:4
 msgid "Seed to be added"
@@ -120,6 +118,12 @@ msgstr "Uniquement pertinent à la fin de l'exécution"
 
 #: of tritondse.SymbolicExecutor.execution_time
 #: tritondse.SymbolicExecutor.pending_seeds
+#: tritondse.symbolic_executor.SymbolicExecutor.inject_symbolic_input
+#: tritondse.symbolic_executor.SymbolicExecutor.is_seed_injected
+#: tritondse.symbolic_executor.SymbolicExecutor.load_process
+#: tritondse.symbolic_executor.SymbolicExecutor.load_program
+#: tritondse.symbolic_executor.SymbolicExecutor.mk_new_seed_from_model
+#: tritondse.symbolic_executor.SymbolicExecutor.run
 msgid "Returns"
 msgstr "Renvoie"
 
@@ -127,9 +131,85 @@ msgstr "Renvoie"
 msgid "execution time (in s)"
 msgstr "temps d'exécution (en secondes)"
 
+#: of tritondse.SymbolicExecutor.exitcode:1
+msgid ""
+"Exit code value of the process. The value is simply the concrete value of"
+" the register marked as return_register (rax, on x86, r0 on ARM..)"
+msgstr "Valeur de retour de l'exécution du programme."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.inject_symbolic_input:1
+msgid ""
+"Inject the given seed at the given address in memory. Then all memory "
+"bytes are symbolized."
+msgstr ""
+"Injecte la graine à l'adresse donnée en mémoire. Puis tous les octets de "
+"la mémoire sont symbolisés."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.inject_symbolic_input:4
+msgid "address at which to inject input"
+msgstr "adresse à laquelle injecter une entrée"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.inject_symbolic_input:5
+msgid "Seed to inject in memory"
+msgstr "Graine à injecter en mémoire"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.inject_symbolic_input:6
+msgid "prefix name to give the symbolic variables"
+msgstr "prefix à donner aux variables "
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.inject_symbolic_input:7
+#: tritondse.symbolic_executor.SymbolicExecutor.load_process:5
+#: tritondse.symbolic_executor.SymbolicExecutor.load_program:5
+#: tritondse.symbolic_executor.SymbolicExecutor.run:7
+msgid "None"
+msgstr ""
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.is_seed_injected:1
+msgid "Get whether or not the seed has been injected."
+msgstr "Renvoi si oui ou non la graine a déjà été injectée ou non"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.is_seed_injected:3
+msgid "True if the seed has already been inserted"
+msgstr "Vrai si la graine a été injectée"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.load_process:1
+msgid ""
+"Load the given process state. Do nothing but setting the internal "
+"ProcessState."
+msgstr "Charge le process state. Ne fais rien d'autre qu'initialiser l'attribut."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.load_process:4
+msgid "PrcoessState to set"
+msgstr "ProcessState"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.load_program:1
+msgid ""
+"Load the given program in the symbolic executor's ProcessState. It "
+"override the current ProcessState if any."
+msgstr ""
+"Charge le programme donné dans le ProcessState du SymbolicExecutor. Il "
+"écrase le ProcessState courant s'il en est un."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.load_program:4
+#, fuzzy
+msgid "Program to load"
+msgstr "Programme à exécuter"
+
 #: of tritondse.symbolic_executor.SymbolicExecutor.mem_usage_str:1
 msgid "debug function to track memory consumption of an execution"
 msgstr "fonction de debug pour suivre la consommation mémoire d'une exécution"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.mk_new_seed_from_model:1
+msgid "Given a SMT Model creates a new Seed."
+msgstr "Étant donné un modèle SMT crée une nouvelle graine."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.mk_new_seed_from_model:3
+msgid "SMT model"
+msgstr "Modèle SMT"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.mk_new_seed_from_model:4
+msgid "new seed object"
+msgstr "nouvelle objet Seed"
 
 #: of tritondse.SymbolicExecutor.pending_seeds:1
 msgid "List of pending seeds gathered during execution."
@@ -152,5 +232,36 @@ msgid ""
 "If the :py:attr:`tritondse.Config.execution_timeout` is not set the "
 "execution might hang forever if the program does."
 msgstr ""
-"Si :py:attr:`tritondse.Config.execution_timeout` n'est pas configuré, l'exécution "
-"peux boucler à l'infini si le programme ne s'arrête pas."
+"Si :py:attr:`tritondse.Config.execution_timeout` n'est pas configuré, "
+"l'exécution peux boucler à l'infini si le programme ne s'arrête pas."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.run:6
+msgid "Address where to stop (if necessary)"
+msgstr "Adresse où s'arrêter (si nécessaire)"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.skip_instruction:1
+msgid ""
+"Skip the current instruction before it gets executed. It is only relevant"
+" to call it from pre-inst or pre-addr callbacks."
+msgstr ""
+"Saute l'instruction courante avant qu'elle soit exécutée. Cette fonction "
+"n'est pertinente que s'il elle est appelée dans une callback PRE."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.skip_instruction:4
+msgid "to skip the current instruction"
+msgstr "pour sauter l'instruction courante"
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.stop_exploration:1
+msgid ""
+"Function to call to stop the whole exploration of the program. It raises "
+"an exception which is caught by SymbolicExplorator."
+msgstr "Fonction à appeler pour stopper l'exploration du programme. Elle lève une "
+"exception qui est capturée par le SymbolicExplorator."
+
+#: of tritondse.symbolic_executor.SymbolicExecutor.stop_exploration:4
+msgid "to stop the exploration"
+msgstr "pour stopper l'exploration"
+
+#~ msgid "ProcessState instanciated (but not loaded)"
+#~ msgstr "ProcessState instancié *(mais pas chargé)*"
+

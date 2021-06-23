@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: tritondse \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-21 22:38+0100\n"
+"POT-Creation-Date: 2021-06-23 10:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,10 +30,12 @@ msgid ""
 " satisfy the interface defined by "
 ":py:obj:`tritondse.seeds_manager.SeedManager`."
 msgstr ""
-"L'algorithme d'ordonnancement des graines a pour tâche de fournir la prochaine graine "
-"à exécuter. La stratégie est fournie au constructeur de :py:obj:`tritondse.seeds_manager.SeedManager`."
-"L'ordonnancement peut être différent en fonction du besoin. Toutes les stratégies "
-"doivent satisfaire l'interface définie par: :py:obj:`tritondse.seeds_manager.SeedScheduler`."
+"L'algorithme d'ordonnancement des graines a pour tâche de fournir la "
+"prochaine graine à exécuter. La stratégie est fournie au constructeur de "
+":py:obj:`tritondse.seeds_manager.SeedManager`.L'ordonnancement peut être "
+"différent en fonction du besoin. Toutes les stratégies doivent satisfaire"
+" l'interface définie par: "
+":py:obj:`tritondse.seeds_manager.SeedScheduler`."
 
 #: of tritondse.worklist.SeedScheduler:1
 msgid ""
@@ -41,8 +43,8 @@ msgid ""
 " base methods that all subclasses should implement to be compliant with "
 "the interface."
 msgstr ""
-"Classe abstraite représentant une stratégie d'ordonnancement. Cette classe fournit "
-"l'interface à implémenter pour satisfaire l'interface."
+"Classe abstraite représentant une stratégie d'ordonnancement. Cette "
+"classe fournit l'interface à implémenter pour satisfaire l'interface."
 
 #: of tritondse.worklist.SeedScheduler.add:1
 msgid "Add a new seed in the scheduler"
@@ -65,9 +67,10 @@ msgid ""
 "branches to discover new paths. Some seed scheduler might want to run "
 "concretely all inputs first before starting negating branches."
 msgstr ""
-"Fonction appelée par le SeedManager pour savoir s'il peut nier les branches "
-"d'un prédicat de chemin. En effet, certains ordonnanceurs peuvent demander à exécuter "
-"toutes les entrées une fois avant de commencer à nier des branches."
+"Fonction appelée par le SeedManager pour savoir s'il peut nier les "
+"branches d'un prédicat de chemin. En effet, certains ordonnanceurs "
+"peuvent demander à exécuter toutes les entrées une fois avant de "
+"commencer à nier des branches."
 
 #: of tritondse.worklist.FreshSeedPrioritizerWorklist.can_solve_models
 #: tritondse.worklist.SeedScheduler.can_solve_models
@@ -105,11 +108,19 @@ msgstr "graine à exécuter"
 msgid "Return type"
 msgstr "Type de retour"
 
+#: of tritondse.worklist.SeedScheduler.post_execution:1
+msgid ""
+"Called at the end of each execution after the generation of new seeds "
+"through SMT. Last thing called before starting the next iteration."
+msgstr ""
+
 #: of tritondse.worklist.SeedScheduler.post_exploration:1
 msgid ""
 "Called at the end of the exploration to perform some clean-up or anything"
 " else."
-msgstr "Appelé à la fin de l'exploration pour effectuer du post-traitement ou autre."
+msgstr ""
+"Appelé à la fin de l'exploration pour effectuer du post-traitement ou "
+"autre."
 
 #: of tritondse.worklist.SeedScheduler.update_worklist:1
 msgid ""
@@ -118,10 +129,11 @@ msgid ""
 "seed meant to cover an address which is now covered, it can just drop "
 "these seeds."
 msgstr ""
-"Appelé après chaque exécution. Cette fonction peut aider l'ordonnanceur "
-"à effectuer des opérations sur son état interne. Par exemple, l'ordonnanceur "
-"peut conserver des graines qui visent à couvrir des adresses qui après l'exécution "
-"sont maintenant couvertes. Celles-ci peuvent donc raisonnablement être jetées."
+"Appelé après chaque exécution. Cette fonction peut aider l'ordonnanceur à"
+" effectuer des opérations sur son état interne. Par exemple, "
+"l'ordonnanceur peut conserver des graines qui visent à couvrir des "
+"adresses qui après l'exécution sont maintenant couvertes. Celles-ci "
+"peuvent donc raisonnablement être jetées."
 
 #: of tritondse.worklist.SeedScheduler.update_worklist:6
 msgid "global coverage of the exploration"
@@ -138,13 +150,14 @@ msgstr ""
 
 #: of tritondse.worklist.FreshSeedPrioritizerWorklist:1
 msgid ""
-"Strategy that first execute all seeds without negating branches in order to "
-"get the most updated coverage and which then re-run all relevant seeds to"
-" negate their branches."
+"Strategy that first execute all seeds without negating branches in order "
+"to get the most updated coverage and which then re-run all relevant seeds"
+" to negate their branches."
 msgstr ""
-"Stratégie qui exécute d'abord toutes les entrées sans nier de branches pour d'abord obtenir "
-"la couverture la plus exhaustive du programme. Elle ré-exécute ensuite chaque graines pouvant "
-"mettre à jour de la couverture en niant les branches qui le requiert."
+"Stratégie qui exécute d'abord toutes les entrées sans nier de branches "
+"pour d'abord obtenir la couverture la plus exhaustive du programme. Elle "
+"ré-exécute ensuite chaque graines pouvant mettre à jour de la couverture "
+"en niant les branches qui le requiert."
 
 #: of tritondse.worklist.FreshSeedPrioritizerWorklist:9
 msgid "This worklist works as follow:"
@@ -152,17 +165,23 @@ msgstr "Cette worklist fonctionne comme suit:"
 
 #: of tritondse.worklist.FreshSeedPrioritizerWorklist:6
 msgid "return first fresh seeds first to get them executed (to improve coverage)"
-msgstr "renvoie une graine 'fraîche' pour qu'elle soit exécutée *(pour améliorer la couverture)*"
+msgstr ""
+"renvoie une graine 'fraîche' pour qu'elle soit exécutée *(pour améliorer "
+"la couverture)*"
 
 #: of tritondse.worklist.FreshSeedPrioritizerWorklist:7
 msgid ""
 "keep the seed in the worklist up until it gets dropped or thoroughtly "
 "processed"
-msgstr "garde la graine dans la worklist jusqu'à ce qu'elle soit jetée ou traitée complètement"
+msgstr ""
+"garde la graine dans la worklist jusqu'à ce qu'elle soit jetée ou traitée"
+" complètement"
 
 #: of tritondse.worklist.FreshSeedPrioritizerWorklist:8
 msgid "if no fresh seed is available, iterates seed that will generate coverage"
-msgstr "si aucunes graine 'fraîche' n'est disponible, commencer à itérer les autres pour générer la nouvelle couverture."
+msgstr ""
+"si aucunes graine 'fraîche' n'est disponible, commencer à itérer les "
+"autres pour générer la nouvelle couverture."
 
 #: of tritondse.worklist.FreshSeedPrioritizerWorklist.__len__:1
 #: tritondse.worklist.WorklistAddressToSet.__len__:1
@@ -199,6 +218,10 @@ msgstr "Renvoie vrai s'il reste des graines à traiter"
 msgid "Return the next seed to execute"
 msgstr "Renvoie la prochaine graine à exécuter"
 
+#: of tritondse.worklist.FreshSeedPrioritizerWorklist.post_execution:1
+msgid "Solely used to show intermediate statistics"
+msgstr ""
+
 #: of tritondse.worklist.FreshSeedPrioritizerWorklist.post_exploration:1
 msgid ""
 "At the end of the execution, print the worklist to know its state before "
@@ -217,10 +240,10 @@ msgid ""
 "the method pick() is called, seeds covering a new address 'Y' are "
 "selected first. Otherwise anyone is taken."
 msgstr ""
-"Cet ordonnanceur classifie les graines par adresses (à couvrir). Il assigne "
-"une graine X à une adresse Y, si la graine X a été générée pour atteindre Y. "
-"Quand la méthode pick est appelé, les graines couvrant Y sont sélectionnées en "
-"premières. Autrement n'importe laquelle est prise."
+"Cet ordonnanceur classifie les graines par adresses (à couvrir). Il "
+"assigne une graine X à une adresse Y, si la graine X a été générée pour "
+"atteindre Y. Quand la méthode pick est appelé, les graines couvrant Y "
+"sont sélectionnées en premières. Autrement n'importe laquelle est prise."
 
 #: of tritondse.worklist.WorklistAddressToSet.can_solve_models:1
 msgid ""
@@ -228,9 +251,10 @@ msgid ""
 "consequence it might try to solve a branch already covered in a seed not "
 "run yet. But this enables iterating a seed only once."
 msgstr ""
-"Toujours vrai. Cette stratégie autorise toujours à résoudre les conditions de branchement. "
-"Une conséquence et qu'elle peut tenter de nier une branche couverte dans une autre graine qui "
-"n'a pas encore été exécutée. Par contre, cela permet d'exécuter une graine une seule fois."
+"Toujours vrai. Cette stratégie autorise toujours à résoudre les "
+"conditions de branchement. Une conséquence et qu'elle peut tenter de nier"
+" une branche couverte dans une autre graine qui n'a pas encore été "
+"exécutée. Par contre, cela permet d'exécuter une graine une seule fois."
 
 #: of tritondse.worklist.WorklistAddressToSet.can_solve_models:6
 msgid "True"
@@ -242,11 +266,6 @@ msgid ""
 "other)"
 msgstr "prochaine graine à exécuter."
 
-#: of tritondse.worklist.WorklistAddressToSet.post_exploration:1
-#: tritondse.worklist.WorklistRand.post_exploration:1
-msgid "Does nothing"
-msgstr "Ne fais rien"
-
 #: of tritondse.worklist.WorklistAddressToSet.update_worklist:1
 msgid "Update the coverage state of the woklist with the global one"
 msgstr "Met à jour la couverture de l'ordonnanceur avec la couverture globale"
@@ -256,8 +275,9 @@ msgid ""
 "Trivial strategy that returns any Seed without any classification. It "
 "uses a Set for insertion and pop (which is random) for picking seeds."
 msgstr ""
-"Stratégie triviale qui renvoie n'importe quelle graine sans aucune classification d'aucune sorte. "
-"Elle utilise un set et renvoie n'importe qu'elle élément lors d'une pick."
+"Stratégie triviale qui renvoie n'importe quelle graine sans aucune "
+"classification d'aucune sorte. Elle utilise un set et renvoie n'importe "
+"qu'elle élément lors d'une pick."
 
 #: of tritondse.worklist.WorklistRand.add:3
 msgid "Seed to add to this rand scheduler"
@@ -273,10 +293,14 @@ msgid ""
 "element from the set and returns the removed element. Unlike, a stack a "
 "random element is popped off the set."
 msgstr ""
-"Renvoie la prochaine graine à exécuter. La méthode pop() renvoie un élément "
-"aléatoire de l'ensemble et l'enlève par la même occasion de l'ensemble."
+"Renvoie la prochaine graine à exécuter. La méthode pop() renvoie un "
+"élément aléatoire de l'ensemble et l'enlève par la même occasion de "
+"l'ensemble."
 
 #: of tritondse.worklist.WorklistRand.pick:5
 msgid "next seed to executre"
 msgstr "prochaine graine à exécuter"
+
+#~ msgid "Does nothing"
+#~ msgstr "Ne fais rien"
 
