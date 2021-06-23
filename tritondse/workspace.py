@@ -33,7 +33,7 @@ class Workspace(object):
         :type root_dir: :py:obj:`tritondse.types.PathLike`
         """
         if not root_dir:  # If no workspace was provided create a unique temporary one
-            self.root_dir = Path(self.DEFAULT_WORKSPACE) / str(int(time.time()))
+            self.root_dir = Path(self.DEFAULT_WORKSPACE) / str(time.time()).replace(".", "")
             self.root_dir.mkdir(parents=True)
         else:
             self.root_dir = Path(root_dir)
