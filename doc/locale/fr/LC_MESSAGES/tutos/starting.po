@@ -337,7 +337,7 @@ msgstr ""
 #: ../../tutos/starting.ipynb:1010
 msgid "symbolize_argv (bool): Symbolize parameters given on the command line"
 msgstr ""
-"ymbolize_argv (bool): Symbolise les paramètres donnés sur la ligne de "
+"symbolize_argv (bool): Symbolise les paramètres donnés sur la ligne de "
 "commande"
 
 #: ../../tutos/starting.ipynb:1011
