@@ -510,23 +510,19 @@ class SymbolicExecutor(object):
         :param model: SMT model
         :return: new seed object
         """
-        if self.config.symbolize_stdin:
-            content = bytearray(self.seed.content)  # Create the new seed buffer
-            for i, sv in enumerate(self.symbolic_seed):  # Enumerate symvars associated with each bytes
-                if sv.getId() in model:  # If solver provided a new value for the symvar
-                    content[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
-
-        elif self.config.symbolize_argv:
-            args = [bytearray(x) for x in self.seed.content.split()]
+        if self.config.symbolize_argv:
+            args = [bytearray(x) for x in self.seed.content.split(b"\x00")]
             for c_arg, sym_arg in zip(args, self.symbolic_seed):
                 for i, sv in enumerate(sym_arg):
                     if sv.getId() in model:
                         c_arg[i] = model[sv.getId()].getValue()
-            content = b" ".join(args)  # Recreate a full argv string
+            content = b"\x00".join(args)  # Recreate a full argv string
 
-        else:
-            logging.error("In _mk_new_seed() without neither stdin nor argv seed injection loc")
-            return Seed()  # Return dummy seed
+        else: # self.config.symbolize_stdin:
+            content = bytearray(self.seed.content)  # Create the new seed buffer
+            for i, sv in enumerate(self.symbolic_seed):  # Enumerate symvars associated with each bytes
+                if sv.getId() in model:  # If solver provided a new value for the symvar
+                    content[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
 
         # Calling callback if user defined one
         for cb in self.cbm.get_new_input_callback():
