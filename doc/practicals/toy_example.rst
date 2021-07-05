@@ -16,10 +16,12 @@ location.
 
     #include <stdio.h>
     #include <stdlib.h>
+    #include <inttypes.h>
 
     int entry() {
         char buffer[25];
         int j;
+        uint32_t *nullptr = NULL;
 
         FILE *fp = fopen("tmp.covpro", "r");
         if(fp == NULL) {
@@ -54,11 +56,15 @@ not interesting)*. The goal here is to perform manual state coverage on pointer
 values.
 
 .. code-block:: c
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <inttypes.h>
 
     int entry(char* s) {
 
         unsigned char symvar = s[0] - 48;
         int ary[] = {1,2,3,4,5};
+        uint32_t *nullptr = NULL;
 
         if(ary[symvar%5] == 5){
             *(nullptr) = 0;
@@ -81,11 +87,14 @@ Same principle here, except that triggering the bug require resolving some
 kind of a pointer aliasing issue.
 
 .. code-block:: c
+    #include <stdio.h>
+    #include <inttypes.h>
 
     int entry(char *s) {
         unsigned int symvar = s[0] - 48;
         unsigned int symvar2 = s[1] - 48;
         int arr[30] = {0};
+        uint32_t *nullptr = NULL;
 
         arr[symvar % 30] = s[2];
 
@@ -114,10 +123,12 @@ is a meta-property that the symbolic executor does not know how to mutate. It ca
 be an issue when performing coverage.
 
 .. code-block:: c
-
+    #include <stdio.h>
     #include <string.h>
 
+
     int  entry(const char* s) {
+      uint32_t *nullptr = NULL;
 
       if (strlen(s) == 3) {
         *(nullptr) = 0;
@@ -146,7 +157,7 @@ during exploration, and write a simple sanitizer for `strncpy` that
 checks that no buffer overflow is taking place.
 
 .. code-block:: c
-
+    #include <stdio.h>
     #include <string.h>
     #include <stdlib.h>
 
