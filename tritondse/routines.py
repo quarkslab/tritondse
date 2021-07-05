@@ -102,7 +102,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         pstate.push_stack_value(main)
 
     # Define concrete value of argc (from either the seed or the program_argv)
-    argc = len(se.seed.content.split()) if se.config.symbolize_argv else len(se.config.program_argv)
+    argc = len(se.seed.content.split(b"\x00")) if se.config.symbolize_argv else len(se.config.program_argv)
     pstate.write_register(pstate._get_argument_register(0), argc)
     logging.debug(f"argc = {argc}")
 
@@ -113,7 +113,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     index = 0
 
     if se.config.symbolize_argv:  # Use the seed provided (and ignore config.program_argv !!)
-        argvs = [x for x in se.seed.content.split()]
+        argvs = [x for x in se.seed.content.split(b"\x00")]
     else:  # use the config argv
         argvs = [x.encode("latin-1") for x in se.config.program_argv]  # Convert it from str to bytes
 
@@ -126,6 +126,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             # Symbolize the argv string
             sym_vars = pstate.symbolize_memory_bytes(base, len(arg), f"argv[{i}]")
             se.symbolic_seed.append(sym_vars)  # Set symbolic_seed to be able to retrieve them in generated models
+            # FIXME: Shall add a constraint on every char to be != \x00
 
         logging.debug(f"argv[{index}] = {repr(pstate.read_memory_bytes(base, len(arg)))}")
         base += len(arg) + 1
