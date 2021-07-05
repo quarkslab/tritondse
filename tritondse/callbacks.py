@@ -311,7 +311,7 @@ class CallbackManager(object):
         self.register_instruction_callback(CbPos.BEFORE, callback)
 
 
-    def register_post_instuction_callback(self, callback: InstrCallback) -> None:
+    def register_post_instruction_callback(self, callback: InstrCallback) -> None:
         """
         Register a post-execution callback on all instruction executed by the engine.
 
@@ -536,7 +536,7 @@ class CallbackManager(object):
                     CbType.MEMORY_WRITE: self.register_memory_write_callback,
                     CbType.POST_ADDR: self.register_post_addr_callback,
                     CbType.POST_EXEC: self.register_post_execution_callback,
-                    CbType.POST_INST: self.register_post_instuction_callback,
+                    CbType.POST_INST: self.register_post_instruction_callback,
                     CbType.PRE_ADDR: self.register_pre_addr_callback,
                     CbType.PRE_EXEC: self.register_pre_execution_callback,
                     CbType.PRE_INST: self.register_pre_instruction_callback,
