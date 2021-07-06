@@ -114,10 +114,16 @@ class SymbolicExplorator(object):
         if self.program:  # If doing the exploration from a program
             execution.load_program(self.program)
         self.current_executor = execution
-        execution.run(self._executor_stop_at)
 
         # increment exec_count
         self._exec_count += 1
+
+        try:
+            execution.run(self._executor_stop_at)
+        except StopExplorationException:
+            logging.info("Exploration interrupted (coverage not integrated)")
+            self._stop = True
+            return
 
         if self.config.exploration_limit and (uid+1) >= self.config.exploration_limit:
             logging.info('Exploration limit reached')
@@ -182,10 +188,6 @@ class SymbolicExplorator(object):
 
         except KeyboardInterrupt:
             logging.warning("keyboard interrupt, stop symbolic exploration")
-            self.status = ExplorationStatus.STOPPED
-
-        except StopExplorationException:
-            logging.warning("Exploration interrupted (coverage not integrated)")
             self.status = ExplorationStatus.STOPPED
 
         logging.info(f"Total time of the exploration: {self._fmt_elpased(self.__time_delta())}")
