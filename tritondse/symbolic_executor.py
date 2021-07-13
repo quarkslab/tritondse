@@ -81,7 +81,10 @@ class SymbolicExecutor(object):
         :param program: Program to load
         :return: None
         """
+
+        # Initialize the process_state architecture (at this point arch is sure to be supported)
         self.program = program
+        logging.debug(f"Loading program {self.program.path.name} [{self.program.architecture}]")
         self.pstate = ProcessState.from_program(program)
         self._configure_pstate()
         self._map_dynamic_symbols()
@@ -147,7 +150,8 @@ class SymbolicExecutor(object):
         return bool(self.symbolic_seed)
 
     def _configure_pstate(self) -> None:
-        for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:
+        #for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:
+        for mode in [MODE.ONLY_ON_SYMBOLIZED]:
             self.pstate.set_triton_mode(mode, True)
         self.pstate.time_inc_coefficient = self.config.time_inc_coefficient
         self.pstate.set_solver_timeout(self.config.smt_timeout)
@@ -441,8 +445,6 @@ class SymbolicExecutor(object):
             return
 
         self.start_time = time.time()
-        # Initialize the process_state architecture (at this point arch is sure to be supported)
-        logging.debug(f"Loading program {self.program.path.name} [{self.program.architecture}]")
 
         # bind dbm callbacks on the process state (newly initialized)
         self.cbm.bind_to(self)  # bind call
