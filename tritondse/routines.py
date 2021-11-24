@@ -94,16 +94,19 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # Get arguments
     main = pstate.get_argument_value(0)
 
+    # WARNING: Dirty trick to make sure to jump on main after
+    # the emulation of that stub
     if pstate.architecture == Architecture.AARCH64:
         pstate.cpu.x30 = main
-
-    elif pstate.architecture == Architecture.X86_64:
+    elif pstate.architecture in [Architecture.X86_64, Architecture.X86]:
         # Push the return value to jump into the main() function
         pstate.push_stack_value(main)
+    else:
+        assert False
 
     # Define concrete value of argc (from either the seed or the program_argv)
     argc = len(se.seed.content.split(b"\x00")) if se.config.symbolize_argv else len(se.config.program_argv)
-    pstate.write_register(pstate._get_argument_register(0), argc)
+    pstate.write_argument_value(0, argc)
     logging.debug(f"argc = {argc}")
 
     # Define argv
@@ -138,8 +141,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         base += CPUSIZE.QWORD
 
     # Concrete value
-    pstate.write_register(pstate._get_argument_register(1), b_argv)
-
+    pstate.write_argument_value(1, b_argv)
     return None
 
 

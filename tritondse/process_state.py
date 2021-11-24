@@ -924,8 +924,24 @@ class ProcessState(object):
             self.concretize_register(self._get_argument_register(index))
         except IndexError:
             len_args = len(self._archinfo.reg_args)
-            addr = self.cpu.stack_pointer + ((index-len_args) * self.ptr_size)  # Retrieve stack address
+            addr = self.cpu.stack_pointer + self.ptr_size + ((index-len_args) * self.ptr_size)  # Retrieve stack address
             self.concretize_memory_int(addr, self.ptr_size)                     # Concretize the value at this addr
+
+
+    def write_argument_value(self, i: int, val: int) -> None:
+        """
+        Write the parameter index with the given value. It will take in account
+        whether the argument is in a register or the stack.
+
+        :param i: Ith argument of the function
+        :param val: integer value of the parameter
+        :return: None
+        """
+        try:
+            return self.write_register(self._get_argument_register(i), val)
+        except IndexError:
+            len_args = len(self._archinfo.reg_args)
+            return self.write_stack_value(i-len_args, val, offset=1)
 
 
     def get_argument_value(self, i: int) -> int:
@@ -943,7 +959,7 @@ class ProcessState(object):
             return self.read_register(self._get_argument_register(i))
         except IndexError:
             len_args = len(self._archinfo.reg_args)
-            return self.get_stack_value(i-len_args)
+            return self.get_stack_value(i-len_args, offset=1)
 
     def get_argument_symbolic(self, i: int) -> Expression:
         """
@@ -1022,17 +1038,39 @@ class ProcessState(object):
         return args
 
 
-    def get_stack_value(self, index: int) -> int:
+    def get_stack_value(self, index: int, offset: int = 0) -> int:
         """
         Returns the value at the ith position further in the stack
 
         :param index: The index position from the top of the stack
         :type index: int
+        :param offset: An integer value offset to apply to stack address
+        :type offset: int
+        :return: the value got
         :return: the value got
         :rtype: int
         """
-        addr = self.cpu.stack_pointer + (index * self.ptr_size)
+        addr = self.cpu.stack_pointer + (offset * self.ptr_size) + (index * self.ptr_size)
         return self.read_memory_int(addr, self.ptr_size)
+
+
+    def write_stack_value(self, index: int, value: int, offset: int = 0) -> None:
+        """
+        Write the given value on the stack at the given index relative to the current
+        stack pointer. The index value can be positive to write further down the stack
+        or negative to write upward.
+
+        :param index: The index position from the top of the stack
+        :type index: int
+        :param value: Integer value to write on the stack
+        :type value: int
+        :param offset: Add an optional ith item offset to add to stack value (not a size)
+        :type offset: int
+        :return: the value got
+        :rtype: int
+        """
+        addr = self.cpu.stack_pointer + (offset * self.ptr_size) + (index * self.ptr_size)
+        self.write_memory_int(addr, self.ptr_size, value)
 
 
     def pop_stack_value(self) -> int:
