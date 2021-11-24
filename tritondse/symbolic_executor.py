@@ -345,11 +345,9 @@ class SymbolicExecutor(object):
             if self.pstate.architecture == Architecture.AARCH64:
                 # Get the return address
                 ret_addr = self.pstate.read_register('x30')
-
-            elif self.pstate.architecture == Architecture.X86_64:
+            elif self.pstate.architecture in [Architecture.X86, Architecture.X86_64]:
                 # Get the return address and restore RSP (simulate RET)
                 ret_addr = self.pstate.pop_stack_value()
-
             else:
                 raise Exception("Architecture not supported")
 
