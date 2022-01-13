@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 from enum    import IntEnum, Enum, auto
 from pathlib import Path
-from triton  import ARCH, SOLVER
+from triton  import ARCH, SOLVER_STATE
 from typing  import Union, TypeVar, Tuple
 
 
@@ -82,7 +82,7 @@ class Architecture(IntEnum):
 
 class SolverStatus(IntEnum):
     """ Common Solver Enum fully compatible with Triton ARCH """
-    SAT     = SOLVER.SAT
-    UNSAT   = SOLVER.UNSAT
-    TIMEOUT = SOLVER.TIMEOUT
-    UNKNOWN = SOLVER.UNKNOWN
+    SAT     = SOLVER_STATE.SAT
+    UNSAT   = SOLVER_STATE.UNSAT
+    TIMEOUT = SOLVER_STATE.TIMEOUT
+    UNKNOWN = SOLVER_STATE.UNKNOWN

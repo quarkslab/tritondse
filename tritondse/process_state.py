@@ -1126,7 +1126,7 @@ class ProcessState(object):
         else:
             final_cst = self.actx.land(constraint) if isinstance(constraint, list) else constraint
 
-        model, status = self.tt_ctx.getModel(final_cst, status=True)
+        model, status, _ = self.tt_ctx.getModel(final_cst, status=True)
         return SolverStatus(status), model
 
     def solve_no_pp(self, constraint: Union[AstNode, List[AstNode]]) -> Tuple[SolverStatus, Model]:
