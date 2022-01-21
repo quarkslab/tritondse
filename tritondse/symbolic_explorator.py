@@ -162,8 +162,6 @@ class SymbolicExplorator(object):
             t.join(0.001)
             if not t.is_alive():
                 break
-        gc.collect()  # FIXME: Why we have to force the collect to avoid memory leak?
-
 
     def explore(self) -> ExplorationStatus:
         """

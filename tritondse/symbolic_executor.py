@@ -466,6 +466,12 @@ class SymbolicExecutor(object):
             cb(self, self.pstate)
 
         self.end_time = time.time()
+
+        # IMPORTANT The next call is necessary otherwise there is a memory
+        #           leak issues.
+        # Unbind callbacks from the current symbolic executor instance.
+        self.cbm.unbind()
+
         logging.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time:.02f}s)")
         logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.path_predicate_size}")
         logging.info(f"Memory usage: {self.mem_usage_str()}")
