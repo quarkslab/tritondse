@@ -559,6 +559,13 @@ class ProcessState(object):
         self.tt_ctx.addCallback(cb_type, callback)
 
 
+    def clear_triton_callbacks(self) -> None:
+        """
+        Remove all registered callbacks in triton.
+        """
+        self.tt_ctx.clearCallbacks()
+
+
     def is_heap_ptr(self, ptr: Addr) -> bool:
         """
         Check whether a given address is pointing in the heap area.

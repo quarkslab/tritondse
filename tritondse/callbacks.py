@@ -165,12 +165,23 @@ class CallbackManager(object):
         for cb in self._reg_write_cbs:
             cb(self._se, self._se.pstate, reg, value)
 
+    def unbind(self) -> None:
+        """
+        Unbind callbacks from the current process state as well as from
+        the Triton Context object.
+        """
+        if self.is_binded():
+            self._se.pstate.clear_triton_callbacks()
+            self._se = None
 
     def bind_to(self, se: 'SymbolicExecutor') -> None:
         """
         Bind callbacks on the given process state. That step is required
         to register callbacks on the Triton Context object. This is also
         used to keep a reference on the SymbolicExecutor object;
+
+        IMPORTANT You MUST call `unbind` once you finish using the
+        SymbolicExecutor.
 
         :param se: SymbolicExecutor on which to bind callbacks
         :type se: SymbolicExecutor
@@ -179,6 +190,10 @@ class CallbackManager(object):
             logging.warning("Callback_manager already binded (on a different executor instance)")
         # assert not self.is_binded()
 
+        # NOTE This creates a circular dependency between the SymbolicExecutor
+        #      received and this object, as the SymbolicExecutor keeps a
+        #      reference to it. Therefore, it is necessary to call `unbind`
+        #      once you finish using the executor.
         self._se = se
 
         # Register only one trampoline by kind of callback. It will be the role
