@@ -225,12 +225,18 @@ class SymbolicExecutor(object):
                 break
 
             instruction = self.pstate.fetch_instruction()
+            opcode = instruction.getOpcode()
 
             try:
                 # Trigger pre-address callback
                 pre_cbs, post_cbs = self.cbm.get_address_callbacks(pc)
                 for cb in pre_cbs:
                     cb(self, self.pstate, pc)
+
+                # Trigger pre-opcode callback
+                pre_opcode, post_opcode = self.cbm.get_opcode_callbacks(opcode)
+                for cb in pre_opcode:
+                    cb(self, self.pstate, opcode)
 
                 # Trigger pre-instruction callback
                 pre_insts, post_insts = self.cbm.get_instruction_callbacks()
@@ -246,6 +252,10 @@ class SymbolicExecutor(object):
                 else:
                     logging.error('Instruction not supported: %s' % (str(instruction)))
                 break
+
+            # Trigger post-opcode callback
+            for cb in post_opcode:
+                cb(self, self.pstate, opcode)
 
             # Trigger post-instruction callback
             for cb in post_insts:

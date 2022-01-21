@@ -37,17 +37,18 @@ class CbType(Enum):
     NEW_INPUT = auto()
 
 
-AddrCallback     = Callable[['SymbolicExecutor', ProcessState, Addr], None]
-InstrCallback    = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
-MemReadCallback  = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
-MemWriteCallback = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
-NewInputCallback = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
-RegReadCallback  = Callable[['SymbolicExecutor', ProcessState, Register], None]
-RegWriteCallback = Callable[['SymbolicExecutor', ProcessState, Register, int], None]
-RtnCallback      = Callable[['SymbolicExecutor', ProcessState, str, Addr], Optional[Union[int, Expression]]]
-SymExCallback    = Callable[['SymbolicExecutor', ProcessState], None]
-ThreadCallback   = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
+AddrCallback            = Callable[['SymbolicExecutor', ProcessState, Addr], None]
 ExplorationStepCallback = Callable[['SymbolicExplorator'], None]
+InstrCallback           = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
+MemReadCallback         = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
+MemWriteCallback        = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
+NewInputCallback        = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
+OpcodeCallback          = Callable[['SymbolicExecutor', ProcessState, bytes], None]
+RegReadCallback         = Callable[['SymbolicExecutor', ProcessState, Register], None]
+RegWriteCallback        = Callable[['SymbolicExecutor', ProcessState, Register, int], None]
+RtnCallback             = Callable[['SymbolicExecutor', ProcessState, str, Addr], Optional[Union[int, Expression]]]
+SymExCallback           = Callable[['SymbolicExecutor', ProcessState], None]
+ThreadCallback          = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
 
 
 class ProbeInterface(object):
@@ -80,6 +81,7 @@ class CallbackManager(object):
 
         # SymbolicExecutor callbacks
         self._pc_addr_cbs   = {}  # addresses reached
+        self._opcode_cbs    = {}  # opcode before and after
         self._instr_cbs     = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
         self._pre_exec      = []  # before execution
         self._post_exec     = []  # after execution
@@ -279,6 +281,64 @@ class CallbackManager(object):
         :return: tuple of lists containing callback functions for pre/post respectively
         """
         cbs = self._pc_addr_cbs.get(addr, None)
+        if cbs:
+            return cbs[CbPos.BEFORE], cbs[CbPos.AFTER]
+        else:
+            return [], []
+
+
+    def register_opcode_callback(self, pos: CbPos, opcode: bytes, callback: OpcodeCallback) -> None:
+        """
+        Register a callback function on a given opcode before or after the execution
+        of the associated instruction.
+
+        :param pos: When to trigger the callback (before or after) execution of the instruction
+        :type pos: CbPos
+        :param opcode: Opcode where to trigger the callback
+        :type opcode: :py:obj:`bytes`
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.OpcodeCallback`
+        """
+        if opcode not in self._opcode_cbs:
+            self._opcode_cbs[opcode] = {CbPos.BEFORE: [], CbPos.AFTER: []}
+
+        self._opcode_cbs[opcode][pos].append(callback)
+        self._empty = False
+
+
+    def register_pre_opcode_callback(self, opcode: bytes, callback: OpcodeCallback) -> None:
+        """
+        Register pre-opcode callback.
+
+        :param opcode: Opcode where to trigger the callback
+        :type opcode: :py:obj:`bytes`
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.OpcodeCallback`
+        """
+        self.register_opcode_callback(CbPos.BEFORE, opcode, callback)
+
+
+    def register_post_opcode_callback(self, opcode: bytes, callback: OpcodeCallback) -> None:
+        """
+        Register post-opcode callback.
+
+        :param opcode: Opcode where to trigger the callback
+        :type opcode: :py:obj:`bytes`
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.OpcodeCallback`
+        """
+        self.register_opcode_callback(CbPos.AFTER, opcode, callback)
+
+
+    def get_opcode_callbacks(self, opcode: bytes) -> Tuple[List[OpcodeCallback], List[OpcodeCallback]]:
+        """
+        Get all the pre/post callbacks for a given opcode.
+
+        :param opcode: Opcode where to trigger the callback
+        :type opcode: :py:obj:`bytes`
+        :return: tuple of lists containing callback functions for pre/post respectively
+        """
+        cbs = self._opcode_cbs.get(opcode, None)
         if cbs:
             return cbs[CbPos.BEFORE], cbs[CbPos.AFTER]
         else:
@@ -576,6 +636,7 @@ class CallbackManager(object):
 
         # SymbolicExecutor callbacks
         cbs._pc_addr_cbs   = self._pc_addr_cbs
+        cbs._opcode_cbs    = self._opcode_cbs
         cbs._instr_cbs     = self._instr_cbs
         cbs._pre_exec      = self._pre_exec
         cbs._post_exec     = self._post_exec
@@ -606,6 +667,11 @@ class CallbackManager(object):
                 if callback in itms[loc]:
                     itms[loc].remove(callback)
 
+        for opcode, itms in self._opcode_cbs.items():
+            for loc in CbPos:
+                if callback in itms[loc]:
+                    itms[loc].remove(callback)
+
         for loc in CbPos:
             if callback in self._instr_cbs[loc]:
                 self._instr_cbs[loc].remove(callback)
@@ -630,6 +696,7 @@ class CallbackManager(object):
 
         # SymbolicExecutor callbacks
         self._pc_addr_cbs   = {}  # addresses reached
+        self._opcode_cbs    = {}  # opcodes before and after
         self._instr_cbs     = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
         self._pre_exec      = []  # before execution
         self._post_exec     = []  # after execution
