@@ -5,7 +5,7 @@ from enum import Enum, auto
 from typing import Callable, Tuple, List, Optional, Union
 
 # third-party imports
-from triton import CALLBACK, Instruction, MemoryAccess
+from triton import CALLBACK, Instruction, MemoryAccess, OPCODE
 
 # local imports
 from tritondse.process_state  import ProcessState
@@ -42,6 +42,7 @@ ExplorationStepCallback = Callable[['SymbolicExplorator'], None]
 InstrCallback           = Callable[['SymbolicExecutor', ProcessState, Instruction], None]
 MemReadCallback         = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
 MemWriteCallback        = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
+MnemonicCallback        = Callable[['SymbolicExecutor', ProcessState, OPCODE], None]
 NewInputCallback        = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
 OpcodeCallback          = Callable[['SymbolicExecutor', ProcessState, bytes], None]
 RegReadCallback         = Callable[['SymbolicExecutor', ProcessState, Register], None]
@@ -82,6 +83,7 @@ class CallbackManager(object):
         # SymbolicExecutor callbacks
         self._pc_addr_cbs   = {}  # addresses reached
         self._opcode_cbs    = {}  # opcode before and after
+        self._mnemonic_cbs  = {}  # mnemonic before and after
         self._instr_cbs     = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
         self._pre_exec      = []  # before execution
         self._post_exec     = []  # after execution
@@ -339,6 +341,64 @@ class CallbackManager(object):
         :return: tuple of lists containing callback functions for pre/post respectively
         """
         cbs = self._opcode_cbs.get(opcode, None)
+        if cbs:
+            return cbs[CbPos.BEFORE], cbs[CbPos.AFTER]
+        else:
+            return [], []
+
+
+    def register_mnemonic_callback(self, pos: CbPos, mnemonic: OPCODE, callback: MnemonicCallback) -> None:
+        """
+        Register a callback function on a given mnemonic before or after the execution
+        of the associated instruction.
+
+        :param pos: When to trigger the callback (before or after) execution of the instruction
+        :type pos: CbPos
+        :param mnemonic: Mnemonic where to trigger the callback
+        :type mnemonic: :py:obj:`OPCODE`
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.MnemonicCallback`
+        """
+        if mnemonic not in self._mnemonic_cbs:
+            self._mnemonic_cbs[mnemonic] = {CbPos.BEFORE: [], CbPos.AFTER: []}
+
+        self._mnemonic_cbs[mnemonic][pos].append(callback)
+        self._empty = False
+
+
+    def register_pre_mnemonic_callback(self, mnemonic: OPCODE, callback: MnemonicCallback) -> None:
+        """
+        Register pre-mnemonic callback.
+
+        :param mnemonic: Mnemonic where to trigger the callback
+        :type mnemonic: :py:obj:`OPCODE`
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.MnemonicCallback`
+        """
+        self.register_mnemonic_callback(CbPos.BEFORE, mnemonic, callback)
+
+
+    def register_post_mnemonic_callback(self, mnemonic: OPCODE, callback: MnemonicCallback) -> None:
+        """
+        Register post-mnemonic callback.
+
+        :param mnemonic: Mnemonic where to trigger the callback
+        :type mnemonic: :py:obj:`OPCODE`
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.MnemonicCallback`
+        """
+        self.register_mnemonic_callback(CbPos.AFTER, mnemonic, callback)
+
+
+    def get_mnemonic_callbacks(self, mnemonic: OPCODE) -> Tuple[List[MnemonicCallback], List[MnemonicCallback]]:
+        """
+        Get all the pre/post callbacks for a given mnemonic.
+
+        :param mnemonic: Mnemonic where to trigger the callback
+        :type mnemonic: :py:obj:`OPCODE`
+        :return: tuple of lists containing callback functions for pre/post respectively
+        """
+        cbs = self._mnemonic_cbs.get(mnemonic, None)
         if cbs:
             return cbs[CbPos.BEFORE], cbs[CbPos.AFTER]
         else:
@@ -637,6 +697,7 @@ class CallbackManager(object):
         # SymbolicExecutor callbacks
         cbs._pc_addr_cbs   = self._pc_addr_cbs
         cbs._opcode_cbs    = self._opcode_cbs
+        cbs._mnemonic_cbs  = self._mnemonic_cbs
         cbs._instr_cbs     = self._instr_cbs
         cbs._pre_exec      = self._pre_exec
         cbs._post_exec     = self._post_exec
@@ -672,6 +733,11 @@ class CallbackManager(object):
                 if callback in itms[loc]:
                     itms[loc].remove(callback)
 
+        for mnemonic, itms in self._mnemonic_cbs.items():
+            for loc in CbPos:
+                if callback in itms[loc]:
+                    itms[loc].remove(callback)
+
         for loc in CbPos:
             if callback in self._instr_cbs[loc]:
                 self._instr_cbs[loc].remove(callback)
@@ -696,7 +762,8 @@ class CallbackManager(object):
 
         # SymbolicExecutor callbacks
         self._pc_addr_cbs   = {}  # addresses reached
-        self._opcode_cbs    = {}  # opcodes before and after
+        self._opcode_cbs    = {}  # opcode before and after
+        self._mnemonic_cbs  = {}  # mnemonic before and after
         self._instr_cbs     = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
         self._pre_exec      = []  # before execution
         self._post_exec     = []  # after execution

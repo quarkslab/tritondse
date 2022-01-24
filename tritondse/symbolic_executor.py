@@ -226,6 +226,7 @@ class SymbolicExecutor(object):
 
             instruction = self.pstate.fetch_instruction()
             opcode = instruction.getOpcode()
+            mnemonic = instruction.getType()
 
             try:
                 # Trigger pre-address callback
@@ -237,6 +238,11 @@ class SymbolicExecutor(object):
                 pre_opcode, post_opcode = self.cbm.get_opcode_callbacks(opcode)
                 for cb in pre_opcode:
                     cb(self, self.pstate, opcode)
+
+                # Trigger pre-mnemonic callback
+                pre_mnemonic, post_mnemonic = self.cbm.get_mnemonic_callbacks(mnemonic)
+                for cb in pre_mnemonic:
+                    cb(self, self.pstate, mnemonic)
 
                 # Trigger pre-instruction callback
                 pre_insts, post_insts = self.cbm.get_instruction_callbacks()
@@ -256,6 +262,10 @@ class SymbolicExecutor(object):
             # Trigger post-opcode callback
             for cb in post_opcode:
                 cb(self, self.pstate, opcode)
+
+            # Trigger post-mnemonic callback
+            for cb in post_mnemonic:
+                cb(self, self.pstate, mnemonic)
 
             # Trigger post-instruction callback
             for cb in post_insts:
