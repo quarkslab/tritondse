@@ -29,9 +29,9 @@ class CoverageStrategy(IntEnum):
     """
     Coverage strategy enum.
     """
-    CODE_COVERAGE = 0
-    PATH_COVERAGE = 1
-    EDGE_COVERAGE = 2
+    BLOCK = 0
+    PATH = 1
+    EDGE = 2
 
 
 class BranchCheckStrategy(IntEnum):
@@ -120,18 +120,18 @@ class CoverageSingleRun(object):
             taken, not_taken = branches if branches[0]['isTaken'] else branches[::-1]
             taken_addr, not_taken_addr = taken['dstAddr'], not_taken['dstAddr']
 
-            if self.strategy == CoverageStrategy.CODE_COVERAGE:
+            if self.strategy == CoverageStrategy.BLOCK:
                 if not_taken_addr not in self.instructions:  # Keep the address that has not been covered (and could have)
                     self.not_instructions.add(not_taken_addr)
 
-            if self.strategy == CoverageStrategy.EDGE_COVERAGE:
+            if self.strategy == CoverageStrategy.EDGE:
                 taken_tuple, not_taken_tuple = (program_counter, taken_addr), (program_counter, not_taken_addr)
                 self.edges[taken_tuple] += 1
                 self.not_edges.discard(taken_tuple)    # Remove it from non-taken if it was inside
                 if not_taken_tuple not in self.edges:  # Add the not taken tuple in non-covered
                     self.not_edges.add(not_taken_tuple)
 
-            if self.strategy == CoverageStrategy.PATH_COVERAGE:
+            if self.strategy == CoverageStrategy.PATH:
                 self.current_path.append(taken_addr)
 
                 # Compute the hash of the not taken path and add it to non-covered paths
@@ -197,11 +197,11 @@ class CoverageSingleRun(object):
         :type item: CovItem
         :return: bool
         """
-        if self.strategy == CoverageStrategy.CODE_COVERAGE:
+        if self.strategy == CoverageStrategy.BLOCK:
             return item in self.instructions
-        if self.strategy == CoverageStrategy.EDGE_COVERAGE:
+        if self.strategy == CoverageStrategy.EDGE:
             return item in self.edges
-        if self.strategy == CoverageStrategy.PATH_COVERAGE:
+        if self.strategy == CoverageStrategy.PATH:
             return item in self.paths
 
 
@@ -212,11 +212,11 @@ class CoverageSingleRun(object):
         :param covitem: An address, an edge or a path
         :return: str
         """
-        if self.strategy == CoverageStrategy.CODE_COVERAGE:
+        if self.strategy == CoverageStrategy.BLOCK:
             return f"0x{covitem:08x}"
-        elif self.strategy == CoverageStrategy.EDGE_COVERAGE:
+        elif self.strategy == CoverageStrategy.EDGE:
             return f"(0x{covitem[0]:08x} -> 0x{covitem[1]:08x})"
-        elif self.strategy == CoverageStrategy.PATH_COVERAGE:
+        elif self.strategy == CoverageStrategy.PATH:
             return covitem  # already a hash str
 
 
@@ -288,15 +288,15 @@ class GlobalCoverage(CoverageSingleRun):
                         src, dst = branch['srcAddr'], branch['dstAddr']
 
                         # Check if the target is new with regards to the strategy
-                        if self.strategy == CoverageStrategy.CODE_COVERAGE:
+                        if self.strategy == CoverageStrategy.BLOCK:
                             item = dst
                             new = item not in self.instructions and item not in self.pending_coverage
 
-                        elif self.strategy == CoverageStrategy.EDGE_COVERAGE:
+                        elif self.strategy == CoverageStrategy.EDGE:
                             item = (src, dst)
                             new = item not in self.edges and item not in self.pending_coverage
 
-                        elif self.strategy == CoverageStrategy.PATH_COVERAGE:
+                        elif self.strategy == CoverageStrategy.PATH:
                             # Have to fork the hash of the current pc for each branch we want to revert
                             forked_hash = current_hash.copy()
                             forked_hash.update(struct.pack("<Q", dst))
@@ -331,9 +331,9 @@ class GlobalCoverage(CoverageSingleRun):
                 for branch in pc.getBranchConstraints():  # Get all branches
                     if not branch['isTaken']:
                         src, dst = branch['srcAddr'], branch['dstAddr']
-                        if self.strategy == CoverageStrategy.CODE_COVERAGE:
+                        if self.strategy == CoverageStrategy.BLOCK:
                             item = dst
-                        elif self.strategy == CoverageStrategy.EDGE_COVERAGE:
+                        elif self.strategy == CoverageStrategy.EDGE:
                             item = (src, dst)
                         else: # Do nothing for PATH_COVERAGE strategy as all items will be new ones
                             continue
@@ -368,16 +368,16 @@ class GlobalCoverage(CoverageSingleRun):
         self.instructions.update(other.instructions)
 
         # Update pending
-        if self.strategy == CoverageStrategy.CODE_COVERAGE:
+        if self.strategy == CoverageStrategy.BLOCK:
             self.pending_coverage.difference_update(other.instructions)
 
         # Update instruction coverage for edge
-        if self.strategy == CoverageStrategy.EDGE_COVERAGE:
+        if self.strategy == CoverageStrategy.EDGE:
             self.edges.update(other.edges)
             self.pending_coverage.difference_update(other.edges)
 
         # Update instruction coverage for path constraints
-        if self.strategy == CoverageStrategy.PATH_COVERAGE:
+        if self.strategy == CoverageStrategy.PATH:
             self.paths.update(other.paths)
             self.pending_coverage.difference_update(other.paths)
 
@@ -402,11 +402,11 @@ class GlobalCoverage(CoverageSingleRun):
         :return: A set of CovItem
         """
         assert self.strategy == other.strategy
-        if self.strategy == CoverageStrategy.CODE_COVERAGE:
+        if self.strategy == CoverageStrategy.BLOCK:
             return other.not_instructions - self.instructions.keys()
-        elif self.strategy == CoverageStrategy.EDGE_COVERAGE:
+        elif self.strategy == CoverageStrategy.EDGE:
             return other.not_edges - self.edges.keys()
-        elif self.strategy == CoverageStrategy.PATH_COVERAGE:
+        elif self.strategy == CoverageStrategy.PATH:
             return other.not_paths - self.paths
 
 
