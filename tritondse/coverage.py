@@ -7,7 +7,7 @@ import struct
 
 from typing      import List, Generator, Tuple, Set, Union, Dict
 from collections import Counter
-from enum        import IntEnum
+from enum        import IntEnum, Enum
 
 # local imports
 from tritondse.workspace import Workspace
@@ -25,13 +25,13 @@ It can be:
 """
 
 
-class CoverageStrategy(IntEnum):
+class CoverageStrategy(str, Enum):
     """
     Coverage strategy enum.
     """
-    BLOCK = 0
-    PATH = 1
-    EDGE = 2
+    BLOCK = "block"
+    PATH = "edge"
+    EDGE = "path"
 
 
 class BranchCheckStrategy(IntEnum):
@@ -277,7 +277,7 @@ class GlobalCoverage(CoverageSingleRun):
         current_hash = hashlib.md5()  # Current path hash for PATH coverage
 
         occurence_map = self._get_occurence_map(path_constraints)
-        is_ok_with_branch_strategy = lambda covitem, idx: True if self.strategy == CoverageStrategy.PATH_COVERAGE else (idx in occurence_map[covitem])
+        is_ok_with_branch_strategy = lambda covitem, idx: True if self.strategy == CoverageStrategy.PATH else (idx in occurence_map[covitem])
 
 
         for i, pc in enumerate(path_constraints):         # Iterate through all path constraints
