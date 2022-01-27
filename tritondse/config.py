@@ -27,7 +27,7 @@ class Config(object):
                  exploration_limit: int = 0,
                  thread_scheduling: int = 200,
                  smt_queries_limit: int = 1200,
-                 coverage_strategy: CoverageStrategy = CoverageStrategy.CODE_COVERAGE,
+                 coverage_strategy: CoverageStrategy = CoverageStrategy.BLOCK,
                  branch_solving_strategy: BranchCheckStrategy = BranchCheckStrategy.FIRST_LAST_NOT_COVERED,
                  debug: bool = False,
                  workspace: str = "",
@@ -81,7 +81,7 @@ class Config(object):
         """ Limit of SMT queries to perform for a single execution *(default: 1200)*"""
 
         self.coverage_strategy: CoverageStrategy = coverage_strategy
-        """ Coverage strategy to apply for the whole exploration, default: :py:obj:`CoverageStrategy.CODE_COVERAGE`"""
+        """ Coverage strategy to apply for the whole exploration, default: :py:obj:`CoverageStrategy.BLOCK`"""
 
         self.branch_solving_strategy: BranchCheckStrategy = branch_solving_strategy
         """ Branch solving strategy to apply for a single execution. For a given non-covered
