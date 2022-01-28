@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import List
 
 # triton-based libraries
-from tritondse.coverage import CoverageStrategy, BranchCheckStrategy
+from tritondse.coverage import CoverageStrategy, BranchSolvingStrategy
 
 
 
@@ -28,7 +28,7 @@ class Config(object):
                  thread_scheduling: int = 200,
                  smt_queries_limit: int = 1200,
                  coverage_strategy: CoverageStrategy = CoverageStrategy.BLOCK,
-                 branch_solving_strategy: BranchCheckStrategy = BranchCheckStrategy.FIRST_LAST_NOT_COVERED,
+                 branch_solving_strategy: BranchSolvingStrategy = BranchSolvingStrategy.FIRST_LAST_NOT_COVERED,
                  debug: bool = False,
                  workspace: str = "",
                  program_argv: List[str] = None,
@@ -83,10 +83,10 @@ class Config(object):
         self.coverage_strategy: CoverageStrategy = coverage_strategy
         """ Coverage strategy to apply for the whole exploration, default: :py:obj:`CoverageStrategy.BLOCK`"""
 
-        self.branch_solving_strategy: BranchCheckStrategy = branch_solving_strategy
+        self.branch_solving_strategy: BranchSolvingStrategy = branch_solving_strategy
         """ Branch solving strategy to apply for a single execution. For a given non-covered
         branch allows changing whether we try to solve it at all occurences or more seldomly.
-        default: :py:obj:`BranchCheckStrategy.FIRST_LAST_NOT_COVERED`
+        default: :py:obj:`BranchSolvingStrategy.FIRST_LAST_NOT_COVERED`
         """
 
         self.debug: bool = debug
