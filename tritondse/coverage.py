@@ -34,7 +34,7 @@ class CoverageStrategy(str, Enum):
     EDGE = "path"
 
 
-class BranchCheckStrategy(IntEnum):
+class BranchSolvingStrategy(IntEnum):
     """
     Branch strategy enumerate.
     It defines the manner with which branches are checked with SMT
@@ -234,14 +234,14 @@ class GlobalCoverage(CoverageSingleRun):
     EDGE_COVERAGE_FILE = "edge_coverage.json"
     PATH_COVERAGE_FILE = "path_coverage.json"
 
-    def __init__(self, strategy: CoverageStrategy, workspace: Workspace, branch_strategy: BranchCheckStrategy):
+    def __init__(self, strategy: CoverageStrategy, workspace: Workspace, branch_strategy: BranchSolvingStrategy):
         """
         :param strategy: Coverage strategy to use
         :type strategy: CoverageStrategy
         :param workspace: Execution workspace (for saving loading the coverage)
         :type workspace: Workspace
         :param branch_strategy: Branch checking strategies
-        :type branch_strategy: BranchCheckStrategy
+        :type branch_strategy: BranchSolvingStrategy
         """
         super().__init__(strategy)
         self.workspace = workspace
@@ -347,7 +347,7 @@ class GlobalCoverage(CoverageSingleRun):
                 pass  # TODO: trying to enumerate values for jmp rax etc ..
 
         # Now filter the map according to the branch solving strategy
-        if self.branch_strategy == BranchCheckStrategy.FIRST_LAST_NOT_COVERED:
+        if self.branch_strategy == BranchSolvingStrategy.FIRST_LAST_NOT_COVERED:
             for k in map.keys():
                 l = map[k]
                 if len(l) > 2:
