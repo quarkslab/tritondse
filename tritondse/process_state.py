@@ -8,7 +8,7 @@ from typing import Union, Callable, Tuple, Optional, List, Dict
 
 
 # third-party
-from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, MODE, AST_NODE
+from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, MODE, AST_NODE, SOLVER
 
 # local imports
 from tritondse.thread_context import ThreadContext
@@ -206,7 +206,6 @@ class ProcessState(object):
         :return: None
         """
         self.tt_ctx.setSolverTimeout(timeout)
-
 
     def _get_unique_thread_id(self) -> int:
         """ Return a new unique thread id. Used by thread related functions
