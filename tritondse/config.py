@@ -1,6 +1,6 @@
 import logging
 import json
-from enum import Enum
+from enum import Enum, IntFlag
 from pathlib import Path
 from typing import List
 
@@ -152,6 +152,8 @@ class Config(object):
             if hasattr(c, k):
                 if k == "coverage_strategy":
                     v = CoverageStrategy[v]
+                elif k == "branch_solving_strategy":
+                    v = BranchSolvingStrategy(v)
                 setattr(c, k, v)
             else:
                 logging.warning(f"config unknown parameter: {k}")
@@ -164,4 +166,4 @@ class Config(object):
 
         :return: JSON text
         """
-        return json.dumps({k: (x.name if isinstance(x, Enum) else x) for k, x in self.__dict__.items()}, indent=2)
+        return json.dumps({k: (x.value if isinstance(x, IntFlag) else (x.name if isinstance(x, Enum) else x)) for k, x in self.__dict__.items()}, indent=2)
