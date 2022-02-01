@@ -173,7 +173,7 @@ class SeedManager:
 
         logging.info(f"Corpus:{len(self.corpus)} Crash:{len(self.crash)}")
         self.worklist.post_execution()
-        logging.info(f"Coverage instruction:{self.coverage.unique_instruction_covered} edges:{self.coverage.unique_edge_covered}")
+        logging.info(f"Coverage instruction:{self.coverage.unique_instruction_covered} covitem:{self.coverage.unique_covitem_covered}")
 
 
     def _generate_new_inputs(self, execution: SymbolicExecutor):
