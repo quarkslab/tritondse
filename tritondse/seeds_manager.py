@@ -200,7 +200,9 @@ class SeedManager:
 
         # Solver status
         status = None
-        path_generator = self.coverage.iter_new_paths(execution.pstate.get_path_constraints())
+        path_constraints = execution.pstate.get_path_constraints()
+        total_len = len(path_constraints)
+        path_generator = self.coverage.iter_new_paths(path_constraints)
 
         try:
             while True:
@@ -210,7 +212,7 @@ class SeedManager:
                     logging.info(f'The configuration is defined as: no query')
                     break
 
-                p_prefix, branch, covitem = path_generator.send(status)
+                p_prefix, branch, covitem, ith = path_generator.send(status)
 
                 # Add path_prefix in path predicate
                 path_predicate.extend(x.getTakenPredicate() for x in p_prefix)
@@ -224,7 +226,7 @@ class SeedManager:
                 solve_time = time.time() - ts
                 self._update_solve_stats(covitem, status, solve_time)
                 smt_queries += 1
-                logging.info(f'Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {solve_time:.02f}s) [{self._pp_smt_status(status)}]')
+                logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {solve_time:.02f}s) [{self._pp_smt_status(status)}]')
 
                 if status == SolverStatus.SAT:
                     new_seed = execution.mk_new_seed_from_model(model)

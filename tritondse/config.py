@@ -3,6 +3,7 @@ import json
 from enum import Enum, IntFlag
 from pathlib import Path
 from typing import List
+from functools import reduce
 
 # triton-based libraries
 from tritondse.coverage import CoverageStrategy, BranchSolvingStrategy
@@ -123,7 +124,7 @@ class Config(object):
         :param file: The path name
         """
         with open(file, "w") as f:
-            json.dump({k: (x.name if isinstance(x, Enum) else x) for k, x in self.__dict__.items()}, f, indent=2)
+            json.dump(self.to_json(), f, indent=2)
 
 
     @staticmethod
@@ -153,7 +154,7 @@ class Config(object):
                 if k == "coverage_strategy":
                     v = CoverageStrategy[v]
                 elif k == "branch_solving_strategy":
-                    v = BranchSolvingStrategy(v)
+                    v = reduce(lambda acc, x: BranchSolvingStrategy[x] | acc, v, 0)
                 setattr(c, k, v)
             else:
                 logging.warning(f"config unknown parameter: {k}")
@@ -166,4 +167,6 @@ class Config(object):
 
         :return: JSON text
         """
-        return json.dumps({k: (x.value if isinstance(x, IntFlag) else (x.name if isinstance(x, Enum) else x)) for k, x in self.__dict__.items()}, indent=2)
+        def to_str_list(value):
+            return [x.name for x in BranchSolvingStrategy if x in value]
+        return json.dumps({k: (to_str_list(x) if isinstance(x, IntFlag) else (x.name if isinstance(x, Enum) else x)) for k, x in self.__dict__.items()}, indent=2)

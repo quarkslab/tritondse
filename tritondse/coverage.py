@@ -279,7 +279,7 @@ class GlobalCoverage(CoverageSingleRun):
         """ CovItems that are determined not to be coverable. """
 
 
-    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[List[PathConstraint], PathBranch, CovItem], SolverStatus, None]:
+    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[List[PathConstraint], PathBranch, CovItem, int], SolverStatus, None]:
         """
         The function iterate the given path predicate and yield PatchConstraint to
         consider as-is and PathBranch representing the new branch to take. It acts
@@ -319,7 +319,7 @@ class GlobalCoverage(CoverageSingleRun):
                            i in not_covered_items.get(covitem, []):
 
                             # Send the branch to solve to the function iterating
-                            res = yield pending_csts, branch, covitem
+                            res = yield pending_csts, branch, covitem, i
 
                             # If path SAT add it to pending coverage
                             if res == SolverStatus.SAT:
@@ -388,10 +388,23 @@ class GlobalCoverage(CoverageSingleRun):
 
         # Now filter the map according to the branch solving strategy
         if BranchSolvingStrategy.FIRST_LAST_NOT_COVERED in self.branch_strategy:
-            for k in not_covered.keys():
-                l = not_covered[k]
-                if len(l) > 2:
-                    not_covered[k] = [l[0], l[-1]]  # Only keep first and last iteration
+            if self.strategy == CoverageStrategy.PREFIXED_EDGE:
+                # Black magic
+                m = {("", e): [] for h, e in not_covered.keys()}  # Map: ("", edge) -> []
+                for (h, e), v in not_covered.items():          # fill map with all occurences edges regardless of path
+                    m[("", e)].extend(v)
+                for k in m.keys():                             # iterate the result and only keep min and max occurence
+                    idxs = m[k]
+                    if len(idxs) > 2:
+                        m[k] = [min(idxs), max(idxs)]
+                for k in not_covered.keys():                   # Push back resulting list in not_covered items
+                    not_covered[k] = m[('', k[1])]
+
+            else:  # Straightforward
+                for k in not_covered.keys():
+                    l = not_covered[k]
+                    if len(l) > 2:
+                        not_covered[k] = [l[0], l[-1]]  # Only keep first and last iteration
         else:
             pass  # Keep all occurences
         return not_covered
