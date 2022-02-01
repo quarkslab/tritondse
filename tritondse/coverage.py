@@ -219,7 +219,10 @@ class CoverageSingleRun(object):
         :type item: CovItem
         :return: bool
         """
-        return item in self.covered_items
+        if self.strategy == CoverageStrategy.PREFIXED_EDGE:
+            return ('', item[1]) in self.covered_items
+        else:
+            return item in self.covered_items
 
 
     def pp_item(self, covitem: CovItem) -> str:
