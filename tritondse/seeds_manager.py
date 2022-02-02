@@ -60,7 +60,7 @@ class SeedManager:
         self._solv_status = {SolverStatus.SAT: 0, SolverStatus.UNSAT: 0, SolverStatus.UNKNOWN: 0, SolverStatus.TIMEOUT: 0}
         self._stat_branch_reverted = Counter()
         self._stat_branch_fail = Counter()
-
+        self._current_solv_time = 0
 
     def __load_seed_workspace(self):
         """ Load seed from the workspace """
@@ -115,7 +115,7 @@ class SeedManager:
             assert False
 
 
-    def post_execution(self, execution: SymbolicExecutor, seed: Seed, solve_new_path: int = True) -> None:
+    def post_execution(self, execution: SymbolicExecutor, seed: Seed, solve_new_path: int = True) -> float:
         """
         Function called after each execution. It updates the global
         code coverage object, and tries to generate new paths through
@@ -127,11 +127,15 @@ class SeedManager:
         :type seed: Seed
         :param solve_new_path: Whether or not to solve constraint to find new paths
         :type solve_new_path: bool
+        :return: Total SMT solving time
         """
 
         # Update instructions covered from the last execution into our exploration coverage
         self.coverage.merge(execution.coverage)
         self.worklist.update_worklist(execution.coverage)
+
+        # reset the current solving time
+        self._current_solv_time = 0
 
         # Iterate all pending seeds to be added in the right location
         for s in execution.pending_seeds:
@@ -174,7 +178,7 @@ class SeedManager:
         logging.info(f"Corpus:{len(self.corpus)} Crash:{len(self.crash)}")
         self.worklist.post_execution()
         logging.info(f"Coverage instruction:{self.coverage.unique_instruction_covered} covitem:{self.coverage.unique_covitem_covered}")
-
+        return self._current_solv_time
 
     def _generate_new_inputs(self, execution: SymbolicExecutor):
         # Generate new inputs
@@ -264,6 +268,7 @@ class SeedManager:
     def _update_solve_stats(self, covitem: CovItem, status: SolverStatus, solving_time: float):
         self._solv_count += 1
         self._solv_time_sum += solving_time
+        self._current_solv_time += solving_time
         self._solv_status[status] += 1
         if status == SolverStatus.SAT:
             self._stat_branch_reverted[covitem] += 1  # Update stats

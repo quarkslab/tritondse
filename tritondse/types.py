@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import sys
-from enum    import IntEnum, Enum, auto
+from enum import IntEnum, Enum, auto
 from pathlib import Path
-from triton  import ARCH, SOLVER_STATE
-from typing  import Union, TypeVar, Tuple
+from triton import ARCH, SOLVER_STATE, SOLVER
+from typing import Union, TypeVar, Tuple
 
 
 PathLike = Union[str, Path]
@@ -78,6 +78,12 @@ class Architecture(IntEnum):
     ARM32   = ARCH.ARM32
     X86     = ARCH.X86
     X86_64  = ARCH.X86_64
+
+
+class SmtSolver(IntEnum):
+    """ Common SMT Solver Enum fully compatible with Triton """
+    Z3 = SOLVER.Z3
+    BITWUZLA = SOLVER.BITWUZLA
 
 
 class SolverStatus(IntEnum):
