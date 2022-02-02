@@ -7,6 +7,7 @@ from functools import reduce
 
 # triton-based libraries
 from tritondse.coverage import CoverageStrategy, BranchSolvingStrategy
+from tritondse.types import SmtSolver
 
 
 
@@ -22,6 +23,7 @@ class Config(object):
                  pipe_stdout: bool = False,
                  pipe_stderr: bool = False,
                  skip_sleep_routine: bool = False,
+                 smt_solver: SmtSolver = SmtSolver.Z3,
                  smt_timeout: int = 5000,
                  execution_timeout: int = 0,
                  exploration_timeout: int = 0,
@@ -60,6 +62,9 @@ class Config(object):
 
         self.skip_sleep_routine: bool = skip_sleep_routine
         """ Whether to emulate sleeps routine or not *(default: False)*"""
+
+        self.smt_solver: SmtSolver = smt_solver
+        """ SMT solver to perform queries solving """
 
         self.smt_timeout: int = smt_timeout
         """ Timeout for a single SMT query in milliseconds *(default: 10)*"""
@@ -151,8 +156,9 @@ class Config(object):
         c = Config()
         for k, v in data.items():
             if hasattr(c, k):
-                if k == "coverage_strategy":
-                    v = CoverageStrategy[v]
+                mapping = {"coverage_strategy": CoverageStrategy, "smt_solver": SmtSolver}
+                if k in mapping:
+                    v = mapping[k][v]
                 elif k == "branch_solving_strategy":
                     v = reduce(lambda acc, x: BranchSolvingStrategy[x] | acc, v, 0)
                 setattr(c, k, v)

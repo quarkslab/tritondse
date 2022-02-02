@@ -207,6 +207,17 @@ class ProcessState(object):
         """
         self.tt_ctx.setSolverTimeout(timeout)
 
+    def set_solver(self, solver: Union[str, SOLVER]) -> None:
+        """
+        Set the SMT solver to use in the background.
+
+        :param solver: Solver to use
+        :return: None
+        """
+        if isinstance(solver, str):
+            solver = getattr(SOLVER, solver.upper(), SOLVER.Z3)
+        self.tt_ctx.setSolver(solver)
+
     def _get_unique_thread_id(self) -> int:
         """ Return a new unique thread id. Used by thread related functions
         when spawning a new thread.
