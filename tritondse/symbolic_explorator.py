@@ -73,6 +73,7 @@ class SymbolicExplorator(object):
 
         # General purpose attributes
         self._exec_count = 0
+        self._total_emulation_time = 0
 
     @property
     def callback_manager(self) -> CallbackManager:
@@ -119,8 +120,11 @@ class SymbolicExplorator(object):
         self._exec_count += 1
 
         try:
+            ts = time.time()
             execution.run(self._executor_stop_at)
+            expl_ts = time.time() - ts
         except StopExplorationException:
+            expl_ts = time.time() - ts
             logging.info("Exploration interrupted (coverage not integrated)")
             self._stop = True
             return
@@ -130,10 +134,9 @@ class SymbolicExplorator(object):
             self._stop = True
 
         # Some analysis in post execution
-        self.seeds_manager.post_execution(execution, seed, not self._stop)
+        solve_time = self.seeds_manager.post_execution(execution, seed, not self._stop)
 
-        logging.info(f"Elapsed time: {self._fmt_elpased(self.__time_delta())}\n")
-
+        logging.info(f"Emulation: {self._fmt_secs(expl_ts)} | Solving: {self._fmt_secs(solve_time)} | Elapsed: {self._fmt_secs(self.__time_delta())}\n")
 
     def step(self) -> None:
         """
@@ -188,7 +191,7 @@ class SymbolicExplorator(object):
             logging.warning("keyboard interrupt, stop symbolic exploration")
             self.status = ExplorationStatus.STOPPED
 
-        logging.info(f"Total time of the exploration: {self._fmt_elpased(self.__time_delta())}")
+        logging.info(f"Total time of the exploration: {self._fmt_secs(self.__time_delta())}")
 
         return self.status
 
@@ -209,7 +212,7 @@ class SymbolicExplorator(object):
         self._stop = True
 
 
-    def _fmt_elpased(self, seconds) -> str:
+    def _fmt_secs(self, seconds) -> str:
         m, s = divmod(seconds, 60)
         h, m = divmod(m, 60)
         return (f"{int(h)}h" if h else '')+f"{int(m)}m{int(s)}s"

@@ -153,9 +153,10 @@ class SymbolicExecutor(object):
         #for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:
         for mode in [MODE.ONLY_ON_SYMBOLIZED]:
             self.pstate.set_triton_mode(mode, True)
-        logging.info(f"configure pstate: time_inc:{self.config.time_inc_coefficient}  solver:  timeout:{self.config.smt_timeout}")
+        logging.info(f"configure pstate: time_inc:{self.config.time_inc_coefficient}  solver:{self.config.smt_solver}  timeout:{self.config.smt_timeout}")
         self.pstate.time_inc_coefficient = self.config.time_inc_coefficient
         self.pstate.set_solver_timeout(self.config.smt_timeout)
+        self.pstate.set_solver(self.config.smt_solver)
 
 
     def _fetch_next_thread(self, threads: List[ThreadContext]) -> Optional[ThreadContext]:
