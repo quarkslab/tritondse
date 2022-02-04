@@ -852,14 +852,16 @@ class ProcessState(object):
         return False
 
 
-    def push_constraint(self, constraint: AstNode) -> None:
+    def push_constraint(self, constraint: AstNode, comment: str = "") -> None:
         """
         Thin wrapper on the triton context underneath to add a path constraint.
 
         :param constraint: Constraint expression to add
         :type constraint: `AstNode <https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_
+        :param comment: String comment to attach to the constraint
+        :type comment: str
         """
-        self.tt_ctx.pushPathConstraint(constraint)
+        self.tt_ctx.pushPathConstraint(constraint, comment)
 
     def get_path_constraints(self) -> List[AstNode]:
         """
