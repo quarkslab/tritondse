@@ -124,7 +124,7 @@ class Config(object):
         :param file: The path name
         """
         with open(file, "w") as f:
-            json.dump(self.to_json(), f, indent=2)
+            f.write(self.to_json())
 
 
     @staticmethod
