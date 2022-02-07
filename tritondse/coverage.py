@@ -245,28 +245,6 @@ class CoverageSingleRun(object):
         else:
             return item in self.covered_items
 
-    # def is_address_in_covered(self, current_path, addr: Addr) -> bool:
-    #     """
-    #     Return whether the address is covered as part of covered items.
-    #     It does not take in account all instruction covered. It will mostly
-    #     consider branch addresses.
-    #
-    #     :param current_path: current path prefix (md5 object)
-    #     :param addr: address to check
-    #     :return: True if address covered
-    #     """
-    #     if self.strategy == CoverageStrategy.BLOCK:
-    #         return addr in self.covered_items
-    #     elif self.strategy == CoverageStrategy.EDGE:
-    #         return reduce(lambda acc, x: acc | x[0] == addr, self.covered_items, False)
-    #     elif self.strategy == CoverageStrategy.PREFIXED_EDGE:
-    #         return reduce(lambda acc, x: acc | x[1][0] == addr, self.covered_items, False)
-    #     elif self.strategy == CoverageStrategy.PATH:  # For path check the whole path
-    #         h = current_path.copy()
-    #         h.update(struct.pack('<Q', addr))
-    #         return h.hexdigest() in self.covered_items
-    #     else:
-    #         assert False
 
     def pp_item(self, covitem: CovItem) -> str:
         """
