@@ -8,6 +8,7 @@ from typing import Union, Callable, Tuple, Optional, List, Dict
 
 
 # third-party
+import z3  # For direct value enumeration
 from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, MODE, AST_NODE, SOLVER
 
 # local imports
@@ -863,7 +864,7 @@ class ProcessState(object):
         """
         self.tt_ctx.pushPathConstraint(constraint, comment)
 
-    def get_path_constraints(self) -> List[AstNode]:
+    def get_path_constraints(self) -> List[PathConstraint]:
         """
         Get the list of all path constraints set in the Triton context.
 
@@ -1238,6 +1239,47 @@ class ProcessState(object):
         for var in vars.keys():
             self.tt_ctx.setConcreteVariableValue(var, backup[var])
         return final_value
+
+    # def enumerate_expression_value(self, exp: Union[AstNode, Expression], constraints: List[AstNode], values_blacklist: List[int], limit: int):
+    #     # Written for when it will work
+    #     solver = z3.SolverFor("QF_BV")
+    #     ast = exp.getAst() if hasattr(exp, "getAst") else exp
+    #     z3ast = self.actx.tritonToZ3(ast)
+    #
+    #     solver.add([self.actx.tritonToZ3(x) for x in constraints])
+    #     solver.add([z3ast != x for x in values_blacklist])
+    #
+    #     values = []  # retrieved values
+    #
+    #     while limit:
+    #         res = solver.check()
+    #         if res == z3.sat:
+    #             model = solver.model()
+    #             new_val = model.eval(z3ast)
+    #             values.append(new_val)
+    #             solver.add(z3ast != new_val)
+    #         else:
+    #             return values
+    #         limit -= 1
+    #     return values
+
+    def solve_enumerate_expression(self, exp: Union[AstNode, Expression], constraints: List[AstNode], values_blacklist: List[int], limit: int) -> List[Tuple[Model, int]]:
+        # Written for when it will work
+        ast = exp.getAst() if hasattr(exp, "getAst") else exp
+
+        constraint = self.actx.land(constraints + [ast != x for x in values_blacklist])
+
+        result = []
+        while limit:
+            status, model = self.solve(constraint, with_pp=False)
+            if status == SolverStatus.SAT:
+                new_val = self.evaluate_expression_model(ast, model)
+                result.append((model, new_val))
+                constraint = self.actx.land([constraint, ast != new_val])
+            else:
+                return result
+            limit -= 1
+        return result
 
     @staticmethod
     def from_program(program: Program) -> 'ProcessState':

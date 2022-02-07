@@ -68,6 +68,8 @@ class SymbolicExecutor(object):
         self._pending_seeds = []
         self._run_to_target = None
 
+        self.trace_offset = 0  # counter of instruction executed
+
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
@@ -207,8 +209,9 @@ class SymbolicExecutor(object):
             return
         if lea_ast.isSymbolized():
             s = "read" if is_read else "write"
-            logging.warning(f"symbolic {s} at 0x{self.pstate.cpu.program_counter:x}: target: 0x{tgt_addr:x}")
-            self.pstate.push_constraint(lea_ast == tgt_addr, f"sym-{s}")
+            pc = self.pstate.cpu.program_counter
+            logging.warning(f"symbolic {s} at 0x{pc:x}: target: 0x{tgt_addr:x} [{lea_ast}]")
+            self.pstate.push_constraint(lea_ast == tgt_addr, f"sym-{s}:{self.trace_offset}:{pc}")
 
     def _symbolic_read_callback(self, ctx, mem: MemoryAccess):
         self._symbolic_mem_callback(ctx, mem, True)
@@ -274,6 +277,9 @@ class SymbolicExecutor(object):
                     logging.error('Instruction not supported: %s' % (str(instruction)))
                 break
 
+            # increment trace offset
+            self.trace_offset += 1
+
             # Update the coverage of the execution
             self.coverage.add_covered_address(pc)
 
@@ -289,14 +295,14 @@ class SymbolicExecutor(object):
                     self.coverage.add_covered_branch(pc, taken_addr, not_taken_addr)
                 else:  # It is normally a dynamic jump or symbolic memory read/write
                     cmt = path_constraint.getComment()
-                    if cmt in ["sym-read", "sym-write"]:
+                    if cmt.startswith("sym-read") or cmt.startswith("sym-write"):
                         pass
                         # NOTE: At the moment it does not seems suitable to count r/w pointers
                         # as part of the coverage. So does not have an influence on covered/not_covered.
                     else:
                         logging.warning(f"New dynamic jump covered at: {pc:08x}")
                         new_pc = self.pstate.cpu.program_counter
-                        path_constraint.setComment("dyn-jmp")
+                        path_constraint.setComment(f"dyn-jmp:{self.trace_offset}:{pc}")
                         self.coverage.add_covered_dynamic_branch(pc, new_pc)
 
             # Trigger post-opcode callback

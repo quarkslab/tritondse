@@ -4,10 +4,13 @@ import json
 import hashlib
 import struct
 import logging
+from functools import reduce
 
 from typing import List, Generator, Tuple, Set, Union, Dict
 from collections import Counter
 from enum import IntFlag, Enum, auto
+
+from triton import AST_NODE
 
 # local imports
 from tritondse.workspace import Workspace
@@ -55,6 +58,7 @@ class BranchSolvingStrategy(IntFlag):
     COVER_SYM_DYNJUMP = auto()
     COVER_SYM_READ = auto()
     COVER_SYM_WRITE = auto()
+    UNSOUND_MEM_ACCESS = auto()
 
 
 class CoverageSingleRun(object):
@@ -97,9 +101,7 @@ class CoverageSingleRun(object):
         :type address: :py:obj:`tritondse.types.Addr`
         """
         self.covered_instructions[address] += 1
-        if self.strategy == CoverageStrategy.BLOCK: # if current strategy is block (code), remove address
-            self.covered_items[address] += 1
-            self.not_covered_items.discard(address)  # remove address from non-covered if inside
+
 
     def add_covered_dynamic_branch(self, source: Addr, target: Addr) -> None:
         """
@@ -147,6 +149,8 @@ class CoverageSingleRun(object):
         """
 
         if self.strategy == CoverageStrategy.BLOCK:
+            self.covered_items[taken_addr] += 1
+            self.not_covered_items.discard(taken_addr)    # remove address from non-covered if inside
             if not_taken_addr not in self.covered_items:  # Keep the address that has not been covered (and could have)
                 self.not_covered_items.add(not_taken_addr)
 
@@ -241,6 +245,28 @@ class CoverageSingleRun(object):
         else:
             return item in self.covered_items
 
+    # def is_address_in_covered(self, current_path, addr: Addr) -> bool:
+    #     """
+    #     Return whether the address is covered as part of covered items.
+    #     It does not take in account all instruction covered. It will mostly
+    #     consider branch addresses.
+    #
+    #     :param current_path: current path prefix (md5 object)
+    #     :param addr: address to check
+    #     :return: True if address covered
+    #     """
+    #     if self.strategy == CoverageStrategy.BLOCK:
+    #         return addr in self.covered_items
+    #     elif self.strategy == CoverageStrategy.EDGE:
+    #         return reduce(lambda acc, x: acc | x[0] == addr, self.covered_items, False)
+    #     elif self.strategy == CoverageStrategy.PREFIXED_EDGE:
+    #         return reduce(lambda acc, x: acc | x[1][0] == addr, self.covered_items, False)
+    #     elif self.strategy == CoverageStrategy.PATH:  # For path check the whole path
+    #         h = current_path.copy()
+    #         h.update(struct.pack('<Q', addr))
+    #         return h.hexdigest() in self.covered_items
+    #     else:
+    #         assert False
 
     def pp_item(self, covitem: CovItem) -> str:
         """
@@ -295,8 +321,10 @@ class GlobalCoverage(CoverageSingleRun):
         self.uncoverable_items: Dict[CovItem, SolverStatus] = {}
         """ CovItems that are determined not to be coverable. """
 
+        self.covered_symbolic_pointers: Set[Addr] = set()
+        """ Set of addresses for which pointers have been enumerated """
 
-    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[List[PathConstraint], PathBranch, CovItem, int], SolverStatus, None]:
+    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[bool, List[PathConstraint], PathBranch, CovItem, int], SolverStatus, None]:
         """
         The function iterate the given path predicate and yield PatchConstraint to
         consider as-is and PathBranch representing the new branch to take. It acts
@@ -336,7 +364,7 @@ class GlobalCoverage(CoverageSingleRun):
                            i in not_covered_items.get(covitem, []):
 
                             # Send the branch to solve to the function iterating
-                            res = yield pending_csts, branch, covitem, i
+                            res = yield False, pending_csts, branch, covitem, i
 
                             # If path SAT add it to pending coverage
                             if res == SolverStatus.SAT:
@@ -356,12 +384,36 @@ class GlobalCoverage(CoverageSingleRun):
 
                     else:
                         pass  # Branch was taken do nothing
-            else:
-                pass  # TODO: trying to enumerate values for jmp rax etc ..
 
-            # Add it the path predicate constraints and update current path hash
-            pending_csts.append(pc)
-            current_hash.update(struct.pack("<Q", pc.getTakenAddress()))
+                # Add it the path predicate constraints and update current path hash
+                pending_csts.append(pc)
+                current_hash.update(struct.pack("<Q", pc.getTakenAddress()))
+
+            else:
+                cmt = pc.getComment()
+
+                if (cmt.startswith("dyn-jmp") and BranchSolvingStrategy.COVER_SYM_DYNJUMP in self.branch_strategy) or \
+                   (cmt.startswith("sym-read") and BranchSolvingStrategy.COVER_SYM_READ in self.branch_strategy) or \
+                   (cmt.startswith("sym-write") and BranchSolvingStrategy.COVER_SYM_WRITE in self.branch_strategy):
+                    typ, offset, addr = cmt.split(":")
+                    offset, addr = int(offset), int(addr)
+                    if addr not in self.covered_symbolic_pointers:  # if the address pointer has never been covered
+                        pred = pc.getTakenPredicate()
+                        if pred.getType() == AST_NODE.EQUAL:
+                            p1, p2 = pred.getChildren()
+                            if p2.getType() == AST_NODE.BV:
+                                logging.info(f"Try to enumerate value {offset}:0x{addr:02x}: {p1}")
+                                res = yield True, pending_csts, p1, (addr, p2.evaluate()), i
+                                self.covered_symbolic_pointers.add(addr)  # add the pointer in covered regardless of result
+                            else:
+                                logging.warning(f"memory constraint unexpected pattern: {pred}")
+                        else:
+                            logging.warning(f"memory constraint unexpected pattern: {pred}")
+
+                if BranchSolvingStrategy.UNSOUND_MEM_ACCESS not in self.branch_strategy:
+                    pending_csts.append(pc)  # if NOT unsound add the mem dereference as a constraint in path predicate
+                    # NOTE: in both case the branch is not taken in account in the current_path_hash
+
 
     def _get_covitem(self, path_hash, branch: PathBranch) -> CovItem:
         src, dst = branch['srcAddr'], branch['dstAddr']
