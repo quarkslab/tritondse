@@ -58,7 +58,7 @@ class BranchSolvingStrategy(IntFlag):
     COVER_SYM_DYNJUMP = auto()
     COVER_SYM_READ = auto()
     COVER_SYM_WRITE = auto()
-    UNSOUND_MEM_ACCESS = auto()
+    SOUND_MEM_ACCESS = auto()
 
 
 class CoverageSingleRun(object):
@@ -387,8 +387,8 @@ class GlobalCoverage(CoverageSingleRun):
                         else:
                             logging.warning(f"memory constraint unexpected pattern: {pred}")
 
-                if BranchSolvingStrategy.UNSOUND_MEM_ACCESS not in self.branch_strategy:
-                    pending_csts.append(pc)  # if NOT unsound add the mem dereference as a constraint in path predicate
+                if BranchSolvingStrategy.SOUND_MEM_ACCESS in self.branch_strategy:
+                    pending_csts.append(pc)  # if sound add the mem dereference as a constraint in path predicate
                     # NOTE: in both case the branch is not taken in account in the current_path_hash
 
 
