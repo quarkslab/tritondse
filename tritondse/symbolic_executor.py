@@ -210,7 +210,7 @@ class SymbolicExecutor(object):
         if lea_ast.isSymbolized():
             s = "read" if is_read else "write"
             pc = self.pstate.cpu.program_counter
-            logging.warning(f"symbolic {s} at 0x{pc:x}: target: 0x{tgt_addr:x} [{lea_ast}]")
+            logging.debug(f"symbolic {s} at 0x{pc:x}: target: 0x{tgt_addr:x} [{lea_ast}]")
             self.pstate.push_constraint(lea_ast == tgt_addr, f"sym-{s}:{self.trace_offset}:{pc}")
 
     def _symbolic_read_callback(self, ctx, mem: MemoryAccess):
