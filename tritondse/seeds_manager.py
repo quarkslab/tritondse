@@ -226,13 +226,13 @@ class SeedManager:
                     # all stats updates
                     solve_time = time.time() - ts
                     count = len(results)
-                    self._solv_count += 1
+                    self._solv_count += count
                     self._solv_time_sum += solve_time
-                    self._solv_status[status] += 1
+                    status = SolverStatus.SAT if count else SolverStatus.UNSAT
+                    self._solv_status[status] += count
 
                     results = [(x[0], (addr, x[1])) for x in results]   # extract results
-                    status = SolverStatus.SAT if count else SolverStatus.UNSAT
-                    logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}-{smt_queries+count}, enumerate:{expr} (time: {solve_time:.02f}s) values:[{self._pp_smt_status(status)}]')
+                    logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}-{smt_queries+count}, enumerate:{expr} (time: {solve_time:.02f}s) values:[{count}:{self._pp_smt_status(status)}]')
                     smt_queries += count+1  # for the unsat
 
                 else:

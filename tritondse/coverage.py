@@ -330,7 +330,6 @@ class GlobalCoverage(CoverageSingleRun):
                 for branch in pc.getBranchConstraints():  # Get all branches
                     # Get the constraint of the branch which has not been taken.
                     if not branch['isTaken']:
-
                         covitem = self._get_covitem(current_hash, branch)
                         generic_covitem = ('', covitem[1]) if self.strategy == CoverageStrategy.PREFIXED_EDGE else covitem
                         #print(f"Covitem: {covitem}: {covitem not in self.covered_items} | {covitem not in self.pending_coverage} | {covitem not in self.uncoverable_items} | {i in not_covered_items.get(covitem, [])} | {i} | {not_covered_items.get(covitem)}")
@@ -428,10 +427,9 @@ class GlobalCoverage(CoverageSingleRun):
                             not_covered[covitem].append(i)
                         else:
                             not_covered[covitem] = [i]
+                current_hash.update(struct.pack("<Q", pc.getTakenAddress()))  # compute current path hash along the way
             else:
-                pass  # TODO: trying to enumerate values for jmp rax etc ..
-
-            current_hash.update(struct.pack("<Q", pc.getTakenAddress()))  # compute current path hash along the way
+                pass  # Ignore all other dynamic constraints in path computation
 
         # Now filter the map according to the branch solving strategy
         if BranchSolvingStrategy.FIRST_LAST_NOT_COVERED in self.branch_strategy:
