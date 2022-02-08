@@ -216,46 +216,49 @@ class SeedManager:
                     logging.info(f'The configuration is defined as: no query')
                     break
 
-                p_prefix, branch, covitem, ith = path_generator.send(status)
+                do_enum, p_prefix, branch, covitem, ith = path_generator.send(status)
 
                 # Add path_prefix in path predicate
                 path_predicate.extend(x.getTakenPredicate() for x in p_prefix)
 
                 # Create the constraint
-                constraint = actx.land(path_predicate + [branch['constraint']])
+                if do_enum:
+                    expr, (addr, tgt) = branch, covitem   # branch and covitem have a different meaning here
+                    ts = time.time()
+                    results = execution.pstate.solve_enumerate_expression(expr, path_predicate, [tgt], execution.config.smt_enumeration_limit)  # enumerate values
 
-                # Solve the constraint
-                ts = time.time()
-                status, model = execution.pstate.solve(constraint, with_pp=False)  # Do not use path predicate as we are iterating it
-                solve_time = time.time() - ts
-                self._update_solve_stats(covitem, status, solve_time)
-                smt_queries += 1
-                logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {solve_time:.02f}s) [{self._pp_smt_status(status)}]')
+                    # all stats updates
+                    solve_time = time.time() - ts
+                    count = len(results)
+                    self._solv_count += count
+                    self._solv_time_sum += solve_time
+                    status = SolverStatus.SAT if count else SolverStatus.UNSAT
+                    self._solv_status[status] += count
+
+                    results = [(x[0], (addr, x[1])) for x in results]   # extract results
+                    logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}-{smt_queries+count}, enumerate:{expr} (time: {solve_time:.02f}s) values:[{count}:{self._pp_smt_status(status)}]')
+                    smt_queries += count+1  # for the unsat
+
+                else:
+                    constraint = actx.land(path_predicate + [branch['constraint']])
+
+                    # Solve the constraint
+                    ts = time.time()
+                    status, model = execution.pstate.solve(constraint, with_pp=False)  # Do not use path predicate as we are iterating it
+                    solve_time = time.time() - ts
+                    self._update_solve_stats(covitem, status, solve_time)
+                    results = [(model, covitem)]
+                    smt_queries += 1
+                    logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {solve_time:.02f}s) [{self._pp_smt_status(status)}]')
 
                 if status == SolverStatus.SAT:
-                    new_seed = execution.mk_new_seed_from_model(model)
-                    # Trick to keep track of which target a seed is meant to cover
-                    new_seed.coverage_objectives.add(covitem)
-                    yield new_seed  # Yield the seed to get it added in the worklist
-                elif status == SolverStatus.UNSAT:
-                    pass
-                elif status == SolverStatus.TIMEOUT:
-                    pass
-                    # TODO
-                    # while status == Solver.TIMEOUT:
-                    #     limit = int(len(constraint) / 2)
-                    #     if limit < 1:
-                    #         break
-                    #     ts = time.time()
-                    #     model, status = execution.pstate.tt_ctx.getModel(actx.land(constraint[limit:]), status=True)
-                    #     te = time.time()
-                    #     smt_queries += 1
-                    #     logging.info(f'Sending query n°{smt_queries} to the solver. Solving time: {te - ts:.02f} seconds. Status: {status}')
-
-                elif status == SolverStatus.UNKNOWN:
-                    pass
+                    for model, covitem in results:
+                        new_seed = execution.mk_new_seed_from_model(model)
+                        # Trick to keep track of which target a seed is meant to cover
+                        new_seed.coverage_objectives.add(covitem)
+                        yield new_seed  # Yield the seed to get it added in the worklist
                 else:
-                    assert False
+                    pass
 
                 # Check if we reached the limit of query
                 if self.smt_queries_limit and smt_queries >= self.smt_queries_limit:

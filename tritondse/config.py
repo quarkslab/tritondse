@@ -30,6 +30,7 @@ class Config(object):
                  exploration_limit: int = 0,
                  thread_scheduling: int = 200,
                  smt_queries_limit: int = 1200,
+                 smt_enumeration_limit: int = 40,
                  coverage_strategy: CoverageStrategy = CoverageStrategy.BLOCK,
                  branch_solving_strategy: BranchSolvingStrategy = BranchSolvingStrategy.FIRST_LAST_NOT_COVERED,
                  debug: bool = False,
@@ -86,6 +87,9 @@ class Config(object):
         self.smt_queries_limit: int = smt_queries_limit
         """ Limit of SMT queries to perform for a single execution *(default: 1200)*"""
 
+        self.smt_enumeration_limit: int = smt_enumeration_limit
+        """ Limit of model values retrieved when enumerating a dynamic jump or symbolic memory accesses"""
+
         self.coverage_strategy: CoverageStrategy = coverage_strategy
         """ Coverage strategy to apply for the whole exploration, default: :py:obj:`CoverageStrategy.BLOCK`"""
 
@@ -129,7 +133,7 @@ class Config(object):
         :param file: The path name
         """
         with open(file, "w") as f:
-            json.dump(self.to_json(), f, indent=2)
+            f.write(self.to_json())
 
 
     @staticmethod
