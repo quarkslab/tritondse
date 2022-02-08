@@ -35,6 +35,11 @@ class CbType(Enum):
     REG_READ = auto()
     REG_WRITE = auto()
     NEW_INPUT = auto()
+    EXPLORE_STEP = auto()
+    PRE_MNEM = auto()
+    POST_MNEM = auto()
+    PRE_OPCODE = auto()
+    POST_OPCODE = auto()
 
 
 AddrCallback            = Callable[['SymbolicExecutor', ProcessState, Addr], None]
@@ -678,6 +683,11 @@ class CallbackManager(object):
                     CbType.REG_READ: self.register_register_read_callback,
                     CbType.REG_WRITE: self.register_register_write_callback,
                     CbType.NEW_INPUT: self.register_new_input_callback,
+                    CbType.EXPLORE_STEP: self.register_exploration_step_callback,
+                    CbType.PRE_MNEM: self.register_pre_mnemonic_callback,
+                    CbType.POST_MNEM: self.register_post_mnemonic_callback,
+                    CbType.PRE_OPCODE: self.register_pre_opcode_callback,
+                    CbType.POST_OPCODE: self.register_post_opcode_callback
                 }
                 mapping[kind](cb)
 
