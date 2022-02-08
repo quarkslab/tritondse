@@ -6,13 +6,12 @@ import os
 import resource
 from typing import Optional, Union, List, NoReturn
 
-
 # third party imports
-from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess
+from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess, CALLBACK
 
 # local imports
 from tritondse.config         import Config
-from tritondse.coverage       import CoverageSingleRun
+from tritondse.coverage       import CoverageSingleRun, BranchSolvingStrategy
 from tritondse.process_state  import ProcessState
 from tritondse.program        import Program
 from tritondse.seed           import Seed, SeedStatus
@@ -68,6 +67,8 @@ class SymbolicExecutor(object):
         # List of new seeds filled during the execution and flushed by explorator
         self._pending_seeds = []
         self._run_to_target = None
+
+        self.trace_offset = 0  # counter of instruction executed
 
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
@@ -202,6 +203,22 @@ class SymbolicExecutor(object):
             # Increment the instruction counter of the thread (a bit in advance but it does not matter)
             self.pstate.current_thread.count += 1
 
+    def _symbolic_mem_callback(self, ctx, mem: MemoryAccess, is_read):
+        tgt_addr = mem.getAddress()
+        lea_ast = mem.getLeaAst()
+        if lea_ast is None:
+            return
+        if lea_ast.isSymbolized():
+            s = "read" if is_read else "write"
+            pc = self.pstate.cpu.program_counter
+            logging.debug(f"symbolic {s} at 0x{pc:x}: target: 0x{tgt_addr:x} [{lea_ast}]")
+            self.pstate.push_constraint(lea_ast == tgt_addr, f"sym-{s}:{self.trace_offset}:{pc}")
+
+    def _symbolic_read_callback(self, ctx, mem: MemoryAccess):
+        self._symbolic_mem_callback(ctx, mem, True)
+
+    def _symbolic_write_callback(self, ctx, mem: MemoryAccess, value):
+        self._symbolic_mem_callback(ctx, mem, False)
 
     def __emulate(self):
         while not self.pstate.stop and self.pstate.threads:
@@ -261,6 +278,34 @@ class SymbolicExecutor(object):
                     logging.error('Instruction not supported: %s' % (str(instruction)))
                 break
 
+            # increment trace offset
+            self.trace_offset += 1
+
+            # Update the coverage of the execution
+            self.coverage.add_covered_address(pc)
+
+            # Update coverage send it the last PathConstraint object if one was added
+            if self.pstate.is_path_predicate_updated():
+                path_constraint = self.pstate.last_branch_constraint
+                if path_constraint.isMultipleBranches():
+                    branches = path_constraint.getBranchConstraints()
+                    if len(branches) != 2:
+                        logging.error("Branching condition has more than two branches")
+                    taken, not_taken = branches if branches[0]['isTaken'] else branches[::-1]
+                    taken_addr, not_taken_addr = taken['dstAddr'], not_taken['dstAddr']
+                    self.coverage.add_covered_branch(pc, taken_addr, not_taken_addr)
+                else:  # It is normally a dynamic jump or symbolic memory read/write
+                    cmt = path_constraint.getComment()
+                    if cmt.startswith("sym-read") or cmt.startswith("sym-write"):
+                        pass
+                        # NOTE: At the moment it does not seems suitable to count r/w pointers
+                        # as part of the coverage. So does not have an influence on covered/not_covered.
+                    else:
+                        logging.warning(f"New dynamic jump covered at: {pc:08x}")
+                        new_pc = self.pstate.cpu.program_counter
+                        path_constraint.setComment(f"dyn-jmp:{self.trace_offset}:{pc}")
+                        self.coverage.add_covered_dynamic_branch(pc, new_pc)
+
             # Trigger post-opcode callback
             for cb in post_opcode:
                 cb(self, self.pstate, opcode)
@@ -272,14 +317,6 @@ class SymbolicExecutor(object):
             # Trigger post-instruction callback
             for cb in post_insts:
                 cb(self, self.pstate, instruction)
-
-            # Update the coverage of the execution
-            self.coverage.add_covered_address(pc)
-
-            # Update coverage send it the last PathConstraint object if one was added
-            if self.pstate.is_path_predicate_updated():
-                branch = self.pstate.last_branch_constraint
-                self.coverage.add_covered_branch(pc, branch)
 
             # Trigger post-address callbacks
             for cb in post_cbs:
@@ -468,6 +505,12 @@ class SymbolicExecutor(object):
 
         # bind dbm callbacks on the process state (newly initialized)
         self.cbm.bind_to(self)  # bind call
+
+        # Register memory callbacks in case we activated covering mem access
+        if BranchSolvingStrategy.COVER_SYM_READ in self.config.branch_solving_strategy:
+            self.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_MEMORY_VALUE, self._symbolic_read_callback)
+        if BranchSolvingStrategy.COVER_SYM_WRITE in self.config.branch_solving_strategy:
+            self.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_MEMORY_VALUE, self._symbolic_write_callback)
 
         # Let's emulate the binary from the entry point
         logging.info('Starting emulation')

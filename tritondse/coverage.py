@@ -4,10 +4,13 @@ import json
 import hashlib
 import struct
 import logging
+from functools import reduce
 
 from typing import List, Generator, Tuple, Set, Union, Dict
 from collections import Counter
 from enum import IntFlag, Enum, auto
+
+from triton import AST_NODE
 
 # local imports
 from tritondse.workspace import Workspace
@@ -52,7 +55,10 @@ class BranchSolvingStrategy(IntFlag):
     UNSAT_ALWAYS = auto()
     TIMEOUT_ONCE = auto()
     TIMEOUT_ALWAYS = auto()
-
+    COVER_SYM_DYNJUMP = auto()
+    COVER_SYM_READ = auto()
+    COVER_SYM_WRITE = auto()
+    SOUND_MEM_ACCESS = auto()
 
 
 class CoverageSingleRun(object):
@@ -95,12 +101,38 @@ class CoverageSingleRun(object):
         :type address: :py:obj:`tritondse.types.Addr`
         """
         self.covered_instructions[address] += 1
-        if self.strategy == CoverageStrategy.BLOCK: # if current strategy is block (code), remove address
-            self.covered_items[address] += 1
-            self.not_covered_items.discard(address)  # remove address from non-covered if inside
 
 
-    def add_covered_branch(self, program_counter: Addr, pc: PathConstraint) -> None:
+    def add_covered_dynamic_branch(self, source: Addr, target: Addr) -> None:
+        """
+        Add a dynamic branch covered. The branch will be encoded according to the
+        coverage strategy.
+
+        :param source: Address of the dynamic jump
+        :param target: Target address on which the jump is performed
+        :return:
+        """
+        if self.strategy == CoverageStrategy.BLOCK:
+            pass # Target address will be covered anyway
+
+        if self.strategy == CoverageStrategy.EDGE:
+            self.covered_items[(source, target)] += 1
+            self.not_covered_items.discard((source, target))    # Remove it from non-taken if it was inside
+
+        if self.strategy == CoverageStrategy.PATH:
+            self.current_path.append(target)
+            self.current_path_hash.update(struct.pack("<Q", target))
+            self.covered_items[self.current_path_hash.hexdigest()] += 1
+
+        if self.strategy == CoverageStrategy.PREFIXED_EDGE:
+            # Add covered as covered
+            self.covered_items[("", (source, target))] += 1
+            # update the current path hash etc
+            self.current_path.append(target)
+            self.current_path_hash.update(struct.pack("<Q", target))
+
+
+    def add_covered_branch(self, program_counter: Addr, taken_addr: Addr, not_taken_addr: Addr) -> None:
         """
         Add a branch to our covered branches list. Each branch is encoded according
         to the coverage strategy. For code coverage, the branch encoding is the
@@ -110,71 +142,60 @@ class CoverageSingleRun(object):
 
         :param program_counter: The address taken in by the branch
         :type program_counter: :py:obj:`tritondse.types.Addr`
-        :param pc: Information of the branch condition and its constraints
-        :type pc: `PathConstraint <https://triton.quarkslab.com/documentation/doxygen/py_PathConstraint_page.html>`_
+        :param taken_addr: Target address of branch taken
+        :type taken_addr: Addr
+        :param not_taken_addr: Target address of branch **not** taken
+        :type not_taken_addr: Addr
         """
-        if pc.isMultipleBranches():
-            # Retrieve both branches
-            branches = pc.getBranchConstraints()
-            taken, not_taken = branches if branches[0]['isTaken'] else branches[::-1]
-            taken_addr, not_taken_addr = taken['dstAddr'], not_taken['dstAddr']
 
-            if self.strategy == CoverageStrategy.BLOCK:
-                if not_taken_addr not in self.covered_items:  # Keep the address that has not been covered (and could have)
-                    self.not_covered_items.add(not_taken_addr)
+        if self.strategy == CoverageStrategy.BLOCK:
+            self.covered_items[taken_addr] += 1
+            self.not_covered_items.discard(taken_addr)    # remove address from non-covered if inside
+            if not_taken_addr not in self.covered_items:  # Keep the address that has not been covered (and could have)
+                self.not_covered_items.add(not_taken_addr)
 
-            if self.strategy == CoverageStrategy.EDGE:
-                taken_tuple, not_taken_tuple = (program_counter, taken_addr), (program_counter, not_taken_addr)
-                self.covered_items[taken_tuple] += 1
-                self.not_covered_items.discard(taken_tuple)    # Remove it from non-taken if it was inside
-                if not_taken_tuple not in self.covered_items:  # Add the not taken tuple in non-covered
-                    self.not_covered_items.add(not_taken_tuple)
+        if self.strategy == CoverageStrategy.EDGE:
+            taken_tuple, not_taken_tuple = (program_counter, taken_addr), (program_counter, not_taken_addr)
+            self.covered_items[taken_tuple] += 1
+            self.not_covered_items.discard(taken_tuple)    # Remove it from non-taken if it was inside
+            if not_taken_tuple not in self.covered_items:  # Add the not taken tuple in non-covered
+                self.not_covered_items.add(not_taken_tuple)
 
-            if self.strategy == CoverageStrategy.PATH:
-                self.current_path.append(taken_addr)
+        if self.strategy == CoverageStrategy.PATH:
+            self.current_path.append(taken_addr)
 
-                # Compute the hash of the not taken path and add it to non-covered paths
-                not_taken_path_hash = self.current_path_hash.copy()
-                not_taken_path_hash.update(struct.pack('<Q', not_taken_addr))
-                self.not_covered_items.add(not_taken_path_hash.hexdigest())
+            # Compute the hash of the not taken path and add it to non-covered paths
+            not_taken_path_hash = self.current_path_hash.copy()
+            not_taken_path_hash.update(struct.pack('<Q', not_taken_addr))
+            self.not_covered_items.add(not_taken_path_hash.hexdigest())
 
-                # Update the current path hash and add it to hashes
-                self.current_path_hash.update(struct.pack("<Q", taken_addr))
-                self.covered_items[self.current_path_hash.hexdigest()] += 1
+            # Update the current path hash and add it to hashes
+            self.current_path_hash.update(struct.pack("<Q", taken_addr))
+            self.covered_items[self.current_path_hash.hexdigest()] += 1
 
-            if self.strategy == CoverageStrategy.PREFIXED_EDGE:
-                taken_tuple, not_taken_tuple = (program_counter, taken_addr), (program_counter, not_taken_addr)
-                taken, not_taken = (self.current_path_hash.hexdigest(), taken_tuple), (self.current_path_hash.hexdigest(), not_taken_tuple)
-                gtaken, gnot_taken = ("", taken_tuple), ("", not_taken_tuple)
+        if self.strategy == CoverageStrategy.PREFIXED_EDGE:
+            taken_tuple, not_taken_tuple = (program_counter, taken_addr), (program_counter, not_taken_addr)
+            taken, not_taken = (self.current_path_hash.hexdigest(), taken_tuple), (self.current_path_hash.hexdigest(), not_taken_tuple)
+            gtaken, gnot_taken = ("", taken_tuple), ("", not_taken_tuple)
 
-                # Add covered as covered
-                self.covered_items[gtaken] += 1
+            # Add covered as covered
+            self.covered_items[gtaken] += 1
 
-                # Find all items in not_covered that have this edge
-                to_rm = []
-                for (h, e) in self.not_covered_items:
-                    if e == taken_tuple:
-                        to_rm.append((h, e))
-                for x in to_rm:  # remove
-                    self.not_covered_items.discard(x)
+            # Find all items in not_covered that have this edge
+            to_rm = []
+            for (h, e) in self.not_covered_items:
+                if e == taken_tuple:
+                    to_rm.append((h, e))
+            for x in to_rm:  # remove
+                self.not_covered_items.discard(x)
 
-                # look if not_taken edge in covered
-                if gnot_taken not in self.covered_items:
-                    self.not_covered_items.add(not_taken)
+            # look if not_taken edge in covered
+            if gnot_taken not in self.covered_items:
+                self.not_covered_items.add(not_taken)
 
-                # already_covered = False
-                # for (h, e) in self.covered_items:  # Iterate covered items
-                #     if e == not_taken_tuple:       # if the edge not taken has already been covered
-                #         already_covered = True
-                # if not already_covered:            # add the not_taken edge only if it has never been covered
-                #     self.not_covered_items.add(not_taken)
-
-                # update the current path hash etc
-                self.current_path.append(taken_addr)
-                self.current_path_hash.update(struct.pack("<Q", taken_addr))
-
-        else:
-            pass  # TODO: Maybe something to do on jmp rax & Co
+            # update the current path hash etc
+            self.current_path.append(taken_addr)
+            self.current_path_hash.update(struct.pack("<Q", taken_addr))
 
 
     @property
@@ -278,8 +299,10 @@ class GlobalCoverage(CoverageSingleRun):
         self.uncoverable_items: Dict[CovItem, SolverStatus] = {}
         """ CovItems that are determined not to be coverable. """
 
+        self.covered_symbolic_pointers: Set[Addr] = set()
+        """ Set of addresses for which pointers have been enumerated """
 
-    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[List[PathConstraint], PathBranch, CovItem, int], SolverStatus, None]:
+    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[bool, List[PathConstraint], PathBranch, CovItem, int], SolverStatus, None]:
         """
         The function iterate the given path predicate and yield PatchConstraint to
         consider as-is and PathBranch representing the new branch to take. It acts
@@ -307,7 +330,6 @@ class GlobalCoverage(CoverageSingleRun):
                 for branch in pc.getBranchConstraints():  # Get all branches
                     # Get the constraint of the branch which has not been taken.
                     if not branch['isTaken']:
-
                         covitem = self._get_covitem(current_hash, branch)
                         generic_covitem = ('', covitem[1]) if self.strategy == CoverageStrategy.PREFIXED_EDGE else covitem
                         #print(f"Covitem: {covitem}: {covitem not in self.covered_items} | {covitem not in self.pending_coverage} | {covitem not in self.uncoverable_items} | {i in not_covered_items.get(covitem, [])} | {i} | {not_covered_items.get(covitem)}")
@@ -319,7 +341,7 @@ class GlobalCoverage(CoverageSingleRun):
                            i in not_covered_items.get(covitem, []):
 
                             # Send the branch to solve to the function iterating
-                            res = yield pending_csts, branch, covitem, i
+                            res = yield False, pending_csts, branch, covitem, i
 
                             # If path SAT add it to pending coverage
                             if res == SolverStatus.SAT:
@@ -339,12 +361,36 @@ class GlobalCoverage(CoverageSingleRun):
 
                     else:
                         pass  # Branch was taken do nothing
-            else:
-                pass  # TODO: trying to enumerate values for jmp rax etc ..
 
-            # Add it the path predicate constraints and update current path hash
-            pending_csts.append(pc)
-            current_hash.update(struct.pack("<Q", pc.getTakenAddress()))
+                # Add it the path predicate constraints and update current path hash
+                pending_csts.append(pc)
+                current_hash.update(struct.pack("<Q", pc.getTakenAddress()))
+
+            else:
+                cmt = pc.getComment()
+
+                if (cmt.startswith("dyn-jmp") and BranchSolvingStrategy.COVER_SYM_DYNJUMP in self.branch_strategy) or \
+                   (cmt.startswith("sym-read") and BranchSolvingStrategy.COVER_SYM_READ in self.branch_strategy) or \
+                   (cmt.startswith("sym-write") and BranchSolvingStrategy.COVER_SYM_WRITE in self.branch_strategy):
+                    typ, offset, addr = cmt.split(":")
+                    offset, addr = int(offset), int(addr)
+                    if addr not in self.covered_symbolic_pointers:  # if the address pointer has never been covered
+                        pred = pc.getTakenPredicate()
+                        if pred.getType() == AST_NODE.EQUAL:
+                            p1, p2 = pred.getChildren()
+                            if p2.getType() == AST_NODE.BV:
+                                logging.info(f"Try to enumerate value {offset}:0x{addr:02x}: {p1}")
+                                res = yield True, pending_csts, p1, (addr, p2.evaluate()), i
+                                self.covered_symbolic_pointers.add(addr)  # add the pointer in covered regardless of result
+                            else:
+                                logging.warning(f"memory constraint unexpected pattern: {pred}")
+                        else:
+                            logging.warning(f"memory constraint unexpected pattern: {pred}")
+
+                if BranchSolvingStrategy.SOUND_MEM_ACCESS in self.branch_strategy:
+                    pending_csts.append(pc)  # if sound add the mem dereference as a constraint in path predicate
+                    # NOTE: in both case the branch is not taken in account in the current_path_hash
+
 
     def _get_covitem(self, path_hash, branch: PathBranch) -> CovItem:
         src, dst = branch['srcAddr'], branch['dstAddr']
@@ -381,10 +427,9 @@ class GlobalCoverage(CoverageSingleRun):
                             not_covered[covitem].append(i)
                         else:
                             not_covered[covitem] = [i]
+                current_hash.update(struct.pack("<Q", pc.getTakenAddress()))  # compute current path hash along the way
             else:
-                pass  # TODO: trying to enumerate values for jmp rax etc ..
-
-            current_hash.update(struct.pack("<Q", pc.getTakenAddress()))  # compute current path hash along the way
+                pass  # Ignore all other dynamic constraints in path computation
 
         # Now filter the map according to the branch solving strategy
         if BranchSolvingStrategy.FIRST_LAST_NOT_COVERED in self.branch_strategy:
@@ -459,6 +504,16 @@ class GlobalCoverage(CoverageSingleRun):
         # Resulting covitem are really new ones that the trace brings
         return other.not_covered_items - self.covered_items.keys() - self.uncoverable_items.keys() - self.pending_coverage
 
+    def improve_coverage(self, other: CoverageSingleRun) -> bool:
+        """
+        Checks if the given object do cover new covitem than the current
+        coverage. More concretely it performs the difference between the
+        two covered dicts. If ``other`` contains new items return True.
+
+        :param other: coverage on which to check coverage
+        :return: Whether the coverage covers new items
+        """
+        return bool(other.covered_items.keys() - self.covered_items.keys())
 
     def save_coverage(self) -> None:
         """
