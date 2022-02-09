@@ -81,13 +81,17 @@ class Workspace(object):
         """
         Get a file path in the workspace directory that the user
         can write into. Might be called for the user to write on
-        its own the file content.
+        its own the file content. If name is a file tree, all parent
+        directories are created.
 
         :param name: filename wanted
         :type name: str
         :return: absolute filepath (regardless of whether it exists or not)
         """
-        return self.root_dir / name
+        p = self.root_dir / name
+        if not p.parent.exists():
+            p.parent.mkdir(parents=True)
+        return p
 
 
     def save_metadata_file(self, name: str, content: Union[str, bytes]) -> None:

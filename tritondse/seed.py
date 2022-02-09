@@ -31,7 +31,7 @@ class Seed(object):
         :param status: status of the seed if already known
         :type status: SeedStatus
         """
-        self.content: bytes  = bytes(content)  #: content of the seed
+        self.content: bytes = bytes(content)  #: content of the seed
         self.coverage_objectives = set()  # set of coverage items that the seed is meant to cover
         self.target = set()               # CovItem informational field indicate the item the seed was generated for
         self._status = status
