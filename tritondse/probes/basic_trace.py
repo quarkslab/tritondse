@@ -1,4 +1,4 @@
-from tritondse import ProbeInterface, CbType ,SymbolicExecutor, ProcessState, SymbolicExplorator
+from tritondse import ProbeInterface, CbType, SymbolicExecutor, ProcessState, SymbolicExplorator
 
 
 class BasicTextTrace(ProbeInterface):
