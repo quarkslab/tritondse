@@ -48,7 +48,6 @@ class TraceGenerator(ProbeInterface):
         # self._add_callback(CbType.MEMORY_WRITE, self.mem_write_hook)
 
     def pre_exec_hook(self, se: SymbolicExecutor, pstate: ProcessState):
-        print("PRE EXEC !")
         name = self.name_prefix if self.name_prefix else se.program.path.name
         name = f"{name}-{se.seed.hash}"
         if name in self.dbm.list_traces():

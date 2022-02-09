@@ -8,7 +8,7 @@ from typing import Union, Callable, Tuple, Optional, List, Dict
 
 
 # third-party
-import z3  # For direct value enumeration
+# import z3  # For direct value enumeration
 from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, MODE, AST_NODE, SOLVER
 
 # local imports
