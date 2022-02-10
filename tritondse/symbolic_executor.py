@@ -87,7 +87,6 @@ class SymbolicExecutor(object):
         self.program = program
         logging.debug(f"Loading program {self.program.path.name} [{self.program.architecture}]")
         self.pstate = ProcessState.from_program(program)
-        self._configure_pstate()
         self._map_dynamic_symbols()
 
     def load_process(self, pstate: ProcessState) -> None:
@@ -99,7 +98,6 @@ class SymbolicExecutor(object):
         :return: None
         """
         self.pstate = pstate
-        self._configure_pstate()
 
     @property
     def execution_time(self) -> int:
@@ -520,6 +518,9 @@ class SymbolicExecutor(object):
         # Iterate through all pre exec callbacks
         for cb in pre_cb:
             cb(self, self.pstate)
+
+        # Call it here to make sure in case of "load_process" the use has properly instanciated the architecture
+        self._configure_pstate()
 
         try:
             self.__emulate()

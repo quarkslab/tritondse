@@ -114,6 +114,8 @@ class SymbolicExplorator(object):
         execution = SymbolicExecutor(self.config, seed=seed, workspace=self.workspace, uid=uid, callbacks=cbs)
         if self.program:  # If doing the exploration from a program
             execution.load_program(self.program)
+        else:
+            execution.load_process(ProcessState())
         self.current_executor = execution
 
         # increment exec_count
