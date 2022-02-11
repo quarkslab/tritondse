@@ -261,7 +261,7 @@ class SeedManager:
                         new_seed = execution.mk_new_seed_from_model(model)
                         # Trick to keep track of which target a seed is meant to cover
                         new_seed.coverage_objectives.add(covitem)
-                        new_seed.target = covitem
+                        new_seed.target = covitem if not do_enum else None
                         yield new_seed  # Yield the seed to get it added in the worklist
                 else:
                     pass
