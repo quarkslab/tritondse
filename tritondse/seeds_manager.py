@@ -134,6 +134,11 @@ class SeedManager:
         self.coverage.merge(execution.coverage)
         self.worklist.update_worklist(execution.coverage)
 
+        # if the seed have target checks that we covered it
+        if seed.target:
+            color = ("YES", 92) if execution.coverage.is_covered(seed.target) else ("NO", 91)
+            logging.info(f"Seed covered its target: \033[{color[1]}m{color[0]}\033[0m")
+
         # reset the current solving time
         self._current_solv_time = 0
 
@@ -256,6 +261,7 @@ class SeedManager:
                         new_seed = execution.mk_new_seed_from_model(model)
                         # Trick to keep track of which target a seed is meant to cover
                         new_seed.coverage_objectives.add(covitem)
+                        new_seed.target = covitem
                         yield new_seed  # Yield the seed to get it added in the worklist
                 else:
                     pass
