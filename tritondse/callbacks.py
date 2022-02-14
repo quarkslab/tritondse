@@ -669,15 +669,18 @@ class CallbackManager(object):
                 self.register_pre_imported_routine_callback(arg, cb)
             elif kind == CbType.POST_RTN:
                 self.register_post_imported_routine_callback(arg, cb)
+            elif kind == CbType.PRE_ADDR:
+                self.register_pre_addr_callback(arg, cb)
+            elif kind == CbType.POST_ADDR:
+                self.register_post_addr_callback(arg, cb)
             else:
+                # TODO Fix calls (most callbacks take at least one argument).
                 mapping = {
                     CbType.CTX_SWITCH: self.register_thread_context_switch_callback,
                     CbType.MEMORY_READ: self.register_memory_read_callback,
                     CbType.MEMORY_WRITE: self.register_memory_write_callback,
-                    CbType.POST_ADDR: self.register_post_addr_callback,
                     CbType.POST_EXEC: self.register_post_execution_callback,
                     CbType.POST_INST: self.register_post_instruction_callback,
-                    CbType.PRE_ADDR: self.register_pre_addr_callback,
                     CbType.PRE_EXEC: self.register_pre_execution_callback,
                     CbType.PRE_INST: self.register_pre_instruction_callback,
                     CbType.REG_READ: self.register_register_read_callback,
