@@ -12,7 +12,7 @@ from tritondse.coverage          import GlobalCoverage, CovItem
 from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritizerWorklist, SeedScheduler
 from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
-from tritondse.types             import SolverStatus, Model
+from tritondse.types             import SolverStatus, Model, EdgeType
 
 
 
@@ -30,7 +30,7 @@ class SeedManager:
     * seed consumed (corpus, crash, hangs) which are seeds not meant to be re-executed
       as they cannot lead to new paths, all candidate paths are UNSAT etc.
     """
-    def __init__(self, coverage: GlobalCoverage, workspace: Workspace, smt_queries_limit: int, scheduler: SeedScheduler = None):
+    def __init__(self, coverage: GlobalCoverage, workspace: Workspace, smt_queries_limit: int, scheduler: SeedScheduler = None, callback_manager: CallbackManager = None):
         """
         :param coverage: global coverage object. The instance will be updated by the seed manager
         :type coverage: GlobalCoverage
@@ -48,6 +48,7 @@ class SeedManager:
             self.worklist = FreshSeedPrioritizerWorklist(self)
         else:
             self.worklist = scheduler
+        self.cbm = callback_manager
 
         self.corpus = set()
         self.crash  = set()
@@ -213,6 +214,13 @@ class SeedManager:
         total_len = len(path_constraints)
         path_generator = self.coverage.iter_new_paths(path_constraints)
 
+        covitem_type_map = {
+            "branch":    EdgeType.STATIC_JCC,
+            "dyn-jmp":   EdgeType.DYNAMIC_JMP,
+            "sym-read":  EdgeType.SYMBOLIC_READ,
+            "sym-write": EdgeType.SYMBOLIC_WRITE,
+        }
+
         try:
             while True:
                 # If smt_queries_limit is zero: unlimited queries
@@ -221,10 +229,32 @@ class SeedManager:
                     logging.info(f'The configuration is defined as: no query')
                     break
 
-                do_enum, p_prefix, branch, covitem, ith = path_generator.send(status)
+                do_enum, p_prefix, branch, covitem, covitem_type, ith = path_generator.send(status)
+
+                # Create edge and edge_type objects.
+                if covitem_type == 'branch':
+                    # NOTE This avoids dealing with covitem for BLOCK, PATH and PREFIXED_EDGE covitems.
+                    edge = (branch['srcAddr'], branch['dstAddr'])
+                else: # covitem_type in ['dyn-jmp', 'sym-read', 'sym-write']
+                    edge = covitem
+
+                edge_type = covitem_type_map[covitem_type]
+
+                # TODO Rename to on_edge_solving.
+                # Call on_branch_solving to decide whether to solve or
+                # skip the given edge.
+                cb_result = False
+                for cb in self.cbm.get_on_branch_solving_callback():
+                    cb_result = cb_result or cb(self, edge, edge_type)
 
                 # Add path_prefix in path predicate
                 path_predicate.extend(x.getTakenPredicate() for x in p_prefix)
+
+                # Skip processing the current path in case the result of the
+                # callbacks return False.
+                if not cb_result:
+                    status = None
+                    continue
 
                 # Create the constraint
                 if do_enum:

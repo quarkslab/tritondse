@@ -67,7 +67,7 @@ class SymbolicExplorator(object):
         self.coverage.load_coverage(self.workspace)
 
         # Initialize the seed manager
-        self.seeds_manager: SeedManager = SeedManager(self.coverage, self.workspace, self.config.smt_queries_limit, seed_scheduler)
+        self.seeds_manager: SeedManager = SeedManager(self.coverage, self.workspace, self.config.smt_queries_limit, seed_scheduler, self.cbm)
         """ Manager of seed, holding all seeds related data and various statistics """
 
         # running executors (for debugging purposes)
