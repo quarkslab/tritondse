@@ -340,7 +340,7 @@ class GlobalCoverage(CoverageSingleRun):
                            i in not_covered_items.get(covitem, []):
 
                             # Send the branch to solve to the function iterating
-                            res = yield False, pending_csts, branch, covitem, i
+                            res = yield False, pending_csts, branch, covitem, 'branch', i
 
                             # If path SAT add it to pending coverage
                             if res == SolverStatus.SAT:
@@ -355,6 +355,12 @@ class GlobalCoverage(CoverageSingleRun):
                             elif res == SolverStatus.TIMEOUT:
                                 if BranchSolvingStrategy.TIMEOUT_ONCE in self.branch_strategy:
                                     self.uncoverable_items[covitem] = res
+
+                            elif res == SolverStatus.UNKNOWN:
+                                pass
+
+                            else: # status == None
+                                logging.info(f'Branch skipped!')
 
                             pending_csts = []  # reset pending constraint added
 
@@ -379,7 +385,7 @@ class GlobalCoverage(CoverageSingleRun):
                             p1, p2 = pred.getChildren()
                             if p2.getType() == AST_NODE.BV:
                                 logging.info(f"Try to enumerate value {offset}:0x{addr:02x}: {p1}")
-                                res = yield True, pending_csts, p1, (addr, p2.evaluate()), i
+                                res = yield True, pending_csts, p1, (addr, p2.evaluate()), typ, i
                                 self.covered_symbolic_pointers.add(addr)  # add the pointer in covered regardless of result
                             else:
                                 logging.warning(f"memory constraint unexpected pattern: {pred}")

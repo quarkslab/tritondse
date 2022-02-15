@@ -53,6 +53,16 @@ PathHash = str
 """Type representing the hash of path to uniquely identify any path """
 
 
+class EdgeType(str, Enum):
+    """
+    Edge type enum.
+    """
+    STATIC_JCC = 'sta-jcc'
+    DYNAMIC_JMP = 'dyn-jmp'
+    SYMBOLIC_READ = 'sym-read'
+    SYMBOLIC_WRITE = 'sym-write'
+
+
 if sys.version_info.minor >= 8:
     from typing import TypedDict
 
