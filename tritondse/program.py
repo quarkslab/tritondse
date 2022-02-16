@@ -203,13 +203,14 @@ class Program(object):
             raise NotImplementedError(f"Imported symbols relocations not implemented for: {self.format.name}")
 
 
-    def find_function(self, name: str) -> Optional[lief.Function]:
+    def find_function_addr(self, name: str) -> Optional[Addr]:
         """
         Search for the function name in fonctions of the binary.
 
         :param name: Function name
         :type name: str
-        :return: Function object if found
-        :rtype: lief.Function
+        :return: Address of function if found
+        :rtype: Addr
         """
-        return self._funs.get(name)
+        f = self._funs.get(name)
+        return f.address if f else None

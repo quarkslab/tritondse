@@ -274,21 +274,15 @@ class GlobalCoverage(CoverageSingleRun):
 
     COVERAGE_FILE = "coverage.json"
 
-    def __init__(self, strategy: CoverageStrategy, workspace: Workspace, branch_strategy: BranchSolvingStrategy):
+    def __init__(self, strategy: CoverageStrategy, branch_strategy: BranchSolvingStrategy):
         """
         :param strategy: Coverage strategy to use
         :type strategy: CoverageStrategy
-        :param workspace: Execution workspace (for saving loading the coverage)
-        :type workspace: Workspace
         :param branch_strategy: Branch checking strategies
         :type branch_strategy: BranchSolvingStrategy
         """
         super().__init__(strategy)
-        self.workspace = workspace
         self.branch_strategy = branch_strategy
-
-        # Load the coverage from the workspace (if it exists)
-        self.load_coverage()
 
         # Keep pending items to be covered (code, edge, path)
         self.pending_coverage: Set[CovItem] = set()
@@ -515,9 +509,12 @@ class GlobalCoverage(CoverageSingleRun):
         """
         return bool(other.covered_items.keys() - self.covered_items.keys())
 
-    def save_coverage(self) -> None:
+    def save_coverage(self, workspace: Workspace) -> None:
         """
         Save the coverage in the workspace
+
+        :param workspace: Workspace in which to save coverage
+        :type workspace: Workspace
         """
 
         res = {"instructions": self.covered_instructions,
@@ -525,15 +522,18 @@ class GlobalCoverage(CoverageSingleRun):
                "uncoverable": [(k, v.name) for k, v in self.uncoverable_items.items()],
                "not_covered": list(self.not_covered_items)}
 
-        self.workspace.save_metadata_file(self.COVERAGE_FILE, json.dumps(res, indent=2))
+        workspace.save_metadata_file(self.COVERAGE_FILE, json.dumps(res, indent=2))
 
 
-    def load_coverage(self) -> None:
+    def load_coverage(self, workspace: Workspace) -> None:
         """
         Load the coverage from the workspace
+
+        :param workspace: Workspace in which to save coverage
+        :type workspace: Workspace
         """
         # Load instruction coverage
-        raw = self.workspace.get_metadata_file(self.COVERAGE_FILE)
+        raw = workspace.get_metadata_file(self.COVERAGE_FILE)
         if not raw:
             return
 
@@ -547,8 +547,11 @@ class GlobalCoverage(CoverageSingleRun):
         self.not_covered_items = set(data['not_covered'])
 
 
-    def post_exploration(self) -> None:
+    def post_exploration(self, workspace: Workspace) -> None:
         """ Function called at the very end of the exploration.
         It saves the coverage in the workspace.
+
+        :param workspace: Workspace in which to save coverage
+        :type workspace: Workspace
         """
-        self.save_coverage()
+        self.save_coverage(workspace)
