@@ -225,10 +225,10 @@ class CallbackManager(object):
             if se.program:
                 for fname in list(self._func_to_register):
                     cbs = self._func_to_register.pop(fname)
-                    f = se.program.find_function(fname)
-                    if f:
+                    addr = se.program.find_function_address(fname)
+                    if addr:
                         for cb in cbs:
-                            self.register_pre_addr_callback(f.address, cb)
+                            self.register_pre_addr_callback(addr, cb)
                     else:
                         logging.warning(f"can't find function {fname} in {se.program}")
             else:
