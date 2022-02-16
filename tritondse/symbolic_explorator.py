@@ -59,10 +59,12 @@ class SymbolicExplorator(object):
         self._configure_file_logger()
 
         # Initialize coverage
-        self.coverage: GlobalCoverage = GlobalCoverage(self.config.coverage_strategy, self.workspace, self.config.branch_solving_strategy)
+        self.coverage: GlobalCoverage = GlobalCoverage(self.config.coverage_strategy, self.config.branch_solving_strategy)
         """ GlobalCoverage object holding information about the global coverage.
         *(not really meant to be manipulated by the user)*
         """
+        # Load workspace if any
+        self.coverage.load_coverage(self.workspace)
 
         # Initialize the seed manager
         self.seeds_manager: SeedManager = SeedManager(self.coverage, self.workspace, self.config.smt_queries_limit, seed_scheduler)
@@ -187,7 +189,7 @@ class SymbolicExplorator(object):
 
             # Call all termination functions
             self.seeds_manager.post_exploration()
-            self.coverage.post_exploration()
+            self.coverage.post_exploration(self.workspace)
 
         except KeyboardInterrupt:
             logging.warning("keyboard interrupt, stop symbolic exploration")
