@@ -58,6 +58,10 @@ class QBinExportProgram(qbinexport.Program):
 
     # Methods for compatibility with Program object
     @property
+    def path(self) -> Path:
+        return self.program.path
+
+    @property
     def entry_point(self) -> Addr:
         return self.program.entry_point
 
