@@ -49,6 +49,7 @@ MemReadCallback         = Callable[['SymbolicExecutor', ProcessState, MemoryAcce
 MemWriteCallback        = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
 MnemonicCallback        = Callable[['SymbolicExecutor', ProcessState, OPCODE], None]
 BranchSolvingCallback   = Callable[['SymbolicExecutor', ProcessState, Edge, EdgeType], bool]
+BranchCoveredCallback   = Callable[['SymbolicExecutor', ProcessState, Edge, EdgeType], bool]
 NewInputCallback        = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
 OpcodeCallback          = Callable[['SymbolicExecutor', ProcessState, bytes], None]
 RegReadCallback         = Callable[['SymbolicExecutor', ProcessState, Register], None]
@@ -96,6 +97,7 @@ class CallbackManager(object):
         self._ctx_switch         = []  # on each thread context switch (implementing pre/post?)
         self._new_input_cbs      = []  # each time an SMT model is get
         self._branch_solving_cbs = []  # each time a branch is about to be solved
+        self._branch_covered_cbs = []  # each time a branch is covered
         self._pre_rtn_cbs        = {}  # before imported routine calls ({str: [RtnCallback]})
         self._post_rtn_cbs       = {}  # after imported routine calls ({str: [RtnCallback]})
 
@@ -627,6 +629,26 @@ class CallbackManager(object):
         """
         return self._branch_solving_cbs
 
+    def register_on_branch_covered_callback(self, callback: BranchCoveredCallback) -> None:
+        """
+        Register a callback function called when a branch covered. This callback
+        is called after the branch is solved.
+
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.BranchCoveredCallback`
+        """
+        self._branch_covered_cbs.append(callback)
+        self._empty = False
+
+    def get_on_branch_covered_callback(self) -> List[BranchCoveredCallback]:
+        """
+        Get the list of all function callbacks to call when a branch is about
+        to be solved.
+
+        :return: List of callbacks to call on branch covered
+        """
+        return self._branch_covered_cbs
+
     def get_exploration_step_callbacks(self) -> List[ExplorationStepCallback]:
         """
         Get all the exploration step callbacks
@@ -699,6 +721,7 @@ class CallbackManager(object):
             else:
                 # TODO Fix calls (most callbacks take at least one argument).
                 # TODO Add ON_BRANCH_SOLVING callback.
+                # TODO Add ON_BRANCH_COVERED callback.
                 mapping = {
                     CbType.CTX_SWITCH: self.register_thread_context_switch_callback,
                     CbType.MEMORY_READ: self.register_memory_read_callback,
@@ -741,6 +764,7 @@ class CallbackManager(object):
         cbs._ctx_switch         = self._ctx_switch
         cbs._new_input_cbs      = self._new_input_cbs
         cbs._branch_solving_cbs = self._branch_solving_cbs
+        cbs._branch_covered_cbs = self._branch_covered_cbs
         cbs._pre_rtn_cbs        = self._pre_rtn_cbs
         cbs._post_rtn_cbs       = self._post_rtn_cbs
         # Triton callbacks
@@ -780,7 +804,7 @@ class CallbackManager(object):
             if callback in self._instr_cbs[loc]:
                 self._instr_cbs[loc].remove(callback)
 
-        for cb_list in [self._step_cbs, self._pre_exec, self._post_exec, self._ctx_switch, self._new_input_cbs, self._branch_solving_cbs,
+        for cb_list in [self._step_cbs, self._pre_exec, self._post_exec, self._ctx_switch, self._new_input_cbs, self._branch_solving_cbs, self._branch_covered_cbs,
                         self._mem_read_cbs, self._mem_write_cbs, self._reg_read_cbs, self._reg_write_cbs]:
             if callback in cb_list:
                 cb_list.remove(callback)
@@ -808,6 +832,7 @@ class CallbackManager(object):
         self._ctx_switch         = []  # on each thread context switch (implementing pre/post?)
         self._new_input_cbs      = []  # each time an SMT model is get
         self._branch_solving_cbs = []  # each time a covitem is about to be solved
+        self._branch_covered_cbs = []  # each time a covitem is covered
         self._pre_rtn_cbs        = {}  # before imported routine calls ({str: [RtnCallback]})
         self._post_rtn_cbs       = {}  # after imported routine calls ({str: [RtnCallback]})
 
