@@ -296,6 +296,11 @@ class SeedManager:
                 else:
                     pass
 
+                # TODO Rename to on_edge_solved and pass the solver status?.
+                if status == SolverStatus.SAT:
+                    for cb in self.cbm.get_on_branch_covered_callback():
+                        cb(self, edge, edge_type)
+
                 # Check if we reached the limit of query
                 if self.smt_queries_limit and smt_queries >= self.smt_queries_limit:
                     logging.info(f'Limit of query reached. Stop asking for models')
