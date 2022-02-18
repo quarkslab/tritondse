@@ -225,7 +225,7 @@ class CallbackManager(object):
             if se.program:
                 for fname in list(self._func_to_register):
                     cbs = self._func_to_register.pop(fname)
-                    addr = se.program.find_function_address(fname)
+                    addr = se.program.find_function_addr(fname)
                     if addr:
                         for cb in cbs:
                             self.register_pre_addr_callback(addr, cb)
