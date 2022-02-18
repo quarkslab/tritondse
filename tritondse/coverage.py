@@ -59,6 +59,7 @@ class BranchSolvingStrategy(IntFlag):
     COVER_SYM_READ = auto()
     COVER_SYM_WRITE = auto()
     SOUND_MEM_ACCESS = auto()
+    MANUAL = auto()
 
 
 class CoverageSingleRun(object):
@@ -309,6 +310,10 @@ class GlobalCoverage(CoverageSingleRun):
                  item is a list of PathConstraint to add in the path predicate and the second
                  is the branch to solve (but not to keep in path predicate)
         """
+        if BranchSolvingStrategy.MANUAL in self.branch_strategy:
+            logging.info(f'Branch solving strategy set to MANUAL.')
+            return
+
         pending_csts = []
         current_hash = hashlib.md5()  # Current path hash for PATH coverage
 
