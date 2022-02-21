@@ -2,14 +2,14 @@
 from __future__ import annotations
 import logging
 from enum import Enum, auto
-from typing import Callable, Tuple, List, Optional, Union
+from typing import Callable, Tuple, List, Optional, Union, Any
 
 # third-party imports
 from triton import CALLBACK, Instruction, MemoryAccess, OPCODE
 
 # local imports
 from tritondse.process_state  import ProcessState
-from tritondse.types          import Addr, Input, Register, Expression, Edge, EdgeType
+from tritondse.types          import Addr, Input, Register, Expression, Edge, SymExType
 from tritondse.thread_context import ThreadContext
 
 
@@ -40,6 +40,8 @@ class CbType(Enum):
     POST_MNEM = auto()
     PRE_OPCODE = auto()
     POST_OPCODE = auto()
+    BRANCH_COV = auto()
+    SYMEX_SOLVING = auto()
 
 
 AddrCallback            = Callable[['SymbolicExecutor', ProcessState, Addr], None]
@@ -48,8 +50,8 @@ InstrCallback           = Callable[['SymbolicExecutor', ProcessState, Instructio
 MemReadCallback         = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
 MemWriteCallback        = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
 MnemonicCallback        = Callable[['SymbolicExecutor', ProcessState, OPCODE], None]
-BranchSolvingCallback   = Callable[['SymbolicExecutor', ProcessState, Edge, EdgeType], bool]
-BranchCoveredCallback   = Callable[['SymbolicExecutor', ProcessState, Edge, EdgeType], bool]
+SymExSolvingCallback    = Callable[['SymbolicExecutor', ProcessState, Edge, SymExType], bool]
+BranchCoveredCallback   = Callable[['SymbolicExecutor', ProcessState, Edge], bool]
 NewInputCallback        = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
 OpcodeCallback          = Callable[['SymbolicExecutor', ProcessState, bytes], None]
 RegReadCallback         = Callable[['SymbolicExecutor', ProcessState, Register], None]
@@ -65,7 +67,7 @@ class ProbeInterface(object):
         self._cbs: List[Tuple[CbType, Callable, Optional[str]]] = []  #: list of callback infos
 
     @property
-    def callbacks(self) -> List[Tuple[CbType, Callable, Optional[str]]]:
+    def callbacks(self) -> List[Tuple[CbType, Callable, Optional[Any]]]:
         return self._cbs
 
     def _add_callback(self, typ: CbType, callback: Callable, arg: str = None):
@@ -608,7 +610,7 @@ class CallbackManager(object):
         """
         return self._new_input_cbs
 
-    def register_on_branch_solving_callback(self, callback: BranchSolvingCallback) -> None:
+    def register_on_solving_callback(self, callback: SymExSolvingCallback) -> None:
         """
         Register a callback function called when a branch is about to
         be solved. This callback is called before the branch is solved and will
@@ -620,7 +622,7 @@ class CallbackManager(object):
         self._branch_solving_cbs.append(callback)
         self._empty = False
 
-    def get_on_branch_solving_callback(self) -> List[BranchSolvingCallback]:
+    def get_on_solving_callback(self) -> List[SymExSolvingCallback]:
         """
         Get the list of all function callbacks to call when a branch is about
         to be solved.
@@ -710,18 +712,19 @@ class CallbackManager(object):
         :type probe: ProbeInterface
         """
         for kind, cb, arg in probe.callbacks:
-            if kind == CbType.PRE_RTN:
-                self.register_pre_imported_routine_callback(arg, cb)
-            elif kind == CbType.POST_RTN:
-                self.register_post_imported_routine_callback(arg, cb)
-            elif kind == CbType.PRE_ADDR:
-                self.register_pre_addr_callback(arg, cb)
-            elif kind == CbType.POST_ADDR:
-                self.register_post_addr_callback(arg, cb)
-            else:
-                # TODO Fix calls (most callbacks take at least one argument).
-                # TODO Add ON_BRANCH_SOLVING callback.
-                # TODO Add ON_BRANCH_COVERED callback.
+            try:
+                mapping_with_args = {
+                    CbType.PRE_RTN: self.register_pre_imported_routine_callback,
+                    CbType.POST_RTN: self.register_post_imported_routine_callback,
+                    CbType.PRE_ADDR: self.register_pre_addr_callback,
+                    CbType.POST_ADDR: self.register_post_addr_callback,
+                    CbType.PRE_MNEM: self.register_pre_mnemonic_callback,
+                    CbType.POST_MNEM: self.register_post_mnemonic_callback,
+                    CbType.PRE_OPCODE: self.register_pre_opcode_callback,
+                    CbType.POST_OPCODE: self.register_post_opcode_callback,
+                }
+                mapping_with_args[kind](arg, cb)
+            except KeyError:
                 mapping = {
                     CbType.CTX_SWITCH: self.register_thread_context_switch_callback,
                     CbType.MEMORY_READ: self.register_memory_read_callback,
@@ -734,10 +737,8 @@ class CallbackManager(object):
                     CbType.REG_WRITE: self.register_register_write_callback,
                     CbType.NEW_INPUT: self.register_new_input_callback,
                     CbType.EXPLORE_STEP: self.register_exploration_step_callback,
-                    CbType.PRE_MNEM: self.register_pre_mnemonic_callback,
-                    CbType.POST_MNEM: self.register_post_mnemonic_callback,
-                    CbType.PRE_OPCODE: self.register_pre_opcode_callback,
-                    CbType.POST_OPCODE: self.register_post_opcode_callback
+                    CbType.BRANCH_COV: self.register_on_branch_covered_callback,
+                    CbType.SYMEX_SOLVING: self.register_on_solving_callback
                 }
                 mapping[kind](cb)
 

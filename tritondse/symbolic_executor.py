@@ -285,13 +285,19 @@ class SymbolicExecutor(object):
             # Update coverage send it the last PathConstraint object if one was added
             if self.pstate.is_path_predicate_updated():
                 path_constraint = self.pstate.last_branch_constraint
+
                 if path_constraint.isMultipleBranches():
                     branches = path_constraint.getBranchConstraints()
                     if len(branches) != 2:
                         logging.error("Branching condition has more than two branches")
                     taken, not_taken = branches if branches[0]['isTaken'] else branches[::-1]
                     taken_addr, not_taken_addr = taken['dstAddr'], not_taken['dstAddr']
+
+                    for cb in self.cbm.get_on_branch_covered_callback():
+                        cb(self, self.pstate, (pc, taken_addr))
+
                     self.coverage.add_covered_branch(pc, taken_addr, not_taken_addr)
+
                 else:  # It is normally a dynamic jump or symbolic memory read/write
                     cmt = path_constraint.getComment()
                     if cmt.startswith("sym-read") or cmt.startswith("sym-write"):

@@ -12,7 +12,7 @@ from tritondse.coverage          import GlobalCoverage, CovItem
 from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritizerWorklist, SeedScheduler
 from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
-from tritondse.types             import SolverStatus, Model, EdgeType
+from tritondse.types             import SolverStatus, Model, SymExType
 
 
 
@@ -214,13 +214,6 @@ class SeedManager:
         total_len = len(path_constraints)
         path_generator = self.coverage.iter_new_paths(path_constraints)
 
-        covitem_type_map = {
-            "branch":    EdgeType.STATIC_JCC,
-            "dyn-jmp":   EdgeType.DYNAMIC_JMP,
-            "sym-read":  EdgeType.SYMBOLIC_READ,
-            "sym-write": EdgeType.SYMBOLIC_WRITE,
-        }
-
         try:
             while True:
                 # If smt_queries_limit is zero: unlimited queries
@@ -229,25 +222,15 @@ class SeedManager:
                     logging.info(f'The configuration is defined as: no query')
                     break
 
-                do_enum, p_prefix, branch, covitem, covitem_type, ith = path_generator.send(status)
+                typ, p_prefix, branch, covitem, ith = path_generator.send(status)
 
-                # Create edge and edge_type objects.
-                if covitem_type == 'branch':
-                    # NOTE This avoids dealing with covitem for BLOCK, PATH and PREFIXED_EDGE covitems.
-                    edge = (branch['srcAddr'], branch['dstAddr'])
-                else: # covitem_type in ['dyn-jmp', 'sym-read', 'sym-write']
-                    edge = covitem
+                # Create edge in case of conditional branch, for all the other the edge shall be already set
+                edge = (branch['srcAddr'], branch['dstAddr']) if typ == SymExType.CONDITIONAL_JMP else covitem
 
-                edge_type = covitem_type_map[covitem_type]
+                # Call on_branch_solving, if one replies False does not solve the branch
+                cb_result = all(cb(execution, execution.pstate, edge, typ) for cb in self.cbm.get_on_solving_callback())
 
-                # TODO Rename to on_edge_solving.
-                # Call on_branch_solving to decide whether to solve or
-                # skip the given edge.
-                cb_result = False
-                for cb in self.cbm.get_on_branch_solving_callback():
-                    cb_result = cb_result or cb(self, edge, edge_type)
-
-                # Add path_prefix in path predicate
+                # Add path_prefix in path predicate (regardless on whether we solve the item or not)
                 path_predicate.extend(x.getTakenPredicate() for x in p_prefix)
 
                 # Skip processing the current path in case the result of the
@@ -257,7 +240,7 @@ class SeedManager:
                     continue
 
                 # Create the constraint
-                if do_enum:
+                if typ in [SymExType.DYNAMIC_JMP, SymExType.SYMBOLIC_READ, SymExType.SYMBOLIC_WRITE]:
                     expr, (addr, tgt) = branch, covitem   # branch and covitem have a different meaning here
                     ts = time.time()
                     results = execution.pstate.solve_enumerate_expression(expr, path_predicate, [tgt], execution.config.smt_enumeration_limit)  # enumerate values
@@ -274,7 +257,7 @@ class SeedManager:
                     logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}-{smt_queries+count}, enumerate:{expr} (time: {solve_time:.02f}s) values:[{count}:{self._pp_smt_status(status)}]')
                     smt_queries += count+1  # for the unsat
 
-                else:
+                elif typ == SymExType.CONDITIONAL_JMP:
                     constraint = actx.land(path_predicate + [branch['constraint']])
 
                     # Solve the constraint
@@ -285,21 +268,18 @@ class SeedManager:
                     results = [(model, covitem)]
                     smt_queries += 1
                     logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {solve_time:.02f}s) [{self._pp_smt_status(status)}]')
+                else:
+                    assert False
 
                 if status == SolverStatus.SAT:
                     for model, covitem in results:
                         new_seed = execution.mk_new_seed_from_model(model)
                         # Trick to keep track of which target a seed is meant to cover
                         new_seed.coverage_objectives.add(covitem)
-                        new_seed.target = covitem if not do_enum else None
+                        new_seed.target = covitem if typ == SymExType.CONDITIONAL_JMP else None
                         yield new_seed  # Yield the seed to get it added in the worklist
                 else:
                     pass
-
-                # TODO Rename to on_edge_solved and pass the solver status?.
-                if status == SolverStatus.SAT:
-                    for cb in self.cbm.get_on_branch_covered_callback():
-                        cb(self, edge, edge_type)
 
                 # Check if we reached the limit of query
                 if self.smt_queries_limit and smt_queries >= self.smt_queries_limit:
