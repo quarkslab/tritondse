@@ -53,11 +53,12 @@ PathHash = str
 """Type representing the hash of path to uniquely identify any path """
 
 
-class EdgeType(str, Enum):
+class SymExType(str, Enum):
     """
-    Edge type enum.
+    Symobolic Expression type enum.
     """
-    STATIC_JCC = 'sta-jcc'
+
+    CONDITIONAL_JMP = 'cond-jcc'
     DYNAMIC_JMP = 'dyn-jmp'
     SYMBOLIC_READ = 'sym-read'
     SYMBOLIC_WRITE = 'sym-write'
