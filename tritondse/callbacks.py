@@ -2,14 +2,14 @@
 from __future__ import annotations
 import logging
 from enum import Enum, auto
-from typing import Callable, Tuple, List, Optional, Union
+from typing import Callable, Tuple, List, Optional, Union, Any
 
 # third-party imports
 from triton import CALLBACK, Instruction, MemoryAccess, OPCODE
 
 # local imports
 from tritondse.process_state  import ProcessState
-from tritondse.types          import Addr, Input, Register, Expression
+from tritondse.types          import Addr, Input, Register, Expression, Edge, SymExType
 from tritondse.thread_context import ThreadContext
 
 
@@ -40,6 +40,8 @@ class CbType(Enum):
     POST_MNEM = auto()
     PRE_OPCODE = auto()
     POST_OPCODE = auto()
+    BRANCH_COV = auto()
+    SYMEX_SOLVING = auto()
 
 
 AddrCallback            = Callable[['SymbolicExecutor', ProcessState, Addr], None]
@@ -48,6 +50,8 @@ InstrCallback           = Callable[['SymbolicExecutor', ProcessState, Instructio
 MemReadCallback         = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
 MemWriteCallback        = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
 MnemonicCallback        = Callable[['SymbolicExecutor', ProcessState, OPCODE], None]
+SymExSolvingCallback    = Callable[['SymbolicExecutor', ProcessState, Edge, SymExType], bool]
+BranchCoveredCallback   = Callable[['SymbolicExecutor', ProcessState, Edge], bool]
 NewInputCallback        = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
 OpcodeCallback          = Callable[['SymbolicExecutor', ProcessState, bytes], None]
 RegReadCallback         = Callable[['SymbolicExecutor', ProcessState, Register], None]
@@ -63,7 +67,7 @@ class ProbeInterface(object):
         self._cbs: List[Tuple[CbType, Callable, Optional[str]]] = []  #: list of callback infos
 
     @property
-    def callbacks(self) -> List[Tuple[CbType, Callable, Optional[str]]]:
+    def callbacks(self) -> List[Tuple[CbType, Callable, Optional[Any]]]:
         return self._cbs
 
     def _add_callback(self, typ: CbType, callback: Callable, arg: str = None):
@@ -86,16 +90,18 @@ class CallbackManager(object):
         self._step_cbs = []  # Callback called between each exploration steps
 
         # SymbolicExecutor callbacks
-        self._pc_addr_cbs   = {}  # addresses reached
-        self._opcode_cbs    = {}  # opcode before and after
-        self._mnemonic_cbs  = {}  # mnemonic before and after
-        self._instr_cbs     = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
-        self._pre_exec      = []  # before execution
-        self._post_exec     = []  # after execution
-        self._ctx_switch    = []  # on each thread context switch (implementing pre/post?)
-        self._new_input_cbs = []  # each time an SMT model is get
-        self._pre_rtn_cbs   = {}  # before imported routine calls ({str: [RtnCallback]})
-        self._post_rtn_cbs  = {}  # after imported routine calls ({str: [RtnCallback]})
+        self._pc_addr_cbs        = {}  # addresses reached
+        self._opcode_cbs         = {}  # opcode before and after
+        self._mnemonic_cbs       = {}  # mnemonic before and after
+        self._instr_cbs          = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
+        self._pre_exec           = []  # before execution
+        self._post_exec          = []  # after execution
+        self._ctx_switch         = []  # on each thread context switch (implementing pre/post?)
+        self._new_input_cbs      = []  # each time an SMT model is get
+        self._branch_solving_cbs = []  # each time a branch is about to be solved
+        self._branch_covered_cbs = []  # each time a branch is covered
+        self._pre_rtn_cbs        = {}  # before imported routine calls ({str: [RtnCallback]})
+        self._post_rtn_cbs       = {}  # after imported routine calls ({str: [RtnCallback]})
 
         # Triton callbacks
         self._mem_read_cbs  = []  # memory reads
@@ -604,6 +610,47 @@ class CallbackManager(object):
         """
         return self._new_input_cbs
 
+    def register_on_solving_callback(self, callback: SymExSolvingCallback) -> None:
+        """
+        Register a callback function called when a branch is about to
+        be solved. This callback is called before the branch is solved and will
+        use the result of the callback to go ahead with the solving or skip it.
+
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.BranchSolvingCallback`
+        """
+        self._branch_solving_cbs.append(callback)
+        self._empty = False
+
+    def get_on_solving_callback(self) -> List[SymExSolvingCallback]:
+        """
+        Get the list of all function callbacks to call when a branch is about
+        to be solved.
+
+        :return: List of callbacks to call on branch solving
+        """
+        return self._branch_solving_cbs
+
+    def register_on_branch_covered_callback(self, callback: BranchCoveredCallback) -> None:
+        """
+        Register a callback function called when a branch covered. This callback
+        is called after the branch is solved.
+
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.BranchCoveredCallback`
+        """
+        self._branch_covered_cbs.append(callback)
+        self._empty = False
+
+    def get_on_branch_covered_callback(self) -> List[BranchCoveredCallback]:
+        """
+        Get the list of all function callbacks to call when a branch is about
+        to be solved.
+
+        :return: List of callbacks to call on branch covered
+        """
+        return self._branch_covered_cbs
+
     def get_exploration_step_callbacks(self) -> List[ExplorationStepCallback]:
         """
         Get all the exploration step callbacks
@@ -665,16 +712,19 @@ class CallbackManager(object):
         :type probe: ProbeInterface
         """
         for kind, cb, arg in probe.callbacks:
-            if kind == CbType.PRE_RTN:
-                self.register_pre_imported_routine_callback(arg, cb)
-            elif kind == CbType.POST_RTN:
-                self.register_post_imported_routine_callback(arg, cb)
-            elif kind == CbType.PRE_ADDR:
-                self.register_pre_addr_callback(arg, cb)
-            elif kind == CbType.POST_ADDR:
-                self.register_post_addr_callback(arg, cb)
-            else:
-                # TODO Fix calls (most callbacks take at least one argument).
+            try:
+                mapping_with_args = {
+                    CbType.PRE_RTN: self.register_pre_imported_routine_callback,
+                    CbType.POST_RTN: self.register_post_imported_routine_callback,
+                    CbType.PRE_ADDR: self.register_pre_addr_callback,
+                    CbType.POST_ADDR: self.register_post_addr_callback,
+                    CbType.PRE_MNEM: self.register_pre_mnemonic_callback,
+                    CbType.POST_MNEM: self.register_post_mnemonic_callback,
+                    CbType.PRE_OPCODE: self.register_pre_opcode_callback,
+                    CbType.POST_OPCODE: self.register_post_opcode_callback,
+                }
+                mapping_with_args[kind](arg, cb)
+            except KeyError:
                 mapping = {
                     CbType.CTX_SWITCH: self.register_thread_context_switch_callback,
                     CbType.MEMORY_READ: self.register_memory_read_callback,
@@ -687,10 +737,8 @@ class CallbackManager(object):
                     CbType.REG_WRITE: self.register_register_write_callback,
                     CbType.NEW_INPUT: self.register_new_input_callback,
                     CbType.EXPLORE_STEP: self.register_exploration_step_callback,
-                    CbType.PRE_MNEM: self.register_pre_mnemonic_callback,
-                    CbType.POST_MNEM: self.register_post_mnemonic_callback,
-                    CbType.PRE_OPCODE: self.register_pre_opcode_callback,
-                    CbType.POST_OPCODE: self.register_post_opcode_callback
+                    CbType.BRANCH_COV: self.register_on_branch_covered_callback,
+                    CbType.SYMEX_SOLVING: self.register_on_solving_callback
                 }
                 mapping[kind](cb)
 
@@ -708,16 +756,18 @@ class CallbackManager(object):
         cbs = CallbackManager()
 
         # SymbolicExecutor callbacks
-        cbs._pc_addr_cbs   = self._pc_addr_cbs
-        cbs._opcode_cbs    = self._opcode_cbs
-        cbs._mnemonic_cbs  = self._mnemonic_cbs
-        cbs._instr_cbs     = self._instr_cbs
-        cbs._pre_exec      = self._pre_exec
-        cbs._post_exec     = self._post_exec
-        cbs._ctx_switch    = self._ctx_switch
-        cbs._new_input_cbs = self._new_input_cbs
-        cbs._pre_rtn_cbs   = self._pre_rtn_cbs
-        cbs._post_rtn_cbs  = self._post_rtn_cbs
+        cbs._pc_addr_cbs        = self._pc_addr_cbs
+        cbs._opcode_cbs         = self._opcode_cbs
+        cbs._mnemonic_cbs       = self._mnemonic_cbs
+        cbs._instr_cbs          = self._instr_cbs
+        cbs._pre_exec           = self._pre_exec
+        cbs._post_exec          = self._post_exec
+        cbs._ctx_switch         = self._ctx_switch
+        cbs._new_input_cbs      = self._new_input_cbs
+        cbs._branch_solving_cbs = self._branch_solving_cbs
+        cbs._branch_covered_cbs = self._branch_covered_cbs
+        cbs._pre_rtn_cbs        = self._pre_rtn_cbs
+        cbs._post_rtn_cbs       = self._post_rtn_cbs
         # Triton callbacks
         cbs._mem_read_cbs  = self._mem_read_cbs
         cbs._mem_write_cbs = self._mem_write_cbs
@@ -755,7 +805,7 @@ class CallbackManager(object):
             if callback in self._instr_cbs[loc]:
                 self._instr_cbs[loc].remove(callback)
 
-        for cb_list in [self._step_cbs, self._pre_exec, self._post_exec, self._ctx_switch, self._new_input_cbs,
+        for cb_list in [self._step_cbs, self._pre_exec, self._post_exec, self._ctx_switch, self._new_input_cbs, self._branch_solving_cbs, self._branch_covered_cbs,
                         self._mem_read_cbs, self._mem_write_cbs, self._reg_read_cbs, self._reg_write_cbs]:
             if callback in cb_list:
                 cb_list.remove(callback)
@@ -774,16 +824,18 @@ class CallbackManager(object):
         self._step_cbs = []  # Callback called between each exploration steps
 
         # SymbolicExecutor callbacks
-        self._pc_addr_cbs   = {}  # addresses reached
-        self._opcode_cbs    = {}  # opcode before and after
-        self._mnemonic_cbs  = {}  # mnemonic before and after
-        self._instr_cbs     = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
-        self._pre_exec      = []  # before execution
-        self._post_exec     = []  # after execution
-        self._ctx_switch    = []  # on each thread context switch (implementing pre/post?)
-        self._new_input_cbs = []  # each time an SMT model is get
-        self._pre_rtn_cbs   = {}  # before imported routine calls ({str: [RtnCallback]})
-        self._post_rtn_cbs  = {}  # after imported routine calls ({str: [RtnCallback]})
+        self._pc_addr_cbs        = {}  # addresses reached
+        self._opcode_cbs         = {}  # opcode before and after
+        self._mnemonic_cbs       = {}  # mnemonic before and after
+        self._instr_cbs          = {CbPos.BEFORE: [], CbPos.AFTER: []}  # all instructions
+        self._pre_exec           = []  # before execution
+        self._post_exec          = []  # after execution
+        self._ctx_switch         = []  # on each thread context switch (implementing pre/post?)
+        self._new_input_cbs      = []  # each time an SMT model is get
+        self._branch_solving_cbs = []  # each time a covitem is about to be solved
+        self._branch_covered_cbs = []  # each time a covitem is covered
+        self._pre_rtn_cbs        = {}  # before imported routine calls ({str: [RtnCallback]})
+        self._post_rtn_cbs       = {}  # after imported routine calls ({str: [RtnCallback]})
 
         # Triton callbacks
         self._mem_read_cbs  = []  # memory reads
