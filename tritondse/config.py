@@ -122,8 +122,13 @@ class Config(object):
         call to a function that is not supported.
         """
 
+        self.custom = {}
+        """
+        Custom carrier field enabling user to add parameters of their own.
+        """
+
     def __str__(self):
-        return "\n".join(f"{k.ljust(21)}= {v}" for k, v in self.__dict__.items())
+        return "\n".join(f"{k.ljust(23)}= {v}" for k, v in self.__dict__.items())
 
 
     def to_file(self, file: str) -> None:
@@ -179,4 +184,12 @@ class Config(object):
         """
         def to_str_list(value):
             return [x.name for x in BranchSolvingStrategy if x in value]
-        return json.dumps({k: (to_str_list(x) if isinstance(x, IntFlag) else (x.name if isinstance(x, Enum) else x)) for k, x in self.__dict__.items()}, indent=2)
+        d = {}
+        for k, v in self.__dict__.items():
+            if isinstance(v, IntFlag):
+                d[k] = to_str_list(v)
+            elif isinstance(v, Enum):
+                d[k] = v.name
+            else:
+                d[k] = v
+        return json.dumps(d, indent=2)
