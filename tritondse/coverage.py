@@ -6,7 +6,7 @@ import struct
 import logging
 from functools import reduce
 
-from typing import List, Generator, Tuple, Set, Union, Dict
+from typing import List, Generator, Tuple, Set, Union, Dict, Optional
 from collections import Counter
 from enum import IntFlag, Enum, auto
 
@@ -14,7 +14,7 @@ from triton import AST_NODE
 
 # local imports
 from tritondse.workspace import Workspace
-from tritondse.types import Addr, PathConstraint, PathBranch, SolverStatus, PathHash, Edge
+from tritondse.types import Addr, PathConstraint, PathBranch, SolverStatus, PathHash, Edge, SymExType
 
 
 CovItem = Union[Addr, Edge, PathHash, Tuple[PathHash, Edge]]
@@ -297,7 +297,7 @@ class GlobalCoverage(CoverageSingleRun):
         self.covered_symbolic_pointers: Set[Addr] = set()
         """ Set of addresses for which pointers have been enumerated """
 
-    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[bool, List[PathConstraint], PathBranch, CovItem, int], SolverStatus, None]:
+    def iter_new_paths(self, path_constraints: List[PathConstraint]) -> Generator[Tuple[SymExType, List[PathConstraint], PathBranch, CovItem, int], Optional[SolverStatus], None]:
         """
         The function iterate the given path predicate and yield PatchConstraint to
         consider as-is and PathBranch representing the new branch to take. It acts
@@ -340,7 +340,7 @@ class GlobalCoverage(CoverageSingleRun):
                            i in not_covered_items.get(covitem, []):
 
                             # Send the branch to solve to the function iterating
-                            res = yield False, pending_csts, branch, covitem, i
+                            res = yield SymExType.CONDITIONAL_JMP, pending_csts, branch, covitem, i
 
                             # If path SAT add it to pending coverage
                             if res == SolverStatus.SAT:
@@ -355,6 +355,12 @@ class GlobalCoverage(CoverageSingleRun):
                             elif res == SolverStatus.TIMEOUT:
                                 if BranchSolvingStrategy.TIMEOUT_ONCE in self.branch_strategy:
                                     self.uncoverable_items[covitem] = res
+
+                            elif res == SolverStatus.UNKNOWN:
+                                pass
+
+                            else: # status == None
+                                logging.debug(f'Branch skipped!')
 
                             pending_csts = []  # reset pending constraint added
 
@@ -372,6 +378,7 @@ class GlobalCoverage(CoverageSingleRun):
                    (cmt.startswith("sym-read") and BranchSolvingStrategy.COVER_SYM_READ in self.branch_strategy) or \
                    (cmt.startswith("sym-write") and BranchSolvingStrategy.COVER_SYM_WRITE in self.branch_strategy):
                     typ, offset, addr = cmt.split(":")
+                    typ = SymExType(typ)
                     offset, addr = int(offset), int(addr)
                     if addr not in self.covered_symbolic_pointers:  # if the address pointer has never been covered
                         pred = pc.getTakenPredicate()
@@ -379,7 +386,7 @@ class GlobalCoverage(CoverageSingleRun):
                             p1, p2 = pred.getChildren()
                             if p2.getType() == AST_NODE.BV:
                                 logging.info(f"Try to enumerate value {offset}:0x{addr:02x}: {p1}")
-                                res = yield True, pending_csts, p1, (addr, p2.evaluate()), i
+                                res = yield typ, pending_csts, p1, (addr, p2.evaluate()), i
                                 self.covered_symbolic_pointers.add(addr)  # add the pointer in covered regardless of result
                             else:
                                 logging.warning(f"memory constraint unexpected pattern: {pred}")

@@ -53,6 +53,17 @@ PathHash = str
 """Type representing the hash of path to uniquely identify any path """
 
 
+class SymExType(str, Enum):
+    """
+    Symobolic Expression type enum.
+    """
+
+    CONDITIONAL_JMP = 'cond-jcc'
+    DYNAMIC_JMP = 'dyn-jmp'
+    SYMBOLIC_READ = 'sym-read'
+    SYMBOLIC_WRITE = 'sym-write'
+
+
 if sys.version_info.minor >= 8:
     from typing import TypedDict
 
