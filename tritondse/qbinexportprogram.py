@@ -92,3 +92,11 @@ class QBinExportProgram(qbinexport.Program):
 
     def find_function_addr(self, name: str) -> Optional[Addr]:
         return self.program.find_function_addr(name)
+
+    def find_function_from_addr(self, address: Addr) -> Optional[qbinexport.function.Function]:
+        fn = None
+        for fname in self.fun_names:
+            if address in self.get_function(fname).graph:
+                fn = self.get_function(fname)
+                break
+        return fn
