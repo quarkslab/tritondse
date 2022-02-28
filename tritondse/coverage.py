@@ -36,7 +36,7 @@ class CoverageStrategy(str, Enum):
     BLOCK = "block"  # In practice track all instructions not specifically basic blocks
     EDGE = "edge"
     PATH = "path"
-    PREFIXED_EDGE = "prefixed-edge"
+    PREFIXED_EDGE = "PREFIXED_EDGE"
 
 
 class BranchSolvingStrategy(IntFlag):
