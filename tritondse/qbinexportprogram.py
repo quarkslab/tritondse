@@ -1,9 +1,12 @@
 # Built-in imports
 from pathlib import Path
-from typing import Union, Generator, Tuple, Optional, Any
+from typing import Union, Generator, Tuple, Optional, Any, List
 
 # third-party imports
 import qbinexport
+from qbinexport.function import Function, Chunk
+from qbinexport.block import Block
+from qbinexport.reference import ReferenceType
 import networkx
 import lief
 
@@ -56,7 +59,34 @@ class QBinExportProgram(qbinexport.Program):
     def __repr__(self):
         return f"<{self.export_file.name}  funs:{len(self)}>"
 
-    # Methods for compatibility with Program object
+    def get_caller_instructions(self, target: Function) -> List[int]:
+        """Get the list of instructions calling `target`
+        """
+
+        # Get the first instruction of the target
+        first_inst = target.get_instruction(target.start)
+        assert first_inst is not None
+
+        # Reference holder
+        ref = target.program.references
+
+        caller_instructions = []
+        for reference in ref.resolve_inst_instance(first_inst.inst_tuple, ReferenceType.CALL, towards=True):
+            block: Block = reference[1]
+            found = False
+            addr = block.start
+            for index, inst in enumerate(block.instructions):
+                if index == reference[2]:
+                    caller_instructions.append(addr)
+                    found = True
+                addr += inst.size
+            if not found:
+                assert False, "Failed to find an instruction"
+
+        return caller_instructions
+
+
+    # ============== Methods for interroperability with Program object ==============
     @property
     def path(self) -> Path:
         return self.program.path

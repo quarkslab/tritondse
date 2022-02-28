@@ -70,6 +70,10 @@ class SymbolicExecutor(object):
 
         self.trace_offset = 0  # counter of instruction executed
 
+        # shortcuts handling the previous and current instruction pointer
+        self.previous_pc = 0
+        self.current_pc = 0
+
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
@@ -228,17 +232,17 @@ class SymbolicExecutor(object):
                 break  # Were not able to find a suitable thread thus exit emulation
 
             # Fetch program counter (of the thread selected), at this point the current thread should be running!
-            pc = self.pstate.cpu.program_counter
+            self.current_pc = self.pstate.cpu.program_counter  # should normally be already set but still.
 
-            if pc == self._run_to_target:  # Hit the location we wanted to reach
+            if self.current_pc == self._run_to_target:  # Hit the location we wanted to reach
                 break
 
-            if pc == 0:
+            if self.current_pc == 0:
                 logging.error(f"PC=0, is it normal ? (stop)")
                 break
 
-            if not self.pstate.is_memory_defined(pc, CPUSIZE.BYTE):
-                logging.error(f"Instruction not mapped: 0x{pc:x}")
+            if not self.pstate.is_memory_defined(self.current_pc, CPUSIZE.BYTE):
+                logging.error(f"Instruction not mapped: 0x{self.current_pc:x}")
                 break
 
             instruction = self.pstate.fetch_instruction()
@@ -247,9 +251,9 @@ class SymbolicExecutor(object):
 
             try:
                 # Trigger pre-address callback
-                pre_cbs, post_cbs = self.cbm.get_address_callbacks(pc)
+                pre_cbs, post_cbs = self.cbm.get_address_callbacks(self.current_pc)
                 for cb in pre_cbs:
-                    cb(self, self.pstate, pc)
+                    cb(self, self.pstate, self.current_pc)
 
                 # Trigger pre-opcode callback
                 pre_opcode, post_opcode = self.cbm.get_opcode_callbacks(opcode)
@@ -269,6 +273,7 @@ class SymbolicExecutor(object):
                 continue
 
             # Process
+            prev_pc = self.current_pc
             if not self.pstate.process_instruction(instruction):
                 if self.pstate.is_halt_instruction():
                     logging.info(f"hit {str(instruction)} instruction stop.")
@@ -279,8 +284,12 @@ class SymbolicExecutor(object):
             # increment trace offset
             self.trace_offset += 1
 
+            # update previous program counters
+            self.previous_pc = prev_pc
+            self.current_pc = self.pstate.cpu.program_counter  # current_pc becomes new instruction pointer
+
             # Update the coverage of the execution
-            self.coverage.add_covered_address(pc)
+            self.coverage.add_covered_address(self.previous_pc)
 
             # Update coverage send it the last PathConstraint object if one was added
             if self.pstate.is_path_predicate_updated():
@@ -294,9 +303,9 @@ class SymbolicExecutor(object):
                     taken_addr, not_taken_addr = taken['dstAddr'], not_taken['dstAddr']
 
                     for cb in self.cbm.get_on_branch_covered_callback():
-                        cb(self, self.pstate, (pc, taken_addr))
+                        cb(self, self.pstate, (self.previous_pc, taken_addr))
 
-                    self.coverage.add_covered_branch(pc, taken_addr, not_taken_addr)
+                    self.coverage.add_covered_branch(self.previous_pc, taken_addr, not_taken_addr)
 
                 else:  # It is normally a dynamic jump or symbolic memory read/write
                     cmt = path_constraint.getComment()
@@ -305,10 +314,9 @@ class SymbolicExecutor(object):
                         # NOTE: At the moment it does not seems suitable to count r/w pointers
                         # as part of the coverage. So does not have an influence on covered/not_covered.
                     else:
-                        logging.warning(f"New dynamic jump covered at: {pc:08x}")
-                        new_pc = self.pstate.cpu.program_counter
-                        path_constraint.setComment(f"dyn-jmp:{self.trace_offset}:{pc}")
-                        self.coverage.add_covered_dynamic_branch(pc, new_pc)
+                        logging.warning(f"New dynamic jump covered at: {self.previous_pc:08x}")
+                        path_constraint.setComment(f"dyn-jmp:{self.trace_offset}:{self.previous_pc}")
+                        self.coverage.add_covered_dynamic_branch(self.previous_pc, self.current_pc)
 
             # Trigger post-opcode callback
             for cb in post_opcode:
@@ -324,7 +332,7 @@ class SymbolicExecutor(object):
 
             # Trigger post-address callbacks
             for cb in post_cbs:
-                cb(self, self.pstate, pc)
+                cb(self, self.pstate, self.previous_pc)
 
             # Simulate routines
             try:
