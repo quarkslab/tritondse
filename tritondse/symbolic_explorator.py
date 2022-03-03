@@ -27,6 +27,7 @@ class ExplorationStatus(Enum):
     RUNNING     = 1
     IDLE        = 2
     STOPPED     = 3
+    TERMINATED  = 4
 
 
 class SymbolicExplorator(object):
@@ -107,7 +108,7 @@ class SymbolicExplorator(object):
 
         if self.config.exploration_timeout and self.__time_delta() >= self.config.exploration_timeout:
             logging.info('Exploration timout')
-            self._stop = True
+            self.stop_exploration()
             return
 
         # Execute the binary with seeds
@@ -130,12 +131,12 @@ class SymbolicExplorator(object):
         except StopExplorationException:
             expl_ts = time.time() - ts
             logging.info("Exploration interrupted (coverage not integrated)")
-            self._stop = True
-            return
+            self.stop_exploration()
+
 
         if self.config.exploration_limit and (uid+1) >= self.config.exploration_limit:
             logging.info('Exploration limit reached')
-            self._stop = True
+            self.stop_exploration()
 
         # Some analysis in post execution
         solve_time = self.seeds_manager.post_execution(execution, seed, not self._stop)
@@ -150,6 +151,12 @@ class SymbolicExplorator(object):
         """
         # Take an input
         seed = self.seeds_manager.pick_seed()
+
+        # If we don't have any new seed to process just switch exploration to idle
+        if seed is None:
+            logging.info("worklist of seed to process is empty")
+            self.status = ExplorationStatus.IDLE
+            return
 
         # Iterate the callback to be called at each steps
         for cb in self.cbm.get_exploration_step_callbacks():
@@ -184,18 +191,18 @@ class SymbolicExplorator(object):
             while self.seeds_manager.seeds_available() and not self._stop:
                 self.step()
 
-            # Exited loop
-            self.status = ExplorationStatus.STOPPED if self._stop else ExplorationStatus.IDLE
-
-            # Call all termination functions
-            self.seeds_manager.post_exploration()
-            self.coverage.post_exploration(self.workspace)
+            if self.status == ExplorationStatus.RUNNING:
+                logging.warning('should not exit step() in RUNNING state')
 
         except KeyboardInterrupt:
             logging.warning("keyboard interrupt, stop symbolic exploration")
-            self.status = ExplorationStatus.STOPPED
+            self.stop_exploration()
 
+        self.post_exploration()
         logging.info(f"Total time of the exploration: {self._fmt_secs(self.__time_delta())}")
+
+        if self.status == ExplorationStatus.IDLE:
+            logging.info("Execution IDLE no seeds to execute")
 
         return self.status
 
@@ -213,14 +220,23 @@ class SymbolicExplorator(object):
 
     def stop_exploration(self) -> None:
         """ Interrupt the exploration """
+        self.status = ExplorationStatus.STOPPED
         self._stop = True
 
+    def terminate_exploration(self) -> None:
+        """ Terminate exploration with status terminated (normal shutdown) """
+        self.status = ExplorationStatus.TERMINATED
+        self._stop = True
 
     def _fmt_secs(self, seconds) -> str:
         m, s = divmod(seconds, 60)
         h, m = divmod(m, 60)
         return (f"{int(h)}h" if h else '')+f"{int(m)}m{int(s)}s"
 
+    def post_exploration(self) -> None:
+        """ Perform  all calls to post exploration functions"""
+        self.seeds_manager.post_exploration()
+        self.coverage.post_exploration(self.workspace)
 
     def _configure_file_logger(self) -> None:
         """ Configure the filehandler to log to file """

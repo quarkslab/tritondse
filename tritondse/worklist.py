@@ -1,6 +1,7 @@
 # built-in imports
 import json
 import logging
+from typing import Optional
 
 # Local imports
 from tritondse.seed import Seed
@@ -60,7 +61,7 @@ class SeedScheduler:
         raise NotImplementedError()
 
 
-    def pick(self) -> Seed:
+    def pick(self) -> Optional[Seed]:
         """
         Return the next seed to execute.
 
@@ -139,7 +140,7 @@ class WorklistAddressToSet(SeedScheduler):
         return True
 
 
-    def pick(self) -> Seed:
+    def pick(self) -> Optional[Seed]:
         """ Return the next seed to execute
 
         :returns: next seed to execute (first one covering new addresses, otherwise any other)
@@ -172,6 +173,10 @@ class WorklistAddressToSet(SeedScheduler):
                     if not len(v):
                         to_remove.add(k)
                     break
+
+        # If we did not have a seed again the worklist is definitely empty
+        if not seed_picked:
+            return None
 
         # Pop the seed from all worklist[X] where it is
         for obj in seed_picked.coverage_objectives:
@@ -225,7 +230,7 @@ class WorklistRand(SeedScheduler):
         return True
 
 
-    def pick(self) -> Seed:
+    def pick(self) -> Optional[Seed]:
         """
         Return the next seed to execute. The method pop() removes a random element
         from the set and returns the removed element. Unlike, a stack a
@@ -234,7 +239,7 @@ class WorklistRand(SeedScheduler):
         :returns: next seed to executre
         :rtype: Seed
         """
-        return self.worklist.pop()
+        return self.worklist.pop() if self.worklist else None
 
 
 class FreshSeedPrioritizerWorklist(SeedScheduler):
@@ -306,7 +311,7 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
         return not self.fresh
 
 
-    def pick(self) -> Seed:
+    def pick(self) -> Optional[Seed]:
         """ Return the next seed to execute """
         # Pop first fresh seed
         if self.fresh:
@@ -318,6 +323,9 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
             if not self.worklist[...]:  # Remove the key if now empty
                 self.worklist.pop(...)
             return it
+
+        if not self.worklist:
+            return None
 
         # Then pop traditional coverage seeds
         k = list(self.worklist.keys())[0]      # arbitrary covitem

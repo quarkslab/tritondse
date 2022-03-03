@@ -2,7 +2,7 @@
 import logging
 import time
 import json
-from typing      import Generator
+from typing import Generator, Optional
 from collections import Counter
 
 # local imports
@@ -12,7 +12,7 @@ from tritondse.coverage          import GlobalCoverage, CovItem
 from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritizerWorklist, SeedScheduler
 from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
-from tritondse.types             import SolverStatus, Model, SymExType
+from tritondse.types             import SolverStatus, SymExType
 
 
 
@@ -302,7 +302,7 @@ class SeedManager:
             self._stat_branch_fail[covitem] += 1
 
 
-    def pick_seed(self) -> Seed:
+    def pick_seed(self) -> Optional[Seed]:
         """
         Get the next seed to be executed by querying it
         in the seed scheduler.
