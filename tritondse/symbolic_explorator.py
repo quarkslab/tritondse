@@ -192,7 +192,11 @@ class SymbolicExplorator(object):
                 self.step()
 
             if self.status == ExplorationStatus.RUNNING:
-                logging.warning('should not exit step() in RUNNING state')
+                if not self.seeds_manager.seeds_available():
+                    logging.info(f"No more seeds available, stopping exploration")
+                    self.stop_exploration()
+                else:
+                    logging.warning(f'should not exit step() in RUNNING state (stop? {self._stop}, seeds available? {self.seeds_manager.seeds_available()})')
 
         except KeyboardInterrupt:
             logging.warning("keyboard interrupt, stop symbolic exploration")
