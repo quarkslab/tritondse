@@ -1231,10 +1231,10 @@ def rtn_sprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     buff = pstate.get_argument_value(0)
     arg0 = pstate.get_argument_value(1)
 
-    arg0f = pstate.get_format_string(arg0)
-    nbArgs = arg0f.count("{")
-    args = pstate.get_format_arguments(arg0, [pstate.get_argument_value(x) for x in range(2, nbArgs+2)])
     try:
+        arg0f = pstate.get_format_string(arg0)
+        nbArgs = arg0f.count("{")
+        args = pstate.get_format_arguments(arg0, [pstate.get_argument_value(x) for x in range(2, nbArgs+2)])
         s = arg0f.format(*args)
     except:
         # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
