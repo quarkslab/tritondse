@@ -72,17 +72,9 @@ class QBinExportProgram(qbinexport.Program):
 
         caller_instructions = []
         for reference in ref.resolve_inst_instance(first_inst.inst_tuple, ReferenceType.CALL, towards=True):
-            block: Block = reference[1]
-            found = False
-            addr = block.start
-            for index, inst in enumerate(block.instructions):
-                if index == reference[2]:
-                    caller_instructions.append(addr)
-                    found = True
-                addr += inst.size
-            if not found:
-                assert False, "Failed to find an instruction"
-
+            _, block, offset = reference.source
+            inst = list(block.instructions)[offset]
+            caller_instructions.append(inst.address)
         return caller_instructions
 
 
