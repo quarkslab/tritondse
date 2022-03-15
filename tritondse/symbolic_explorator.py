@@ -36,7 +36,7 @@ class SymbolicExplorator(object):
     executions with the different seeds available in the workspace
     and generated along the way.
     """
-    def __init__(self, config: Config, program: Program = None, seed_scheduler: SeedScheduler = None, executor_stop_at: Addr = None):
+    def __init__(self, config: Config, program: Program = None, workspace: Workspace = None, seed_scheduler: SeedScheduler = None, executor_stop_at: Addr = None):
         self.program: Program     = program  #: Program being analyzed
         self.config: Config       = config   #: Configuration file
         self.cbm: CallbackManager = CallbackManager()
@@ -47,14 +47,22 @@ class SymbolicExplorator(object):
         self._executor_stop_at = executor_stop_at
 
         # Initialize the workspace
-        self.workspace: Workspace = Workspace(self.config.workspace)  #: workspace object
-        self.workspace.initialize(flush=False)
+        if workspace:
+            self.workspace = workspace  # workspace already instanciated
+        else:
+            self.workspace: Workspace = Workspace(self.config.workspace)  #: workspace object
+            self.workspace.initialize(flush=False)
 
-        # Save both the program and configuration in the workspace (for later resume if needed)
+        # Save the configuration in the workspace
         self.workspace.save_file("config.json", self.config.to_json())
-        if self.program:  # If the program is not None
-            self.workspace.save_file(self.program.path.name, self.program.path.read_bytes())
-            self.workspace.get_metadata_file_path(self.program.path.name).chmod(stat.S_IRWXU)  # Set the binary to be executable
+
+        # Save the binary in the workspace if not already done
+        if self.program:
+            bin_path = self.workspace.get_binary_directory() / self.program.path.name
+            if not bin_path.exists():  # If the program is not yet present
+                self.workspace.save_file(self.program.path.name, self.program.path.read_bytes())
+                self.program.path = bin_path  # Patch its official new location
+                bin_path.chmod(stat.S_IRWXU)  # Make it executable
 
         # Configure logfile
         self._configure_file_logger()
