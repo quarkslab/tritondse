@@ -9,13 +9,19 @@ import logging
 import lief
 
 # local imports
-from tritondse.types import PathLike, Addr, Architecture
+from tritondse.types import PathLike, Addr, Architecture, Platform
 
 
 _arch_mapper = {
     lief.ARCHITECTURES.ARM:   Architecture.ARM32,
     lief.ARCHITECTURES.ARM64: Architecture.AARCH64,
     lief.ARCHITECTURES.X86:   Architecture.X86
+}
+
+_plfm_mapper = {
+    lief.EXE_FORMATS.ELF: Platform.LINUX,
+    lief.EXE_FORMATS.PE: Platform.WINDOWS,
+    lief.EXE_FORMATS.MACHO: Platform.MACOS
 }
 
 
@@ -46,6 +52,12 @@ class Program(object):
         if self._arch is None:
             raise FileNotFoundError(f"binary {path} architecture unsupported {self._binary.abstract.header.architecture}")
 
+        try:
+            self._plfm = _plfm_mapper[self._binary.format]
+            # TODO: better refine for Android, iOS etc.
+        except KeyError:
+            self._plfm = None
+
         self._funs = {f.name: f for f in self._binary.concrete.functions}
 
 
@@ -68,6 +80,15 @@ class Program(object):
         """
         return self._arch
 
+    @property
+    def platform(self) -> Optional[Platform]:
+        """
+        Platform of the binary. Its solely based on the format
+        of the file ELF, PE etc..
+
+        :return: Platform
+        """
+        return self._plfm
 
     @property
     def endianness(self) -> lief.ENDIANNESS:
