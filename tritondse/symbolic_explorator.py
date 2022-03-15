@@ -60,7 +60,7 @@ class SymbolicExplorator(object):
         if self.program:
             bin_path = self.workspace.get_binary_directory() / self.program.path.name
             if not bin_path.exists():  # If the program is not yet present
-                self.workspace.save_file(self.program.path.name, self.program.path.read_bytes())
+                self.workspace.save_file(bin_path, self.program.path.read_bytes())
                 self.program.path = bin_path  # Patch its official new location
                 bin_path.chmod(stat.S_IRWXU)  # Make it executable
 

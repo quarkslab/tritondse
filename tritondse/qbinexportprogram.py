@@ -83,6 +83,10 @@ class QBinExportProgram(qbinexport.Program):
     def path(self) -> Path:
         return self.program.path
 
+    @path.setter
+    def path(self, path: Path) -> None:
+        self.program.path = path
+
     @property
     def entry_point(self) -> Addr:
         return self.program.entry_point
