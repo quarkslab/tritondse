@@ -91,6 +91,14 @@ class Architecture(IntEnum):
     X86_64  = ARCH.X86_64
 
 
+class Platform(IntEnum):
+    """ Enum to manipulate the platform associated to a binary"""
+    LINUX = auto()
+    WINDOWS = auto()
+    MACOS = auto()
+    ANDROID = auto()
+    IOS = auto()
+
 class SmtSolver(IntEnum):
     """ Common SMT Solver Enum fully compatible with Triton """
     Z3 = SOLVER.Z3

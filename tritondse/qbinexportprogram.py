@@ -13,7 +13,7 @@ import lief
 # local imports
 import tritondse.program
 from tritondse.coverage import CoverageSingleRun
-from tritondse.types import PathLike, Addr, Architecture
+from tritondse.types import PathLike, Addr, Architecture, Platform
 
 
 class QBinExportProgram(qbinexport.Program):
@@ -98,6 +98,10 @@ class QBinExportProgram(qbinexport.Program):
     @property
     def architecture(self) -> Architecture:
         return self.program.architecture
+
+    @property
+    def platform(self) -> Platform:
+        return self.program.platform
 
     @property
     def endianness(self) -> lief.ENDIANNESS:
