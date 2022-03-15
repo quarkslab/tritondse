@@ -25,6 +25,7 @@ class Workspace(object):
     HANG_DIR = "hangs"
     WORKLIST_DIR = "worklist"
     METADATA_DIR = "metadata"
+    BIN_DIR = "bin"
     LOG_FILE = "tritondse.log"
 
     def __init__(self, root_dir: PathLike):
@@ -49,7 +50,7 @@ class Workspace(object):
         :type flush: bool
         """
 
-        for dir in (self.root_dir / x for x in [self.CORPUS_DIR, self.CRASH_DIR, self.HANG_DIR, self.WORKLIST_DIR, self.METADATA_DIR]):
+        for dir in (self.root_dir / x for x in [self.CORPUS_DIR, self.CRASH_DIR, self.HANG_DIR, self.WORKLIST_DIR, self.METADATA_DIR, self.BIN_DIR]):
             if not dir.exists():
                 logging.debug(f"Creating the {dir} directory")
                 dir.mkdir(parents=True)
@@ -92,6 +93,13 @@ class Workspace(object):
         if not p.parent.exists():
             p.parent.mkdir(parents=True)
         return p
+
+    def get_binary_directory(self) -> Path:
+        """
+        Get the directory containing the executable (and its dependencies).
+        :return: Path of the directory
+        """
+        return self.root_dir / self.BIN_DIR
 
 
     def save_metadata_file(self, name: str, content: Union[str, bytes]) -> None:

@@ -8,6 +8,7 @@ from .seed                  import Seed, SeedStatus
 from .heap_allocator        import AllocatorException
 from .sanitizers            import CbType, ProbeInterface, UAFSanitizer, NullDerefSanitizer, FormatStringSanitizer, IntegerOverflowSanitizer
 from .types                 import SolverStatus
+from .workspace             import Workspace
 
 from triton import VERSION
 
