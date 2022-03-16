@@ -177,7 +177,7 @@ class QBDITrace(Trace):
                 trace._instructions = pickle.load(f)
         except (pickle.PickleError, EOFError):
             logging.warning('Error loading QBDI tracer coverage file.')
-            raise TraceException('QBDI tracer timeout expired')
+            raise TraceException('QBDI tracer invalid coverage file.')
 
         return trace
 
