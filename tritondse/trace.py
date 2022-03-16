@@ -3,9 +3,7 @@ import bisect
 import logging
 import os
 import pickle
-import struct
 import subprocess
-import sys
 import tempfile
 import pyqbdi
 
@@ -16,7 +14,6 @@ from typing import List, Optional
 import tritondse
 
 from tritondse import Config
-from tritondse import ProcessState
 from tritondse import Program
 from tritondse import SymbolicExecutor
 from tritondse.coverage import CoverageSingleRun, CoverageStrategy
@@ -37,7 +34,7 @@ class Trace:
         pass
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str] = [], stdin_file=None) -> 'Trace':
+    def run(strategy: CoverageStrategy, binary_path: str, args: List[str] = None, stdin_file=None) -> 'Trace':
         """Run the binary passed as argument and return the coverage.
 
         :param strategy: Coverage strategy.
@@ -62,12 +59,14 @@ class Trace:
 class TritonTrace(Trace):
 
     def __init__(self):
+        super().__init__()
+
         self._strategy = None
 
         self._coverage = None
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str] = [], stdin_file=None) -> 'TritonTrace':
+    def run(strategy: CoverageStrategy, binary_path: str, args: List[str] = None, stdin_file=None) -> 'TritonTrace':
         # Override stdin with the input file.
         if stdin_file:
             os.dup2(os.open(stdin_file, os.O_RDONLY), 0)
@@ -94,6 +93,8 @@ class QBDITrace(Trace):
     QBDI_SCRIPT_FILEPATH = Path(tritondse.__file__).parent / 'trace.py'
 
     def __init__(self):
+        super().__init__()
+
         self._strategy = None
 
         self._coverage = None
@@ -108,12 +109,14 @@ class QBDITrace(Trace):
         self._instructions = None
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str] = [], stdin_file=None, timeout=None, cwd=None) -> 'QBDITrace':
+    def run(strategy: CoverageStrategy, binary_path: str, args: List[str] = None, stdin_file=None, timeout=None, cwd=None) -> 'QBDITrace':
         if not Path(binary_path).exists():
             raise FileNotFoundError()
 
         if stdin_file and not Path(stdin_file).exists():
             raise FileNotFoundError()
+
+        args = [] if not args else args
 
         cmdlne = f'python -m pyqbdipreload {QBDITrace.QBDI_SCRIPT_FILEPATH}'.split(' ') + [binary_path] + args
 
@@ -134,12 +137,12 @@ class QBDITrace(Trace):
         # Open stdin file if it is present.
         stdin_fp = open(stdin_file, 'rb') if stdin_file else None
 
-        # Run qbdi tool.
+        # Run QBDI tool.
         process = subprocess.Popen(cmdlne, stdin=stdin_fp, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, env=environ)
         try:
             stdout, stderr = process.communicate(timeout=timeout)
-            # logging.debug(stdout)
-            # logging.debug(stderr)
+            logging.debug(stdout)
+            logging.debug(stderr)
         except subprocess.TimeoutExpired:
             logging.error('QBDI tracer timeout expired!')
             raise TraceException('QBDI tracer timeout expired')
@@ -197,7 +200,7 @@ class QBDITrace(Trace):
 
             return self._modules[m_addr].name if m_addr <= address < m_addr + m_size else None
 
-        # Righmost case. Only check previous index.
+        # Rightmost case. Only check previous index.
         if idx == self._modules_count:
             m_addr = self._modules_addrs[idx - 1]
             m_size = self._modules_sizes[m_addr]
@@ -217,7 +220,7 @@ class QBDITrace(Trace):
         return None
 
     def get_module(self, address: Addr) -> Optional[Module]:
-        """Return the the module that contains the address passed as
+        """Return the module that contains the address passed as
         argument.
 
         :param address: Address.
@@ -235,7 +238,7 @@ class QBDITrace(Trace):
 
             return self._modules[m_addr] if m_addr <= address < m_addr + m_size else None
 
-        # Righmost case. Only check previous index.
+        # Rightmost case. Only check previous index.
         if idx == self._modules_count:
             m_addr = self._modules_addrs[idx - 1]
             m_size = self._modules_sizes[m_addr]
@@ -267,7 +270,7 @@ class QBDITrace(Trace):
         if self._strategy == CoverageStrategy.BLOCK and len(self._instructions) > 0:
             # Get main module and transform absolute addresses into relative.
             # As we only trace the main module, we only need to check that one
-            # to get the base address..
+            # to get the base address.
             main_module = self.get_module(self._instructions[0])
 
             module_start_addr = main_module.range.start
@@ -279,7 +282,7 @@ class QBDITrace(Trace):
         if len(self._branches) > 0:
             # Get main module and transform absolute addresses into relative.
             # As we only trace the main module, we only need to check that one
-            # to get the base address..
+            # to get the base address.
             main_module = self.get_module(list(self._branches)[0][0])
 
             module_start_addr = main_module.range.start
@@ -311,7 +314,7 @@ def convert_permission(permission):
     p_write = int(permission & pyqbdi.PF_WRITE == pyqbdi.PF_WRITE) << Permission.WRITE
     p_exec = int(permission & pyqbdi.PF_EXEC == pyqbdi.PF_EXEC) << Permission.EXEC
 
-    return p_read | p_write | p_write
+    return p_read | p_write | p_exec
 
 
 def get_modules():
@@ -357,10 +360,10 @@ def write_coverage(coverage_data):
 
 
 def register_instruction_coverage(vm, gpr, fpr, data):
-    instAnalysis = vm.getInstAnalysis(type=pyqbdi.AnalysisType.ANALYSIS_INSTRUCTION)
+    inst_analysis = vm.getInstAnalysis(type=pyqbdi.AnalysisType.ANALYSIS_INSTRUCTION)
 
     # Save basic block data.
-    data['instructions'].append(instAnalysis.address)
+    data['instructions'].append(inst_analysis.address)
 
     return pyqbdi.CONTINUE
 
@@ -391,18 +394,18 @@ def register_basic_block_coverage(vm, evt, gpr, fpr, data):
 
 
 def register_branch_coverage(vm, gpr, fpr, data):
-    instAnalysis = vm.getInstAnalysis(type=pyqbdi.AnalysisType.ANALYSIS_INSTRUCTION | pyqbdi.AnalysisType.ANALYSIS_OPERANDS)
+    inst_analysis = vm.getInstAnalysis(type=pyqbdi.AnalysisType.ANALYSIS_INSTRUCTION | pyqbdi.AnalysisType.ANALYSIS_OPERANDS)
 
-    operand = instAnalysis.operands[0]
+    operand = inst_analysis.operands[0]
 
-    branch_addr = instAnalysis.address
+    branch_addr = inst_analysis.address
     true_branch_addr = None
-    false_branch_addr = instAnalysis.address + instAnalysis.instSize
+    false_branch_addr = inst_analysis.address + inst_analysis.instSize
     is_taken = None
     is_dynamic = False
 
     if operand.type == pyqbdi.OperandType.OPERAND_IMM:
-        true_branch_addr = instAnalysis.address + instAnalysis.instSize + operand.value
+        true_branch_addr = inst_analysis.address + inst_analysis.instSize + operand.value
     else:
         raise Exception('Invalid operand type')
 
