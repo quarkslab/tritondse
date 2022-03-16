@@ -310,9 +310,9 @@ class QBDITrace(Trace):
 #      information.
 
 def convert_permission(permission):
-    p_read = int(permission & pyqbdi.PF_READ == pyqbdi.PF_READ) << Permission.READ
-    p_write = int(permission & pyqbdi.PF_WRITE == pyqbdi.PF_WRITE) << Permission.WRITE
-    p_exec = int(permission & pyqbdi.PF_EXEC == pyqbdi.PF_EXEC) << Permission.EXEC
+    p_read = Permission.READ if (permission & pyqbdi.PF_READ) == pyqbdi.PF_READ else Permission.NONE
+    p_write = Permission.WRITE if (permission & pyqbdi.PF_WRITE) == pyqbdi.PF_WRITE else Permission.NONE
+    p_exec = Permission.EXEC if (permission & pyqbdi.PF_EXEC) == pyqbdi.PF_EXEC else Permission.NONE
 
     return p_read | p_write | p_exec
 

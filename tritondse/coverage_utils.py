@@ -1,11 +1,11 @@
-from enum import IntEnum
+from enum import auto, IntFlag
 
 
-class Permission(IntEnum):
-    NONE  = 0
-    READ  = 1
-    WRITE = 2
-    EXEC  = 3
+class Permission(IntFlag):
+    NONE = auto()
+    READ = auto()
+    WRITE = auto()
+    EXEC = auto()
 
 
 class Range:
