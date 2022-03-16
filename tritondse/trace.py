@@ -141,8 +141,8 @@ class QBDITrace(Trace):
             # logging.debug(stdout)
             # logging.debug(stderr)
         except subprocess.TimeoutExpired:
-            logging.error('Timeout expired!')
-            raise TraceException('Timeout expired')
+            logging.error('QBDI tracer timeout expired!')
+            raise TraceException('QBDI tracer timeout expired')
 
         if stdin_fp:
             stdin_fp.close()
@@ -172,8 +172,9 @@ class QBDITrace(Trace):
                 trace._modules_count = len(trace._modules_addrs)
                 trace._branches = pickle.load(f)
                 trace._instructions = pickle.load(f)
-        except:
-            logging.warning('Error loading coverage file.')
+        except (pickle.PickleError, EOFError):
+            logging.warning('Error loading QBDI tracer coverage file.')
+            raise TraceException('QBDI tracer timeout expired')
 
         return trace
 
