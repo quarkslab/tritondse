@@ -242,7 +242,10 @@ class CoverageSingleRun(object):
         :return: bool
         """
         if self.strategy == CoverageStrategy.PREFIXED_EDGE:
-            return ('', item[1]) in self.covered_items
+            try:
+                return ('', item[1]) in self.covered_items
+            except TypeError:  # in case of ellipsis
+                return False
         else:
             return item in self.covered_items
 
