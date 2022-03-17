@@ -2,7 +2,7 @@
 import logging
 import time
 import json
-from typing import Generator, Optional
+from typing import Generator, Optional, Type
 from collections import Counter
 
 # local imports
@@ -30,7 +30,7 @@ class SeedManager:
     * seed consumed (corpus, crash, hangs) which are seeds not meant to be re-executed
       as they cannot lead to new paths, all candidate paths are UNSAT etc.
     """
-    def __init__(self, coverage: GlobalCoverage, workspace: Workspace, smt_queries_limit: int, scheduler: SeedScheduler = None, callback_manager: CallbackManager = None):
+    def __init__(self, coverage: GlobalCoverage, workspace: Workspace, smt_queries_limit: int, callback_manager: CallbackManager = None, seed_scheduler_class: Type[SeedScheduler] = None):
         """
         :param coverage: global coverage object. The instance will be updated by the seed manager
         :type coverage: GlobalCoverage
@@ -44,10 +44,10 @@ class SeedManager:
         self.smt_queries_limit = smt_queries_limit
         self.workspace = workspace
         self.coverage  = coverage
-        if scheduler is None:
+        if seed_scheduler_class is None:
             self.worklist = FreshSeedPrioritizerWorklist(self)
         else:
-            self.worklist = scheduler
+            self.worklist = seed_scheduler_class(self)
         self.cbm = callback_manager
 
         self.corpus = set()
