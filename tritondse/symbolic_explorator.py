@@ -3,7 +3,7 @@ import time
 import threading
 import gc
 from enum   import Enum
-from typing import Union
+from typing import Union, Type
 from pathlib import Path
 import stat
 
@@ -36,7 +36,7 @@ class SymbolicExplorator(object):
     executions with the different seeds available in the workspace
     and generated along the way.
     """
-    def __init__(self, config: Config, program: Program = None, workspace: Workspace = None, seed_scheduler: SeedScheduler = None, executor_stop_at: Addr = None):
+    def __init__(self, config: Config, program: Program = None, workspace: Workspace = None, executor_stop_at: Addr = None, seed_scheduler_class: Type[SeedScheduler] = None):
         self.program: Program     = program  #: Program being analyzed
         self.config: Config       = config   #: Configuration file
         self.cbm: CallbackManager = CallbackManager()
@@ -76,7 +76,7 @@ class SymbolicExplorator(object):
         self.coverage.load_coverage(self.workspace)
 
         # Initialize the seed manager
-        self.seeds_manager: SeedManager = SeedManager(self.coverage, self.workspace, self.config.smt_queries_limit, seed_scheduler, self.cbm)
+        self.seeds_manager: SeedManager = SeedManager(self.coverage, self.workspace, self.config.smt_queries_limit, callback_manager=self.cbm, seed_scheduler_class=seed_scheduler_class)
         """ Manager of seed, holding all seeds related data and various statistics """
 
         # running executors (for debugging purposes)
