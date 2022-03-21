@@ -104,7 +104,8 @@ class WorklistAddressToSet(SeedScheduler):
     def __len__(self) -> int:
         """ Number of pending seeds to execute """
         count = 0
-        for k, v in self.worklist.items():
+        for k in list(self.worklist):  # Copy in list to avoid race-condition
+            v = self.worklist[k]
             count += len(v)
         return count
 
@@ -262,7 +263,7 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
     def __len__(self) -> int:
         """ Number of pending seeds to execute """
         s = set()
-        for seeds in self.worklist.values():
+        for seeds in list(self.worklist.values()):
             s.update(seeds)
         return len(self.fresh) + len(s)
 
