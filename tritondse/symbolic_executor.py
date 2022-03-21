@@ -612,7 +612,7 @@ class SymbolicExecutor(object):
 
         # Calling callback if user defined one
         for cb in self.cbm.get_new_input_callback():
-            cont = cb(self, self.pstate, content)
+            cont = cb(self, self.pstate, bytes(content))
             # if the callback return a new input continue with that one
             content = cont if cont is not None else content
 
