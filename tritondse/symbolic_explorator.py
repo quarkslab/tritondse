@@ -201,8 +201,7 @@ class SymbolicExplorator(object):
 
             if self.status == ExplorationStatus.RUNNING:
                 if not self.seeds_manager.seeds_available():
-                    logging.info(f"No more seeds available, stopping exploration")
-                    self.stop_exploration()
+                    self.status = ExplorationStatus.IDLE
                 else:
                     logging.warning(f'should not exit step() in RUNNING state (stop? {self._stop}, seeds available? {self.seeds_manager.seeds_available()})')
 
