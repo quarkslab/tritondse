@@ -199,6 +199,17 @@ class ProcessState(object):
         """
         self.tt_ctx.setMode(mode, value)
 
+    def set_thumb(self, enable: bool) -> None:
+        """
+        Set thumb mode activated in the TritonContext. The mode will automatically
+        be switched during execution, but at initialization this method enable
+        activating it / disabling it. (Disabled be default)
+
+        :param enable: bool: Wether or not to active thumb
+        :return:
+        """
+        self.tt_ctx.setThumb(enable)
+
     def set_solver_timeout(self, timeout: int) -> None:
         """
         Set the timeout for all subsequent queries.
