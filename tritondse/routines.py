@@ -600,6 +600,7 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     elif arg3 in pstate.fd_table:
         data = pstate.fd_table[arg3].read(arg1 * arg2)
+        if isinstance(data, str): data = data.encode()
         pstate.write_memory_bytes(arg0, data)
 
     else:

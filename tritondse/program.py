@@ -172,10 +172,10 @@ class Program(object):
         if self.format == lief.EXE_FORMATS.ELF:
             for seg in self._binary.concrete.segments:
                 if seg.type == lief.ELF.SEGMENT_TYPES.LOAD:
-                    content = seg.content
+                    content = bytearray(seg.content)
                     if seg.virtual_size != len(seg.content):  # pad with zeros (as it might be .bss)
-                        content += [0] * (seg.virtual_size - seg.physical_size)
-                    yield seg.virtual_address, content
+                        content += bytearray([0]) * (seg.virtual_size - seg.physical_size)
+                    yield seg.virtual_address, bytes(content)
         else:
             raise NotImplementedError(f"memory segments not implemented for: {self.format.name}")
 
