@@ -30,7 +30,7 @@ location.
         }
         else {
             fread(buffer, 1, sizeof(buffer), fp);
-            fscanf(buffer,"%d",&j);
+            sscanf(buffer, "%d", &j);
             fclose(fp);
 
             if(j == 7) {
@@ -56,6 +56,7 @@ not interesting)*. The goal here is to perform manual state coverage on pointer
 values.
 
 .. code-block:: c
+
     #include <stdio.h>
     #include <stdlib.h>
     #include <inttypes.h>
@@ -87,6 +88,7 @@ Same principle here, except that triggering the bug require resolving some
 kind of a pointer aliasing issue.
 
 .. code-block:: c
+
     #include <stdio.h>
     #include <inttypes.h>
 
@@ -123,6 +125,7 @@ is a meta-property that the symbolic executor does not know how to mutate. It ca
 be an issue when performing coverage.
 
 .. code-block:: c
+
     #include <stdio.h>
     #include <string.h>
 
@@ -157,6 +160,7 @@ during exploration, and write a simple sanitizer for `strncpy` that
 checks that no buffer overflow is taking place.
 
 .. code-block:: c
+
     #include <stdio.h>
     #include <string.h>
     #include <stdlib.h>
