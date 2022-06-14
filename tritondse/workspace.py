@@ -8,7 +8,7 @@ import time
 
 # local imports
 from tritondse.types import PathLike
-from tritondse.seed import Seed, SeedStatus
+from tritondse.seed import Seed, SeedStatus, SeedType
 
 
 class Workspace(object):
@@ -179,7 +179,10 @@ class Workspace(object):
                   SeedStatus.HANG: self.HANG_DIR,
                   SeedStatus.CRASH: self.CRASH_DIR}
         p = (self.root_dir / mapper[seed.status]) / seed.filename
-        p.write_bytes(seed.content)
+        if isinstance(seed.content, bytes): # SeedType.RAW
+            p.write_bytes(seed.content)
+        else: # SeedType.COMPOSITE
+            p.write_bytes(str(seed.content).encode())
 
 
     def update_seed_location(self, seed: Seed) -> None:
