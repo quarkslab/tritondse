@@ -6,16 +6,25 @@ from tritondse.types import PathLike
 
 class SeedStatus(Enum):
     """
-     Seed status enum.
-     Enables giving a status to a seed during its execution.
-     At the end of a :py:obj:`SymbolicExecutor` run one of these
-     status must have set to the seed.
-     """
+    Seed status enum.
+    Enables giving a status to a seed during its execution.
+    At the end of a :py:obj:`SymbolicExecutor` run one of these
+    status must have set to the seed.
+    """
     NEW     = 0
     OK_DONE = 1
     CRASH   = 2
     HANG    = 3
 
+
+class SeedType(Enum):
+    """
+    Seed type enum
+    Raw seeds are just bytes Seed(b"AAAAA\x00BBBBB")
+    Composite can describe how to inject the input more precisely 
+    """
+    RAW       = 0
+    COMPOSITE = 1
 
 
 class Seed(object):
@@ -31,7 +40,7 @@ class Seed(object):
         :param status: status of the seed if already known
         :type status: SeedStatus
         """
-        self.content: bytes = bytes(content)  #: content of the seed
+        self.content = content
         self.coverage_objectives = set()  # set of coverage items that the seed is meant to cover
         self.target = set()               # CovItem informational field indicate the item the seed was generated for
         self._status = status
@@ -101,7 +110,10 @@ class Seed(object):
 
         :rtype: int
         """
-        return hash(self.content)
+        if isinstance(self.content, bytes): # SeedType.RAW
+            return hash(self.content)
+        else: # SeedType.COMPOSITE
+            return hash(frozenset(self.content))
 
     @property
     def hash(self) -> str:
@@ -110,7 +122,11 @@ class Seed(object):
 
         :rtype: str
         """
-        m = hashlib.md5(self.content)
+        if isinstance(self.content, bytes): # SeedType.RAW
+            m = hashlib.md5(self.content)
+        else: # SeedType.COMPOSITE
+            c = str(self.content).encode()
+            m = hashlib.md5(c)
         return m.hexdigest()
 
     @property

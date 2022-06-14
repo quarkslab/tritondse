@@ -8,6 +8,7 @@ from functools import reduce
 # triton-based libraries
 from tritondse.coverage import CoverageStrategy, BranchSolvingStrategy
 from tritondse.types import SmtSolver
+from tritondse.seed import SeedType
 
 
 
@@ -20,6 +21,7 @@ class Config(object):
     def __init__(self,
                  symbolize_argv: bool = False,
                  symbolize_stdin: bool = False,
+                 seed_type = SeedType.RAW,
                  pipe_stdout: bool = False,
                  pipe_stderr: bool = False,
                  skip_sleep_routine: bool = False,
@@ -54,6 +56,9 @@ class Config(object):
         .. warning:: At the moment it is incompatible with :py:obj:`tritondse.Config.symbolize_argv`
                      as a single symbolization point is supported at the moment
         """
+
+        self.seed_type: SeedType = seed_type
+        """ Seed type is either Raw (raw bytes) or Composite (more expressive)"""
         
         self.pipe_stdout: bool = pipe_stdout
         """ Pipe the program stdout to Python's stdout. *(default: False)*"""

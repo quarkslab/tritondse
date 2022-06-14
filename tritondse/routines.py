@@ -10,7 +10,7 @@ from typing import Union
 from triton                   import CPUSIZE, MemoryAccess
 from tritondse.thread_context import ThreadContext
 from tritondse.types          import Architecture
-from tritondse.seed           import SeedStatus, Seed
+from tritondse.seed           import SeedType, SeedStatus, Seed
 
 
 def rtn_ctype_b_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -105,7 +105,13 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         assert False
 
     # Define concrete value of argc (from either the seed or the program_argv)
-    argc = len(se.seed.content.split(b"\x00")) if se.config.symbolize_argv else len(se.config.program_argv)
+    if se.config.seed_type == SeedType.RAW:
+        argc = len(se.seed.content.split(b"\x00")) if se.config.symbolize_argv else len(se.config.program_argv)
+    else: # SeedType.COMPOSITE
+        if se.config.symbolize_argv and "argv" not in se.seed.content:
+            logging.warning("symbolized_argv specified but seed does not contain \"argv\"")
+            assert False
+        argc = len(se.seed.content["argv"]) if se.config.symbolize_argv else len(se.config.program_argv)
     pstate.write_argument_value(0, argc)
     logging.debug(f"argc = {argc}")
 
@@ -116,7 +122,10 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     index = 0
 
     if se.config.symbolize_argv:  # Use the seed provided (and ignore config.program_argv !!)
-        argvs = [x for x in se.seed.content.split(b"\x00")]
+        if se.config.seed_type == SeedType.RAW:
+            argvs = [x for x in se.seed.content.split(b"\x00")]
+        else: # SeedType.COMPOSITE
+            argvs = se.seed.content["argv"] 
     else:  # use the config argv
         argvs = [x.encode("latin-1") for x in se.config.program_argv]  # Convert it from str to bytes
 
@@ -397,8 +406,10 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     buff, buff_ast = pstate.get_full_argument(0)
     size, size_ast = pstate.get_full_argument(1)
     fd       = pstate.get_argument_value(2)
-    minsize  = (min(len(se.seed.content), size) if se.seed else size)
-
+    if se.config.seed_type == SeedType.RAW:
+        minsize  = (min(len(se.seed.content), size) if se.seed else size)
+    else: # SeedType.COMPOSITE 
+        minsize  = (min(len(se.seed.content["stdin"]), size) if se.seed else size)
     # We use fd as concret value
     pstate.concretize_argument(2)
 
@@ -410,9 +421,12 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             # We use fd as concret value
             pstate.push_constraint(size_ast.getAst() == minsize)
 
-            content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-
-            se.inject_symbolic_input(buff, Seed(content), "stdin")
+            if se.config.seed_type == SeedType.RAW:
+                content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+                se.inject_symbolic_input(buff, Seed(content), "stdin")
+            else: # SeedType.COMPOSITE 
+                content = se.seed.content["stdin"][:minsize] if se.seed else b'\x00' * minsize
+                se.inject_symbolic_input(buff, Seed(content), "stdin")
 
             logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
             return buff_ast

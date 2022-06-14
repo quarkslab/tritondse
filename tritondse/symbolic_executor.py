@@ -14,7 +14,7 @@ from tritondse.config         import Config
 from tritondse.coverage       import CoverageSingleRun, BranchSolvingStrategy
 from tritondse.process_state  import ProcessState
 from tritondse.program        import Program
-from tritondse.seed           import Seed, SeedStatus
+from tritondse.seed           import Seed, SeedStatus, SeedType
 from tritondse.types          import Expression, Architecture, Addr, Model
 from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks      import CallbackManager
@@ -597,18 +597,36 @@ class SymbolicExecutor(object):
         :return: new seed object
         """
         if self.config.symbolize_argv:
-            args = [bytearray(x) for x in self.seed.content.split(b"\x00")]
+            if self.config.seed_type == SeedType.RAW:
+                args = [bytearray(x) for x in self.seed.content.split(b"\x00")]
+            else: # SeedType.COMPOSITE
+                if "argv" not in self.seed.content:
+                    logging.warning("symbolized_argv specified but seed does not contain \"argv\"")
+                    assert False
+                args = [bytearray(x) for x in self.seed.content["argv"]]
             for c_arg, sym_arg in zip(args, self.symbolic_seed):
                 for i, sv in enumerate(sym_arg):
                     if sv.getId() in model:
                         c_arg[i] = model[sv.getId()].getValue()
-            content = b"\x00".join(args)  # Recreate a full argv string
+            if self.config.seed_type == SeedType.RAW:
+                content = b"\x00".join(args)  # Recreate a full argv string
+            else: # SeedType.COMPOSITE
+                content = {"argv": [bytes(a) for a in args]}
 
         else: # self.config.symbolize_stdin:
-            content = bytearray(self.seed.content)  # Create the new seed buffer
+            if self.config.seed_type == SeedType.RAW:
+                content = bytearray(self.seed.content)
+            else: # SeedType.COMPOSITE
+                content = bytearray(self.seed.content["stdin"])  # Create the new seed buffer
             for i, sv in enumerate(self.symbolic_seed):  # Enumerate symvars associated with each bytes
                 if sv.getId() in model:  # If solver provided a new value for the symvar
                     content[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
+            if self.config.seed_type == SeedType.RAW:
+                content = bytes(content)
+            else: # SeedType.COMPOSITE
+                # TODO
+                content = {"stdin" : bytes(content)}
+                pass
 
         # Calling callback if user defined one
         for cb in self.cbm.get_new_input_callback():
@@ -617,7 +635,7 @@ class SymbolicExecutor(object):
             content = cont if cont is not None else content
 
         # Create the Seed object and assign the new model
-        return Seed(bytes(content))
+        return Seed(content)
 
     def inject_symbolic_input(self, addr: Addr, seed: Seed, var_prefix: str = "input") -> None:
         """
