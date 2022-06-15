@@ -109,7 +109,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         argc = len(se.seed.content.split(b"\x00")) if se.config.symbolize_argv else len(se.config.program_argv)
     else: # SeedType.COMPOSITE
         if se.config.symbolize_argv and "argv" not in se.seed.content:
-            logging.warning("symbolized_argv specified but seed does not contain \"argv\"")
+            logging.error("symbolized_argv specified but seed does not contain \"argv\"")
             assert False
         argc = len(se.seed.content["argv"]) if se.config.symbolize_argv else len(se.config.program_argv)
     pstate.write_argument_value(0, argc)
@@ -137,7 +137,12 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
             # Symbolize the argv string
             sym_vars = pstate.symbolize_memory_bytes(base, len(arg), f"argv[{i}]")
-            se.symbolic_seed.append(sym_vars)  # Set symbolic_seed to be able to retrieve them in generated models
+            if se.config.seed_type == SeedType.RAW:
+                se.symbolic_seed.append(sym_vars)  # Set symbolic_seed to be able to retrieve them in generated models
+            else: # SeedType.COMPOSITE
+                if "argv" not in se.symbolic_seed:
+                    se.symbolic_seed["argv"] = []
+                se.symbolic_seed["argv"].append(sym_vars)
             # FIXME: Shall add a constraint on every char to be != \x00
 
         logging.debug(f"argv[{index}] = {repr(pstate.read_memory_bytes(base, len(arg)))}")
@@ -416,20 +421,20 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     if fd == 0 and se.config.symbolize_stdin:
         if se.is_seed_injected():
             logging.warning("fgets reading stdin, while seed already injected (return EOF)")
-            return 0
-        else:
-            # We use fd as concret value
-            pstate.push_constraint(size_ast.getAst() == minsize)
+            #return 0
+        #else:
+        # We use fd as concret value
+        pstate.push_constraint(size_ast.getAst() == minsize)
 
-            if se.config.seed_type == SeedType.RAW:
-                content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-                se.inject_symbolic_input(buff, Seed(content), "stdin")
-            else: # SeedType.COMPOSITE 
-                content = se.seed.content["stdin"][:minsize] if se.seed else b'\x00' * minsize
-                se.inject_symbolic_input(buff, Seed(content), "stdin")
+        if se.config.seed_type == SeedType.RAW:
+            content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+            se.inject_symbolic_input(buff, Seed(content), "stdin")
+        else: # SeedType.COMPOSITE 
+            content = se.seed.content["stdin"][:minsize] if se.seed else b'\x00' * minsize
+            se.inject_symbolic_input(buff, Seed(content), "stdin")
 
-            logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
-            return buff_ast
+        logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
+        return buff_ast
 
     if fd in pstate.fd_table:
         # We use fd as concret value

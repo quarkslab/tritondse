@@ -44,6 +44,7 @@ class Seed(object):
         self.coverage_objectives = set()  # set of coverage items that the seed is meant to cover
         self.target = set()               # CovItem informational field indicate the item the seed was generated for
         self._status = status
+        self._type = SeedType.COMPOSITE if isinstance(content, dict) else SeedType.RAW
 
 
     def is_bootstrap_seed(self) -> bool:
@@ -74,6 +75,15 @@ class Seed(object):
 
         :rtype: SeedStatus"""
         return self._status
+
+
+    @property
+    def type(self) -> SeedType:
+        """
+        Type of the seed.
+
+        :rtype: SeedType"""
+        return self._type
 
 
     @status.setter
@@ -113,7 +123,8 @@ class Seed(object):
         if isinstance(self.content, bytes): # SeedType.RAW
             return hash(self.content)
         else: # SeedType.COMPOSITE
-            return hash(frozenset(self.content))
+            sorted_dict = dict(sorted(self.content.items()))
+            return hash(frozenset(sorted_dict))
 
     @property
     def hash(self) -> str:
@@ -125,7 +136,8 @@ class Seed(object):
         if isinstance(self.content, bytes): # SeedType.RAW
             m = hashlib.md5(self.content)
         else: # SeedType.COMPOSITE
-            c = str(self.content).encode()
+            sorted_dict = dict(sorted(self.content.items()))
+            c = str(sorted_dict).encode()
             m = hashlib.md5(c)
         return m.hexdigest()
 
