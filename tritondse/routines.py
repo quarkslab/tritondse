@@ -599,7 +599,10 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg3 = pstate.get_argument_value(3) # stream
     size = arg1 * arg2
 
-    minsize = (min(len(se.seed.content), size) if se.seed else size)
+    if se.config.seed_type == SeedType.RAW:
+        minsize  = (min(len(se.seed.content), size) if se.seed else size)
+    else: # SeedType.COMPOSITE 
+        minsize  = (min(len(se.seed.content["stdin"]), size) if se.seed else size)
 
     # FIXME: pushPathConstraint
 
@@ -609,9 +612,13 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             return 0
         else:
 
-            content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
 
-            se.inject_symbolic_input(arg0, Seed(content), "stdin")
+            if se.config.seed_type == SeedType.RAW:
+                content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+                se.inject_symbolic_input(buff, Seed(content), "stdin")
+            else: # SeedType.COMPOSITE 
+                content = se.seed.content["stdin"][:minsize] if se.seed else b'\x00' * minsize
+                se.inject_symbolic_input(buff, Seed(content), "stdin")
 
             logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
             # TODO: Could return the read value as a symbolic one
@@ -1030,7 +1037,10 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     fd   = pstate.get_argument_value(0)
     buff = pstate.get_argument_value(1)
     size, size_ast = pstate.get_full_argument(2)
-    minsize = (min(len(se.seed.content), size) if se.seed else size)
+    if se.config.seed_type == SeedType.RAW:
+        minsize  = (min(len(se.seed.content), size) if se.seed else size)
+    else: # SeedType.COMPOSITE 
+        minsize  = (min(len(se.seed.content["stdin"]), size) if se.seed else size)
 
     if size_ast.isSymbolized():
         logging.warning(f'Reading from the file descriptor ({fd}) with a symbolic size')
@@ -1044,9 +1054,13 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         else:
             pstate.push_constraint(size_ast.getAst() == minsize)
 
-            content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+            if se.config.seed_type == SeedType.RAW:
+                content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+                se.inject_symbolic_input(buff, Seed(content), "stdin")
+            else: # SeedType.COMPOSITE 
+                content = se.seed.content["stdin"][:minsize] if se.seed else b'\x00' * minsize
+                se.inject_symbolic_input(buff, Seed(content), "stdin")
 
-            se.inject_symbolic_input(buff, Seed(content), "stdin")
 
             logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
             # TODO: Could return the read value as a symbolic one
