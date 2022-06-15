@@ -53,7 +53,10 @@ class SymbolicExecutor(object):
         if self.workspace is None:
             self.workspace = Workspace(config.workspace)
         self.seed       = seed              # The current seed used to the execution
-        self.symbolic_seed = []           # Will hold SymVars of every bytes of the seed
+        if self.config.seed_type == SeedType.RAW:
+            self.symbolic_seed = []           # Will hold SymVars of every bytes of the seed
+        else: 
+            self.symbolic_seed = {}
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy) #: Coverage of the execution
         self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
         self.uid        = uid               # Unique identifier meant to unique accross Exploration instances
@@ -562,9 +565,12 @@ class SymbolicExecutor(object):
         if sum == 0:
             logging.warning("No input injection location selected (neither stdin nor argv) thus user-defined")
             return True  # We allow not defining seed injection point. If so the user has to do it manually
+        #elif sum == 2:
+        #    logging.error("Cannot inject input on both stdin and argv in the same time")
+        #    return False
         elif sum == 2:
-            logging.error("Cannot inject input on both stdin and argv in the same time")
-            return False
+            logging.warning("Injecting input on both stdin and argv in the same time")
+            return True 
         else:
             return True
 
@@ -596,43 +602,50 @@ class SymbolicExecutor(object):
         :param model: SMT model
         :return: new seed object
         """
+        
+        if self.config.seed_type == SeedType.COMPOSITE:
+            content_dict = {}
+
         if self.config.symbolize_argv:
             if self.config.seed_type == SeedType.RAW:
                 args = [bytearray(x) for x in self.seed.content.split(b"\x00")]
             else: # SeedType.COMPOSITE
                 if "argv" not in self.seed.content:
-                    logging.warning("symbolized_argv specified but seed does not contain \"argv\"")
+                    logging.error("symbolized_argv specified but seed does not contain \"argv\"")
                     assert False
                 args = [bytearray(x) for x in self.seed.content["argv"]]
-            for c_arg, sym_arg in zip(args, self.symbolic_seed):
+            for c_arg, sym_arg in zip(args, self.symbolic_seed["argv"]):
                 for i, sv in enumerate(sym_arg):
                     if sv.getId() in model:
                         c_arg[i] = model[sv.getId()].getValue()
             if self.config.seed_type == SeedType.RAW:
                 content = b"\x00".join(args)  # Recreate a full argv string
             else: # SeedType.COMPOSITE
-                content = {"argv": [bytes(a) for a in args]}
+                content_dict["argv"] = [bytes(a) for a in args]
 
-        else: # self.config.symbolize_stdin:
+        if self.config.symbolize_stdin:
             if self.config.seed_type == SeedType.RAW:
                 content = bytearray(self.seed.content)
+                symbolic_stdin = self.symbolic_seed
             else: # SeedType.COMPOSITE
                 content = bytearray(self.seed.content["stdin"])  # Create the new seed buffer
-            for i, sv in enumerate(self.symbolic_seed):  # Enumerate symvars associated with each bytes
+                symbolic_stdin= self.symbolic_seed["stdin"]
+            for i, sv in enumerate(symbolic_stdin):  # Enumerate symvars associated with each bytes
                 if sv.getId() in model:  # If solver provided a new value for the symvar
                     content[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
             if self.config.seed_type == SeedType.RAW:
                 content = bytes(content)
             else: # SeedType.COMPOSITE
-                # TODO
-                content = {"stdin" : bytes(content)}
-                pass
+                content_dict["stdin"] = bytes(content)
 
         # Calling callback if user defined one
         for cb in self.cbm.get_new_input_callback():
             cont = cb(self, self.pstate, bytes(content))
             # if the callback return a new input continue with that one
             content = cont if cont is not None else content
+
+        if self.config.seed_type == SeedType.COMPOSITE:
+            content = content_dict
 
         # Create the Seed object and assign the new model
         return Seed(content)
@@ -652,4 +665,7 @@ class SymbolicExecutor(object):
 
         # Symbolize bytes
         sym_vars = self.pstate.symbolize_memory_bytes(addr, seed.size, var_prefix)
-        self.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+        if self.config.seed_type == SeedType.RAW:
+            self.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+        else: # SeedType.COMPOSITE
+            self.symbolic_seed[var_prefix] = sym_vars
