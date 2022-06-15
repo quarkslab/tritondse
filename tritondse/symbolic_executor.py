@@ -626,17 +626,24 @@ class SymbolicExecutor(object):
         if self.config.symbolize_stdin:
             if self.config.seed_type == SeedType.RAW:
                 content = bytearray(self.seed.content)
-                symbolic_stdin = self.symbolic_seed
-            else: # SeedType.COMPOSITE
-                content = bytearray(self.seed.content["stdin"])  # Create the new seed buffer
-                symbolic_stdin= self.symbolic_seed["stdin"]
-            for i, sv in enumerate(symbolic_stdin):  # Enumerate symvars associated with each bytes
-                if sv.getId() in model:  # If solver provided a new value for the symvar
-                    content[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
-            if self.config.seed_type == SeedType.RAW:
+                symbolic_stdin = self.symbolic_seed  # Create the new seed buffer
+                for i, sv in enumerate(symbolic_stdin):  # Enumerate symvars associated with each bytes
+                    if sv.getId() in model:  # If solver provided a new value for the symvar
+                        content[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
                 content = bytes(content)
             else: # SeedType.COMPOSITE
-                content_dict["stdin"] = bytes(content)
+                # NOTE For now everything other than argv is a file name 
+                # Will have to revisit this after adding temporal stuff to composite seeds
+                for filename in self.seed.content:
+                    if filename == "argv" : continue
+
+                    content = bytearray(self.seed.content[filename])  
+                    if filename in self.symbolic_seed:
+                        symbolic_stdin = self.symbolic_seed[filename]
+                        for i, sv in enumerate(symbolic_stdin):
+                            if sv.getId() in model:
+                                content[i] = model[sv.getId()].getValue()
+                    content_dict[filename] = bytes(content)
 
         # Calling callback if user defined one
         for cb in self.cbm.get_new_input_callback():
