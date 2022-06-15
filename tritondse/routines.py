@@ -471,6 +471,7 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         fd = open(arg0s, arg1s)
         fd_id = se.pstate.get_unique_file_id()
         se.pstate.fd_table.update({fd_id: fd})
+        se.pstate.filename_table.update({fd_id: arg0s})
     except:
         # Return value
         return 0
@@ -614,20 +615,26 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
 
             if se.config.seed_type == SeedType.RAW:
-                content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-                se.inject_symbolic_input(buff, Seed(content), "stdin")
+                data = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+                se.inject_symbolic_input(arg0, Seed(data), "stdin")
             else: # SeedType.COMPOSITE 
-                content = se.seed.content["stdin"][:minsize] if se.seed else b'\x00' * minsize
-                se.inject_symbolic_input(buff, Seed(content), "stdin")
+                data = se.seed.content["stdin"][:minsize] if se.seed else b'\x00' * minsize
+                se.inject_symbolic_input(arg0, Seed(data), "stdin")
 
             logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
             # TODO: Could return the read value as a symbolic one
             return minsize
 
     elif arg3 in pstate.fd_table:
-        data = pstate.fd_table[arg3].read(arg1 * arg2)
-        if isinstance(data, str): data = data.encode()
-        pstate.write_memory_bytes(arg0, data)
+        if se.config.seed_type == SeedType.RAW \
+                or pstate.filename_table[arg3] not in se.seed.content:
+            data = pstate.fd_table[arg3].read(arg1 * arg2)
+            if isinstance(data, str): data = data.encode()
+            pstate.write_memory_bytes(arg0, data)
+        else: # SeedType.COMPOSITE 
+            filename = pstate.filename_table[arg3]
+            data = se.seed.content[filename][:minsize] if se.seed else b'\x00' * minsize
+            se.inject_symbolic_input(arg0, Seed(data), filename)
 
     else:
         return 0

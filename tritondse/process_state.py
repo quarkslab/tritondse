@@ -69,6 +69,12 @@ class ProcessState(object):
             1: sys.stdout,
             2: sys.stderr,
         }
+        # Table mapping file names to fd
+        self.filename_table = {
+            0: "stdin",
+            1: "stdout",
+            2: "stderr",
+        }
         # Unique file id incrementation
         self.fd_id = len(self.fd_table)
 
