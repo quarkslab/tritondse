@@ -36,8 +36,9 @@ class SymbolicExplorator(object):
     executions with the different seeds available in the workspace
     and generated along the way.
     """
-    def __init__(self, config: Config, program: Program = None, workspace: Workspace = None, executor_stop_at: Addr = None, seed_scheduler_class: Type[SeedScheduler] = None):
+    def __init__(self, config: Config, program: Program = None, workspace: Workspace = None, executor_stop_at: Addr = None, seed_scheduler_class: Type[SeedScheduler] = None, pstate = None):
         self.program: Program     = program  #: Program being analyzed
+        self.pstate: ProcessState = pstate #: Program state being analyzed
         self.config: Config       = config   #: Configuration file
         self.cbm: CallbackManager = CallbackManager()
         self._stop          = False
@@ -125,6 +126,8 @@ class SymbolicExplorator(object):
         execution = SymbolicExecutor(self.config, seed=seed, workspace=self.workspace, uid=uid, callbacks=cbs)
         if self.program:  # If doing the exploration from a program
             execution.load_program(self.program)
+        elif self.pstate:  # If doing the exploration from a pstate
+            execution.load_process(self.pstate)
         else:
             execution.load_process(ProcessState())
         self.current_executor = execution

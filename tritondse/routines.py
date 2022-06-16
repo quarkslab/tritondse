@@ -600,27 +600,17 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg3 = pstate.get_argument_value(3) # stream
     size = arg1 * arg2
 
-    if se.config.seed_type == SeedType.RAW:
-        minsize  = (min(len(se.seed.content), size) if se.seed else size)
-    else: # SeedType.COMPOSITE 
-        minsize  = (min(len(se.seed.content["stdin"]), size) if se.seed else size)
-
     # FIXME: pushPathConstraint
 
-    if arg3 == 0 and se.config.symbolize_stdin:
+    if arg3 == 0 and se.config.symbolize_stdin and se.config.seed_type == SeedType.RAW:
+        minsize  = (min(len(se.seed.content), size) if se.seed else size)
+
         if se.is_seed_injected():
             logging.warning("fread reading stdin, while seed already injected (return EOF)")
             return 0
         else:
-
-
-            if se.config.seed_type == SeedType.RAW:
-                data = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-                se.inject_symbolic_input(arg0, Seed(data), "stdin")
-            else: # SeedType.COMPOSITE 
-                data = se.seed.content["stdin"][:minsize] if se.seed else b'\x00' * minsize
-                se.inject_symbolic_input(arg0, Seed(data), "stdin")
-
+            data = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+            se.inject_symbolic_input(arg0, Seed(data), "stdin")
             logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
             # TODO: Could return the read value as a symbolic one
             return minsize
@@ -633,6 +623,8 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             pstate.write_memory_bytes(arg0, data)
         else: # SeedType.COMPOSITE 
             filename = pstate.filename_table[arg3]
+            minsize  = (min(len(se.seed.content[filename]), size) if se.seed else size)
+
             data = se.seed.content[filename][:minsize] if se.seed else b'\x00' * minsize
             se.inject_symbolic_input(arg0, Seed(data), filename)
 

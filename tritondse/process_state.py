@@ -406,6 +406,8 @@ class ProcessState(object):
             else:
                 self.__program_segments_mapping.update({vaddr: vaddr + size})
 
+    def add_memory_mapping(self, vaddr, size):
+        self.__program_segments_mapping.update({vaddr: vaddr + size})
 
     def is_valid_memory_mapping(self, ptr: Addr, padding_segment: int = 0) -> bool:
         """
