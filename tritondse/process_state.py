@@ -1353,3 +1353,40 @@ class ProcessState(object):
             cur_linkage_address += pstate.ptr_size
 
         return pstate
+
+
+    @staticmethod
+    def from_raw(raw_load_config: dict) -> 'ProcessState':
+        if not isinstance(raw_load_config, dict)\
+                or "architecture" not in raw_load_config\
+                or "binary_path" not in raw_load_config\
+                or "load_address" not in raw_load_config\
+                or "pc" not in raw_load_config:
+                    logging.error('Invalid raw_load_config. This mode expects a dictionnary. Example:\n \
+                            {"binary_path" : "/path/to/binary", "architecture" : Architecture.ARM32,\
+                            "load_address": 0x8000000, "pc" : 0x800200}')
+                    assert False
+        bin_path = raw_load_config["binary_path"]
+        load_address = raw_load_config["load_address"]
+        pc = raw_load_config["pc"]
+        architecture = raw_load_config["architecture"]
+
+        # Manually load the binary
+        pstate = ProcessState()
+        # Initialize the architecture of the processstate
+        pstate.initialize_context(architecture)
+         
+        ## Load the binary
+        pstate.cpu.program_counter = pc
+        pstate.load_addr = load_address
+         
+        with open(bin_path, "rb") as fd: 
+            data = fd.read()
+        vaddr = load_address
+        pstate.tt_ctx.setConcreteMemoryAreaValue(vaddr, data)
+        size = len(data) 
+        pstate.add_memory_mapping(vaddr, size) 
+        if "set_thumb" in raw_load_config: 
+            set_thumb = raw_load_config["set_thumb"]
+            pstate.set_thumb(set_thumb)
+        return pstate
