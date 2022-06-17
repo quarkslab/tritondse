@@ -411,14 +411,12 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     buff, buff_ast = pstate.get_full_argument(0)
     size, size_ast = pstate.get_full_argument(1)
     fd       = pstate.get_argument_value(2)
-    if se.config.seed_type == SeedType.RAW:
-        minsize  = (min(len(se.seed.content), size) if se.seed else size)
-    else: # SeedType.COMPOSITE 
-        minsize  = (min(len(se.seed.content["stdin"]), size) if se.seed else size)
     # We use fd as concret value
     pstate.concretize_argument(2)
 
-    if fd == 0 and se.config.symbolize_stdin:
+    if fd == 0 and se.config.symbolize_stdin and se.config.seed_type == SeedType.RAW:
+        minsize  = (min(len(se.seed.content), size) if se.seed else size)
+
         if se.is_seed_injected():
             logging.warning("fgets reading stdin, while seed already injected (return EOF)")
             #return 0
@@ -426,22 +424,26 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         # We use fd as concret value
         pstate.push_constraint(size_ast.getAst() == minsize)
 
-        if se.config.seed_type == SeedType.RAW:
-            content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-            se.inject_symbolic_input(buff, Seed(content), "stdin")
-        else: # SeedType.COMPOSITE 
-            content = se.seed.content["stdin"][:minsize] if se.seed else b'\x00' * minsize
-            se.inject_symbolic_input(buff, Seed(content), "stdin")
+        content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+        se.inject_symbolic_input(buff, Seed(content), "stdin")
 
         logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
         return buff_ast
 
     if fd in pstate.fd_table:
-        # We use fd as concret value
-        pstate.concretize_argument(1)
-        data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
-        pstate.write_memory_bytes(buff, data)
-        return buff_ast
+        if se.config.seed_type == SeedType.RAW\
+                or pstate.filename_table[fd] not in se.seed.content:
+            # We use fd as concret value
+            pstate.concretize_argument(1)
+            data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
+            pstate.write_memory_bytes(buff, data)
+            return buff_ast
+        else: # SeedType.COMPOSITE
+            filename = pstate.filename_table[fd]
+            minsize  = (min(len(se.seed.content[filename]), size) if se.seed else size)
+            data = se.seed.content[filename][:minsize] if se.seed else b'\x00' * minsize
+            se.inject_symbolic_input(buff, Seed(data), filename)
+            return buff_ast
     else:
         logging.warning(f'File descriptor ({fd}) not found')
 
@@ -1036,41 +1038,38 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     fd   = pstate.get_argument_value(0)
     buff = pstate.get_argument_value(1)
     size, size_ast = pstate.get_full_argument(2)
-    if se.config.seed_type == SeedType.RAW:
-        minsize  = (min(len(se.seed.content), size) if se.seed else size)
-    else: # SeedType.COMPOSITE 
-        minsize  = (min(len(se.seed.content["stdin"]), size) if se.seed else size)
 
     if size_ast.isSymbolized():
         logging.warning(f'Reading from the file descriptor ({fd}) with a symbolic size')
 
     pstate.concretize_argument(0)
 
-    if fd == 0 and se.config.symbolize_stdin:
+    if fd == 0 and se.config.symbolize_stdin and se.config.seed_type == SeedType.RAW:
+        minsize  = (min(len(se.seed.content), size) if se.seed else size)
         if se.is_seed_injected():
             logging.warning("reading stdin, while seed already injected (return EOF)")
-            return 0
-        else:
-            pstate.push_constraint(size_ast.getAst() == minsize)
+        pstate.push_constraint(size_ast.getAst() == minsize)
+        content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
+        se.inject_symbolic_input(buff, Seed(content), "stdin")
 
-            if se.config.seed_type == SeedType.RAW:
-                content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-                se.inject_symbolic_input(buff, Seed(content), "stdin")
-            else: # SeedType.COMPOSITE 
-                content = se.seed.content["stdin"][:minsize] if se.seed else b'\x00' * minsize
-                se.inject_symbolic_input(buff, Seed(content), "stdin")
-
-
-            logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
-            # TODO: Could return the read value as a symbolic one
-            return minsize
+        logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
+        # TODO: Could return the read value as a symbolic one
+        return minsize
 
 
     if fd in pstate.fd_table:
-        pstate.concretize_argument(2)
-        data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
-        pstate.write_memory_bytes(buff, data)
-        return len(data)
+        if se.config.seed_type == SeedType.RAW\
+                or pstate.filename_table[fd] not in se.seed.content:
+            pstate.concretize_argument(2)
+            data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
+            pstate.write_memory_bytes(buff, data)
+            return len(data)
+        else: # SeedType.COMPOSITE
+            filename = pstate.filename_table[fd]
+            minsize  = (min(len(se.seed.content[filename]), size) if se.seed else size)
+            data = se.seed.content[filename][:minsize] if se.seed else b'\x00' * minsize
+            se.inject_symbolic_input(buff, Seed(data), filename)
+            return len(data)
 
     return 0
 
