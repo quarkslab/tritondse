@@ -537,9 +537,6 @@ class SymbolicExecutor(object):
             logging.error(f"ProcessState is None (have you called load_program ?")
             return
 
-        if not self._check_input_injection_loc():
-            return
-
         self.start_time = time.time()
 
         # bind dbm callbacks on the process state (newly initialized)
@@ -583,21 +580,6 @@ class SymbolicExecutor(object):
         logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.path_predicate_size}")
         logging.info(f"Memory usage: {self.mem_usage_str()}")
 
-    def _check_input_injection_loc(self) -> bool:
-        """ Make sure only stdin or argv are symbolized """
-        sum = self.config.symbolize_stdin + self.config.symbolize_argv
-        if sum == 0:
-            logging.warning("No input injection location selected (neither stdin nor argv) thus user-defined")
-            return True  # We allow not defining seed injection point. If so the user has to do it manually
-        #elif sum == 2:
-        #    logging.error("Cannot inject input on both stdin and argv in the same time")
-        #    return False
-        elif sum == 2:
-            logging.warning("Injecting input on both stdin and argv in the same time")
-            return True 
-        else:
-            return True
-
     @property
     def exitcode(self) -> int:
         """ Exit code value of the process. The value
@@ -626,48 +608,39 @@ class SymbolicExecutor(object):
         :param model: SMT model
         :return: new seed object
         """
-        
-        if self.config.seed_type == SeedType.COMPOSITE:
-            content_dict = {}
 
-        if self.config.symbolize_argv:
-            if self.config.seed_type == SeedType.RAW:
-                args = [bytearray(x) for x in self.seed.content.split(b"\x00")]
-            else: # SeedType.COMPOSITE
-                if "argv" not in self.seed.content:
-                    logging.error("symbolized_argv specified but seed does not contain \"argv\"")
-                    assert False
+        if self.config.seed_type == SeedType.RAW: # RAW seed. => symbolize_stdin
+            content = bytearray(self.seed.content)
+            symbolic_stdin = self.symbolic_seed  # Create the new seed buffer
+            for i, sv in enumerate(symbolic_stdin):  # Enumerate symvars associated with each bytes
+                if sv.getId() in model:  # If solver provided a new value for the symvar
+                    content[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
+            content = bytes(content)
+        
+        elif self.config.seed_type == SeedType.COMPOSITE:
+            content_dict = {}
+            # Handle argv
+            if "argv" in self.seed.content: # symbolize_argv
                 args = [bytearray(x) for x in self.seed.content["argv"]]
-            for c_arg, sym_arg in zip(args, self.symbolic_seed["argv"]):
-                for i, sv in enumerate(sym_arg):
-                    if sv.getId() in model:
-                        c_arg[i] = model[sv.getId()].getValue()
-            if self.config.seed_type == SeedType.RAW:
-                content = b"\x00".join(args)  # Recreate a full argv string
-            else: # SeedType.COMPOSITE
+                for c_arg, sym_arg in zip(args, self.symbolic_seed["argv"]):
+                    for i, sv in enumerate(sym_arg):
+                        if sv.getId() in model:
+                            c_arg[i] = model[sv.getId()].getValue()
                 content_dict["argv"] = [bytes(a) for a in args]
 
-        if self.config.symbolize_stdin:
-            if self.config.seed_type == SeedType.RAW:
-                content = bytearray(self.seed.content)
-                symbolic_stdin = self.symbolic_seed  # Create the new seed buffer
-                for i, sv in enumerate(symbolic_stdin):  # Enumerate symvars associated with each bytes
-                    if sv.getId() in model:  # If solver provided a new value for the symvar
-                        content[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
-                content = bytes(content)
-            else: # SeedType.COMPOSITE
-                # NOTE For now everything other than argv is a file name 
-                # Will have to revisit this after adding temporal stuff to composite seeds
-                for filename in self.seed.content:
-                    if filename == "argv" : continue
+            # Handle stdin and files
+            # NOTE For now everything other than argv is a file name 
+            # Will have to revisit this after adding temporal stuff to composite seeds
+            for filename in self.seed.content:
+                if filename == "argv" : continue
 
-                    content = bytearray(self.seed.content[filename])  
-                    if filename in self.symbolic_seed:
-                        symbolic_stdin = self.symbolic_seed[filename]
-                        for i, sv in enumerate(symbolic_stdin):
-                            if sv.getId() in model:
-                                content[i] = model[sv.getId()].getValue()
-                    content_dict[filename] = bytes(content)
+                content = bytearray(self.seed.content[filename])  
+                if filename in self.symbolic_seed:
+                    symbolic_stdin = self.symbolic_seed[filename]
+                    for i, sv in enumerate(symbolic_stdin):
+                        if sv.getId() in model:
+                            content[i] = model[sv.getId()].getValue()
+                content_dict[filename] = bytes(content)
 
         # Calling callback if user defined one
         for cb in self.cbm.get_new_input_callback():

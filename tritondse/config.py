@@ -19,8 +19,6 @@ class Config(object):
     """
 
     def __init__(self,
-                 symbolize_argv: bool = False,
-                 symbolize_stdin: bool = False,
                  seed_type = SeedType.RAW,
                  pipe_stdout: bool = False,
                  pipe_stderr: bool = False,
@@ -45,20 +43,16 @@ class Config(object):
         :type debug: bool
         """
 
-        self.symbolize_argv: bool = symbolize_argv
-        """ Symbolize parameters given on the command line. They are then injected on the
-        libc_start_main function call. *(default: False)*"""
-
-        self.symbolize_stdin: bool = symbolize_stdin
-        """ Symbolize reads on ``stdin``. Thus the content of a buffer read in the file
-        descriptor 0 will be symbolized. *(default: False)*
-        
-        .. warning:: At the moment it is incompatible with :py:obj:`tritondse.Config.symbolize_argv`
-                     as a single symbolization point is supported at the moment
-        """
-
         self.seed_type: SeedType = seed_type
-        """ Seed type is either Raw (raw bytes) or Composite (more expressive)"""
+        """ Seed type is either Raw (raw bytes) or Composite (more expressive).
+            RAW seeds will be injected in stdin.
+            COMPOSITE seeds can provide argv, stdin and file inputs:
+            {
+                "argv"  : [b"./myprogram", b"bla\x12\xf0", b"bla", b"\xde\xad\xbe\xef"],
+                "stdin" : b"AZERAZERAZERAEZR",
+                "myfilename" : b"AZERAZERAZERAEZR"
+            }
+        """
         
         self.pipe_stdout: bool = pipe_stdout
         """ Pipe the program stdout to Python's stdout. *(default: False)*"""

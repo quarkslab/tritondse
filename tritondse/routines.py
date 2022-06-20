@@ -106,12 +106,10 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Define concrete value of argc (from either the seed or the program_argv)
     if se.config.seed_type == SeedType.RAW:
-        argc = len(se.seed.content.split(b"\x00")) if se.config.symbolize_argv else len(se.config.program_argv)
+        # Cannot provide argv in RAW seeds
+        argc = len(se.config.program_argv)
     else: # SeedType.COMPOSITE
-        if se.config.symbolize_argv and "argv" not in se.seed.content:
-            logging.error("symbolized_argv specified but seed does not contain \"argv\"")
-            assert False
-        argc = len(se.seed.content["argv"]) if se.config.symbolize_argv else len(se.config.program_argv)
+        argc = len(se.seed.content["argv"]) if "argv" in se.seed.content else len(se.config.program_argv)
     pstate.write_argument_value(0, argc)
     logging.debug(f"argc = {argc}")
 
@@ -121,11 +119,8 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     index = 0
 
-    if se.config.symbolize_argv:  # Use the seed provided (and ignore config.program_argv !!)
-        if se.config.seed_type == SeedType.RAW:
-            argvs = [x for x in se.seed.content.split(b"\x00")]
-        else: # SeedType.COMPOSITE
-            argvs = se.seed.content["argv"] 
+    if se.config.seed_type == SeedType.COMPOSITE and "argv" in se.seed.content: # Use the seed provided (and ignore config.program_argv !!)
+        argvs = se.seed.content["argv"] 
     else:  # use the config argv
         argvs = [x.encode("latin-1") for x in se.config.program_argv]  # Convert it from str to bytes
 
@@ -133,16 +128,13 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         addrs.append(base)
         pstate.write_memory_bytes(base, arg + b'\x00')
 
-        if se.config.symbolize_argv: # If the symbolic input injection point is a argv
+        if se.config.seed_type == SeedType.COMPOSITE and "argv" in se.seed.content: # Use the seed provided (and ignore config.program_argv !!)
 
             # Symbolize the argv string
             sym_vars = pstate.symbolize_memory_bytes(base, len(arg), f"argv[{i}]")
-            if se.config.seed_type == SeedType.RAW:
-                se.symbolic_seed.append(sym_vars)  # Set symbolic_seed to be able to retrieve them in generated models
-            else: # SeedType.COMPOSITE
-                if "argv" not in se.symbolic_seed:
-                    se.symbolic_seed["argv"] = []
-                se.symbolic_seed["argv"].append(sym_vars)
+            if "argv" not in se.symbolic_seed:
+                se.symbolic_seed["argv"] = []
+            se.symbolic_seed["argv"].append(sym_vars)
             # FIXME: Shall add a constraint on every char to be != \x00
 
         logging.debug(f"argv[{index}] = {repr(pstate.read_memory_bytes(base, len(arg)))}")
@@ -414,7 +406,7 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # We use fd as concret value
     pstate.concretize_argument(2)
 
-    if fd == 0 and se.config.symbolize_stdin and se.config.seed_type == SeedType.RAW:
+    if fd == 0 and se.config.seed_type == SeedType.RAW: # symbolize_stdin
         minsize  = (min(len(se.seed.content), size) if se.seed else size)
 
         if se.is_seed_injected():
@@ -604,7 +596,7 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # FIXME: pushPathConstraint
 
-    if arg3 == 0 and se.config.symbolize_stdin and se.config.seed_type == SeedType.RAW:
+    if arg3 == 0 and se.config.seed_type == SeedType.RAW: # symbolize_stdin
         minsize  = (min(len(se.seed.content), size) if se.seed else size)
 
         if se.is_seed_injected():
@@ -1044,7 +1036,7 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     pstate.concretize_argument(0)
 
-    if fd == 0 and se.config.symbolize_stdin and se.config.seed_type == SeedType.RAW:
+    if fd == 0 and se.config.seed_type == SeedType.RAW: # symbolize_stdin
         minsize  = (min(len(se.seed.content), size) if se.seed else size)
         if se.is_seed_injected():
             logging.warning("reading stdin, while seed already injected (return EOF)")
