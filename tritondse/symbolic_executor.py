@@ -48,7 +48,7 @@ class SymbolicExecutor(object):
         self.program = None     # The program to execute
 
         self.pstate = None  # else should be loaded through load_program
-        self.raw_load_config= None  # else should be loaded through load_raw
+        self.raw_load_config = None  # else should be loaded through load_raw
 
         self.workspace  = workspace                             # The current workspace
         if self.workspace is None:
