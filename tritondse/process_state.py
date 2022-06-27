@@ -1370,8 +1370,6 @@ class ProcessState(object):
         load_address = raw_load_config["load_address"]
         #pc = raw_load_config["pc"]
         architecture = raw_load_config["architecture"]
-        archinfo = ARCHS[architecture]
-        regs = ["ret_reg", "pc_reg", "bp_reg", "sp_reg", "sys_reg"]
 
         # Manually load the binary
         pstate = ProcessState()
@@ -1379,8 +1377,7 @@ class ProcessState(object):
         pstate.initialize_context(architecture)
 
         # Set the cpustate
-        for reg in pstate.tt_ctx.getAllRegisters():
-            reg_name = reg.getName()
+        for reg_name in pstate.cpu:
             if reg_name in raw_load_config["cpustate"]:
                 setattr(pstate.cpu, reg_name, raw_load_config["cpustate"][reg_name])
 
