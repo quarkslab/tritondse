@@ -1379,15 +1379,10 @@ class ProcessState(object):
         pstate.initialize_context(architecture)
 
         # Set the cpustate
-        for reg in regs:
-            r = getattr(archinfo, reg);
-            if r in raw_load_config["cpustate"]:
-                setattr(pstate.cpu, r, raw_load_config["cpustate"][r])
-
-        regs = getattr(archinfo, "reg_args")
-        for r in regs:
-            if r in raw_load_config["cpustate"]:
-                setattr(pstate.cpu, r, raw_load_config["cpustate"][r])
+        for reg in pstate.tt_ctx.getAllRegisters():
+            reg_name = reg.getName()
+            if reg_name in raw_load_config["cpustate"]:
+                setattr(pstate.cpu, reg_name, raw_load_config["cpustate"][reg_name])
 
         ## Load the binary
         pstate.load_addr = load_address
