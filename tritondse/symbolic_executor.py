@@ -13,7 +13,7 @@ from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess, CALLBACK
 from tritondse.config         import Config
 from tritondse.coverage       import CoverageSingleRun, BranchSolvingStrategy
 from tritondse.process_state  import ProcessState
-from tritondse.program        import Program
+from tritondse.loader         import Loader
 from tritondse.seed           import Seed, SeedStatus, SeedType
 from tritondse.types          import Expression, Architecture, Addr, Model
 from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
@@ -45,9 +45,9 @@ class SymbolicExecutor(object):
         :type callbacks: CallbackManager
         """
         self.config = config    # The config
-        self.program = None     # The program to execute
+        self.loader = None      # The program to execute
 
-        self.pstate = None  # else should be loaded through load_program
+        self.pstate = None  # else should be loaded through load_loader
         self.raw_load_config = None  # else should be loaded through load_raw
 
         self.workspace  = workspace                             # The current workspace
@@ -79,19 +79,19 @@ class SymbolicExecutor(object):
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
 
-    def load_program(self, program: Program) -> None:
+    def load_loader(self, loader: Loader) -> None:
         """
         Load the given program in the symbolic executor's ProcessState.
         It override the current ProcessState if any.
 
-        :param program: Program to load
+        :param program: Loader describing how to load
         :return: None
         """
 
         # Initialize the process_state architecture (at this point arch is sure to be supported)
-        self.program = program
-        logging.debug(f"Loading program {self.program.path.name} [{self.program.architecture}]")
-        self.pstate = ProcessState.from_program(program)
+        self.loader = loader
+        logging.debug(f"Loading program {self.loader.path.name} [{self.loader.architecture}]")
+        self.pstate = ProcessState.from_loader(loader)
         self._map_dynamic_symbols()
 
 
@@ -531,7 +531,7 @@ class SymbolicExecutor(object):
             self._run_to_target = stop_at
 
         if self.pstate is None:
-            logging.error(f"ProcessState is None (have you called load_program ?")
+            logging.error(f"ProcessState is None (have you called load_loader?")
             return
 
         self.start_time = time.time()
