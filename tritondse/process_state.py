@@ -51,7 +51,7 @@ class ProcessState(object):
         self.actx = self.tt_ctx.getAstContext()
 
         # Cpu object wrapping registers values
-        self.cpu: CpuState = None  #: CpuState holding concrete values of registers *(initialized when calling load_program)*
+        self.cpu: CpuState = None  #: CpuState holding concrete values of registers *(initialized when calling load_loader)*
         self._archinfo = None
 
         # Used to define that the process must exist
@@ -377,7 +377,7 @@ class ProcessState(object):
         self.write_register(self.stack_pointer_register, self.BASE_STACK)
 
 
-    def load_program(self, p: Program, base_addr: Addr = 0) -> None:
+    def load_loader(self, l: Loader, base_addr: Addr = 0) -> None:
         """
         Load the given program in the process state memory. It sets
         the program counter to the entry point and load all segments
@@ -389,14 +389,14 @@ class ProcessState(object):
         :type base_addr: :py:obj:`tritondse.types.Addr`
         """
         # Set the program counter to points to entrypoint
-        self.cpu.program_counter = p.entry_point
+        self.cpu.program_counter = l.entry_point
 
         # Set loading address
         self.load_addr = base_addr
         # TODO: If PIE use this address, if not set absolute address (from binary)
 
         # Load memory areas in memory
-        for vaddr, data in p.memory_segments():
+        for vaddr, data in l.memory_segments():
             logging.debug(f"Loading {vaddr:#08x} - {vaddr+len(data):#08x}")
             self.tt_ctx.setConcreteMemoryAreaValue(vaddr, data)
             size = len(data)
@@ -1312,20 +1312,20 @@ class ProcessState(object):
         return result
 
     @staticmethod
-    def from_program(program: Program) -> 'ProcessState':
+    def from_loader(loader: Loader) -> 'ProcessState':
         pstate = ProcessState()
 
         # Initialize the architecture of the processstate
-        pstate.initialize_context(program.architecture)
+        pstate.initialize_context(loader.architecture)
 
-        # Load segments of the program
-        pstate.load_program(program)
+        # Load segments of the loader
+        pstate.load_loader(loader)
 
         # Apply dynamic relocations
         cur_linkage_address = pstate.BASE_PLT
 
         # Link imported functions
-        for fname, rel_addr in program.imported_functions_relocations():
+        for fname, rel_addr in loader.imported_functions_relocations():
             logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
             # Add symbol in dynamic_symbol_table
@@ -1338,7 +1338,7 @@ class ProcessState(object):
             cur_linkage_address += pstate.ptr_size
 
         # Link imported symbols
-        for sname, rel_addr in program.imported_variable_symbols_relocations():
+        for sname, rel_addr in loader.imported_variable_symbols_relocations():
             logging.debug(f"Hooking {sname} at {rel_addr:#x}")
 
             if pstate.architecture == Architecture.X86_64:  # HACK: Keep rel_addr to directly write symbol on it
@@ -1354,60 +1354,10 @@ class ProcessState(object):
 
 
         for reg_name in pstate.cpu:
-            if reg_name in program.cpustate:
-                setattr(pstate.cpu, reg_name, program.cpustate[reg_name])
+            if reg_name in loader.cpustate:
+                setattr(pstate.cpu, reg_name, loader.cpustate[reg_name])
 
-        for opt in program.additional_options:
+        for opt in loader.additional_options:
             if opt == "set_thumb":
-                pstate.set_thumb(program.additional_options[opt])
-        return pstate
-
-
-    @staticmethod
-    def from_raw(raw_load_config: dict) -> 'ProcessState':
-        if not isinstance(raw_load_config, dict)\
-                or "architecture" not in raw_load_config\
-                or "binary_path" not in raw_load_config\
-                or "load_address" not in raw_load_config\
-                or "cpustate" not in raw_load_config:
-                    logging.error('Invalid raw_load_config. This mode expects a dictionnary. Example:\n \
-                            {"binary_path" : "/path/to/binary", "architecture" : Architecture.ARM32,\
-                            "load_address": 0x8000000, "cpustate" : {"pc" : 0x800200}}')
-                    assert False
-        bin_path = raw_load_config["binary_path"]
-        load_address = raw_load_config["load_address"]
-        #pc = raw_load_config["pc"]
-        architecture = raw_load_config["architecture"]
-
-        # Manually load the binary
-        pstate = ProcessState()
-        # Initialize the architecture of the processstate
-        pstate.initialize_context(architecture)
-
-        # Set the cpustate
-        for reg_name in pstate.cpu:
-            if reg_name in raw_load_config["cpustate"]:
-                setattr(pstate.cpu, reg_name, raw_load_config["cpustate"][reg_name])
-
-        ## Load the binary
-        pstate.load_addr = load_address
-         
-        with open(bin_path, "rb") as fd: 
-            data = fd.read()
-        vaddr = load_address
-        pstate.tt_ctx.setConcreteMemoryAreaValue(vaddr, data)
-        size = len(data) 
-        pstate.add_memory_mapping(vaddr, size) 
-
-        if "set_thumb" in raw_load_config: 
-            set_thumb = raw_load_config["set_thumb"]
-            pstate.set_thumb(set_thumb)
-
-        # Add memory mappings
-        if "vmmap" in raw_load_config:
-            for (addr, buffer) in raw_load_config["vmmap"].items():
-                pstate.tt_ctx.setConcreteMemoryAreaValue(addr, buffer)
-                size = len(buffer)
-                pstate.add_memory_mapping(addr, size)
-
+                pstate.set_thumb(loader.additional_options[opt])
         return pstate
