@@ -1,5 +1,6 @@
 from .config                import Config
 from .program               import Program
+from .loader                import Loader, MonolithicLoader
 from .process_state         import ProcessState
 from .coverage              import CoverageStrategy, BranchSolvingStrategy
 from .symbolic_executor     import SymbolicExecutor
