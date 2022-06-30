@@ -10,6 +10,7 @@ import lief
 
 # local imports
 from tritondse.types import PathLike, Addr, Architecture, Platform
+from tritondse.loader import Loader
 
 
 _arch_mapper = {
@@ -25,7 +26,7 @@ _plfm_mapper = {
 }
 
 
-class Program(object):
+class Program(Loader):
     """
     Representation of a program (loaded in memory). This class is wrapping
     `LIEF <https://lief.quarkslab.com/doc/latest>`_ to represent a program

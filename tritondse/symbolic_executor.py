@@ -54,10 +54,7 @@ class SymbolicExecutor(object):
         if self.workspace is None:
             self.workspace = Workspace(config.workspace)
         self.seed       = seed              # The current seed used to the execution
-        if self.config.seed_type == SeedType.RAW:
-            self.symbolic_seed = []           # Will hold SymVars of every bytes of the seed
-        else: 
-            self.symbolic_seed = {}
+        self.symbolic_seed = [] if self.config.seed_type == SeedType.RAW else {}
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy) #: Coverage of the execution
         self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
         self.uid        = uid               # Unique identifier meant to unique accross Exploration instances

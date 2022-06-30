@@ -73,8 +73,25 @@ class Seed(object):
         """
         Status of the seed.
 
-        :rtype: SeedStatus"""
+        :rtype: SeedStatus
+        """
         return self._status
+
+
+    @property
+    def content_bytes(self) -> bytes:
+        """
+        Content of the seed in bytes.
+
+        :rtype: bytes
+        """
+
+        if isinstance(self.content, bytes): # SeedType.RAW
+            return self.content
+        else: # SeedType.COMPOSITE
+            sorted_dict = dict(sorted(self.content.items()))
+            c = str(sorted_dict).encode()
+            return c
 
 
     @property
@@ -82,7 +99,8 @@ class Seed(object):
         """
         Type of the seed.
 
-        :rtype: SeedType"""
+        :rtype: SeedType
+        """
         return self._type
 
 
@@ -133,12 +151,7 @@ class Seed(object):
 
         :rtype: str
         """
-        if isinstance(self.content, bytes): # SeedType.RAW
-            m = hashlib.md5(self.content)
-        else: # SeedType.COMPOSITE
-            sorted_dict = dict(sorted(self.content.items()))
-            c = str(sorted_dict).encode()
-            m = hashlib.md5(c)
+        m = hashlib.md5(self.content_bytes)
         return m.hexdigest()
 
     @property

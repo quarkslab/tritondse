@@ -1352,6 +1352,14 @@ class ProcessState(object):
 
             cur_linkage_address += pstate.ptr_size
 
+
+        for reg_name in pstate.cpu:
+            if reg_name in program.cpustate:
+                setattr(pstate.cpu, reg_name, program.cpustate[reg_name])
+
+        for opt in program.additional_options:
+            if opt == "set_thumb":
+                pstate.set_thumb(program.additional_options[opt])
         return pstate
 
 

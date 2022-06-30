@@ -164,7 +164,8 @@ class Config(object):
         c = Config()
         for k, v in data.items():
             if hasattr(c, k):
-                mapping = {"coverage_strategy": CoverageStrategy, "smt_solver": SmtSolver}
+                mapping = {"coverage_strategy": CoverageStrategy, "smt_solver": SmtSolver, \
+                        "seed_type": SeedType}
                 if k in mapping:
                     v = mapping[k][v]
                 elif k == "branch_solving_strategy":
