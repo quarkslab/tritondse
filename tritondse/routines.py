@@ -109,7 +109,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         # Cannot provide argv in RAW seeds
         argc = len(se.config.program_argv)
     else: # SeedType.COMPOSITE
-        argc = len(se.seed.content["argv"]) if "argv" in se.seed.content else len(se.config.program_argv)
+        argc = len(se.seed.content.argv) if se.seed.content.argv else len(se.config.program_argv)
     pstate.write_argument_value(0, argc)
     logging.debug(f"argc = {argc}")
 
@@ -119,8 +119,8 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     index = 0
 
-    if se.config.seed_type == SeedType.COMPOSITE and "argv" in se.seed.content: # Use the seed provided (and ignore config.program_argv !!)
-        argvs = se.seed.content["argv"] 
+    if se.config.seed_type == SeedType.COMPOSITE and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
+        argvs = se.seed.content.argv
     else:  # use the config argv
         argvs = [x.encode("latin-1") for x in se.config.program_argv]  # Convert it from str to bytes
 
@@ -128,8 +128,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         addrs.append(base)
         pstate.write_memory_bytes(base, arg + b'\x00')
 
-        if se.config.seed_type == SeedType.COMPOSITE and "argv" in se.seed.content: # Use the seed provided (and ignore config.program_argv !!)
-
+        if se.config.seed_type == SeedType.COMPOSITE and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
             # Symbolize the argv string
             sym_vars = pstate.symbolize_memory_bytes(base, len(arg), f"argv[{i}]")
             if "argv" not in se.symbolic_seed:
@@ -611,16 +610,17 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     elif arg3 in pstate.fd_table:
         if se.config.seed_type == SeedType.RAW \
-                or pstate.filename_table[arg3] not in se.seed.content:
+                or not se.seed.content.files \
+                or pstate.filename_table[arg3] not in se.seed.content.files:
             data = pstate.fd_table[arg3].read(arg1 * arg2)
             if isinstance(data, str): data = data.encode()
             pstate.write_memory_bytes(arg0, data)
-        else: # SeedType.COMPOSITE 
+        else: # SeedType.COMPOSITE and it contains filename
             filename = pstate.filename_table[arg3]
-            minsize  = (min(len(se.seed.content[filename]), size) if se.seed else size)
-
-            data = se.seed.content[filename][:minsize] if se.seed else b'\x00' * minsize
-            se.inject_symbolic_input(arg0, Seed(data), filename)
+            filecontent = se.seed.content.files[filename]
+            minsize  = min(len(filecontent), size)
+            data = filecontent[:minsize]
+            se.inject_symbolic_input(arg0, data, filename)
 
     else:
         return 0

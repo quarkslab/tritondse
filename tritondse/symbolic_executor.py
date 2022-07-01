@@ -14,7 +14,7 @@ from tritondse.config         import Config
 from tritondse.coverage       import CoverageSingleRun, BranchSolvingStrategy
 from tritondse.process_state  import ProcessState
 from tritondse.loader         import Loader
-from tritondse.seed           import Seed, SeedStatus, SeedType
+from tritondse.seed           import Seed, SeedStatus, SeedType, CompositeData
 from tritondse.types          import Expression, Architecture, Addr, Model
 from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks      import CallbackManager
@@ -615,38 +615,39 @@ class SymbolicExecutor(object):
             content = bytes(content)
         
         elif self.config.seed_type == SeedType.COMPOSITE:
-            content_dict = {}
+            # NOTE will have to update this if more things are added to CompositeData
+            argv_content = None
+            files_content = None
             # Handle argv
-            if "argv" in self.seed.content: # symbolize_argv
-                args = [bytearray(x) for x in self.seed.content["argv"]]
+            if self.seed.content.argv: # symbolize_argv
+                args = [bytearray(x) for x in self.seed.content.argv]
                 for c_arg, sym_arg in zip(args, self.symbolic_seed["argv"]):
                     for i, sv in enumerate(sym_arg):
                         if sv.getId() in model:
                             c_arg[i] = model[sv.getId()].getValue()
-                content_dict["argv"] = [bytes(a) for a in args]
+                argv_content = [bytes(a) for a in args]
+
 
             # Handle stdin and files
-            # NOTE For now everything other than argv is a file name 
-            # Will have to revisit this after adding temporal stuff to composite seeds
-            for filename in self.seed.content:
-                if filename == "argv" : continue
+            # If the seed provide the content of files (#NOTE stdin is treated as a file)
+            if self.seed.content.files:
+                files_content = {}
+                for filename in self.seed.content.files:
+                    content = bytearray(self.seed.content.files[filename])  
+                    if filename in self.symbolic_seed:
+                        symbolic_stdin = self.symbolic_seed[filename]
+                        for i, sv in enumerate(symbolic_stdin):
+                            if sv.getId() in model:
+                                content[i] = model[sv.getId()].getValue()
+                    files_content[filename] = bytes(content)
 
-                content = bytearray(self.seed.content[filename])  
-                if filename in self.symbolic_seed:
-                    symbolic_stdin = self.symbolic_seed[filename]
-                    for i, sv in enumerate(symbolic_stdin):
-                        if sv.getId() in model:
-                            content[i] = model[sv.getId()].getValue()
-                content_dict[filename] = bytes(content)
+            content = CompositeData(argv_content, files_content)
 
         # Calling callback if user defined one
         for cb in self.cbm.get_new_input_callback():
             cont = cb(self, self.pstate, bytes(content))
             # if the callback return a new input continue with that one
             content = cont if cont is not None else content
-
-        if self.config.seed_type == SeedType.COMPOSITE:
-            content = content_dict
 
         # Create the Seed object and assign the new model
         return Seed(content)
