@@ -124,7 +124,7 @@ class SymbolicExplorator(object):
         logging.info(f"Initialize ProcessState with thread scheduling: {self.config.thread_scheduling}")
         execution = SymbolicExecutor(self.config, seed=seed, workspace=self.workspace, uid=uid, callbacks=cbs)
         if self.loader:  # If doing the exploration from a program
-            execution.load_loader(self.loader)
+            execution.load(self.loader)
         else:
             execution.load_process(ProcessState())
         self.current_executor = execution

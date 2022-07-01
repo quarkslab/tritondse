@@ -47,7 +47,7 @@ class SymbolicExecutor(object):
         self.config = config    # The config
         self.loader = None      # The program to execute
 
-        self.pstate = None  # else should be loaded through load_loader
+        self.pstate = None  # else should be loaded through the load function
         self.raw_load_config = None  # else should be loaded through load_raw
 
         self.workspace  = workspace                             # The current workspace
@@ -79,7 +79,7 @@ class SymbolicExecutor(object):
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
 
-    def load_loader(self, loader: Loader) -> None:
+    def load(self, loader: Loader) -> None:
         """
         Load the given program in the symbolic executor's ProcessState.
         It override the current ProcessState if any.
@@ -531,7 +531,7 @@ class SymbolicExecutor(object):
             self._run_to_target = stop_at
 
         if self.pstate is None:
-            logging.error(f"ProcessState is None (have you called load_loader?")
+            logging.error(f"ProcessState is None (have you called \"load\"?")
             return
 
         self.start_time = time.time()
@@ -651,21 +651,21 @@ class SymbolicExecutor(object):
         # Create the Seed object and assign the new model
         return Seed(content)
 
-    def inject_symbolic_input(self, addr: Addr, seed: Seed, var_prefix: str = "input") -> None:
+    def inject_symbolic_input(self, addr: Addr, inp: bytes, var_prefix: str = "input") -> None:
         """
-        Inject the given seed at the given address in memory. Then
+        Inject the given bytes at the given address in memory. Then
         all memory bytes are symbolized.
 
         :param addr: address at which to inject input
-        :param seed: Seed to inject in memory
+        :param inp: Input to inject in memory
         :param var_prefix: prefix name to give the symbolic variables
         :return: None
         """
         # Write concrete bytes in memory
-        self.pstate.write_memory_bytes(addr, seed.content)
+        self.pstate.write_memory_bytes(addr, inp)
 
         # Symbolize bytes
-        sym_vars = self.pstate.symbolize_memory_bytes(addr, seed.size, var_prefix)
+        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(inp), var_prefix)
         if self.config.seed_type == SeedType.RAW:
             self.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
         else: # SeedType.COMPOSITE

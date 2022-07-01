@@ -41,65 +41,13 @@ class Loader(object):
         """
         raise NotImplementedError()
 
+
     @property
     def platform(self) -> Optional[Platform]:
         """
-        Platform of the binary. Its solely based on the format
-        of the file ELF, PE etc..
+        Platform of the binary.
 
         :return: Platform
-        """
-        raise NotImplementedError()
-
-    @property
-    def endianness(self) -> lief.ENDIANNESS:
-        """
-        Endianness of the program as defined in binary headers.
-
-        :rtype: lief.ENDIANNESS
-        """
-        raise NotImplementedError()
-
-
-    @property
-    def format(self) -> lief.EXE_FORMATS:
-        """
-        Binary format. Supported formats by lief are: ELF, PE, MachO
-
-        :rtype: lief.EXE_FORMATS
-        """
-        raise NotImplementedError()
-
-
-    def _load_arch(self) -> Optional[Architecture]:
-        """
-        Load architecture as an Architecture object.
-
-        :return: Architecture or None if unsupported
-        """
-        raise NotImplementedError()
-
-
-    @property
-    def relocation_enum(self):
-        """
-        LIEF relocation enum associated with the current
-        architecture of the binary.
-
-        :return: LIEF relocation enum
-        :rtype: Union[lief.ELF.RELOCATION_AARCH64,
-                      lief.ELF.RELOCATION_ARM,
-                      lief.ELF.RELOCATION_PPC64,
-                      lief.ELF.RELOCATION_PPC,
-                      lief.ELF.RELOCATION_i386,
-                      lief.ELF.RELOCATION_X86_64]
-        """
-        raise NotImplementedError()
-
-
-    def _is_glob_dat(self, rel: lief.ELF.Relocation) -> bool:
-        """ Get whether the given relocation is of type GLOB_DAT.
-        Used locally to find mandatory relocations
         """
         raise NotImplementedError()
 
@@ -239,7 +187,7 @@ class MonolithicLoader(Loader):
     @property
     def cpustate(self) -> Dict[str, int]:
         """
-        Provide the initial cpu state in the forma of a dictionary of
+        Provide the initial cpu state in the format of a dictionary of
         {"register_name" : register_value}
         """
         return self._cpustate

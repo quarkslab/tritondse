@@ -51,7 +51,7 @@ class ProcessState(object):
         self.actx = self.tt_ctx.getAstContext()
 
         # Cpu object wrapping registers values
-        self.cpu: CpuState = None  #: CpuState holding concrete values of registers *(initialized when calling load_loader)*
+        self.cpu: CpuState = None  #: CpuState holding concrete values of registers *(initialized when calling load)*
         self._archinfo = None
 
         # Used to define that the process must exist
@@ -377,7 +377,7 @@ class ProcessState(object):
         self.write_register(self.stack_pointer_register, self.BASE_STACK)
 
 
-    def load_loader(self, l: Loader, base_addr: Addr = 0) -> None:
+    def load(self, l: Loader, base_addr: Addr = 0) -> None:
         """
         Load the given program in the process state memory. It sets
         the program counter to the entry point and load all segments
@@ -1319,7 +1319,7 @@ class ProcessState(object):
         pstate.initialize_context(loader.architecture)
 
         # Load segments of the loader
-        pstate.load_loader(loader)
+        pstate.load(loader)
 
         # Apply dynamic relocations
         cur_linkage_address = pstate.BASE_PLT
