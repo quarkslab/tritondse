@@ -2,6 +2,8 @@ import hashlib
 from enum    import Enum
 from pathlib import Path
 from tritondse.types import PathLike
+from typing import List, Dict, Union
+from dataclasses import dataclass
 
 
 class SeedStatus(Enum):
@@ -26,14 +28,13 @@ class SeedType(Enum):
     RAW       = 0
     COMPOSITE = 1
 
-
 class Seed(object):
     """
     Seed input.
     Holds the bytes buffer of the content a status after execution
     but also some metadata of code portions it is meant to cover.
     """
-    def __init__(self, content=bytes(), status=SeedStatus.NEW):
+    def __init__(self, content: Union[bytes, Dict] = bytes(), status=SeedStatus.NEW):
         """
         :param content: content of the input. By default is b"" *(and is thus considered as a bootstrap seed)*
         :type content: bytes
