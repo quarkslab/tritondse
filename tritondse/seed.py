@@ -2,7 +2,7 @@ import hashlib
 from enum    import Enum
 from pathlib import Path
 from tritondse.types import PathLike
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Optional
 from dataclasses import dataclass
 
 
@@ -28,13 +28,33 @@ class SeedType(Enum):
     RAW       = 0
     COMPOSITE = 1
 
+
+@dataclass(frozen=True)
+class CompositeData:
+    argv: Optional[List[str]] = None
+    files: Optional[Dict[str, bytes]] = None
+
+    def __bytes__(self):
+        serialized = b""
+        if self.argv:
+            serialized += str(self.argv).encode()
+        if self.files:
+            sorted_files_dict = dict(sorted(self.files.items()))
+            c = str(sorted_files_dict).encode()
+            serialized += c
+        return serialized
+
+    def __hash__(self):
+        return hash(bytes(self))
+
+
 class Seed(object):
     """
     Seed input.
     Holds the bytes buffer of the content a status after execution
     but also some metadata of code portions it is meant to cover.
     """
-    def __init__(self, content: Union[bytes, Dict] = bytes(), status=SeedStatus.NEW):
+    def __init__(self, content: Union[bytes, CompositeData] = bytes(), status=SeedStatus.NEW):
         """
         :param content: content of the input. By default is b"" *(and is thus considered as a bootstrap seed)*
         :type content: bytes
@@ -80,22 +100,6 @@ class Seed(object):
 
 
     @property
-    def content_bytes(self) -> bytes:
-        """
-        Content of the seed in bytes.
-
-        :rtype: bytes
-        """
-
-        if isinstance(self.content, bytes): # SeedType.RAW
-            return self.content
-        else: # SeedType.COMPOSITE
-            sorted_dict = dict(sorted(self.content.items()))
-            c = str(sorted_dict).encode()
-            return c
-
-
-    @property
     def type(self) -> SeedType:
         """
         Type of the seed.
@@ -131,6 +135,15 @@ class Seed(object):
         return self.content == other.content
 
 
+    def __bytes__(self):
+        """
+        Return a representation of the seed's content in bytes.
+
+        :rtype: int
+        """
+        return bytes(self.content)
+
+
     def __hash__(self):
         """
         Seed hash function overriden to base itself on content.
@@ -139,11 +152,7 @@ class Seed(object):
 
         :rtype: int
         """
-        if isinstance(self.content, bytes): # SeedType.RAW
-            return hash(self.content)
-        else: # SeedType.COMPOSITE
-            sorted_dict = dict(sorted(self.content.items()))
-            return hash(frozenset(sorted_dict))
+        return hash(self.content)
 
     @property
     def hash(self) -> str:
@@ -152,7 +161,7 @@ class Seed(object):
 
         :rtype: str
         """
-        m = hashlib.md5(self.content_bytes)
+        m = hashlib.md5(bytes(self))
         return m.hexdigest()
 
     @property
@@ -162,7 +171,7 @@ class Seed(object):
 
         :rtype: int
         """
-        return len(self.content)
+        return len(bytes(self))
 
     @property
     def filename(self):
