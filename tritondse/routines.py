@@ -10,7 +10,7 @@ from typing import Union
 from triton                   import CPUSIZE, MemoryAccess
 from tritondse.thread_context import ThreadContext
 from tritondse.types          import Architecture
-from tritondse.seed           import SeedType, SeedStatus, Seed
+from tritondse.seed           import SeedType, SeedStatus, Seed, CompositeField
 
 
 def rtn_ctype_b_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -131,9 +131,9 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         if se.config.seed_type == SeedType.COMPOSITE and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
             # Symbolize the argv string
             sym_vars = pstate.symbolize_memory_bytes(base, len(arg), f"argv[{i}]")
-            if "argv" not in se.symbolic_seed:
-                se.symbolic_seed["argv"] = []
-            se.symbolic_seed["argv"].append(sym_vars)
+            if not se.symbolic_seed.argv:
+                se.symbolic_seed.argv = []
+            se.symbolic_seed.argv.append(sym_vars)
             # FIXME: Shall add a constraint on every char to be != \x00
 
         logging.debug(f"argv[{index}] = {repr(pstate.read_memory_bytes(base, len(arg)))}")
@@ -416,7 +416,7 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         pstate.push_constraint(size_ast.getAst() == minsize)
 
         content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-        se.inject_symbolic_input(buff, Seed(content), "stdin")
+        se.inject_symbolic_input(buff, content, "stdin")
 
         logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
         return buff_ast
@@ -435,7 +435,7 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             filecontent = se.seed.content.files[filename]
             minsize  = min(len(filecontent), size)
             data = filecontent[:minsize]
-            se.inject_symbolic_input(buff, data, filename)
+            se.inject_symbolic_input(buff, data, filename, CompositeField.FILE)
             return buff_ast
     else:
         logging.warning(f'File descriptor ({fd}) not found')
@@ -605,7 +605,7 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             return 0
         else:
             data = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-            se.inject_symbolic_input(arg0, Seed(data), "stdin")
+            se.inject_symbolic_input(arg0, data, "stdin")
             logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
             # TODO: Could return the read value as a symbolic one
             return minsize
@@ -622,7 +622,7 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             filecontent = se.seed.content.files[filename]
             minsize  = min(len(filecontent), size)
             data = filecontent[:minsize]
-            se.inject_symbolic_input(arg0, data, filename)
+            se.inject_symbolic_input(arg0, data, filename, CompositeField.FILE)
 
     else:
         return 0
@@ -1062,7 +1062,7 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             filename = pstate.filename_table[fd]
             minsize  = (min(len(se.seed.content[filename]), size) if se.seed else size)
             data = se.seed.content[filename][:minsize] if se.seed else b'\x00' * minsize
-            se.inject_symbolic_input(buff, Seed(data), filename)
+            se.inject_symbolic_input(buff, Seed(data), filename, CompositeField.FILE)
             return len(data)
 
     return 0

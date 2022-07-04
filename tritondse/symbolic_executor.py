@@ -14,7 +14,7 @@ from tritondse.config         import Config
 from tritondse.coverage       import CoverageSingleRun, BranchSolvingStrategy
 from tritondse.process_state  import ProcessState
 from tritondse.loader         import Loader
-from tritondse.seed           import Seed, SeedStatus, SeedType, CompositeData
+from tritondse.seed           import Seed, SeedStatus, SeedType, CompositeData, SymbolicCompositeData, CompositeField
 from tritondse.types          import Expression, Architecture, Addr, Model
 from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks      import CallbackManager
@@ -54,7 +54,7 @@ class SymbolicExecutor(object):
         if self.workspace is None:
             self.workspace = Workspace(config.workspace)
         self.seed       = seed              # The current seed used to the execution
-        self.symbolic_seed = [] if self.config.seed_type == SeedType.RAW else {}
+        self.symbolic_seed = [] if self.config.seed_type == SeedType.RAW else SymbolicCompositeData()
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy) #: Coverage of the execution
         self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
         self.uid        = uid               # Unique identifier meant to unique accross Exploration instances
@@ -622,7 +622,7 @@ class SymbolicExecutor(object):
             # Handle argv
             if self.seed.content.argv: # symbolize_argv
                 args = [bytearray(x) for x in self.seed.content.argv]
-                for c_arg, sym_arg in zip(args, self.symbolic_seed["argv"]):
+                for c_arg, sym_arg in zip(args, self.symbolic_seed.argv):
                     for i, sv in enumerate(sym_arg):
                         if sv.getId() in model:
                             c_arg[i] = model[sv.getId()].getValue()
@@ -635,8 +635,8 @@ class SymbolicExecutor(object):
                 files_content = {}
                 for filename in self.seed.content.files:
                     content = bytearray(self.seed.content.files[filename])  
-                    if filename in self.symbolic_seed:
-                        symbolic_stdin = self.symbolic_seed[filename]
+                    if self.symbolic_seed.files and filename in self.symbolic_seed.files:
+                        symbolic_stdin = self.symbolic_seed.files[filename]
                         for i, sv in enumerate(symbolic_stdin):
                             if sv.getId() in model:
                                 content[i] = model[sv.getId()].getValue()
@@ -649,8 +649,8 @@ class SymbolicExecutor(object):
                 variables_content = {}
                 for varname in self.seed.content.variables:
                     content = bytearray(self.seed.content.variables[varname])  
-                    if varname in self.symbolic_seed:
-                        symbolic_stdin = self.symbolic_seed[varname]
+                    if self.symbolic_seed.variables and varname in self.symbolic_seed.variables:
+                        symbolic_stdin = self.symbolic_seed.variables[varname]
                         for i, sv in enumerate(symbolic_stdin):
                             if sv.getId() in model:
                                 content[i] = model[sv.getId()].getValue()
@@ -667,7 +667,7 @@ class SymbolicExecutor(object):
         # Create the Seed object and assign the new model
         return Seed(content)
 
-    def inject_symbolic_input(self, addr: Addr, inp: bytes, var_prefix: str = "input") -> None:
+    def inject_symbolic_input(self, addr: Addr, inp: bytes, var_prefix: str = "input", compfield = None) -> None:
         """
         Inject the given bytes at the given address in memory. Then
         all memory bytes are symbolized.
@@ -685,4 +685,17 @@ class SymbolicExecutor(object):
         if self.config.seed_type == SeedType.RAW:
             self.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
         else: # SeedType.COMPOSITE
-            self.symbolic_seed[var_prefix] = sym_vars
+            if not compfield: 
+                logging.error('Injecting in from composite seed but CompositeField not provided')
+                assert False
+            elif compfield == CompositeField.ARGV:
+                self.symbolic_seed.argv = sym_vars
+            elif compfield == CompositeField.FILE:
+                if not self.symbolic_seed.files: self.symbolic_seed.files = {}
+                self.symbolic_seed.files[var_prefix] = sym_vars
+            elif compfield == CompositeField.VARIABLE:
+                if not self.symbolic_seed.variables: self.symbolic_seed.variables = {}
+                self.symbolic_seed.variables[var_prefix] = sym_vars
+            else:
+                logging.error('Invalid CompositeField()')
+                assert False
