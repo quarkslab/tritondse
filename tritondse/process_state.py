@@ -16,7 +16,7 @@ from tritondse.thread_context import ThreadContext
 from tritondse.program        import Program
 from tritondse.heap_allocator import HeapAllocator
 from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
-                                     AstNode, Registers, SolverStatus, Model, SymbolicVariable
+                                     AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode
 from tritondse.arch           import ARCHS, CpuState
 
 
@@ -1357,7 +1357,7 @@ class ProcessState(object):
             if reg_name in loader.cpustate:
                 setattr(pstate.cpu, reg_name, loader.cpustate[reg_name])
 
-        for opt in loader.additional_options:
-            if opt == "set_thumb":
-                pstate.set_thumb(loader.additional_options[opt])
+        if loader.arch_mode: # If the processor's mode is provided
+            if loader.arch_mode == ArchMode.THUMB:
+                pstate.set_thumb(True)
         return pstate
