@@ -1,4 +1,6 @@
 import hashlib
+import ast
+import logging 
 from enum    import Enum
 from pathlib import Path
 from tritondse.types import PathLike
@@ -35,14 +37,27 @@ class CompositeData:
     files: Optional[Dict[str, bytes]] = None
 
     def __bytes__(self):
-        serialized = b""
-        if self.argv:
-            serialized += str(self.argv).encode()
+        serialized = b"{'argv': "
+        serialized += str(self.argv).encode() 
+
+        serialized += b", 'files': "
         if self.files:
             sorted_files_dict = dict(sorted(self.files.items()))
             c = str(sorted_files_dict).encode()
             serialized += c
+        else: 
+            serialized += str(self.files).encode() 
+
+        serialized += b"}"
         return serialized
+
+    def from_bytes(data_bytes: bytes) -> 'CompositeData':
+        seed_dict = ast.literal_eval(data_bytes.decode())
+        if "argv" not in seed_dict or "files" not in seed_dict:
+            logging.error('Failed to convert bytes to CompositeData')
+            assert False
+
+        return CompositeData(argv=seed_dict["argv"], files=seed_dict["files"])
 
     def __hash__(self):
         return hash(bytes(self))
@@ -65,7 +80,7 @@ class Seed(object):
         self.coverage_objectives = set()  # set of coverage items that the seed is meant to cover
         self.target = set()               # CovItem informational field indicate the item the seed was generated for
         self._status = status
-        self._type = SeedType.COMPOSITE if isinstance(content, dict) else SeedType.RAW
+        self._type = SeedType.COMPOSITE if isinstance(content, CompositeData) else SeedType.RAW
 
 
     def is_bootstrap_seed(self) -> bool:
@@ -141,7 +156,8 @@ class Seed(object):
 
         :rtype: int
         """
-        return bytes(self.content)
+        tag = b"COMPOSITE\n" if isinstance(self.content, CompositeData) else b"RAW\n"
+        return tag + bytes(self.content)
 
 
     def __hash__(self):
@@ -199,4 +215,12 @@ class Seed(object):
         :returns: fresh seed instance
         :rtype: Seed
         """
-        return Seed(Path(path).read_bytes(), status)
+        file_lines = Path(path).read_bytes().split(b"\n")
+        seed_type, seed_content = file_lines[0], file_lines[1]
+        if seed_type == b"RAW":
+            return Seed(seed_content, status)
+        elif seed_type == b"COMPOSITE":
+            return Seed(CompositeData.from_bytes(seed_content), status)
+        else: 
+            logging.error('Seed.from_file: Invalid file')
+            assert False
