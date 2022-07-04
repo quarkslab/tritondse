@@ -31,6 +31,22 @@ class SeedType(Enum):
     COMPOSITE = 1
 
 
+class CompositeField(Enum):
+    """
+    Enum representing the different Fields present in CompositeData 
+    """
+    ARGV        = 0
+    FILE        = 1
+    VARIABLE    = 2
+
+
+@dataclass()
+class SymbolicCompositeData:
+    argv: Optional[List] = None
+    files: Optional[Dict] = None
+    variables: Optional[Dict] = None # Currently only used to manually inject variables
+
+
 @dataclass(frozen=True)
 class CompositeData:
     argv: Optional[List[str]] = None
