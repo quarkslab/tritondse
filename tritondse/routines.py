@@ -423,7 +423,8 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     if fd in pstate.fd_table:
         if se.config.seed_type == SeedType.RAW\
-                or pstate.filename_table[fd] not in se.seed.content:
+                or not se.seed.content.files \
+                or pstate.filename_table[fd] not in se.seed.content.files:
             # We use fd as concret value
             pstate.concretize_argument(1)
             data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
@@ -431,9 +432,10 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             return buff_ast
         else: # SeedType.COMPOSITE
             filename = pstate.filename_table[fd]
-            minsize  = (min(len(se.seed.content[filename]), size) if se.seed else size)
-            data = se.seed.content[filename][:minsize] if se.seed else b'\x00' * minsize
-            se.inject_symbolic_input(buff, Seed(data), filename)
+            filecontent = se.seed.content.files[filename]
+            minsize  = min(len(filecontent), size)
+            data = filecontent[:minsize]
+            se.inject_symbolic_input(buff, data, filename)
             return buff_ast
     else:
         logging.warning(f'File descriptor ({fd}) not found')
