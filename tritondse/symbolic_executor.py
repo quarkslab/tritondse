@@ -618,6 +618,7 @@ class SymbolicExecutor(object):
             # NOTE will have to update this if more things are added to CompositeData
             argv_content = None
             files_content = None
+            variables_content = None
             # Handle argv
             if self.seed.content.argv: # symbolize_argv
                 args = [bytearray(x) for x in self.seed.content.argv]
@@ -629,7 +630,7 @@ class SymbolicExecutor(object):
 
 
             # Handle stdin and files
-            # If the seed provide the content of files (#NOTE stdin is treated as a file)
+            # If the seed provides the content of files (#NOTE stdin is treated as a file)
             if self.seed.content.files:
                 files_content = {}
                 for filename in self.seed.content.files:
@@ -641,7 +642,21 @@ class SymbolicExecutor(object):
                                 content[i] = model[sv.getId()].getValue()
                     files_content[filename] = bytes(content)
 
-            content = CompositeData(argv_content, files_content)
+
+            # Handle variables
+            # If the seed provides the content of variables
+            if self.seed.content.variables:
+                variables_content = {}
+                for varname in self.seed.content.variables:
+                    content = bytearray(self.seed.content.variables[varname])  
+                    if varname in self.symbolic_seed:
+                        symbolic_stdin = self.symbolic_seed[varname]
+                        for i, sv in enumerate(symbolic_stdin):
+                            if sv.getId() in model:
+                                content[i] = model[sv.getId()].getValue()
+                    variables_content[varname] = bytes(content)
+
+            content = CompositeData(argv_content, files_content, variables_content)
 
         # Calling callback if user defined one
         for cb in self.cbm.get_new_input_callback():

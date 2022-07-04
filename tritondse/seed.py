@@ -35,6 +35,7 @@ class SeedType(Enum):
 class CompositeData:
     argv: Optional[List[str]] = None
     files: Optional[Dict[str, bytes]] = None
+    variables: Optional[Dict[str, bytes]] = None # Currently only used to manually inject variables
 
     def __bytes__(self):
         serialized = b"{'argv': "
@@ -47,6 +48,14 @@ class CompositeData:
             serialized += c
         else: 
             serialized += str(self.files).encode() 
+
+        serialized += b", 'variables': "
+        if self.variables:
+            sorted_var_dict = dict(sorted(self.variables.items()))
+            c = str(sorted_var_dict).encode()
+            serialized += c
+        else: 
+            serialized += str(self.variables).encode() 
 
         serialized += b"}"
         return serialized

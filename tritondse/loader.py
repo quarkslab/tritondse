@@ -9,7 +9,7 @@ import logging
 import lief
 
 # local imports
-from tritondse.types import PathLike, Addr, Architecture, Platform
+from tritondse.types import PathLike, Addr, Architecture, Platform, ArchMode
 from tritondse.arch  import ARCHS
 
 
@@ -43,6 +43,16 @@ class Loader(object):
 
 
     @property
+    def arch_mode(self) -> ArchMode:
+        """
+        ArchMode enum representing the starting mode (e.g Thumb for ARM).
+
+        :rtype: ArchMode
+        """
+        return None
+
+
+    @property
     def platform(self) -> Optional[Platform]:
         """
         Platform of the binary.
@@ -60,15 +70,6 @@ class Loader(object):
         :raise NotImplementedError: if the binary format cannot be loaded
         """
         raise NotImplementedError()
-
-
-    @property
-    def additional_options(self):
-        """
-        Provide additional options. Should make sure that the `from_loader`
-        function in process_state.py know how to interpret them.
-        """
-        return {}
 
 
     @property
@@ -129,7 +130,7 @@ class MonolithicLoader(Loader):
         self._platform = platform if platform else None
         self._cpustate = cpustate
         self.vmmap = vmmap if vmmap else None
-        self.set_thumb = set_thumb
+        self._arch_mode = ArchMode.THUMB if set_thumb else None
         if  self._platform and (self._architecture, self._platform) in ARCHS:
             self._archinfo = ARCHS[(self._architecture, self._platform)]
         elif self._architecture in ARCHS:
@@ -146,6 +147,16 @@ class MonolithicLoader(Loader):
         :rtype: Architecture
         """
         return self._architecture
+
+
+    @property
+    def arch_mode(self) -> ArchMode:
+        """
+        ArchMode enum representing the starting mode (e.g Thumb for ARM).
+
+        :rtype: ArchMode
+        """
+        return self._arch_mode
 
 
     @property
@@ -172,16 +183,6 @@ class MonolithicLoader(Loader):
         if self.vmmap:
             for (addr, buffer) in self.vmmap.items():
                 yield addr, buffer
-
-
-    @property
-    def additional_options(self):
-        """
-        Provide additional options. Should make sure that the `from_loader`
-        function in process_state.py know how to interpret them.
-        """
-        if self.set_thumb: return {"set_thumb" : True}
-        else: return {}
 
 
     @property
