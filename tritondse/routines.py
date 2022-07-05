@@ -1044,7 +1044,7 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             logging.warning("reading stdin, while seed already injected (return EOF)")
         pstate.push_constraint(size_ast.getAst() == minsize)
         content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-        se.inject_symbolic_input(buff, Seed(content), "stdin")
+        se.inject_symbolic_input(buff, content, "stdin")
 
         logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
         # TODO: Could return the read value as a symbolic one

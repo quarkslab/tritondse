@@ -228,15 +228,15 @@ class CallbackManager(object):
 
         # Check if there is a program on which to register functions callback
         if self._func_to_register:
-            if se.program:
+            if se.loader:
                 for fname in list(self._func_to_register):
                     cbs = self._func_to_register.pop(fname)
-                    addr = se.program.find_function_addr(fname)
+                    addr = se.loader.find_function_addr(fname)
                     if addr:
                         for cb in cbs:
                             self.register_pre_addr_callback(addr, cb)
                     else:
-                        logging.warning(f"can't find function {fname} in {se.program}")
+                        logging.warning(f"can't find function {fname} in {se.loader}")
             else:
                 logging.warning(f"function callback to resolve but no program provided")
 
