@@ -8,7 +8,7 @@ import time
 
 # local imports
 from tritondse.types import PathLike
-from tritondse.seed import Seed, SeedStatus, SeedType
+from tritondse.seed import Seed, SeedStatus
 
 
 class Workspace(object):

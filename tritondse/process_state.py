@@ -13,11 +13,12 @@ from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, 
 
 # local imports
 from tritondse.thread_context import ThreadContext
-from tritondse.program        import Program
+from tritondse.program import Program
 from tritondse.heap_allocator import HeapAllocator
-from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
+from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
                                      AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode
-from tritondse.arch           import ARCHS, CpuState
+from tritondse.arch import ARCHS, CpuState
+from tritondse.loader import Loader
 
 
 
@@ -383,8 +384,8 @@ class ProcessState(object):
         the program counter to the entry point and load all segments
         in the triton context.
 
-        :param p: Program to load in the process memory
-        :type p: Program
+        :param l: Loader to use for mapping binary (can by Program, Monolithic etc..)
+        :type l: Loader
         :param base_addr: Base address where to load the program (if PIE)
         :type base_addr: :py:obj:`tritondse.types.Addr`
         """
@@ -1200,7 +1201,6 @@ class ProcessState(object):
         :param addr: Address to symbolize
         :type addr: :py:obj:`tritondse.types.Addr`
         :param alias: alias to give the variable
-        :type size: str
         :return: newly created symbolic variable
         :rtype: :py:obj:`tritondse.types.SymbolicVariable`
         """

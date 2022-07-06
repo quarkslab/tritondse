@@ -1,11 +1,12 @@
 import hashlib
-import ast
+import base64
+import json
 import logging 
-from enum    import Enum
+from enum import Enum
 from pathlib import Path
 from tritondse.types import PathLike
-from typing import List, Dict, Union, Optional
-from dataclasses import dataclass
+from typing import List, Dict, Union
+from dataclasses import dataclass, field
 
 
 class SeedStatus(Enum):
@@ -21,13 +22,13 @@ class SeedStatus(Enum):
     HANG    = 3
 
 
-class SeedType(Enum):
+class SeedFormat(Enum):
     """
-    Seed type enum
+    Seed format enum
     Raw seeds are just bytes Seed(b"AAAAA\x00BBBBB")
     Composite can describe how to inject the input more precisely 
     """
-    RAW       = 0
+    RAW = 0
     COMPOSITE = 1
 
 
@@ -35,54 +36,37 @@ class CompositeField(Enum):
     """
     Enum representing the different Fields present in CompositeData 
     """
-    ARGV        = 0
-    FILE        = 1
-    VARIABLE    = 2
-
-
-@dataclass()
-class SymbolicCompositeData:
-    argv: Optional[List] = None
-    files: Optional[Dict] = None
-    variables: Optional[Dict] = None # Currently only used to manually inject variables
+    ARGV = 0
+    FILE = 1
+    VARIABLE = 2
 
 
 @dataclass(frozen=True)
 class CompositeData:
-    argv: Optional[List[str]] = None
-    files: Optional[Dict[str, bytes]] = None
-    variables: Optional[Dict[str, bytes]] = None # Currently only used to manually inject variables
+    argv: List[bytes] = field(default_factory=list)
+    "list of argv values"
+    files: Dict[str, bytes] = field(default_factory=dict)
+    "dictionnary of files and the associated content (stdin is one of them)"
+    variables: Dict[str, bytes] = field(default_factory=dict)
+    "user defined variables, that the use must take care to inject at right location"
+
+    def _to_json(self):
+        data = {
+            'argv': [base64.b64encode(v).decode() for v in self.argv],
+            'files': {k: (base64.b64encode(v).decode() if isinstance(v, bytes) else v) for k, v in self.files.items()},
+            'variables': {k: (base64.b64encode(v).decode() if isinstance(v, bytes) else v) for k, v in self.variables.items()},
+        }
+        return json.dumps(data, indent=2)
 
     def __bytes__(self):
-        serialized = b"{'argv': "
-        serialized += str(self.argv).encode() 
+        return self._to_json().encode()
 
-        serialized += b", 'files': "
-        if self.files:
-            sorted_files_dict = dict(sorted(self.files.items()))
-            c = str(sorted_files_dict).encode()
-            serialized += c
-        else: 
-            serialized += str(self.files).encode() 
-
-        serialized += b", 'variables': "
-        if self.variables:
-            sorted_var_dict = dict(sorted(self.variables.items()))
-            c = str(sorted_var_dict).encode()
-            serialized += c
-        else: 
-            serialized += str(self.variables).encode() 
-
-        serialized += b"}"
-        return serialized
-
-    def from_bytes(data_bytes: bytes) -> 'CompositeData':
-        seed_dict = ast.literal_eval(data_bytes.decode())
-        if "argv" not in seed_dict or "files" not in seed_dict:
-            logging.error('Failed to convert bytes to CompositeData')
-            assert False
-
-        return CompositeData(argv=seed_dict["argv"], files=seed_dict["files"])
+    @staticmethod
+    def from_dict(json_data: dict) -> 'CompositeData':
+        argv = [base64.b64decode(v) for v in json_data['argv']]
+        files = {k: (base64.b64decode(v) if isinstance(v, str) else v) for k, v in json_data['files'].items()}
+        variables = {k: (base64.b64decode(v) if isinstance(v, str) else v) for k, v in json_data['variables'].items()}
+        return CompositeData(argv=argv, files=files, variables=variables)
 
     def __hash__(self):
         return hash(bytes(self))
@@ -105,8 +89,11 @@ class Seed(object):
         self.coverage_objectives = set()  # set of coverage items that the seed is meant to cover
         self.target = set()               # CovItem informational field indicate the item the seed was generated for
         self._status = status
-        self._type = SeedType.COMPOSITE if isinstance(content, CompositeData) else SeedType.RAW
+        self._type = SeedFormat.COMPOSITE if isinstance(content, CompositeData) else SeedFormat.RAW
 
+    def is_composite(self) -> bool:
+        """Returns wether the seed is a composite seed or not. """
+        return self.type == SeedFormat.COMPOSITE
 
     def is_bootstrap_seed(self) -> bool:
         """
@@ -140,11 +127,11 @@ class Seed(object):
 
 
     @property
-    def type(self) -> SeedType:
+    def format(self) -> SeedFormat:
         """
-        Type of the seed.
+        Format of the seed.
 
-        :rtype: SeedType
+        :rtype: SeedFormat
         """
         return self._type
 
@@ -175,14 +162,16 @@ class Seed(object):
         return self.content == other.content
 
 
-    def __bytes__(self):
+    def bytes(self) -> bytes:
+        return bytes(self)
+
+    def __bytes__(self) -> bytes:
         """
         Return a representation of the seed's content in bytes.
 
-        :rtype: int
+        :rtype: bytes
         """
-        tag = b"COMPOSITE\n" if isinstance(self.content, CompositeData) else b"RAW\n"
-        return tag + bytes(self.content)
+        return bytes(self.content)
 
 
     def __hash__(self):
@@ -225,6 +214,27 @@ class Seed(object):
         """
         return f'{self.hash}.{self.size:08x}.tritondse.cov'
 
+    @staticmethod
+    def from_bytes(raw_seed: bytes, status: SeedStatus = SeedStatus.NEW) -> 'Seed':
+        """
+        Parse a seed from its byte representation. If its a composite one
+        it will parse the bytes as JSON and create the CompositeData accordingly.
+
+        :param raw_seed: bytes: raw bytes of the seed
+        :param status: status of the seed if any, otherwise :py:obj:`SeedStatus.NEW`
+        :type status: SeedStatus
+
+        :returns: fresh seed instance
+        :rtype: Seed
+        """
+        try:
+            data = json.loads(raw_seed)
+            if 'files' in data and 'argv' in data:
+                return Seed(CompositeData.from_dict(data), status)
+            else:  # Else still consider file as raw bytes
+                return Seed(raw_seed, status)
+        except json.JSONDecodeError:
+            return Seed(raw_seed, status)
 
     @staticmethod
     def from_file(path: PathLike, status: SeedStatus = SeedStatus.NEW) -> 'Seed':
@@ -240,12 +250,5 @@ class Seed(object):
         :returns: fresh seed instance
         :rtype: Seed
         """
-        file_lines = Path(path).read_bytes().split(b"\n")
-        seed_type, seed_content = file_lines[0], file_lines[1]
-        if seed_type == b"RAW":
-            return Seed(seed_content, status)
-        elif seed_type == b"COMPOSITE":
-            return Seed(CompositeData.from_bytes(seed_content), status)
-        else: 
-            logging.error('Seed.from_file: Invalid file')
-            assert False
+        raw = Path(path).read_bytes()
+        return Seed.from_bytes(raw, status)

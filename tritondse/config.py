@@ -8,7 +8,7 @@ from functools import reduce
 # triton-based libraries
 from tritondse.coverage import CoverageStrategy, BranchSolvingStrategy
 from tritondse.types import SmtSolver
-from tritondse.seed import SeedType
+from tritondse.seed import SeedFormat
 
 
 
@@ -19,7 +19,7 @@ class Config(object):
     """
 
     def __init__(self,
-                 seed_type = SeedType.RAW,
+                 seed_format: SeedFormat = SeedFormat.RAW,
                  pipe_stdout: bool = False,
                  pipe_stderr: bool = False,
                  skip_sleep_routine: bool = False,
@@ -43,14 +43,14 @@ class Config(object):
         :type debug: bool
         """
 
-        self.seed_type: SeedType = seed_type
+        self.seed_format: SeedFormat = seed_format
         """ Seed type is either Raw (raw bytes) or Composite (more expressive).
             RAW seeds will be injected in stdin.
             COMPOSITE seeds can provide argv, stdin and file inputs:
             {
                 "argv"  : [b"./myprogram", b"bla\x12\xf0", b"bla", b"\xde\xad\xbe\xef"],
-                "stdin" : b"AZERAZERAZERAEZR",
-                "myfilename" : b"AZERAZERAZERAEZR"
+                "files" : {'stdin': b"AZERAZERAZERAEZR"},
+                "variables" : {'myvar1': b"AZERAZERAZERAEZR"}
             }
         """
         
@@ -164,8 +164,8 @@ class Config(object):
         c = Config()
         for k, v in data.items():
             if hasattr(c, k):
-                mapping = {"coverage_strategy": CoverageStrategy, "smt_solver": SmtSolver, \
-                        "seed_type": SeedType}
+                mapping = {"coverage_strategy": CoverageStrategy, "smt_solver": SmtSolver,
+                           "seed_format": SeedFormat}
                 if k in mapping:
                     v = mapping[k][v]
                 elif k == "branch_solving_strategy":
