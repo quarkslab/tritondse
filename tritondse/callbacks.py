@@ -11,7 +11,7 @@ from triton import CALLBACK, Instruction, MemoryAccess, OPCODE
 from tritondse.process_state  import ProcessState
 from tritondse.types          import Addr, Input, Register, Expression, Edge, SymExType
 from tritondse.thread_context import ThreadContext
-
+from tritondse.seed import Seed
 
 class CbPos(Enum):
     """ Enmus representing callback position """
@@ -52,7 +52,7 @@ MemWriteCallback        = Callable[['SymbolicExecutor', ProcessState, MemoryAcce
 MnemonicCallback        = Callable[['SymbolicExecutor', ProcessState, OPCODE], None]
 SymExSolvingCallback    = Callable[['SymbolicExecutor', ProcessState, Edge, SymExType], bool]
 BranchCoveredCallback   = Callable[['SymbolicExecutor', ProcessState, Edge], bool]
-NewInputCallback        = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
+NewInputCallback        = Callable[['SymbolicExecutor', ProcessState, Seed], Optional[Seed]]
 OpcodeCallback          = Callable[['SymbolicExecutor', ProcessState, bytes], None]
 RegReadCallback         = Callable[['SymbolicExecutor', ProcessState, Register], None]
 RegWriteCallback        = Callable[['SymbolicExecutor', ProcessState, Register, int], None]

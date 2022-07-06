@@ -2,15 +2,12 @@ from __future__ import annotations
 
 # built-in imports
 from pathlib import Path
-from typing import Optional, Generator, Tuple
+from typing import Optional, Generator, Tuple, Dict
 import logging
 
-# third party
-import lief
-
 # local imports
-from tritondse.types import PathLike, Addr, Architecture, Platform, ArchMode
-from tritondse.arch  import ARCHS
+from tritondse.types import Addr, Architecture, Platform, ArchMode, PathLike
+from tritondse.arch import ARCHS
 
 
 class Loader(object):
@@ -21,6 +18,14 @@ class Loader(object):
     def __init__(self):
         raise NotImplementedError()
 
+    @property
+    def name(self) -> str:
+        """
+        Name of the loader and target being loaded.
+
+        :return: str of the loader name
+        """
+        raise NotImplementedError()
 
     @property
     def entry_point(self) -> Addr:
@@ -31,7 +36,6 @@ class Loader(object):
         """
         raise NotImplementedError()
 
-
     @property
     def architecture(self) -> Architecture:
         """
@@ -41,7 +45,6 @@ class Loader(object):
         """
         raise NotImplementedError()
 
-
     @property
     def arch_mode(self) -> ArchMode:
         """
@@ -49,8 +52,7 @@ class Loader(object):
 
         :rtype: ArchMode
         """
-        return None
-
+        raise NotImplementedError()
 
     @property
     def platform(self) -> Optional[Platform]:
@@ -59,8 +61,7 @@ class Loader(object):
 
         :return: Platform
         """
-        raise NotImplementedError()
-
+        return None
 
     def memory_segments(self) -> Generator[Tuple[Addr, bytes], None, None]:
         """
@@ -89,9 +90,7 @@ class Loader(object):
 
         :return: Generator of tuples function name and relocation address
         """
-        return
-        yield
-
+        yield from ()
 
     def imported_variable_symbols_relocations(self) -> Generator[Tuple[str, Addr], None, None]:
         """
@@ -100,9 +99,7 @@ class Loader(object):
 
         :return: Generator of tuples with symbol name, relocation address
         """
-        return
-        yield
-
+        yield from ()
 
     def find_function_addr(self, name: str) -> Optional[Addr]:
         """
@@ -113,13 +110,19 @@ class Loader(object):
         :return: Address of function if found
         :rtype: Addr
         """
-        raise NotImplementedError()
+        return None
 
 
 class MonolithicLoader(Loader):
-    def __init__(self, path, architecture, load_address, cpustate = {}, vmmap = None,\
-            set_thumb = False, platform = None):
+    """
+    Monolithic loader. It helps loading raw firmware at a given address
+    in DSE memory space, with the various attributes like architecture etc.
+    """
 
+    def __init__(self, path: PathLike, architecture: Architecture, load_address: Addr, cpustate: Dict[str, int] = None,
+                 vmmap: Dict[Addr, bytes] = None, set_thumb: bool = False, platform: Platform = None):
+
+        super(MonolithicLoader, self).__init__()
         self.path: Path = Path(path)  #: Binary file path
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
@@ -128,16 +131,21 @@ class MonolithicLoader(Loader):
         self.load_address = load_address
         self._architecture = architecture
         self._platform = platform if platform else None
-        self._cpustate = cpustate
+        self._cpustate = cpustate if cpustate else {}
         self.vmmap = vmmap if vmmap else None
         self._arch_mode = ArchMode.THUMB if set_thumb else None
-        if  self._platform and (self._architecture, self._platform) in ARCHS:
+        if self._platform and (self._architecture, self._platform) in ARCHS:
             self._archinfo = ARCHS[(self._architecture, self._platform)]
         elif self._architecture in ARCHS:
             self._archinfo = ARCHS[self._architecture]
         else: 
             logging.error("Unknown architecture")
             assert False
+
+    @property
+    def name(self) -> str:
+        """ Name of the loader"""
+        return f"Monolithic({self.path})"
 
     @property
     def architecture(self) -> Architecture:
@@ -184,7 +192,6 @@ class MonolithicLoader(Loader):
             for (addr, buffer) in self.vmmap.items():
                 yield addr, buffer
 
-
     @property
     def cpustate(self) -> Dict[str, int]:
         """
@@ -192,3 +199,12 @@ class MonolithicLoader(Loader):
         {"register_name" : register_value}
         """
         return self._cpustate
+
+    @property
+    def platform(self) -> Optional[Platform]:
+        """
+        Platform of the binary.
+
+        :return: Platform
+        """
+        return self._platform

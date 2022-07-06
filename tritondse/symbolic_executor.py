@@ -1,27 +1,26 @@
 # built-in imports
 import logging
 import time
-import random
 import os
 import resource
 from typing import Optional, Union, List, NoReturn
 
 # third party imports
-from triton import MODE, Instruction, CPUSIZE, ARCH, MemoryAccess, CALLBACK
+from triton import MODE, Instruction, CPUSIZE, MemoryAccess, CALLBACK
 
 # local imports
-from tritondse.config         import Config
-from tritondse.coverage       import CoverageSingleRun, BranchSolvingStrategy
-from tritondse.process_state  import ProcessState
-from tritondse.loader         import Loader
-from tritondse.seed           import Seed, SeedStatus, SeedType, CompositeData, SymbolicCompositeData, CompositeField
-from tritondse.types          import Expression, Architecture, Addr, Model
-from tritondse.routines       import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
-from tritondse.callbacks      import CallbackManager
-from tritondse.workspace      import Workspace
+from tritondse.config import Config
+from tritondse.coverage import CoverageSingleRun, BranchSolvingStrategy
+from tritondse.process_state import ProcessState
+from tritondse.loader import Loader
+from tritondse.seed import Seed, SeedStatus, SeedFormat, CompositeData, CompositeField
+from tritondse.types import Expression, Architecture, Addr, Model
+from tritondse.routines import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
+from tritondse.callbacks import CallbackManager
+from tritondse.workspace import Workspace
 from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
-from tritondse.exception      import AbortExecutionException, SkipInstructionException, StopExplorationException
+from tritondse.exception import AbortExecutionException, SkipInstructionException, StopExplorationException
 
 
 class SymbolicExecutor(object):
@@ -49,16 +48,16 @@ class SymbolicExecutor(object):
 
         self.pstate = None  # else should be loaded through the load function
 
-        self.workspace  = workspace                             # The current workspace
+        self.workspace = workspace                             # The current workspace
         if self.workspace is None:
             self.workspace = Workspace(config.workspace)
-        self.seed       = seed              # The current seed used to the execution
-        self.symbolic_seed = [] if self.config.seed_type == SeedType.RAW else SymbolicCompositeData()
+        self.seed = seed              # The current seed used to the execution
+        self._symbolic_seed = [] if self.config.seed_format == SeedFormat.RAW else CompositeData()  # (but will hold symvars)
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy) #: Coverage of the execution
-        self.rtn_table  = dict()            # Addr -> Tuple[fname, routine]
-        self.uid        = uid               # Unique identifier meant to unique accross Exploration instances
+        self.rtn_table = dict()            # Addr -> Tuple[fname, routine]
+        self.uid = uid               # Unique identifier meant to unique accross Exploration instances
         self.start_time = 0
-        self.end_time  = 0
+        self.end_time = 0
         # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
 
         # create callback object if not provided as argument, and bind callbacks to the current process state
@@ -80,16 +79,16 @@ class SymbolicExecutor(object):
 
     def load(self, loader: Loader) -> None:
         """
-        Load the given program in the symbolic executor's ProcessState.
-        It override the current ProcessState if any.
+        Use the given loader to initialize the ProcessState.
+        It overrides the current ProcessState if any.
 
-        :param program: Loader describing how to load
+        :param loader: Loader describing how to load
         :return: None
         """
 
         # Initialize the process_state architecture (at this point arch is sure to be supported)
         self.loader = loader
-        logging.debug(f"Loading program {self.loader.path.name} [{self.loader.architecture}]")
+        logging.debug(f"Loading program {self.loader.name} [{self.loader.architecture}]")
         self.pstate = ProcessState.from_loader(loader)
         self._map_dynamic_symbols()
 
@@ -151,7 +150,13 @@ class SymbolicExecutor(object):
 
         :return: True if the seed has already been inserted
         """
-        return bool(self.symbolic_seed)
+        if self.config.seed_format == SeedFormat.RAW:
+            return bool(self._symbolic_seed)
+        elif self.config.seed_format == SeedFormat.COMPOSITE:
+            # Namely has one of the various input been injected or not
+            return bool(self._symbolic_seed.content.files) or bool(self._symbolic_seed.content.variables)
+        else:
+            assert False
 
     def _configure_pstate(self) -> None:
         #for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:
@@ -206,7 +211,7 @@ class SymbolicExecutor(object):
             # Increment the instruction counter of the thread (a bit in advance but it does not matter)
             self.pstate.current_thread.count += 1
 
-    def _symbolic_mem_callback(self, ctx, mem: MemoryAccess, is_read):
+    def _symbolic_mem_callback(self, _, mem: MemoryAccess, is_read):
         tgt_addr = mem.getAddress()
         lea_ast = mem.getLeaAst()
         if lea_ast is None:
@@ -220,7 +225,7 @@ class SymbolicExecutor(object):
     def _symbolic_read_callback(self, ctx, mem: MemoryAccess):
         self._symbolic_mem_callback(ctx, mem, True)
 
-    def _symbolic_write_callback(self, ctx, mem: MemoryAccess, value):
+    def _symbolic_write_callback(self, ctx, mem: MemoryAccess, _):
         self._symbolic_mem_callback(ctx, mem, False)
 
     def __emulate(self):
@@ -270,7 +275,7 @@ class SymbolicExecutor(object):
                 pre_insts, post_insts = self.cbm.get_instruction_callbacks()
                 for cb in pre_insts:
                     cb(self, self.pstate, instruction)
-            except SkipInstructionException as e:
+            except SkipInstructionException as _:
                 continue
 
             # Process
@@ -582,69 +587,48 @@ class SymbolicExecutor(object):
         :param model: SMT model
         :return: new seed object
         """
-
-        if self.config.seed_type == SeedType.RAW: # RAW seed. => symbolize_stdin
-            content = bytearray(self.seed.content)
-            symbolic_stdin = self.symbolic_seed  # Create the new seed buffer
-            for i, sv in enumerate(symbolic_stdin):  # Enumerate symvars associated with each bytes
+        def repl_bytearray(concrete, symbolic):
+            for i, sv in enumerate(symbolic):  # Enumerate symvars associated with each bytes
                 if sv.getId() in model:  # If solver provided a new value for the symvar
-                    content[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
-            content = bytes(content)
-        
-        elif self.config.seed_type == SeedType.COMPOSITE:
-            # NOTE will have to update this if more things are added to CompositeData
-            argv_content = None
-            files_content = None
-            variables_content = None
-            # Handle argv
-            if self.seed.content.argv: # symbolize_argv
-                args = [bytearray(x) for x in self.seed.content.argv]
-                for c_arg, sym_arg in zip(args, self.symbolic_seed.argv):
-                    for i, sv in enumerate(sym_arg):
-                        if sv.getId() in model:
-                            c_arg[i] = model[sv.getId()].getValue()
-                argv_content = [bytes(a) for a in args]
+                    concrete[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
+            return concrete
 
+        if self.config.seed_format == SeedFormat.RAW: # RAW seed. => symbolize_stdin
+            content = bytes(repl_bytearray(bytearray(self.seed.content), self._symbolic_seed))
+
+        elif self.config.seed_format == SeedFormat.COMPOSITE:
+            # NOTE will have to update this if more things are added to CompositeData
+            new_files, new_vars = {}, {}
+
+            # Handle argv (its meant to be here)
+            args = [bytearray(x) for x in self.seed.content.argv]
+            new_argv = [bytes(repl_bytearray(c, s)) for c, s in zip(args, self._symbolic_seed.argv)]
 
             # Handle stdin and files
             # If the seed provides the content of files (#NOTE stdin is treated as a file)
-            if self.seed.content.files:
-                files_content = {}
-                for filename in self.seed.content.files:
-                    content = bytearray(self.seed.content.files[filename])  
-                    if self.symbolic_seed.files and filename in self.symbolic_seed.files:
-                        symbolic_stdin = self.symbolic_seed.files[filename]
-                        for i, sv in enumerate(symbolic_stdin):
-                            if sv.getId() in model:
-                                content[i] = model[sv.getId()].getValue()
-                    files_content[filename] = bytes(content)
-
+            new_files = {k: bytes(repl_bytearray(bytearray(c), self._symbolic_seed.files[k])) for k, c in
+                         self.seed.content.files.items()}
 
             # Handle variables
             # If the seed provides the content of variables
-            if self.seed.content.variables:
-                variables_content = {}
-                for varname in self.seed.content.variables:
-                    content = bytearray(self.seed.content.variables[varname])  
-                    if self.symbolic_seed.variables and varname in self.symbolic_seed.variables:
-                        symbolic_stdin = self.symbolic_seed.variables[varname]
-                        for i, sv in enumerate(symbolic_stdin):
-                            if sv.getId() in model:
-                                content[i] = model[sv.getId()].getValue()
-                    variables_content[varname] = bytes(content)
+            new_variables = {k: bytes(repl_bytearray(bytearray(c), self._symbolic_seed.variables[k])) for k, c in
+                             self.seed.content.variables.items()}
 
-            content = CompositeData(argv_content, files_content, variables_content)
+            content = CompositeData(new_argv, new_files, new_variables)
+        else:
+            assert False
 
         # Calling callback if user defined one
+        new_seed = Seed(content)
         for cb in self.cbm.get_new_input_callback():
-            cont = cb(self, self.pstate, bytes(content))
-            # if the callback return a new input continue with that one
-            content = cont if cont is not None else content
+            cont = cb(self, self.pstate, new_seed)
+            if cont:
+                # if the callback return a new input continue with that one
+                new_seed = cont
+        # Return the
+        return new_seed
 
-        # Create the Seed object and assign the new model
-        return Seed(content)
-
-    def inject_symbolic_input(self, addr: Addr, inp: bytes, var_prefix: str = "input", compfield = None) -> None:
+    def inject_symbolic_input(self, addr: Addr, inp: bytes, var_prefix: str = "input", compfield: Optional[CompositeField] = None) -> None:
         """
         Inject the given bytes at the given address in memory. Then
         all memory bytes are symbolized.
@@ -652,6 +636,7 @@ class SymbolicExecutor(object):
         :param addr: address at which to inject input
         :param inp: Input to inject in memory
         :param var_prefix: prefix name to give the symbolic variables
+        :param compfield: In case of composite seed, type of the input to inject (argv, files, variables..)
         :return: None
         """
         # Write concrete bytes in memory
@@ -659,20 +644,18 @@ class SymbolicExecutor(object):
 
         # Symbolize bytes
         sym_vars = self.pstate.symbolize_memory_bytes(addr, len(inp), var_prefix)
-        if self.config.seed_type == SeedType.RAW:
-            self.symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
-        else: # SeedType.COMPOSITE
+        if self.config.seed_format == SeedFormat.RAW:
+            self._symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+        else: # SeedFormat.COMPOSITE
             if not compfield: 
                 logging.error('Injecting in from composite seed but CompositeField not provided')
                 assert False
             elif compfield == CompositeField.ARGV:
-                self.symbolic_seed.argv = sym_vars
+                self._symbolic_seed.argv.append(sym_vars)
             elif compfield == CompositeField.FILE:
-                if not self.symbolic_seed.files: self.symbolic_seed.files = {}
-                self.symbolic_seed.files[var_prefix] = sym_vars
+                self._symbolic_seed.files[var_prefix] = sym_vars
             elif compfield == CompositeField.VARIABLE:
-                if not self.symbolic_seed.variables: self.symbolic_seed.variables = {}
-                self.symbolic_seed.variables[var_prefix] = sym_vars
+                self._symbolic_seed.variables[var_prefix] = sym_vars
             else:
                 logging.error('Invalid CompositeField()')
                 assert False
