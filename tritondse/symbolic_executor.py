@@ -48,7 +48,6 @@ class SymbolicExecutor(object):
         self.loader = None      # The program to execute
 
         self.pstate = None  # else should be loaded through the load function
-        self.raw_load_config = None  # else should be loaded through load_raw
 
         self.workspace  = workspace                             # The current workspace
         if self.workspace is None:
@@ -94,28 +93,6 @@ class SymbolicExecutor(object):
         self.pstate = ProcessState.from_loader(loader)
         self._map_dynamic_symbols()
 
-
-    def load_raw(self, raw_load_config: dict) -> None:
-        """
-        Load the given raw binary in the symbolic executor's ProcessState.
-        It override the current ProcessState if any.
-
-        :param raw_load_config: Dictionnary describing how to load the binary.
-                                It should have at least the following entries : 
-                                {
-                                    "binary_path" : "/path/to/binary",
-                                    "architecture" : Architecture.ARM32,
-                                    "load_address": 0x8000000, 
-                                    "pc" : 0x800200
-                                }
-
-        :return: None
-        """
-
-        # Initialize the process_state architecture
-        self.raw_load_config
-        logging.debug(f"Loading raw binary: {raw_load_config}")
-        self.pstate = ProcessState.from_raw(raw_load_config)
 
     def load_process(self, pstate: ProcessState) -> None:
         """
