@@ -233,7 +233,7 @@ class Seed(object):
                 return Seed(CompositeData.from_dict(data), status)
             else:  # Else still consider file as raw bytes
                 return Seed(raw_seed, status)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, UnicodeDecodeError):
             return Seed(raw_seed, status)
 
     @staticmethod

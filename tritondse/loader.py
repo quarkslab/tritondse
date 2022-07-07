@@ -15,9 +15,6 @@ class Loader(object):
     This class describes how to load the target program in memory.
     """
 
-    def __init__(self):
-        raise NotImplementedError()
-
     @property
     def name(self) -> str:
         """

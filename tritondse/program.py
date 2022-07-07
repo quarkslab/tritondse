@@ -41,6 +41,7 @@ class Program(Loader):
         :raise FileNotFoundError: if the file is not properly recognized by lief
                                   or in the wrong architecture
         """
+        super(Program, self).__init__()
         self.path: Path = Path(path)  #: Binary file path
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
