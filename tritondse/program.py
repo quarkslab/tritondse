@@ -4,12 +4,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional, Generator, Tuple
 import logging
+from collections import namedtuple
 
 # third party
 import lief
 
 # local imports
-from tritondse.types import PathLike, Addr, Architecture, Platform
+from tritondse.types import PathLike, Addr, Architecture, Platform, Endian, Perm
 
 
 _arch_mapper = {
@@ -23,6 +24,8 @@ _plfm_mapper = {
     lief.EXE_FORMATS.PE: Platform.WINDOWS,
     lief.EXE_FORMATS.MACHO: Platform.MACOS
 }
+
+LoadableSegment = namedtuple('LoadableSegment', 'address perms content')
 
 
 class Program(object):
@@ -60,6 +63,10 @@ class Program(object):
 
         self._funs = {f.name: f for f in self._binary.concrete.functions}
 
+    @property
+    def endianess(self) -> Endian:
+        # FIXME: Depending on architecture returning good endianess
+        return Endian.LITTLE
 
     @property
     def entry_point(self) -> Addr:
@@ -162,7 +169,7 @@ class Program(object):
             return False  # Not GLOB_DAT relocation for this architecture
 
 
-    def memory_segments(self) -> Generator[Tuple[Addr, bytes], None, None]:
+    def memory_segments(self) -> Generator[LoadableSegment, None, None]:
         """
         Iterate over all memory segments of the program as loaded in memory.
 
@@ -175,7 +182,7 @@ class Program(object):
                     content = bytearray(seg.content)
                     if seg.virtual_size != len(seg.content):  # pad with zeros (as it might be .bss)
                         content += bytearray([0]) * (seg.virtual_size - seg.physical_size)
-                    yield seg.virtual_address, bytes(content)
+                    yield LoadableSegment(seg.virtual_address, Perm(int(seg.flags)), bytes(content))
         else:
             raise NotImplementedError(f"memory segments not implemented for: {self.format.name}")
 

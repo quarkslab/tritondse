@@ -38,7 +38,7 @@ class StrncpySanitizer(ProbeInterface):
                 res  = ast.ite(cell == 0x00, ast.bv(deep, 64), rec(res, s, deep + 1, maxdeep))
                 return res
 
-            sze = len(pstate.get_memory_string(s))
+            sze = len(pstate.memory.read_string(s))
             res = ast.bv(sze, 64)
             res = rec(res, s, 0, sze)
 

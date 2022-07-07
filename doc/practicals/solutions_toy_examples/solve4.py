@@ -26,7 +26,7 @@ def hook_strlen(se: SymbolicExecutor, pstate: ProcessState, routine: str, addr: 
         res  = ast.ite(cell == 0x00, ast.bv(deep, 64), rec(res, s, deep + 1, maxdeep))
         return res
 
-    sze = 20#len(pstate.get_memory_string(s))
+    sze = 20
     res = ast.bv(sze, 64)
     res = rec(res, s, 0, sze)
 
