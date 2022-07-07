@@ -9,7 +9,7 @@ from typing import Union, Callable, Tuple, Optional, List, Dict
 
 # third-party
 # import z3  # For direct value enumeration
-from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, MODE, AST_NODE, SOLVER
+from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, MODE, AST_NODE, SOLVER, EXCEPTION
 
 # local imports
 from tritondse.thread_context import ThreadContext
@@ -664,7 +664,7 @@ class ProcessState(object):
         if self.tt_ctx.getPathPredicateSize() > __len_pcs:
             self.__pcs_updated = True
 
-        return ret
+        return ret == EXCEPTION.NO_FAULT
 
     @property
     def path_predicate_size(self) -> int:
