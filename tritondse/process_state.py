@@ -13,12 +13,12 @@ from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, 
 
 # local imports
 from tritondse.thread_context import ThreadContext
-from tritondse.program        import Program
+from tritondse.program import Program
 from tritondse.heap_allocator import HeapAllocator
-from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
-                                     AstNode, Registers, SolverStatus, Model, SymbolicVariable
-from tritondse.arch           import ARCHS, CpuState
-
+from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
+                                     AstNode, Registers, SolverStatus, Model, SymbolicVariable, Perm
+from tritondse.arch import ARCHS, CpuState
+from tritondse.memory import Memory, MemoryAccessViolation
 
 
 
@@ -34,17 +34,23 @@ class ProcessState(object):
         """
         :param time_inc_coefficient: Time coefficient to represent execution time of an instruction see: :py:attr:`tritondse.Config.time_inc_coefficient`
         """
-        # Memory mapping
-        self.BASE_PLT   = 0x01000000  # Not really PLT but a dummy address space meant to contain some pointers to external symbols
-        self.BASE_ARGV  = 0x02000000
-        self.BASE_CTYPE = 0x03000000
-        self.ERRNO_PTR  = 0x04000000
-        self.BASE_HEAP  = 0x10000000
-        self.END_HEAP   = 0x6fffffff
+        # EXTERN_BASE is a "fake" memory area (not mapped) that will
+        # which addresses will be used for external symbols
+        self.EXTERN_FUNC_BASE = 0x01000000  # Not really PLT but a dummy address space meant to contain some pointers to external symbols
+
+        # Memory maps that will contains external symbols
+        # used
+        self.EXTERN_SYM_BASE = 0x01001000
+        self.EXTERN_SYM_SIZE = 0x1000
+        self.ERRNO_PTR = self.EXTERN_SYM_BASE+self.EXTERN_SYM_SIZE-4  # put errno at the end
+
+        # This range will be dynamically allocated
+        # upon request.
+        self.BASE_HEAP = 0x10000000
+        self.END_HEAP = 0x6fffffff
+
         self.BASE_STACK = 0xefffffff
         self.END_STACK  = 0x70000000
-        self.START_MAP  = 0x01000000
-        self.END_MAP    = 0xf0000000
 
         # The Triton's context
         self.tt_ctx = TritonContext()
@@ -53,6 +59,9 @@ class ProcessState(object):
         # Cpu object wrapping registers values
         self.cpu: CpuState = None  #: CpuState holding concrete values of registers *(initialized when calling load_program)*
         self._archinfo = None
+
+        # Memory object
+        self.memory = Memory(self.tt_ctx)
 
         # Used to define that the process must exist
         self.stop = False
@@ -73,7 +82,7 @@ class ProcessState(object):
         self.fd_id = len(self.fd_table)
 
         # Allocation information used by malloc()
-        self.heap_allocator = HeapAllocator(self.BASE_HEAP, self.END_HEAP)
+        self.heap_allocator = HeapAllocator(self.BASE_HEAP, self.END_HEAP, self.memory)
 
         # Unique thread id incrementation
         self._utid = 0
@@ -389,60 +398,18 @@ class ProcessState(object):
         self.load_addr = base_addr
         # TODO: If PIE use this address, if not set absolute address (from binary)
 
+        # Map the stack
+        self.memory.map(self.END_STACK, self.BASE_STACK-self.END_STACK, Perm.R | Perm.W, "stack")
+
+        self.memory.disable_segmentation()  # Disable segment to be able initializing Read-only segments
+
         # Load memory areas in memory
-        for vaddr, data in p.memory_segments():
-            logging.debug(f"Loading {vaddr:#08x} - {vaddr+len(data):#08x}")
-            self.tt_ctx.setConcreteMemoryAreaValue(vaddr, data)
-            size = len(data)
-            if vaddr in self.__program_segments_mapping and self.__program_segments_mapping[vaddr] > vaddr + size:
-                # If we already have a vaddr entry, keep the larger one
-                pass
-            else:
-                self.__program_segments_mapping.update({vaddr: vaddr + size})
+        for i, seg in enumerate(p.memory_segments()):
+            logging.debug(f"Loading 0x{seg.address:#08x} - {seg.address+len(seg.content):#08x}")
+            self.memory.map(seg.address, len(seg.content), seg.perms, f"seg{i}")
+            self.memory.write(seg.address, seg.content)
 
-
-    def is_valid_memory_mapping(self, ptr: Addr, padding_segment: int = 0) -> bool:
-        """
-        Check if a given address is mapped into memory maps
-
-        :param ptr: The pointer to check
-        :type ptr: :py:obj:`tritondse.types.Addr`
-        :param padding_segment: A padding to add at the end of segment if necessary
-        :type padding_segment: int
-        :return: True if ptr is mapped otherwise returns False
-        """
-
-        # Check stack area
-        if self.BASE_STACK >= ptr >= self.END_STACK:
-            return True
-
-        # Check heap area
-        if self.BASE_HEAP <= ptr <= self.END_HEAP:
-            if self.is_heap_ptr(ptr) and self.heap_allocator.is_ptr_allocated(ptr):
-                return True
-
-        # Check other areas
-        if self.BASE_PLT <= ptr <= self.ERRNO_PTR + CPUSIZE.QWORD:
-            return True
-
-        # Check segments mapping
-        for vaddr_s, vaddr_e in self.__program_segments_mapping.items():
-            if vaddr_s <= ptr < vaddr_e + padding_segment:
-                return True
-        return False
-
-    def is_memory_defined(self, ptr: Addr, size: ByteSize) -> bool:
-        """
-        Returns whether the given range of addresses has previously
-        been written or not.
-
-        :param ptr: The pointer to check
-        :type ptr: :py:obj:`tritondse.types.Addr`
-        :param size: Size of the memory range to check
-        :return: True if all addresses have been defined
-        """
-        return self.tt_ctx.isConcreteMemoryValueDefined(ptr, size)
-
+        self.memory.enable_segmentation()
 
     def read_register(self, register: Union[str, Register]) -> int:
         """
@@ -467,106 +434,6 @@ class ProcessState(object):
         """
         reg = getattr(self.tt_ctx.registers, register) if isinstance(register, str) else register  # if str transform to reg
         return self.tt_ctx.setConcreteRegisterValue(reg, value)
-
-
-    def read_memory_int(self, addr: Addr, size: ByteSize) -> int:
-        """
-        Read in the process memory a **little-endian** integer of the ``size`` at ``addr``.
-
-        :param addr: Address at which to read data
-        :type addr: :py:obj:`tritondse.types.Addr`
-        :param size: Number of bytes to read
-        :type size: Union[str, :py:obj:`tritondse.types.ByteSize`]
-        :return: Integer value read
-        """
-        return self.tt_ctx.getConcreteMemoryValue(MemoryAccess(addr, int(size)))
-
-
-    def read_memory_ptr(self, addr: Addr) -> int:
-        """
-        Read in the process memory a little-endian integer of size :py:attr:`tritondse.ProcessState.ptr_size`
-
-        :param addr: Address at which to read data
-        :type addr: :py:obj:`tritondse.types.Addr`
-        :return: Integer value read
-        """
-        return self.tt_ctx.getConcreteMemoryValue(MemoryAccess(addr, self.ptr_size))
-
-
-    def read_memory_bytes(self, addr: Addr, size: ByteSize) -> bytes:
-        """
-        Read in the process memory ``size`` amount of bytes at ``addr``.
-        Data read is returned as bytes.
-
-        :param addr: Address at which to read data
-        :type addr: :py:obj:`tritondse.types.Addr`
-        :param size: Number of bytes to read
-        :type size: :py:obj:`tritondse.types.ByteSize`
-        :return: Data read
-        :rtype: bytes
-        """
-        return self.tt_ctx.getConcreteMemoryAreaValue(addr, size)
-
-
-    def write_memory_int(self, addr: Addr, size: ByteSize, value: int) -> None:
-        """
-        Write in the process memory the given integer value of the given size at
-        a specific address.
-
-        :param addr: Address at which to read data
-        :type addr: :py:obj:`tritondse.types.Addr`
-        :param size: Number of bytes to read
-        :type size: :py:obj:`tritondse.types.ByteSize`
-        :param value: data to write represented as an integer
-        :type value: int
-
-        .. todo:: Adding a parameter to specify endianess if needed
-        """
-        self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, int(size)), value)
-
-
-    def write_memory_bytes(self, addr: Addr, data: bytes) -> None:
-        """
-        Write multiple bytes in the process memory. Size is automatically
-        deduced with data size.
-
-        :param addr: Address at which to read data
-        :type addr: :py:obj:`tritondse.types.Addr`
-        :param data: bytes data to write
-        :type data: bytes
-        """
-        self.tt_ctx.setConcreteMemoryAreaValue(addr, data)
-
-
-    def write_memory_byte(self, addr: Addr, data: Union[bytes, int]) -> None:
-        """
-        Write a single byte in the process memory. Can be provided as a byte
-        or integer. Integer value should fit in a byte.
-
-        :param addr: Address at which to read data
-        :type addr: :py:obj:`tritondse.types.Addr`
-        :param data: bytes data to write
-        :type data: Union[bytes, int]
-        """
-        # FIXME: in doctstring declare exception raised
-
-        if isinstance(data, int):
-            self.write_memory_int(addr, CPUSIZE.BYTE, data)
-        else:
-            self.write_memory_bytes(addr, data)
-
-
-    def write_memory_ptr(self, addr: Addr, value: int) -> None:
-        """
-        Similar to :py:meth:`write_memory_int` but the size is automatically adjusted
-        to be ``ptr_size``.
-
-        :param addr: address where to write data
-        :type addr: :py:obj:`tritondse.types.Addr`
-        :param value: pointer value to write
-        :type value: int
-        """
-        self.tt_ctx.setConcreteMemoryValue(MemoryAccess(addr, self.ptr_size), value)
 
 
     def register_triton_callback(self, cb_type: CALLBACK, callback: Callable) -> None:
@@ -623,8 +490,12 @@ class ProcessState(object):
         """
         if address is None:
             address = self.cpu.program_counter
-        data = self.read_memory_bytes(address, 16)
+        self.memory.disable_segmentation()
+        data = self.memory.read(address, 16)
+        self.memory.enable_segmentation()
         i = Instruction(address, data)
+        if not self.memory.is_mapped(address, i.getSize()):
+            raise MemoryAccessViolation(Perm.X, f"[SIGSEV] Fetch instruction at 0x{address:08x}")
         i.setThreadId(self.current_thread.tid)
         self.tt_ctx.disassembly(i)
         return i
@@ -694,24 +565,6 @@ class ProcessState(object):
         """
         return self.__current_inst
 
-
-    def get_memory_string(self, addr: Addr) -> str:
-        """ Read a string in process memory at the given address
-
-        .. warning:: The memory read is unbounded. Thus the memory is iterated up until
-                     finding a 0x0.
-
-        :returns: the string read in memory
-        :rtype: str
-        """
-        s = ""
-        index = 0
-        while True:
-            val = self.tt_ctx.getConcreteMemoryValue(addr + index)
-            if not val:
-                return s
-            s += chr(val)
-            index += 1
 
     def is_register_symbolic(self, register: Union[str, Register]) -> bool:
         """
@@ -922,25 +775,10 @@ class ProcessState(object):
         :param size: Size of the integer to concretize
         :type size: :py:obj:`tritondse.types.ByteSize`
         """
-        value = self.read_memory_int(addr, size)
+        value = self.memory.read_uint(addr, size)
         if self.tt_ctx.isMemorySymbolized(MemoryAccess(addr, size)):
             self.push_constraint(self.read_symbolic_memory_int(addr, size).getAst() == value)
         # else do not even push the constraint
-
-
-    def concretize_memory_bytes(self, addr: Addr, size: ByteSize) -> None:
-        """
-        Concretize the given range of memory with its current value.
-
-        :param addr: Address to concretize
-        :type addr: :py:obj:`tritondse.types.Addr`
-        :param size: Size of the memory buffer to concretize
-        :type size: :py:obj:`tritondse.types.ByteSize`
-        """
-        data = self.read_memory_bytes(addr, size)
-        if self.is_memory_symbolic(addr, size):
-            for i in range(size):
-                self.push_constraint(self.read_symbolic_memory_byte(addr+i).getAst() == data[i])
 
 
     def concretize_argument(self, index: int) -> None:
@@ -1027,7 +865,7 @@ class ProcessState(object):
         :returns: memory string
         :rtype: str
         """
-        return self.get_memory_string(self.get_argument_value(idx))
+        return self.memory.read_string(self.get_argument_value(idx))
 
 
     def get_format_string(self, addr: Addr) -> str:
@@ -1039,7 +877,7 @@ class ProcessState(object):
         :type addr: :py:obj:`tritondse.types.Addr`
         :rtype: str
         """
-        return self.get_memory_string(addr)                                             \
+        return self.memory.read_string(addr)                                             \
                .replace("%s", "{}").replace("%d", "{}").replace("%#02x", "{:#02x}")     \
                .replace("%#x", "{:#x}").replace("%x", "{:x}").replace("%02X", "{:02X}") \
                .replace("%c", "{:c}").replace("%02x", "{:02x}").replace("%ld", "{}")    \
@@ -1062,10 +900,10 @@ class ProcessState(object):
         :rtype: List[Union[int, str]]
         """
         # FIXME: Modifies inplace args (which is not very nice)
-        s_str = self.get_memory_string(fmt_addr)
+        s_str = self.memory.read_string(fmt_addr)
         postString = [i for i, x in enumerate([i for i, c in enumerate(s_str) if c == '%']) if s_str[x+1] == "s"]
         for p in postString:
-            args[p] = self.get_memory_string(args[p])
+            args[p] = self.memory.read_string(args[p])
         return args
 
 
@@ -1082,7 +920,7 @@ class ProcessState(object):
         :rtype: int
         """
         addr = self.cpu.stack_pointer + (offset * self.ptr_size) + (index * self.ptr_size)
-        return self.read_memory_int(addr, self.ptr_size)
+        return self.memory.read_uint(addr, self.ptr_size)
 
 
     def write_stack_value(self, index: int, value: int, offset: int = 0) -> None:
@@ -1101,7 +939,7 @@ class ProcessState(object):
         :rtype: int
         """
         addr = self.cpu.stack_pointer + (offset * self.ptr_size) + (index * self.ptr_size)
-        self.write_memory_int(addr, self.ptr_size, value)
+        self.memory.write_int(addr, value, self.ptr_size)
 
 
     def pop_stack_value(self) -> int:
@@ -1111,7 +949,7 @@ class ProcessState(object):
 
         :return: int
         """
-        val = self.read_memory_ptr(self.cpu.stack_pointer)
+        val = self.memory.read_ptr(self.cpu.stack_pointer)
         self.cpu.stack_pointer += self.ptr_size
         return val
 
@@ -1121,7 +959,7 @@ class ProcessState(object):
 
         :param value: The value to push
         """
-        self.write_memory_ptr(self.cpu.stack_pointer-self.ptr_size, value)
+        self.memory.write_ptr(self.cpu.stack_pointer-self.ptr_size, value)
         self.cpu.stack_pointer -= self.ptr_size
 
     def is_halt_instruction(self) -> bool:
@@ -1314,9 +1152,12 @@ class ProcessState(object):
         pstate.load_program(program)
 
         # Apply dynamic relocations
-        cur_linkage_address = pstate.BASE_PLT
+        cur_linkage_address = pstate.EXTERN_FUNC_BASE
 
-        # Link imported functions
+        # Disable segmentation
+        pstate.memory.disable_segmentation()
+
+        # Link imported functions in EXTERN_FUNC_BASE
         for fname, rel_addr in program.imported_functions_relocations():
             logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
@@ -1324,10 +1165,17 @@ class ProcessState(object):
             pstate.dynamic_symbol_table[fname] = (cur_linkage_address, True)
 
             # Apply relocation to our custom address in process memory
-            pstate.write_memory_ptr(rel_addr, cur_linkage_address)
+            pstate.memory.write_ptr(rel_addr, cur_linkage_address)
 
             # Increment linkage address number
             cur_linkage_address += pstate.ptr_size
+
+        # Reenable segmentation after having performed relocations
+        pstate.memory.enable_segmentation()
+
+        # Allocate data for foreign symbols region
+        pstate.memory.map(pstate.EXTERN_SYM_BASE, pstate.EXTERN_SYM_SIZE, Perm.R | Perm.W, "extern_syms")
+        symb_base = pstate.EXTERN_SYM_BASE
 
         # Link imported symbols
         for sname, rel_addr in program.imported_variable_symbols_relocations():
@@ -1336,12 +1184,12 @@ class ProcessState(object):
             if pstate.architecture == Architecture.X86_64:  # HACK: Keep rel_addr to directly write symbol on it
                 # Add symbol in dynamic_symbol_table
                 pstate.dynamic_symbol_table[sname] = (rel_addr, False)
-                #pstate.write_memory_ptr(rel_addr, cur_linkage_address)  # Do not write anything as symbolic executor will do it
+                #pstate.memory.write_ptr(rel_addr, cur_linkage_address)  # Do not write anything as symbolic executor will do it
             else:
                 # Add symbol in dynamic_symbol_table
-                pstate.dynamic_symbol_table[sname] = (cur_linkage_address, False)
-                pstate.write_memory_ptr(rel_addr, cur_linkage_address)
+                pstate.dynamic_symbol_table[sname] = (symb_base, False)
+                pstate.memory.write_ptr(rel_addr, symb_base)
 
-            cur_linkage_address += pstate.ptr_size
+            symb_base += pstate.ptr_size
 
         return pstate

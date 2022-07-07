@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sys
-from enum import IntEnum, Enum, auto
+from enum import IntEnum, Enum, auto, IntFlag
 from pathlib import Path
 from triton import ARCH, SOLVER_STATE, SOLVER
 from typing import Union, TypeVar, Tuple
@@ -111,3 +111,12 @@ class SolverStatus(IntEnum):
     UNSAT   = SOLVER_STATE.UNSAT
     TIMEOUT = SOLVER_STATE.TIMEOUT
     UNKNOWN = SOLVER_STATE.UNKNOWN
+
+class Perm(IntFlag):
+    R = 4
+    W = 2
+    X = 1
+
+class Endian(IntEnum):
+    LITTLE = 1
+    BIG = 2

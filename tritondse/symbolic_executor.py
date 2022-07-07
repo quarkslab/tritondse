@@ -22,6 +22,7 @@ from tritondse.workspace      import Workspace
 from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
 from tritondse.exception      import AbortExecutionException, SkipInstructionException, StopExplorationException
+from tritondse.memory         import MemoryAccessViolation
 
 
 class SymbolicExecutor(object):
@@ -241,7 +242,7 @@ class SymbolicExecutor(object):
                 logging.error(f"PC=0, is it normal ? (stop)")
                 break
 
-            if not self.pstate.is_memory_defined(self.current_pc, CPUSIZE.BYTE):
+            if not self.pstate.memory.has_ever_been_written(self.current_pc, CPUSIZE.BYTE):
                 logging.error(f"Instruction not mapped: 0x{self.current_pc:x}")
                 break
 
@@ -441,10 +442,10 @@ class SymbolicExecutor(object):
 
             elif symbol in SUPORTED_GVARIABLES:
                 # if self.pstate.architecture == Architecture.X86_64:
-                self.pstate.write_memory_ptr(addr, SUPORTED_GVARIABLES[symbol])  # write directly at addr
+                self.pstate.memory.write_ptr(addr, SUPORTED_GVARIABLES[symbol])  # write directly at addr
                 # elif self.pstate.architecture == Architecture.AARCH64:
-                #     val = self.pstate.read_memory_ptr(addr)
-                #     self.pstate.write_memory_ptr(val, SUPORTED_GVARIABLES[symbol])
+                #     val = self.pstate.memory.read_ptr(addr)
+                #     self.pstate.memory.write_ptr(val, SUPORTED_GVARIABLES[symbol])
 
             else:  # the symbol is not supported
                 if self.uid == 0:  # print warning if first uid (so that it get printed once)
@@ -540,6 +541,9 @@ class SymbolicExecutor(object):
             self.__emulate()
         except AbortExecutionException as e:
             pass
+        except MemoryAccessViolation as e:
+            print(e)
+            raise e
 
         # Iterate through post exec callbacks
         for cb in post_cb:
@@ -630,7 +634,7 @@ class SymbolicExecutor(object):
         :return: None
         """
         # Write concrete bytes in memory
-        self.pstate.write_memory_bytes(addr, seed.content)
+        self.pstate.memory.write(addr, seed.content)
 
         # Symbolize bytes
         sym_vars = self.pstate.symbolize_memory_bytes(addr, seed.size, var_prefix)
