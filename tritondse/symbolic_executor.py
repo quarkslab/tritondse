@@ -607,12 +607,12 @@ class SymbolicExecutor(object):
             # Handle stdin and files
             # If the seed provides the content of files (#NOTE stdin is treated as a file)
             new_files = {k: bytes(repl_bytearray(bytearray(c), self._symbolic_seed.files[k])) for k, c in
-                         self.seed.content.files.items()}
+                         self.seed.content.files.items() if k in self._symbolic_seed.files}
 
             # Handle variables
             # If the seed provides the content of variables
             new_variables = {k: bytes(repl_bytearray(bytearray(c), self._symbolic_seed.variables[k])) for k, c in
-                             self.seed.content.variables.items()}
+                             self.seed.content.variables.items() if k in self._symbolic_seed.variables}
 
             content = CompositeData(new_argv, new_files, new_variables)
         else:
