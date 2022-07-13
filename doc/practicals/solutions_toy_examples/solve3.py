@@ -1,4 +1,4 @@
-from tritondse import ProbeInterface, SymbolicExecutor, Config, Program, SymbolicExplorator, ProcessState, CbType, SeedStatus, Seed
+from tritondse import ProbeInterface, SymbolicExecutor, Config, Program, SymbolicExplorator, ProcessState, CbType, SeedStatus, Seed, SeedFormat, CompositeData
 from tritondse.types import Addr, SolverStatus, Architecture
 from tritondse.sanitizers import NullDerefSanitizer
 from triton import Instruction
@@ -52,7 +52,6 @@ def memory_write_callback(se: SymbolicExecutor, pstate: ProcessState, addr, valu
     if lea == None: return
     #print(f"inst: {hex(inst_address)} write {hex(value)} to {hex(read_address)}")
     if inst_address == 0x120f:
-        print(lea)
         rax_sym = pstate.read_symbolic_register(pstate.registers.rax)
         rax = pstate.read_register(pstate.registers.rax)
         rbp = pstate.read_register(pstate.registers.rbp)
@@ -77,9 +76,12 @@ def memory_write_callback(se: SymbolicExecutor, pstate: ProcessState, addr, valu
         once_flag_write = True
 
 p = Program("./3")
-dse = SymbolicExplorator(Config(symbolize_stdin=True, skip_unsupported_import=True), p)
 
-dse.add_input_seed(Seed(b"AZERAZER"))
+dse = SymbolicExplorator(Config(\
+        skip_unsupported_import=True,\
+        seed_format=SeedFormat.COMPOSITE), p)
+
+dse.add_input_seed(Seed(CompositeData(files={"stdin": b"AZERAZER"})))
 
 dse.callback_manager.register_probe(NullDerefSanitizer())
 dse.callback_manager.register_post_execution_callback(post_exec_hook)

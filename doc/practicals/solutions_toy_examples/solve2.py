@@ -1,8 +1,12 @@
-from tritondse import ProbeInterface, SymbolicExecutor, Config, Program, SymbolicExplorator, ProcessState, CbType, SeedStatus, Seed
-from tritondse.types import Addr, SolverStatus, Architecture
+from tritondse import ProbeInterface, SymbolicExecutor, Config, Program, SymbolicExplorator, ProcessState, CbType, SeedStatus, Seed, SeedFormat, Loader, CompositeData
+from tritondse.types import Addr, SolverStatus, Architecture, ArchMode
 from tritondse.sanitizers import NullDerefSanitizer
+from triton import Instruction
 
 once_flag = False
+
+def trace_inst(exec: SymbolicExecutor, pstate: ProcessState, inst: Instruction):
+    print(f"[tid:{inst.getThreadId()}] 0x{inst.getAddress():x}: {inst.getDisassembly()}")
 
 def post_exec_hook(se: SymbolicExecutor, state: ProcessState):
     print(f"seed:{se.seed.hash} ({repr(se.seed.content)})   [exitcode:{se.exitcode}]")
@@ -39,12 +43,18 @@ def memory_read_callback(se: SymbolicExecutor, pstate: ProcessState, addr):
         once_flag = True
 
 p = Program("./2")
-dse = SymbolicExplorator(Config(symbolize_argv=True, skip_unsupported_import=True), p)
+conf = Config(\
+    skip_unsupported_import=True, \
+    seed_format=SeedFormat.COMPOSITE)
 
-dse.add_input_seed(Seed(b"./1\x00AZERAZER"))
+dse = SymbolicExplorator(conf, p)
+
+composite_data = CompositeData(argv=[b"./1", b"AZ\nERAZER"])
+dse.add_input_seed(composite_data)
 
 dse.callback_manager.register_probe(NullDerefSanitizer())
 dse.callback_manager.register_post_execution_callback(post_exec_hook)
 dse.callback_manager.register_memory_read_callback(memory_read_callback)
+#dse.callback_manager.register_pre_instruction_callback(trace_inst)
 
 dse.explore()
