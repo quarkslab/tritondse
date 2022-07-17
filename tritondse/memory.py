@@ -18,16 +18,29 @@ class MemoryAccessViolation(Exception):
     Exception triggered when accessing memory with
     the wrong permissions.
     """
-    def __init__(self, perm: Perm, reason: str):
+    def __init__(self, addr: Addr, access: Perm, map_perm: Perm = None, memory_not_mapped: bool = False, perm_error: bool = False):
         super(MemoryAccessViolation, self).__init__()
-        self.reason = reason
-        self.perm = perm
+        self.address = addr
+        self._is_mem_unmapped = memory_not_mapped
+        self._is_perm_error = perm_error
+        self.access = access
+        self.map_perm = map_perm
+
+    def is_permission_error(self):
+        return self._is_perm_error
+
+    def is_memory_unmapped_error(self):
+        return self._is_mem_unmapped
 
     def __str__(self):
-        return f"MemoryAccessViolation({self.perm}, {self.reason})"
+        if self.is_permission_error():
+            return f"MemoryAccessViolation(addr:{self.address:#08x}, access:{str(self.access)} on map:{str(self.map_perm)})"
+        else:
+            return f"MemoryAccessViolation(addr:{self.address:#08x}({str(self.access)}) unmapped)"
 
     def __repr__(self):
-        return f"MemoryAccessViolation({self.perm}, {self.reason})"
+        return str(self)
+
 
 class MemoryNotMapped(Exception):
     pass
@@ -166,14 +179,18 @@ class Memory(object):
         if self._segment_enabled:
             map = self._get_map(addr, len(data))
             if map is None:
-                raise MemoryAccessViolation(Perm.W, f"[SIGSEV] WRITE at 0x{addr:08x} [{len(data)}]")
+                raise MemoryAccessViolation(addr, Perm.W, memory_not_mapped=True)
+            if Perm.W not in map.perm:
+                raise MemoryAccessViolation(addr, Perm.W, map_perm=map.perm, perm_error=True)
         return self.ctx.setConcreteMemoryAreaValue(addr, data)
 
     def read(self, addr: Addr, size: ByteSize) -> bytes:
         if self._segment_enabled:
             map = self._get_map(addr, size)
             if map is None:
-                raise MemoryAccessViolation(Perm.R, f"[SIGSEV] READ at 0x{addr:08x} [{size}]")
+                raise MemoryAccessViolation(addr, Perm.R, memory_not_mapped=True)
+            if Perm.R not in map.perm:
+                raise MemoryAccessViolation(addr, Perm.R, map_perm=map.perm, perm_error=True)
         return self.ctx.getConcreteMemoryAreaValue(addr, size)
 
     def _get_map(self, ptr: Addr, size: ByteSize) -> Optional[MemMap]:
@@ -199,15 +216,16 @@ class Memory(object):
         except IndexError:
             return None  # Either raised when linear_map is empty or the address is beyond everything that is mapped
 
-    def get_map(self, addr: Addr) -> Optional[MemMap]:
+    def get_map(self, addr: Addr, size: ByteSize = 1) -> Optional[MemMap]:
         """
         Find the MemMap associated with the given address and returns
         it if any.
 
         :param addr: Address of the map (or any map inside)
+        :param size: size of bytes for which we want the map
         :return: MemMap if found
         """
-        return self._get_map(addr, 1)
+        return self._get_map(addr, size)
 
     def is_mapped(self, ptr: Addr, size: ByteSize) -> bool:
         """

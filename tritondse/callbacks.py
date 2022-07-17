@@ -8,10 +8,10 @@ from typing import Callable, Tuple, List, Optional, Union, Any
 from triton import CALLBACK, Instruction, MemoryAccess, OPCODE
 
 # local imports
-from tritondse.process_state  import ProcessState
-from tritondse.types          import Addr, Input, Register, Expression, Edge, SymExType
+from tritondse.process_state import ProcessState
+from tritondse.types import Addr, Input, Register, Expression, Edge, SymExType
 from tritondse.thread_context import ThreadContext
-
+from tritondse.memory import MemoryAccessViolation
 
 class CbPos(Enum):
     """ Enmus representing callback position """
@@ -42,6 +42,7 @@ class CbType(Enum):
     POST_OPCODE = auto()
     BRANCH_COV = auto()
     SYMEX_SOLVING = auto()
+    MEM_VIOLATION = auto()
 
 
 AddrCallback            = Callable[['SymbolicExecutor', ProcessState, Addr], None]
@@ -59,6 +60,7 @@ RegWriteCallback        = Callable[['SymbolicExecutor', ProcessState, Register, 
 RtnCallback             = Callable[['SymbolicExecutor', ProcessState, str, Addr], Optional[Union[int, Expression]]]
 SymExCallback           = Callable[['SymbolicExecutor', ProcessState], None]
 ThreadCallback          = Callable[['SymbolicExecutor', ProcessState, ThreadContext], None]
+MemoryViolationCallback = Callable[['SymbolicExecutor', ProcessState, MemoryAccessViolation], None]
 
 
 class ProbeInterface(object):
@@ -102,6 +104,7 @@ class CallbackManager(object):
         self._branch_covered_cbs = []  # each time a branch is covered
         self._pre_rtn_cbs        = {}  # before imported routine calls ({str: [RtnCallback]})
         self._post_rtn_cbs       = {}  # after imported routine calls ({str: [RtnCallback]})
+        self._mem_violation_cbs  = []  # called when an exception is raised
 
         # Triton callbacks
         self._mem_read_cbs  = []  # memory reads
@@ -642,6 +645,7 @@ class CallbackManager(object):
         self._branch_covered_cbs.append(callback)
         self._empty = False
 
+
     def get_on_branch_covered_callback(self) -> List[BranchCoveredCallback]:
         """
         Get the list of all function callbacks to call when a branch is about
@@ -650,6 +654,27 @@ class CallbackManager(object):
         :return: List of callbacks to call on branch covered
         """
         return self._branch_covered_cbs
+
+
+    def register_memory_violation_callback(self, callback: MemoryViolationCallback) -> None:
+        """
+        Register a callback function called when a memory violation occured during the
+        emulation.
+
+        :param callback: callback function
+        :type callback: :py:obj:`tritondse.callbacks.MemoryViolationCallback`
+        """
+        self._mem_violation_cbs.append(callback)
+        self._empty = False
+
+    def get_memory_violation_callbacks(self) -> List[MemoryViolationCallback]:
+        """
+        Get all memory violation callbacks.
+
+        :return: list of memory violation callbacks
+        """
+        return self._mem_violation_cbs
+
 
     def get_exploration_step_callbacks(self) -> List[ExplorationStepCallback]:
         """
@@ -738,7 +763,8 @@ class CallbackManager(object):
                     CbType.NEW_INPUT: self.register_new_input_callback,
                     CbType.EXPLORE_STEP: self.register_exploration_step_callback,
                     CbType.BRANCH_COV: self.register_on_branch_covered_callback,
-                    CbType.SYMEX_SOLVING: self.register_on_solving_callback
+                    CbType.SYMEX_SOLVING: self.register_on_solving_callback,
+                    CbType.MEM_VIOLATION: self.register_memory_violation_callback
                 }
                 mapping[kind](cb)
 
@@ -768,6 +794,7 @@ class CallbackManager(object):
         cbs._branch_covered_cbs = self._branch_covered_cbs
         cbs._pre_rtn_cbs        = self._pre_rtn_cbs
         cbs._post_rtn_cbs       = self._post_rtn_cbs
+        cbs._mem_violation_cbs  = self._mem_violation_cbs
         # Triton callbacks
         cbs._mem_read_cbs  = self._mem_read_cbs
         cbs._mem_write_cbs = self._mem_write_cbs
@@ -806,7 +833,7 @@ class CallbackManager(object):
                 self._instr_cbs[loc].remove(callback)
 
         for cb_list in [self._step_cbs, self._pre_exec, self._post_exec, self._ctx_switch, self._new_input_cbs, self._branch_solving_cbs, self._branch_covered_cbs,
-                        self._mem_read_cbs, self._mem_write_cbs, self._reg_read_cbs, self._reg_write_cbs]:
+                        self._mem_read_cbs, self._mem_write_cbs, self._reg_read_cbs, self._reg_write_cbs, self._mem_violation_cbs]:
             if callback in cb_list:
                 cb_list.remove(callback)
 
@@ -836,6 +863,7 @@ class CallbackManager(object):
         self._branch_covered_cbs = []  # each time a covitem is covered
         self._pre_rtn_cbs        = {}  # before imported routine calls ({str: [RtnCallback]})
         self._post_rtn_cbs       = {}  # after imported routine calls ({str: [RtnCallback]})
+        self._mem_violation_cbs  = []  # reset the memory violation calls
 
         # Triton callbacks
         self._mem_read_cbs  = []  # memory reads
