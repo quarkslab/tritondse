@@ -485,6 +485,8 @@ class ProcessState(object):
         Fetch the instruction at the given address. If no address
         is specified the current program counter one is used.
 
+        :raise MemoryAccessViolation: If the instruction cannot be fetched in the memory.
+
         :param address: address where to get the instruction from
         :return: instruction disassembled
         """
@@ -494,8 +496,11 @@ class ProcessState(object):
         data = self.memory.read(address, 16)
         self.memory.enable_segmentation()
         i = Instruction(address, data)
-        if not self.memory.is_mapped(address, i.getSize()):
-            raise MemoryAccessViolation(Perm.X, f"[SIGSEV] Fetch instruction at 0x{address:08x}")
+        map = self.memory.get_map(address, i.getSize())
+        if map is None:
+            raise MemoryAccessViolation(address, Perm.X, memory_not_mapped=True)
+        if Perm.X not in map.perm:  # Note: in this model we can execute code in non-readable pages
+            raise MemoryAccessViolation(address, Perm.X, map_perm=map.perm, perm_error=True)
         i.setThreadId(self.current_thread.tid)
         self.tt_ctx.disassembly(i)
         return i
