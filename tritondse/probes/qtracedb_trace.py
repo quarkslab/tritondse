@@ -82,7 +82,7 @@ class TraceGenerator(ProbeInterface):
     def _mem_hook(self, pstate: ProcessState, mem: MemoryAccess, kind: MemAccessType):
         addr = mem.getAddress()
         size = mem.getSize()
-        data = pstate.read_memory_bytes(addr, size)
+        data = pstate.memory.read(addr, size)
         self.mems.append(self.trace.add_memaccess(kind, addr, data, self.cur_inst))
 
     def post_exec_hook(self, se: SymbolicExecutor, pstate: ProcessState):

@@ -15,7 +15,10 @@ state of the execution. Events that can be caught are:
 * function reached *(from its name)*
 * end of an execution
 * thread context switch
+* specific instruction mnemonic (e.g: SYSENTER)
+* specific instruction bytes
 * new input creation *(before it gets appended in the pool of seeds)*
+* memory exception *(access invalid memory map or with invalid permissions)*
 
 Only the new input creation, accept a modified input as return value.
 That enable post-processing an input just before it enter the pool of seeds.
@@ -75,13 +78,23 @@ Callback signatures
 
 .. autodata:: tritondse.callbacks.AddrCallback
 
+.. autodata:: tritondse.callbacks.BranchCoveredCallback
+
+.. autodata:: tritondse.callbacks.ExplorationStepCallback
+
 .. autodata:: tritondse.callbacks.InstrCallback
+
+.. autodata:: tritondse.callbacks.MemoryViolationCallback
 
 .. autodata:: tritondse.callbacks.MemReadCallback
 
 .. autodata:: tritondse.callbacks.MemWriteCallback
 
+.. autodata:: tritondse.callbacks.MnemonicCallback
+
 .. autodata:: tritondse.callbacks.NewInputCallback
+
+.. autodata:: tritondse.callbacks.OpcodeCallback
 
 .. autodata:: tritondse.callbacks.RegReadCallback
 
@@ -91,4 +104,7 @@ Callback signatures
 
 .. autodata:: tritondse.callbacks.SymExCallback
 
+.. autodata:: tritondse.callbacks.SymExSolvingCallback
+
 .. autodata:: tritondse.callbacks.ThreadCallback
+

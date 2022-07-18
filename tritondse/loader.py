@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # built-in imports
+from collections import namedtuple
 from pathlib import Path
 from typing import Optional, Generator, Tuple, Dict
 import logging
@@ -8,6 +9,10 @@ import logging
 # local imports
 from tritondse.types import Addr, Architecture, Platform, ArchMode, PathLike
 from tritondse.arch import ARCHS
+
+
+
+LoadableSegment = namedtuple('LoadableSegment', 'address perms content')
 
 
 class Loader(object):
@@ -60,7 +65,7 @@ class Loader(object):
         """
         return None
 
-    def memory_segments(self) -> Generator[Tuple[Addr, bytes], None, None]:
+    def memory_segments(self) -> Generator[LoadableSegment, None, None]:
         """
         Iterate over all memory segments of the program as loaded in memory.
 
