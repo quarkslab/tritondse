@@ -113,3 +113,12 @@ class SolverStatus(IntEnum):
     UNSAT   = SOLVER_STATE.UNSAT
     TIMEOUT = SOLVER_STATE.TIMEOUT
     UNKNOWN = SOLVER_STATE.UNKNOWN
+
+class Perm(IntFlag):
+    R = 4
+    W = 2
+    X = 1
+
+class Endian(IntEnum):
+    LITTLE = 1
+    BIG = 2

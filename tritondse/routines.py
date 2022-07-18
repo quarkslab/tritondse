@@ -58,18 +58,20 @@ def rtn_ctype_b_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     ctype += b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
     ctype += b"\x00\x00\x00\x00\x00\x00\x00\x00"
 
-    size   = pstate.ptr_size
-    ptable = pstate.BASE_CTYPE
-    table  = (size * 2) + pstate.BASE_CTYPE
-    otable = table + 256
+    # Allocate on heap enough to make the table to fit
+    alloc_size = 2*pstate.ptr_size + len(ctype)
+    base_ctype = pstate.heap_allocator.alloc(alloc_size)
 
-    pstate.write_memory_ptr(ptable + 0x00, otable)
-    pstate.write_memory_ptr(ptable+size, 0)
+    ctype_table_offset = base_ctype + (pstate.ptr_size * 2)
+    otable_offset = ctype_table_offset + 256
+
+    pstate.memory.write_ptr(base_ctype, otable_offset)
+    pstate.memory.write_ptr(base_ctype+pstate.ptr_size, 0)
 
     # FIXME: On pourrait la renvoyer qu'une seule fois ou la charger au demarage direct dans pstate
-    pstate.write_memory_bytes(table, ctype)
+    pstate.memory.write(ctype_table_offset, ctype)
 
-    return ptable
+    return base_ctype
 
 
 def rtn_errno_location(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -80,7 +82,7 @@ def rtn_errno_location(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Errno is a int* ptr
     # Initialize it to zero
-    pstate.write_memory_int(pstate.ERRNO_PTR, CPUSIZE.DWORD, 0)
+    pstate.memory.write_dword(pstate.ERRNO_PTR, 0)
 
     return pstate.ERRNO_PTR
 
@@ -114,34 +116,39 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logging.debug(f"argc = {argc}")
 
     # Define argv
-    base = pstate.BASE_ARGV
     addrs = list()
-
-    index = 0
 
     if se.config.seed_format == SeedFormat.COMPOSITE and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
         argvs = se.seed.content.argv
     else:  # use the config argv
         argvs = [x.encode("latin-1") for x in se.config.program_argv]  # Convert it from str to bytes
 
+    # Compute the allocation size: size of strings, + all \x00 + all pointers
+    size = sum(len(x) for x in argvs)+len(argvs)+len(argvs)*pstate.ptr_size
+    if size == 0:  # Falback on a single pointer that will hold not even be initialized
+        size = pstate.ptr_size
+
+    # We put the ARGV stuff on the heap even though its normally on stack
+    base = pstate.heap_allocator.alloc(size)
+
     for i, arg in enumerate(argvs):
         addrs.append(base)
-        pstate.write_memory_bytes(base, arg + b'\x00')
+        pstate.memory.write(base, arg + b'\x00')
 
         if se.config.seed_format == SeedFormat.COMPOSITE and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
             # Symbolize the argv string
             se.inject_symbolic_input(base, arg, f"argv[{i}]", CompositeField.ARGV)
             # FIXME: Shall add a constraint on every char to be != \x00
 
-        logging.debug(f"argv[{index}] = {repr(pstate.read_memory_bytes(base, len(arg)))}")
+        logging.debug(f"argv[{i}] = {repr(pstate.memory.read(base, len(arg)))}")
         base += len(arg) + 1
-        index += 1
+
 
     # NOTE: the array of pointers will be after the string themselves
     b_argv = base
     for addr in addrs:
-        pstate.write_memory_ptr(base, addr)
-        base += CPUSIZE.QWORD
+        pstate.memory.write_ptr(base, addr)
+        base += pstate.ptr_size
 
     # Concrete value
     pstate.write_argument_value(1, b_argv)
@@ -170,28 +177,28 @@ def rtn_xstat(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg1 = pstate.get_argument_value(1)  # const char* path
     arg2 = pstate.get_argument_value(2)  # struct stat* stat_buf
 
-    if os.path.isfile(pstate.get_memory_string(arg1)):
-        stat = os.stat(pstate.get_memory_string(arg1))
-        pstate.write_memory_int(arg2 + 0x00, CPUSIZE.QWORD, stat.st_dev)
-        pstate.write_memory_int(arg2 + 0x08, CPUSIZE.QWORD, stat.st_ino)
-        pstate.write_memory_int(arg2 + 0x10, CPUSIZE.QWORD, stat.st_nlink)
-        pstate.write_memory_int(arg2 + 0x18, CPUSIZE.DWORD, stat.st_mode)
-        pstate.write_memory_int(arg2 + 0x1c, CPUSIZE.DWORD, stat.st_uid)
-        pstate.write_memory_int(arg2 + 0x20, CPUSIZE.DWORD, stat.st_gid)
-        pstate.write_memory_int(arg2 + 0x24, CPUSIZE.DWORD, 0)
-        pstate.write_memory_int(arg2 + 0x28, CPUSIZE.QWORD, stat.st_rdev)
-        pstate.write_memory_int(arg2 + 0x30, CPUSIZE.QWORD, stat.st_size)
-        pstate.write_memory_int(arg2 + 0x38, CPUSIZE.QWORD, stat.st_blksize)
-        pstate.write_memory_int(arg2 + 0x40, CPUSIZE.QWORD, stat.st_blocks)
-        pstate.write_memory_int(arg2 + 0x48, CPUSIZE.QWORD, 0)
-        pstate.write_memory_int(arg2 + 0x50, CPUSIZE.QWORD, 0)
-        pstate.write_memory_int(arg2 + 0x58, CPUSIZE.QWORD, 0)
-        pstate.write_memory_int(arg2 + 0x60, CPUSIZE.QWORD, 0)
-        pstate.write_memory_int(arg2 + 0x68, CPUSIZE.QWORD, 0)
-        pstate.write_memory_int(arg2 + 0x70, CPUSIZE.QWORD, 0)
-        pstate.write_memory_int(arg2 + 0x78, CPUSIZE.QWORD, 0)
-        pstate.write_memory_int(arg2 + 0x80, CPUSIZE.QWORD, 0)
-        pstate.write_memory_int(arg2 + 0x88, CPUSIZE.QWORD, 0)
+    if os.path.isfile(pstate.memory.read_string(arg1)):
+        stat = os.stat(pstate.memory.read_string(arg1))
+        pstate.memory.write_qword(arg2 + 0x00, stat.st_dev)
+        pstate.memory.write_qword(arg2 + 0x08, stat.st_ino)
+        pstate.memory.write_qword(arg2 + 0x10, stat.st_nlink)
+        pstate.memory.write_dword(arg2 + 0x18, stat.st_mode)
+        pstate.memory.write_dword(arg2 + 0x1c, stat.st_uid)
+        pstate.memory.write_dword(arg2 + 0x20, stat.st_gid)
+        pstate.memory.write_dword(arg2 + 0x24, 0)
+        pstate.memory.write_qword(arg2 + 0x28, stat.st_rdev)
+        pstate.memory.write_qword(arg2 + 0x30, stat.st_size)
+        pstate.memory.write_qword(arg2 + 0x38, stat.st_blksize)
+        pstate.memory.write_qword(arg2 + 0x40, stat.st_blocks)
+        pstate.memory.write_qword(arg2 + 0x48, 0)
+        pstate.memory.write_qword(arg2 + 0x50, 0)
+        pstate.memory.write_qword(arg2 + 0x58, 0)
+        pstate.memory.write_qword(arg2 + 0x60, 0)
+        pstate.memory.write_qword(arg2 + 0x68, 0)
+        pstate.memory.write_qword(arg2 + 0x70, 0)
+        pstate.memory.write_qword(arg2 + 0x78, 0)
+        pstate.memory.write_qword(arg2 + 0x80, 0)
+        pstate.memory.write_qword(arg2 + 0x88, 0)
         return 0
 
     return pstate.minus_one
@@ -350,8 +357,8 @@ def rtn_clock_gettime(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     else:
         t = time.time()
 
-    pstate.write_memory_int(tp, pstate.ptr_size, int(t))
-    pstate.write_memory_int(tp+pstate.ptr_size, pstate.ptr_size, int(t * 1000000))
+    pstate.memory.write_ptr(tp, int(t))
+    pstate.memory.write_ptr(tp+pstate.ptr_size, int(t * 1000000))
 
     # Return value
     return 0
@@ -416,7 +423,7 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
         se.inject_symbolic_input(buff, content, "stdin")
 
-        logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
+        logging.debug(f"stdin = {repr(pstate.memory.read(buff, minsize))}")
         return buff_ast
 
     if fd in pstate.fd_table:
@@ -426,7 +433,7 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             # We use fd as concret value
             pstate.concretize_argument(1)
             data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
-            pstate.write_memory_bytes(buff, data)
+            pstate.memory.write(buff, data)
             return buff_ast
         else: # SeedFormat.COMPOSITE
             filename = pstate.filename_table[fd]
@@ -451,8 +458,8 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # Get arguments
     arg0  = pstate.get_argument_value(0)  # const char *pathname
     arg1  = pstate.get_argument_value(1)  # const char *mode
-    arg0s = pstate.get_memory_string(arg0)
-    arg1s = pstate.get_memory_string(arg1)
+    arg0s = pstate.memory.read_string(arg0)
+    arg1s = pstate.memory.read_string(arg1)
 
     # Concretize the whole path name
     pstate.concretize_memory_bytes(arg0, len(arg0s)+1)  # Concretize the whole string + \0
@@ -564,20 +571,20 @@ def rtn_fputs(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             return 0
         elif arg1 == 1:
             if se.config.pipe_stdout:
-                sys.stdout.write(pstate.get_memory_string(arg0))
+                sys.stdout.write(pstate.memory.read_string(arg0))
                 sys.stdout.flush()
         elif arg1 == 2:
             if se.config.pipe_stderr:
-                sys.stderr.write(pstate.get_memory_string(arg0))
+                sys.stderr.write(pstate.memory.read_string(arg0))
                 sys.stderr.flush()
         else:
             fd = open(pstate.fd_table[arg1], 'wb+')
-            fd.write(pstate.get_memory_string(arg0))
+            fd.write(pstate.memory.read_string(arg0))
     else:
         return 0
 
     # Return value
-    return len(pstate.get_memory_string(arg0))
+    return len(pstate.memory.read_string(arg0))
 
 
 def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -604,7 +611,7 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         else:
             data = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
             se.inject_symbolic_input(arg0, data, "stdin")
-            logging.debug(f"stdin = {repr(pstate.read_memory_bytes(arg0, minsize))}")
+            logging.debug(f"stdin = {repr(pstate.memory.read(arg0, minsize))}")
             # TODO: Could return the read value as a symbolic one
             return minsize
 
@@ -614,7 +621,7 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                 or pstate.filename_table[arg3] not in se.seed.content.files:
             data = pstate.fd_table[arg3].read(arg1 * arg2)
             if isinstance(data, str): data = data.encode()
-            pstate.write_memory_bytes(arg0, data)
+            pstate.memory.write(arg0, data)
         else: # SeedFormat.COMPOSITE and it contains filename
             filename = pstate.filename_table[arg3]
             filecontent = se.seed.content.files[filename]
@@ -654,7 +661,7 @@ def rtn_fwrite(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg2 = pstate.get_argument_value(2)
     arg3 = pstate.get_argument_value(3)
     size = arg1 * arg2
-    data = pstate.read_memory_bytes(arg0, size)
+    data = pstate.memory.read(arg0, size)
 
     if arg3 in pstate.fd_table:
         if arg3 == 0:
@@ -696,8 +703,8 @@ def rtn_gettimeofday(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         t = time.time()
 
     s = pstate.ptr_size
-    pstate.write_memory_int(tv, s, int(t))
-    pstate.write_memory_int(tv+s, s, int(t * 1000000))
+    pstate.memory.write_ptr(tv, int(t))
+    pstate.memory.write_ptr(tv+pstate.ptr_size, int(t * 1000000))
 
     # Return value
     return 0
@@ -711,7 +718,7 @@ def rtn_malloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Get arguments
     size = pstate.get_argument_value(0)
-    ptr  = pstate.heap_allocator.alloc(size)
+    ptr = pstate.heap_allocator.alloc(size)
 
     # Return value
     return ptr
@@ -777,8 +784,8 @@ def rtn_memmem(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     needle      = pstate.get_argument_value(2)  # const void *
     needlelen   = pstate.get_argument_value(3)  # size_t
 
-    s1 = pstate.read_memory_bytes(haystack, haystacklen)  # haystack
-    s2 = pstate.read_memory_bytes(needle, needlelen)      # needle
+    s1 = pstate.memory.read(haystack, haystacklen)  # haystack
+    s2 = pstate.memory.read(needle, needlelen)      # needle
 
     offset = s1.find(s2)
     if offset == -1:
@@ -882,7 +889,7 @@ def rtn_pthread_create(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     th = pstate.spawn_new_thread(arg2, arg3)
 
     # Save out the thread id
-    pstate.write_memory_ptr(arg0, th.tid)
+    pstate.memory.write_ptr(arg0, th.tid)
 
     # Return value
     return 0
@@ -936,7 +943,7 @@ def rtn_pthread_mutex_destroy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *restrict mutex
-    pstate.write_memory_ptr(arg0, pstate.PTHREAD_MUTEX_INIT_MAGIC)
+    pstate.memory.write_ptr(arg0, pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
     return 0
 
@@ -951,7 +958,7 @@ def rtn_pthread_mutex_init(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *restrict mutex
     arg1 = pstate.get_argument_value(1)  # const pthread_mutexattr_t *restrict attr)
 
-    pstate.write_memory_ptr(arg0, pstate.PTHREAD_MUTEX_INIT_MAGIC)
+    pstate.memory.write_ptr(arg0, pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
     return 0
 
@@ -964,12 +971,12 @@ def rtn_pthread_mutex_lock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *mutex
-    mutex = pstate.read_memory_ptr(arg0)  # deref pointer and read a uint64 int
+    mutex = pstate.memory.read_ptr(arg0)  # deref pointer and read a uint64 int
 
     # If the thread has been initialized and unused, define the tid has lock
     if mutex == pstate.PTHREAD_MUTEX_INIT_MAGIC:
         logging.debug('mutex unlocked')
-        pstate.write_memory_ptr(arg0, pstate.current_thread.tid)
+        pstate.memory.write_ptr(arg0, pstate.current_thread.tid)
 
     # The mutex is locked and we are not allowed to continue the execution
     elif mutex != pstate.current_thread.tid:
@@ -989,7 +996,7 @@ def rtn_pthread_mutex_unlock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *mutex
 
-    pstate.write_memory_ptr(arg0, pstate.PTHREAD_MUTEX_INIT_MAGIC)
+    pstate.memory.write_ptr(arg0, pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
     # Return value
     return 0
@@ -1044,23 +1051,22 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
         se.inject_symbolic_input(buff, content, "stdin")
 
-        logging.debug(f"stdin = {repr(pstate.read_memory_bytes(buff, minsize))}")
+        logging.debug(f"stdin = {repr(pstate.memory.read(buff, minsize))}")
         # TODO: Could return the read value as a symbolic one
         return minsize
-
 
     if fd in pstate.fd_table:
         if se.config.seed_format == SeedFormat.RAW\
                 or pstate.filename_table[fd] not in se.seed.content:
             pstate.concretize_argument(2)
             data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
-            pstate.write_memory_bytes(buff, data)
+            pstate.memory.write(buff, data)
             return len(data)
         else: # SeedFormat.COMPOSITE
             filename = pstate.filename_table[fd]
             minsize  = (min(len(se.seed.content[filename]), size) if se.seed else size)
             data = se.seed.content[filename][:minsize] if se.seed else b'\x00' * minsize
-            se.inject_symbolic_input(buff, Seed(data), filename, CompositeField.FILE)
+            se.inject_symbolic_input(buff, data, filename, CompositeField.FILE)
             return len(data)
 
     return 0
@@ -1076,7 +1082,7 @@ def rtn_sem_destroy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
 
     # Destroy the semaphore with the value
-    pstate.write_memory_ptr(arg0, 0)
+    pstate.memory.write_ptr(arg0, 0)
 
     # Return success
     return 0
@@ -1092,10 +1098,10 @@ def rtn_sem_getvalue(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
     arg1 = pstate.get_argument_value(1)  # int *sval
 
-    value = pstate.read_memory_ptr(arg0)  # deref pointer
+    value = pstate.memory.read_ptr(arg0)  # deref pointer
 
     # Set the semaphore's value into the output
-    pstate.write_memory_int(arg1, CPUSIZE.DWORD, value)  # WARNING: read uint64 to uint32
+    pstate.memory.write_dword(arg1, value)  # WARNING: read uint64 to uint32
 
     # Return success
     return 0
@@ -1113,7 +1119,7 @@ def rtn_sem_init(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg2 = pstate.get_argument_value(2)  # unsigned int value
 
     # Init the semaphore with the value
-    pstate.write_memory_ptr(arg0, arg2)
+    pstate.memory.write_ptr(arg0, arg2)
 
     # Return success
     return 0
@@ -1128,8 +1134,8 @@ def rtn_sem_post(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
 
     # increments (unlocks) the semaphore pointed to by sem
-    value = pstate.read_memory_ptr(arg0)
-    pstate.write_memory_ptr(arg0, value + 1)
+    value = pstate.memory.read_ptr(arg0)
+    pstate.memory.write_ptr(arg0, value + 1)
 
     # Return success
     return 0
@@ -1163,10 +1169,10 @@ def rtn_sem_timedwait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # abs_timeout is not checked in this case.
 
     # TODO: Take into account the abs_timeout argument
-    value = pstate.read_memory_ptr(arg0)
+    value = pstate.memory.read_ptr(arg0)
     if value > 0:
         logging.debug('semaphore still not locked')
-        pstate.write_memory_ptr(arg0, value - 1)
+        pstate.memory.write_ptr(arg0, value - 1)
         pstate.semaphore_locked = False
     else:
         logging.debug('semaphore locked')
@@ -1187,16 +1193,16 @@ def rtn_sem_trywait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # sem_trywait()  is  the  same as sem_wait(), except that if the decrement
     # cannot be immediately performed, then call returns an error (errno set to
     # EAGAIN) instead of blocking.
-    value = pstate.read_memory_ptr(arg0)
+    value = pstate.memory.read_ptr(arg0)
     if value > 0:
         logging.debug('semaphore still not locked')
-        pstate.write_memory_ptr(arg0, value - 1)
+        pstate.memory.write_ptr(arg0, value - 1)
         pstate.semaphore_locked = False
     else:
         logging.debug('semaphore locked but continue')
         pstate.semaphore_locked = False
         # Setting errno to EAGAIN (3406)
-        pstate.write_memory_int(pstate.ERRNO_PTR, CPUSIZE.DWORD, 3406)
+        pstate.memory.write_dword(pstate.ERRNO_PTR, 3406)
         # Return -1
         return pstate.minus_one
 
@@ -1217,10 +1223,10 @@ def rtn_sem_wait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # immediately. If the semaphore currently has the value zero, then the call blocks
     # until either it becomes possible to perform the decrement (i.e., the semaphore
     # value rises above zero).
-    value = pstate.read_memory_ptr(arg0)
+    value = pstate.memory.read_ptr(arg0)
     if value > 0:
         logging.debug('semaphore still not locked')
-        pstate.write_memory_ptr(arg0, value - 1)
+        pstate.memory.write_ptr(arg0, value - 1)
         pstate.semaphore_locked = False
     else:
         logging.debug('semaphore locked')
@@ -1288,15 +1294,15 @@ def rtn_strcasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     s1 = pstate.get_argument_value(0)
     s2 = pstate.get_argument_value(1)
-    size = min(len(pstate.get_memory_string(s1)), len(pstate.get_memory_string(s2)) + 1)
+    size = min(len(pstate.memory.read_string(s1)), len(pstate.memory.read_string(s2)) + 1)
 
-    #s = s1 if len(pstate.get_memory_string(s1)) < len(pstate.get_memory_string(s2)) else s2
+    #s = s1 if len(pstate.memory.read_string(s1)) < len(pstate.memory.read_string(s2)) else s2
     #for i in range(size):
     #    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
     #    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
     #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
-    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(pstate.get_memory_string(s1)), CPUSIZE.BYTE)) == 0x00)
-    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(pstate.get_memory_string(s2)), CPUSIZE.BYTE)) == 0x00)
+    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(pstate.memory.read_string(s1)), CPUSIZE.BYTE)) == 0x00)
+    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(pstate.memory.read_string(s2)), CPUSIZE.BYTE)) == 0x00)
 
     # FIXME: Il y a des truc chelou avec le +1 et le logic ci-dessous
 
@@ -1329,10 +1335,10 @@ def rtn_strchr(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         res  = ast.ite(cell == (char & 0xff), ast.bv(string + deep, 64), rec(res, deep + 1, maxdeep))
         return res
 
-    sze = len(pstate.get_memory_string(string))
+    sze = len(pstate.memory.read_string(string))
     res = rec(ast.bv(0, 64), 0, sze)
 
-    for i, c in enumerate(pstate.get_memory_string(string)):
+    for i, c in enumerate(pstate.memory.read_string(string)):
         pstate.push_constraint(pstate.read_symbolic_memory_byte(string+i).getAst() != 0x00)
     pstate.push_constraint(pstate.read_symbolic_memory_byte(string+sze).getAst() == 0x00)
 
@@ -1347,15 +1353,15 @@ def rtn_strcmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     s1 = pstate.get_argument_value(0)
     s2 = pstate.get_argument_value(1)
-    size = min(len(pstate.get_memory_string(s1)), len(pstate.get_memory_string(s2))) + 1
+    size = min(len(pstate.memory.read_string(s1)), len(pstate.memory.read_string(s2))) + 1
 
-    #s = s1 if len(pstate.get_memory_string(s1)) <= len(pstate.get_memory_string(s2)) else s2
+    #s = s1 if len(pstate.memory.read_string(s1)) <= len(pstate.memory.read_string(s2)) else s2
     #for i in range(size):
     #    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
     #    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
     #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
-    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(pstate.get_memory_string(s1)), CPUSIZE.BYTE)) == 0x00)
-    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(pstate.get_memory_string(s2)), CPUSIZE.BYTE)) == 0x00)
+    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(pstate.memory.read_string(s1)), CPUSIZE.BYTE)) == 0x00)
+    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(pstate.memory.read_string(s2)), CPUSIZE.BYTE)) == 0x00)
 
     # FIXME: Il y a des truc chelou avec le +1 et le logic ci-dessous
 
@@ -1377,7 +1383,7 @@ def rtn_strcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     dst  = pstate.get_argument_value(0)
     src  = pstate.get_argument_value(1)
-    src_str = pstate.get_memory_string(src)
+    src_str = pstate.memory.read_string(src)
     size = len(src_str)
 
     # constraint src buff to be != \00 and last one to be \00 (indirectly concretize length)
@@ -1549,9 +1555,8 @@ def rtn_strerror(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # TODO: We allocate the string at every hit of this function with a
     # potential memory leak. We should allocate the sys_errlist only once
     # and then refer to this table instead of allocate string.
-
     ptr = pstate.heap_allocator.alloc(len(str) + 1)
-    pstate.write_memory_bytes(ptr, str + b'\0')
+    pstate.memory.write(ptr, str + b'\0')
 
     return ptr
 
@@ -1574,12 +1579,12 @@ def rtn_strlen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         res  = ast.ite(cell == 0x00, ast.bv(deep, 64), rec(res, s, deep + 1, maxdeep))
         return res
 
-    sze = len(pstate.get_memory_string(s))
+    sze = len(pstate.memory.read_string(s))
     res = ast.bv(sze, 64)
     res = rec(res, s, 0, sze)
 
     # FIXME: That routine should do something like below to be SOUND !
-    # for i, c in enumerate(pstate.get_memory_string(src)):
+    # for i, c in enumerate(pstate.memory.read_string(src)):
     #     pstate.push_constraint(pstate.read_symbolic_memory_byte(src + i) != 0x00)
     # pstate.push_constraint(pstate.read_symbolic_memory_byte(src + size) == 0x00)
 
@@ -1597,7 +1602,7 @@ def rtn_strncasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     s1 = pstate.get_argument_value(0)
     s2 = pstate.get_argument_value(1)
     sz = pstate.get_argument_value(2)
-    maxlen = min(sz, min(len(pstate.get_memory_string(s1)), len(pstate.get_memory_string(s2))) + 1)
+    maxlen = min(sz, min(len(pstate.memory.read_string(s1)), len(pstate.memory.read_string(s2))) + 1)
 
     ast = pstate.actx
     res = ast.bv(0, pstate.ptr_bit_size)
@@ -1620,7 +1625,7 @@ def rtn_strncmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     s1 = pstate.get_argument_value(0)
     s2 = pstate.get_argument_value(1)
     sz = pstate.get_argument_value(2)
-    maxlen = min(sz, min(len(pstate.get_memory_string(s1)), len(pstate.get_memory_string(s2))) + 1)
+    maxlen = min(sz, min(len(pstate.memory.read_string(s1)), len(pstate.memory.read_string(s2))) + 1)
 
     ast = pstate.actx
     res = ast.bv(0, 64)
@@ -1666,13 +1671,13 @@ def rtn_strtok_r(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     string  = pstate.get_argument_value(0)
     delim   = pstate.get_argument_value(1)
     saveptr = pstate.get_argument_value(2)
-    saveMem = pstate.read_memory_ptr(saveptr)
+    saveMem = pstate.memory.read_ptr(saveptr)
 
     if string == 0:
         string = saveMem
 
-    d = pstate.get_memory_string(delim)
-    s = pstate.get_memory_string(string)
+    d = pstate.memory.read_string(delim)
+    s = pstate.memory.read_string(string)
 
     tokens = re.split('[' + re.escape(d) + ']', s)
 
@@ -1693,9 +1698,9 @@ def rtn_strtok_r(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                 for delim in d:
                     pstate.push_constraint(node != ord(delim))
 
-            pstate.write_memory_byte(string + offset + len(token), 0)
+            pstate.memory.write_char(string + offset + len(token), 0)
             # Save the pointer
-            pstate.write_memory_ptr(saveptr, string + offset + len(token) + 1)
+            pstate.memory.write_ptr(saveptr, string + offset + len(token) + 1)
             # Return the token
             return string + offset
 

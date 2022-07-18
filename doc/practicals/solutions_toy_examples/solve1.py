@@ -13,7 +13,7 @@ def hook_fread(exec: SymbolicExecutor, pstate: ProcessState, routine: str, addr:
     sizeof = pstate.get_argument_value(2)
     exec.inject_symbolic_input(arg, exec.seed)
     print("Symbolizing {} bytes at {}".format(hex(sizeof), hex(arg)))
-    s = pstate.get_memory_string(arg)
+    s = pstate.memory.read_string(arg)
     print(f"fread: {s}")
     return 0
 
@@ -22,7 +22,7 @@ def hook_sscanf4(exec: SymbolicExecutor, pstate: ProcessState, routine: str, add
     ast = pstate.actx
     addr_j = pstate.get_argument_value(2)
     arg = pstate.get_argument_value(0)
-    int_str = pstate.get_memory_string(arg)
+    int_str = pstate.memory.read_string(arg)
 
     cells = {i: pstate.read_symbolic_memory_byte(arg+i).getAst() for i in range(10)}
 

@@ -128,7 +128,7 @@ class NullDerefSanitizer(ProbeInterface):
         # page on déclenche ce sanitizer...
 
         # FIXME: Why do we call is_valid_memory_mapping ? It is not a "Null Deref vulnerability", it is more a segmentation error
-        if ptr == 0 or not pstate.is_valid_memory_mapping(ptr, padding_segment=16):
+        if ptr == 0 or not pstate.memory.is_mapped(ptr, padding_segment=16):
             if description:
                 logging.critical(description)
             se.seed.status = SeedStatus.CRASH
@@ -190,7 +190,7 @@ class FormatStringSanitizer(ProbeInterface):
 
         # Count the number of cells which is symbolic
         cur_ptr = fmt_ptr
-        while se.pstate.read_memory_int(cur_ptr, 1):  # while different from 0
+        while se.pstate.memory.read_uchar(cur_ptr):  # while different from 0
             if se.pstate.is_memory_symbolic(cur_ptr, 1):
                 symbolic_cells.append(cur_ptr)
             cur_ptr += 1
