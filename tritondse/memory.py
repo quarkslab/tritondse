@@ -2,7 +2,6 @@ from triton import TritonContext
 import bisect
 from typing import Optional, Union, Generator
 from collections import namedtuple
-from contextlib import ContextDecorator
 import struct
 
 from tritondse.types import Perm, Addr, ByteSize, Endian
@@ -40,10 +39,6 @@ class MemoryAccessViolation(Exception):
 
     def __repr__(self):
         return str(self)
-
-
-class MemoryNotMapped(Exception):
-    pass
 
 
 STRUCT_MAP = {
@@ -157,11 +152,11 @@ class Memory(object):
                 if addr == mapaddr:  # We are exactly on the map address
                     _unmap_idx(idx)
                 else:
-                    raise MemoryNotMapped()
+                    raise MemoryAccessViolation(addr, Perm(0), memory_not_mapped=True)
             else:  # We are on an end address
                 _unmap_idx(idx-1)
         except IndexError:
-            raise MemoryNotMapped()
+            raise MemoryAccessViolation(addr, Perm(0), memory_not_mapped=True)
 
     def __setitem__(self, key: Addr, value: bytes):
         if isinstance(key, slice):
@@ -380,19 +375,3 @@ class Memory(object):
 
     def write_long_long(self, addr: Addr, value: int):
         return self.write_int(addr, value, 8)
-
-
-
-
-if __name__ == "__main__":
-    from triton import TritonContext, ARCH
-    from tritondse.types import Perm
-    from tritondse.memory import Memory
-
-    ctx = TritonContext(ARCH.X86_64)
-    mem = Memory(ctx)
-    mem.map(0x200, 0x100, Perm.R)
-    mem.map(0x400, 0x500, Perm.R|Perm.W)
-
-    mem.write(0x200, b"toto")
-    mem.write_int(0x400, 0x89abcdef)

@@ -17,4 +17,4 @@ Objectives
 TODO
 
 
-*(All credits to Laurent Laubin)*
+*(Thanks to Lo for the sample)*

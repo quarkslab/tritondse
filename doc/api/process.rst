@@ -18,6 +18,16 @@ CpuState
     :exclude-members:
 
 
+Memory
+------
+
+
+.. autoclass:: tritondse.memory.Memory
+    :members:
+    :undoc-members:
+    :exclude-members:
+
+
 HeapAllocator
 -------------
 
