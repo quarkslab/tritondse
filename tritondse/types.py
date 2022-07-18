@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sys
-from enum import IntEnum, Enum, auto
+from enum import IntEnum, Enum, auto, IntFlag
 from pathlib import Path
 from triton import ARCH, SOLVER_STATE, SOLVER
 from typing import Union, TypeVar, Tuple
@@ -90,6 +90,8 @@ class Architecture(IntEnum):
     X86     = ARCH.X86
     X86_64  = ARCH.X86_64
 
+class ArchMode(IntFlag):
+    THUMB = 1
 
 class Platform(IntEnum):
     """ Enum to manipulate the platform associated to a binary"""

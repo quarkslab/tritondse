@@ -9,7 +9,8 @@ import logging
 import lief
 
 # local imports
-from tritondse.types import PathLike, Addr, Architecture, Platform
+from tritondse.types import PathLike, Addr, Architecture, Platform, ArchMode
+from tritondse.loader import Loader
 
 
 _arch_mapper = {
@@ -25,7 +26,7 @@ _plfm_mapper = {
 }
 
 
-class Program(object):
+class Program(Loader):
     """
     Representation of a program (loaded in memory). This class is wrapping
     `LIEF <https://lief.quarkslab.com/doc/latest>`_ to represent a program
@@ -40,6 +41,7 @@ class Program(object):
         :raise FileNotFoundError: if the file is not properly recognized by lief
                                   or in the wrong architecture
         """
+        super(Program, self).__init__()
         self.path: Path = Path(path)  #: Binary file path
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
@@ -60,6 +62,10 @@ class Program(object):
 
         self._funs = {f.name: f for f in self._binary.concrete.functions}
 
+    @property
+    def name(self) -> str:
+        """ Name of the loader"""
+        return f"Program({self.path})"
 
     @property
     def entry_point(self) -> Addr:
@@ -235,3 +241,8 @@ class Program(object):
         """
         f = self._funs.get(name)
         return f.address if f else None
+
+
+    @property
+    def arch_mode(self) -> ArchMode:
+        pass  # TODO: Richard

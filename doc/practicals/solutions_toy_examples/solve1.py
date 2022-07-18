@@ -1,4 +1,4 @@
-from tritondse import ProbeInterface, SymbolicExecutor, Config, Program, SymbolicExplorator, ProcessState, CbType, SeedStatus, Seed
+from tritondse import ProbeInterface, SymbolicExecutor, Config, Program, SymbolicExplorator, ProcessState, CbType, SeedStatus, Seed, SeedFormat, CompositeData
 from tritondse.types import Addr, SolverStatus, Architecture
 from tritondse.sanitizers import NullDerefSanitizer
 
@@ -87,13 +87,15 @@ def hook_sscanf4(exec: SymbolicExecutor, pstate: ProcessState, routine: str, add
     return res
 
 p = Program("./1")
-dse = SymbolicExplorator(Config(symbolize_stdin=True, skip_unsupported_import=True), p)
+dse = SymbolicExplorator(Config(\
+        skip_unsupported_import=True,\
+        seed_format=SeedFormat.COMPOSITE), p)
 
-dse.add_input_seed(Seed(b"AZERAZER"))
+dse.add_input_seed(Seed(CompositeData(files={"stdin": b"AZERZAER", "tmp.covpro": b"AZERAEZR"})))
 
 dse.callback_manager.register_post_execution_callback(post_exec_hook)
 dse.callback_manager.register_probe(NullDerefSanitizer())
-dse.callback_manager.register_post_imported_routine_callback("fread", hook_fread)
+#dse.callback_manager.register_post_imported_routine_callback("fread", hook_fread)
 dse.callback_manager.register_pre_imported_routine_callback("__isoc99_sscanf", hook_sscanf4)
 
 dse.explore()
