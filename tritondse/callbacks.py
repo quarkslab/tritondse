@@ -11,7 +11,7 @@ from triton import CALLBACK, Instruction, MemoryAccess, OPCODE
 from tritondse.process_state  import ProcessState
 from tritondse.types          import Addr, Input, Register, Expression, Edge, SymExType
 from tritondse.thread_context import ThreadContext
-
+from tritondse.seed import Seed
 
 class CbPos(Enum):
     """ Enmus representing callback position """
@@ -52,7 +52,7 @@ MemWriteCallback        = Callable[['SymbolicExecutor', ProcessState, MemoryAcce
 MnemonicCallback        = Callable[['SymbolicExecutor', ProcessState, OPCODE], None]
 SymExSolvingCallback    = Callable[['SymbolicExecutor', ProcessState, Edge, SymExType], bool]
 BranchCoveredCallback   = Callable[['SymbolicExecutor', ProcessState, Edge], bool]
-NewInputCallback        = Callable[['SymbolicExecutor', ProcessState, Input], Optional[Input]]
+NewInputCallback        = Callable[['SymbolicExecutor', ProcessState, Seed], Optional[Seed]]
 OpcodeCallback          = Callable[['SymbolicExecutor', ProcessState, bytes], None]
 RegReadCallback         = Callable[['SymbolicExecutor', ProcessState, Register], None]
 RegWriteCallback        = Callable[['SymbolicExecutor', ProcessState, Register, int], None]
@@ -228,15 +228,15 @@ class CallbackManager(object):
 
         # Check if there is a program on which to register functions callback
         if self._func_to_register:
-            if se.program:
+            if se.loader:
                 for fname in list(self._func_to_register):
                     cbs = self._func_to_register.pop(fname)
-                    addr = se.program.find_function_addr(fname)
+                    addr = se.loader.find_function_addr(fname)
                     if addr:
                         for cb in cbs:
                             self.register_pre_addr_callback(addr, cb)
                     else:
-                        logging.warning(f"can't find function {fname} in {se.program}")
+                        logging.warning(f"can't find function {fname} in {se.loader}")
             else:
                 logging.warning(f"function callback to resolve but no program provided")
 

@@ -81,14 +81,13 @@ def hook_alert_placeholder(exec: SymbolicExecutor, pstate: ProcessState, addr: i
 
 p = Program("./5")
 alert_placeholder_addr = p.find_function_addr("__alert_placeholder")
-dse = SymbolicExplorator(Config(symbolize_stdin=True, skip_unsupported_import=True), p)
+dse = SymbolicExplorator(Config(skip_unsupported_import=True), p)
 
 #dse.add_input_seed(Seed(b"AZERAZAZERA"))
 dse.add_input_seed(Seed(b"AZER"))
 
 dse.callback_manager.register_probe(NullDerefSanitizer())
 dse.callback_manager.register_post_execution_callback(post_exec_hook)
-#dse.callback_manager.register_post_instruction_callback(trace_inst)
 dse.callback_manager.register_pre_addr_callback(alert_placeholder_addr, hook_alert_placeholder)
 dse.callback_manager.register_probe(StrncpySanitizer())
 

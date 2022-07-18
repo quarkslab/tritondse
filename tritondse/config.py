@@ -8,6 +8,7 @@ from functools import reduce
 # triton-based libraries
 from tritondse.coverage import CoverageStrategy, BranchSolvingStrategy
 from tritondse.types import SmtSolver
+from tritondse.seed import SeedFormat
 
 
 
@@ -18,8 +19,7 @@ class Config(object):
     """
 
     def __init__(self,
-                 symbolize_argv: bool = False,
-                 symbolize_stdin: bool = False,
+                 seed_format: SeedFormat = SeedFormat.RAW,
                  pipe_stdout: bool = False,
                  pipe_stderr: bool = False,
                  skip_sleep_routine: bool = False,
@@ -43,16 +43,15 @@ class Config(object):
         :type debug: bool
         """
 
-        self.symbolize_argv: bool = symbolize_argv
-        """ Symbolize parameters given on the command line. They are then injected on the
-        libc_start_main function call. *(default: False)*"""
-
-        self.symbolize_stdin: bool = symbolize_stdin
-        """ Symbolize reads on ``stdin``. Thus the content of a buffer read in the file
-        descriptor 0 will be symbolized. *(default: False)*
-        
-        .. warning:: At the moment it is incompatible with :py:obj:`tritondse.Config.symbolize_argv`
-                     as a single symbolization point is supported at the moment
+        self.seed_format: SeedFormat = seed_format
+        """ Seed type is either Raw (raw bytes) or Composite (more expressive).
+            RAW seeds will be injected in stdin.
+            COMPOSITE seeds can provide argv, stdin and file inputs:
+            {
+                "argv"  : [b"./myprogram", b"bla\x12\xf0", b"bla", b"\xde\xad\xbe\xef"],
+                "files" : {'stdin': b"AZERAZERAZERAEZR"},
+                "variables" : {'myvar1': b"AZERAZERAZERAEZR"}
+            }
         """
         
         self.pipe_stdout: bool = pipe_stdout
@@ -165,7 +164,8 @@ class Config(object):
         c = Config()
         for k, v in data.items():
             if hasattr(c, k):
-                mapping = {"coverage_strategy": CoverageStrategy, "smt_solver": SmtSolver}
+                mapping = {"coverage_strategy": CoverageStrategy, "smt_solver": SmtSolver,
+                           "seed_format": SeedFormat}
                 if k in mapping:
                     v = mapping[k][v]
                 elif k == "branch_solving_strategy":

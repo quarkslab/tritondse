@@ -179,7 +179,7 @@ class Workspace(object):
                   SeedStatus.HANG: self.HANG_DIR,
                   SeedStatus.CRASH: self.CRASH_DIR}
         p = (self.root_dir / mapper[seed.status]) / seed.filename
-        p.write_bytes(seed.content)
+        p.write_bytes(bytes(seed))
 
 
     def update_seed_location(self, seed: Seed) -> None:

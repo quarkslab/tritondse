@@ -9,7 +9,7 @@ import stat
 
 from tritondse.config            import Config
 from tritondse.process_state     import ProcessState
-from tritondse.program           import Program
+from tritondse.loader            import Loader
 from tritondse.seed              import Seed
 from tritondse.seeds_manager     import SeedManager
 from tritondse.worklist          import SeedScheduler
@@ -36,8 +36,8 @@ class SymbolicExplorator(object):
     executions with the different seeds available in the workspace
     and generated along the way.
     """
-    def __init__(self, config: Config, program: Program = None, workspace: Workspace = None, executor_stop_at: Addr = None, seed_scheduler_class: Type[SeedScheduler] = None):
-        self.program: Program     = program  #: Program being analyzed
+    def __init__(self, config: Config, loader: Loader = None, workspace: Workspace = None, executor_stop_at: Addr = None, seed_scheduler_class: Type[SeedScheduler] = None):
+        self.loader: Loader     = loader  #: Program being analyzed
         self.config: Config       = config   #: Configuration file
         self.cbm: CallbackManager = CallbackManager()
         self._stop          = False
@@ -57,11 +57,11 @@ class SymbolicExplorator(object):
         self.workspace.save_file("config.json", self.config.to_json())
 
         # Save the binary in the workspace if not already done
-        if self.program:
-            bin_path = self.workspace.get_binary_directory() / self.program.path.name
+        if self.loader:
+            bin_path = self.workspace.get_binary_directory() / self.loader.path.name
             if not bin_path.exists():  # If the program is not yet present
-                self.workspace.save_file(bin_path, self.program.path.read_bytes())
-                self.program.path = bin_path  # Patch its official new location
+                self.workspace.save_file(bin_path, self.loader.path.read_bytes())
+                self.loader.path = bin_path  # Patch its official new location
                 bin_path.chmod(stat.S_IRWXU)  # Make it executable
 
         # Configure logfile
@@ -123,8 +123,8 @@ class SymbolicExplorator(object):
         cbs = None if self.cbm.is_empty() else self.cbm.fork()
         logging.info(f"Initialize ProcessState with thread scheduling: {self.config.thread_scheduling}")
         execution = SymbolicExecutor(self.config, seed=seed, workspace=self.workspace, uid=uid, callbacks=cbs)
-        if self.program:  # If doing the exploration from a program
-            execution.load_program(self.program)
+        if self.loader:  # If doing the exploration from a program
+            execution.load(self.loader)
         else:
             execution.load_process(ProcessState())
         self.current_executor = execution

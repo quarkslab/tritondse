@@ -9,15 +9,16 @@ from typing import Union, Callable, Tuple, Optional, List, Dict
 
 # third-party
 # import z3  # For direct value enumeration
-from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, MODE, AST_NODE, SOLVER
+from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, MODE, AST_NODE, SOLVER, EXCEPTION
 
 # local imports
 from tritondse.thread_context import ThreadContext
-from tritondse.program        import Program
+from tritondse.program import Program
 from tritondse.heap_allocator import HeapAllocator
-from tritondse.types          import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
-                                     AstNode, Registers, SolverStatus, Model, SymbolicVariable
-from tritondse.arch           import ARCHS, CpuState
+from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
+                                     AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode
+from tritondse.arch import ARCHS, CpuState
+from tritondse.loader import Loader
 
 
 
@@ -51,7 +52,7 @@ class ProcessState(object):
         self.actx = self.tt_ctx.getAstContext()
 
         # Cpu object wrapping registers values
-        self.cpu: CpuState = None  #: CpuState holding concrete values of registers *(initialized when calling load_program)*
+        self.cpu: CpuState = None  #: CpuState holding concrete values of registers *(initialized when calling load)*
         self._archinfo = None
 
         # Used to define that the process must exist
@@ -68,6 +69,12 @@ class ProcessState(object):
             0: sys.stdin,
             1: sys.stdout,
             2: sys.stderr,
+        }
+        # Table mapping file names to fd
+        self.filename_table = {
+            0: "stdin",
+            1: "stdout",
+            2: "stderr",
         }
         # Unique file id incrementation
         self.fd_id = len(self.fd_table)
@@ -371,26 +378,26 @@ class ProcessState(object):
         self.write_register(self.stack_pointer_register, self.BASE_STACK)
 
 
-    def load_program(self, p: Program, base_addr: Addr = 0) -> None:
+    def load(self, l: Loader, base_addr: Addr = 0) -> None:
         """
         Load the given program in the process state memory. It sets
         the program counter to the entry point and load all segments
         in the triton context.
 
-        :param p: Program to load in the process memory
-        :type p: Program
+        :param l: Loader to use for mapping binary (can by Program, Monolithic etc..)
+        :type l: Loader
         :param base_addr: Base address where to load the program (if PIE)
         :type base_addr: :py:obj:`tritondse.types.Addr`
         """
         # Set the program counter to points to entrypoint
-        self.cpu.program_counter = p.entry_point
+        self.cpu.program_counter = l.entry_point
 
         # Set loading address
         self.load_addr = base_addr
         # TODO: If PIE use this address, if not set absolute address (from binary)
 
         # Load memory areas in memory
-        for vaddr, data in p.memory_segments():
+        for vaddr, data in l.memory_segments():
             logging.debug(f"Loading {vaddr:#08x} - {vaddr+len(data):#08x}")
             self.tt_ctx.setConcreteMemoryAreaValue(vaddr, data)
             size = len(data)
@@ -400,6 +407,8 @@ class ProcessState(object):
             else:
                 self.__program_segments_mapping.update({vaddr: vaddr + size})
 
+    def add_memory_mapping(self, vaddr, size):
+        self.__program_segments_mapping.update({vaddr: vaddr + size})
 
     def is_valid_memory_mapping(self, ptr: Addr, padding_segment: int = 0) -> bool:
         """
@@ -655,7 +664,7 @@ class ProcessState(object):
         if self.tt_ctx.getPathPredicateSize() > __len_pcs:
             self.__pcs_updated = True
 
-        return ret
+        return ret == EXCEPTION.NO_FAULT
 
     @property
     def path_predicate_size(self) -> int:
@@ -1192,7 +1201,6 @@ class ProcessState(object):
         :param addr: Address to symbolize
         :type addr: :py:obj:`tritondse.types.Addr`
         :param alias: alias to give the variable
-        :type size: str
         :return: newly created symbolic variable
         :rtype: :py:obj:`tritondse.types.SymbolicVariable`
         """
@@ -1304,20 +1312,20 @@ class ProcessState(object):
         return result
 
     @staticmethod
-    def from_program(program: Program) -> 'ProcessState':
+    def from_loader(loader: Loader) -> 'ProcessState':
         pstate = ProcessState()
 
         # Initialize the architecture of the processstate
-        pstate.initialize_context(program.architecture)
+        pstate.initialize_context(loader.architecture)
 
-        # Load segments of the program
-        pstate.load_program(program)
+        # Load segments of the loader
+        pstate.load(loader)
 
         # Apply dynamic relocations
         cur_linkage_address = pstate.BASE_PLT
 
         # Link imported functions
-        for fname, rel_addr in program.imported_functions_relocations():
+        for fname, rel_addr in loader.imported_functions_relocations():
             logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
             # Add symbol in dynamic_symbol_table
@@ -1330,7 +1338,7 @@ class ProcessState(object):
             cur_linkage_address += pstate.ptr_size
 
         # Link imported symbols
-        for sname, rel_addr in program.imported_variable_symbols_relocations():
+        for sname, rel_addr in loader.imported_variable_symbols_relocations():
             logging.debug(f"Hooking {sname} at {rel_addr:#x}")
 
             if pstate.architecture == Architecture.X86_64:  # HACK: Keep rel_addr to directly write symbol on it
@@ -1344,4 +1352,12 @@ class ProcessState(object):
 
             cur_linkage_address += pstate.ptr_size
 
+
+        for reg_name in pstate.cpu:
+            if reg_name in loader.cpustate:
+                setattr(pstate.cpu, reg_name, loader.cpustate[reg_name])
+
+        if loader.arch_mode: # If the processor's mode is provided
+            if loader.arch_mode == ArchMode.THUMB:
+                pstate.set_thumb(True)
         return pstate
