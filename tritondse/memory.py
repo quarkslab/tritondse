@@ -158,6 +158,25 @@ class Memory(object):
         except IndexError:
             raise MemoryAccessViolation(addr, Perm(0), memory_not_mapped=True)
 
+    def mprotect(self, addr: Addr, perm: Perm) -> None:
+        """
+        Update the map at the given address with permissions provided in argument.
+
+        :param addr: address of the map of which to change permission
+        :param perm: permission to assign
+        :return: None
+        """
+        idx = bisect.bisect_left(self._linear_map_addr, addr)
+        try:
+            if (idx % 2) == 0:  # We are on a start address (meaning we should be exactly on map start other unmapped)
+                map = self._linear_map_map[idx]
+                self._linear_map_map[idx] = MemMap(map.start, map.size, perm, map.name)  # replace map with new perms
+            else:  # We are on an end address
+                map = self._linear_map_map[idx-1]
+                self._linear_map_map[idx-1] = MemMap(map.start, map.size, perm, map.name)  # replace map with new perms
+        except IndexError:
+            raise MemoryAccessViolation(addr, Perm(0), memory_not_mapped=True)
+
     def __setitem__(self, key: Addr, value: bytes):
         if isinstance(key, slice):
             raise TypeError("slice unsupported for __setitem__")
