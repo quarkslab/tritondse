@@ -406,7 +406,7 @@ class ProcessState(object):
         # TODO: If PIE use this address, if not set absolute address (from binary)
 
         # Map the stack
-        self.memory.map(self.END_STACK, self.BASE_STACK-self.END_STACK, Perm.R | Perm.W, "stack")
+        self.memory.map(self.END_STACK, self.BASE_STACK-self.END_STACK+1, Perm.R | Perm.W, "stack")
 
         self.memory.disable_segmentation()  # Disable segment to be able initializing Read-only segments
 
@@ -483,9 +483,7 @@ class ProcessState(object):
         :type ptr: :py:obj:`tritondse.types.Addr`
         :return: True if pointer points to the stack area (allocated or not).
         """
-        if self.BASE_STACK <= ptr < self.END_STACK:
-            return True
-        return False
+        return self.END_STACK < ptr <= self.BASE_STACK
 
     def fetch_instruction(self, address: Addr = None) -> Instruction:
         """
@@ -774,6 +772,23 @@ class ProcessState(object):
             value = self.read_register(reg)
             self.push_constraint(self.read_symbolic_register(reg).getAst() == value)
         # Else do not even push the constraint
+
+
+    def concretize_memory_bytes(self, addr: Addr, size: ByteSize) -> None:
+        """
+        Concretize the given memory with its current concrete value.
+        **This operation is sound** and allows restraining the memory
+        value to its constant value.
+
+        :param addr: Address to concretize
+        :type addr: :py:obj:`tritondse.types.Addr`
+        :param size: Size of the integer to concretize
+        :type size: :py:obj:`tritondse.types.ByteSize`
+        """
+        data = self.memory.read(addr, size)
+        if self.is_memory_symbolic(addr, size):
+            self.push_constraint(self.read_symbolic_memory_bytes(addr, size).getAst() == data)
+        # else do not even push the constraint
 
 
     def concretize_memory_int(self, addr: Addr, size: ByteSize) -> None:

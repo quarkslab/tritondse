@@ -241,7 +241,7 @@ class Memory(object):
         """
         return self._get_map(addr, size)
 
-    def is_mapped(self, ptr: Addr, size: ByteSize) -> bool:
+    def is_mapped(self, ptr: Addr, size: ByteSize = 1) -> bool:
         """
         The function checks whether the memory is mapped or not.
         The implementation return False if the memory chunk overlap
