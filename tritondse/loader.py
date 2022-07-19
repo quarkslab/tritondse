@@ -7,9 +7,8 @@ from typing import Optional, Generator, Tuple, Dict
 import logging
 
 # local imports
-from tritondse.types import Addr, Architecture, Platform, ArchMode, PathLike
+from tritondse.types import Addr, Architecture, Platform, ArchMode, PathLike, Perm
 from tritondse.arch import ARCHS
-
 
 
 LoadableSegment = namedtuple('LoadableSegment', 'address perms content')
@@ -179,7 +178,7 @@ class MonolithicLoader(Loader):
         return self.cpustate[self._archinfo.pc_reg]
 
 
-    def memory_segments(self) -> Generator[Tuple[Addr, bytes], None, None]:
+    def memory_segments(self) -> Generator[LoadableSegment, None, None]:
         """
         In the case of a monolithic firmware, there is a single segment.
         The generator returns a single tuple with the load address and the content.
@@ -188,11 +187,11 @@ class MonolithicLoader(Loader):
         """
         with open(self.bin_path, "rb") as fd: 
             data = fd.read()
-        yield self.load_address, data
+        yield LoadableSegment(self.load_address, Perm.R | Perm.W | Perm.X, data)
 
         if self.vmmap:
             for (addr, buffer) in self.vmmap.items():
-                yield addr, buffer
+                yield LoadableSegment(addr, Perm.R | Perm.W | Perm.X, buffer)
 
     @property
     def cpustate(self) -> Dict[str, int]:
