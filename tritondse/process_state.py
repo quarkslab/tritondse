@@ -501,13 +501,14 @@ class ProcessState(object):
         data = self.memory.read(address, 16)
         self.memory.enable_segmentation()
         i = Instruction(address, data)
+        i.setThreadId(self.current_thread.tid)
+        self.tt_ctx.disassembly(i)  # This needs to be done before using i.getSize()
+                                    # otherwise, i.getSize() will always be 0
         map = self.memory.get_map(address, i.getSize())
         if map is None:
             raise MemoryAccessViolation(address, Perm.X, memory_not_mapped=True)
         if Perm.X not in map.perm:  # Note: in this model we can execute code in non-readable pages
             raise MemoryAccessViolation(address, Perm.X, map_perm=map.perm, perm_error=True)
-        i.setThreadId(self.current_thread.tid)
-        self.tt_ctx.disassembly(i)
         return i
 
     def process_instruction(self, instruction: Instruction) -> bool:
