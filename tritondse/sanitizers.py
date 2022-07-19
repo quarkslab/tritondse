@@ -128,7 +128,7 @@ class NullDerefSanitizer(ProbeInterface):
         # page on déclenche ce sanitizer...
 
         # FIXME: Why do we call is_valid_memory_mapping ? It is not a "Null Deref vulnerability", it is more a segmentation error
-        if ptr == 0 or not pstate.memory.is_mapped(ptr):
+        if ptr == 0 or (pstate.memory.segmentation_enabled and not pstate.memory.is_mapped(ptr)):
             if description:
                 logging.critical(description)
             se.seed.status = SeedStatus.CRASH

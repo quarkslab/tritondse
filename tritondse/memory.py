@@ -84,6 +84,14 @@ class Memory(object):
     def _ptr_size(self) -> int:
         return self.ctx.getGprSize()
 
+    @property
+    def segmentation_enabled(self) -> bool:
+        """
+        returns wether segmentation enforcing is enabled
+        :return: True if segmentation is enabled
+        """
+        return self._segment_enabled
+
     def disable_segmentation(self) -> None:
         """
         Turn-off segmentation enforcing.
