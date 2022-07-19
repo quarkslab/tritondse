@@ -3,7 +3,7 @@ import logging
 import time
 import os
 import resource
-from typing import Optional, Union, List, NoReturn
+from typing import Optional, Union, List, NoReturn, Dict
 
 # third party imports
 from triton import MODE, Instruction, CPUSIZE, MemoryAccess, CALLBACK
@@ -639,7 +639,7 @@ class SymbolicExecutor(object):
         # Return the
         return new_seed
 
-    def inject_symbolic_input(self, addr: Addr, inp: bytes, var_prefix: str = "input", compfield: Optional[CompositeField] = None) -> None:
+    def inject_symbolic_input(self, addr: Addr, inp: Union[bytes, Dict], var_prefix: str = "input", compfield: Optional[CompositeField] = None) -> None:
         """
         Inject the given bytes at the given address in memory. Then
         all memory bytes are symbolized.
@@ -650,6 +650,8 @@ class SymbolicExecutor(object):
         :param compfield: In case of composite seed, type of the input to inject (argv, files, variables..)
         :return: None
         """
+        if isinstance(inp, dict):
+            inp = inp[var_prefix]
         # Write concrete bytes in memory
         self.pstate.memory.write(addr, inp)
 
