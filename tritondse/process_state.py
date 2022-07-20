@@ -503,7 +503,7 @@ class ProcessState(object):
         i = Instruction(address, data)
         i.setThreadId(self.current_thread.tid)
         self.tt_ctx.disassembly(i)  # This needs to be done before using i.getSize()
-                                    # otherwise, i.getSize() will always be 0
+                                    # otherwise, i.getSize() will always be 16
         map = self.memory.get_map(address, i.getSize())
         if map is None:
             raise MemoryAccessViolation(address, Perm.X, memory_not_mapped=True)
