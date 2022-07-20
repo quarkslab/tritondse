@@ -28,6 +28,7 @@ runtime and it has not been tested on other types of programs.
         Hooks <tutos/hooks.ipynb>
         Seeds <tutos/seeds.ipynb>
         Sanitizers & Probes <tutos/sanitizers.ipynb>
+        Loaders <tutos/loaders.ipynb>
 
 
 .. toctree::
