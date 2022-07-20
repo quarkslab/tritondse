@@ -47,13 +47,14 @@ class Loader(object):
         raise NotImplementedError()
 
     @property
-    def arch_mode(self) -> ArchMode:
+    def arch_mode(self) -> Optional[ArchMode]:
         """
         ArchMode enum representing the starting mode (e.g Thumb for ARM).
+        if None, the default mode of the architecture will be used.
 
-        :rtype: ArchMode
+        :rtype: Optional[ArchMode]
         """
-        raise NotImplementedError()
+        return None
 
     @property
     def platform(self) -> Optional[Platform]:
