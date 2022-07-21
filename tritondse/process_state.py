@@ -50,8 +50,9 @@ class ProcessState(object):
         self.BASE_HEAP = 0x10000000
         self.END_HEAP = 0x6fffffff
 
-        self.BASE_STACK = 0xefffffff
-        self.END_STACK  = 0x70000000
+        # The stack size is 0x80000000 bytes
+        self.BASE_STACK = 0xf0000000
+        self.END_STACK  = 0x70000001 # This is inclusive
 
         # The Triton's context
         self.tt_ctx = TritonContext()
@@ -483,7 +484,7 @@ class ProcessState(object):
         :type ptr: :py:obj:`tritondse.types.Addr`
         :return: True if pointer points to the stack area (allocated or not).
         """
-        return self.END_STACK < ptr <= self.BASE_STACK
+        return self.END_STACK <= ptr <= self.BASE_STACK
 
     def fetch_instruction(self, address: Addr = None) -> Instruction:
         """
