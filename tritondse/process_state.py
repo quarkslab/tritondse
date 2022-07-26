@@ -1059,7 +1059,7 @@ class ProcessState(object):
         else:
             return self.tt_ctx.symbolizeMemory(MemoryAccess(addr, CPUSIZE.BYTE))
 
-    def symbolize_memory_bytes(self, addr: Addr, size: ByteSize, alias_prefix: str = None) -> List[SymbolicVariable]:
+    def symbolize_memory_bytes(self, addr: Addr, size: ByteSize, alias_prefix: str = None, offset: int = 0) -> List[SymbolicVariable]:
         """
         Symbolize a range of memory addresses. Can optionally provide an alias
         prefix.
@@ -1074,7 +1074,7 @@ class ProcessState(object):
         :rtype: List[:py:obj:`tritondse.types.SymbolicVariable`]
         """
         if alias_prefix:
-            return [self.symbolize_memory_byte(addr+i, alias_prefix+f"[{i}]") for i in range(size)]
+            return [self.symbolize_memory_byte(addr+i, alias_prefix+f"[{i+offset}]") for i in range(size)]
         else:
             return [self.symbolize_memory_byte(addr+i) for i in range(size)]
 
