@@ -657,11 +657,7 @@ class SymbolicExecutor(object):
         self.pstate.memory.write(addr, inp)
 
         # Symbolize bytes
-        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(inp), var_prefix)
-        # Add offset if necessary
-        if offset:
-            for i, s in enumerate(sym_vars):
-                s.setAlias(f"{var_prefix}{[i+offset]}")
+        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(inp), var_prefix, offset)
 
         if self.config.seed_format == SeedFormat.RAW:
             self._symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
