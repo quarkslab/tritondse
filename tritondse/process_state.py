@@ -74,9 +74,9 @@ class ProcessState(object):
 
         # File descriptors table used by fopen(), fprintf(), etc.
         self.fd_table = {
-            0: FileDesc(name="stdin", offset=0, fd=sys.stdin),
-            1: FileDesc("stdout", 0, sys.stdout),
-            2: FileDesc("stderr", 0, sys.stderr),
+            0: FileDesc(name="stdin", offset=0, fd=sys.stdin, fd_id=0),
+            1: FileDesc("stdout", 0, sys.stdout, 1),
+            2: FileDesc("stderr", 0, sys.stderr, 2),
         }
         # Unique file id incrementation
         self.fd_id = len(self.fd_table)

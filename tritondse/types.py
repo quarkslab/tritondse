@@ -131,4 +131,7 @@ class FileDesc():
     """
     name:   str
     offset: int
+    """ The python file descriptor """
     fd:     int
+    """ The target program's file descriptor """
+    fd_id:  int

@@ -472,7 +472,7 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     try:
         fd = open(arg0s, arg1s)
         fd_id = se.pstate.get_unique_file_id()
-        se.pstate.fd_table.update({fd_id: FileDesc(arg0s, 0, fd)})
+        se.pstate.fd_table.update({fd_id: FileDesc(arg0s, 0, fd, fd_id)})
     except:
         # Return value
         return 0
