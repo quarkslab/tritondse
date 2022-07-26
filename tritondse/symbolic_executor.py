@@ -639,7 +639,7 @@ class SymbolicExecutor(object):
         # Return the
         return new_seed
 
-    def inject_symbolic_input(self, addr: Addr, inp: Union[bytes, Dict], var_prefix: str = "input", compfield: Optional[CompositeField] = None) -> None:
+    def inject_symbolic_input(self, addr: Addr, inp: Union[bytes, Dict], var_prefix: str = "input", compfield: Optional[CompositeField] = None, offset: int = 0) -> None:
         """
         Inject the given bytes at the given address in memory. Then
         all memory bytes are symbolized.
@@ -648,6 +648,7 @@ class SymbolicExecutor(object):
         :param inp: Input to inject in memory
         :param var_prefix: prefix name to give the symbolic variables
         :param compfield: In case of composite seed, type of the input to inject (argv, files, variables..)
+        :param offset: In the case of a file, the offset of the data within the file
         :return: None
         """
         if isinstance(inp, dict):
@@ -657,6 +658,11 @@ class SymbolicExecutor(object):
 
         # Symbolize bytes
         sym_vars = self.pstate.symbolize_memory_bytes(addr, len(inp), var_prefix)
+        # Add offset if necessary
+        if offset:
+            for i, s in enumerate(sym_vars):
+                s.setAlias(f"{var_prefix}{[i+offset]}")
+
         if self.config.seed_format == SeedFormat.RAW:
             self._symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
         else: # SeedFormat.COMPOSITE
@@ -666,7 +672,10 @@ class SymbolicExecutor(object):
             elif compfield == CompositeField.ARGV:
                 self._symbolic_seed.argv.append(sym_vars)
             elif compfield == CompositeField.FILE:
-                self._symbolic_seed.files[var_prefix] = sym_vars
+                if not var_prefix in self._symbolic_seed.files:
+                    self._symbolic_seed.files[var_prefix] = sym_vars
+                else:
+                    self._symbolic_seed.files[var_prefix] += sym_vars
             elif compfield == CompositeField.VARIABLE:
                 self._symbolic_seed.variables[var_prefix] = sym_vars
             else:
