@@ -15,13 +15,11 @@ from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, 
 from tritondse.thread_context import ThreadContext
 from tritondse.program import Program
 from tritondse.heap_allocator import HeapAllocator
-from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
-                                     AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode, Perm
+from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, \
+        Expression, AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode, Perm, FileDesc
 from tritondse.arch import ARCHS, CpuState
 from tritondse.loader import Loader
 from tritondse.memory import Memory, MemoryAccessViolation
-
-
 
 class ProcessState(object):
     """
@@ -76,15 +74,9 @@ class ProcessState(object):
 
         # File descriptors table used by fopen(), fprintf(), etc.
         self.fd_table = {
-            0: sys.stdin,
-            1: sys.stdout,
-            2: sys.stderr,
-        }
-        # Table mapping file names to fd
-        self.filename_table = {
-            0: "stdin",
-            1: "stdout",
-            2: "stderr",
+            0: FileDesc(name="stdin", offset=0, fd=sys.stdin),
+            1: FileDesc("stdout", 0, sys.stdout),
+            2: FileDesc("stderr", 0, sys.stderr),
         }
         # Unique file id incrementation
         self.fd_id = len(self.fd_table)
