@@ -401,15 +401,14 @@ class ProcessState(object):
         # Map the stack
         self.memory.map(self.END_STACK, self.BASE_STACK-self.END_STACK+1, Perm.R | Perm.W, "stack")
 
-        self.memory.disable_segmentation()  # Disable segment to be able initializing Read-only segments
+        # Disable segment to be able initializing Read-only segments
+        with self.memory.without_segmentation():
+            # Load memory areas in memory
+            for i, seg in enumerate(l.memory_segments()):
+                logging.debug(f"Loading 0x{seg.address:#08x} - {seg.address+len(seg.content):#08x}")
+                self.memory.map(seg.address, len(seg.content), seg.perms, f"seg{i}")
+                self.memory.write(seg.address, seg.content)
 
-        # Load memory areas in memory
-        for i, seg in enumerate(l.memory_segments()):
-            logging.debug(f"Loading 0x{seg.address:#08x} - {seg.address+len(seg.content):#08x}")
-            self.memory.map(seg.address, len(seg.content), seg.perms, f"seg{i}")
-            self.memory.write(seg.address, seg.content)
-
-        self.memory.enable_segmentation()
 
     def read_register(self, register: Union[str, Register]) -> int:
         """
@@ -490,9 +489,8 @@ class ProcessState(object):
         """
         if address is None:
             address = self.cpu.program_counter
-        self.memory.disable_segmentation()
-        data = self.memory.read(address, 16)
-        self.memory.enable_segmentation()
+        with self.memory.without_segmentation():
+            data = self.memory.read(address, 16)
         i = Instruction(address, data)
         i.setThreadId(self.current_thread.tid)
         self.tt_ctx.disassembly(i)  # This needs to be done before using i.getSize()
@@ -1175,23 +1173,19 @@ class ProcessState(object):
         cur_linkage_address = pstate.EXTERN_FUNC_BASE
 
         # Disable segmentation
-        pstate.memory.disable_segmentation()
+        with pstate.memory.without_segmentation():
+            # Link imported functions in EXTERN_FUNC_BASE
+            for fname, rel_addr in loader.imported_functions_relocations():
+                logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
-        # Link imported functions in EXTERN_FUNC_BASE
-        for fname, rel_addr in loader.imported_functions_relocations():
-            logging.debug(f"Hooking {fname} at {rel_addr:#x}")
+                # Add symbol in dynamic_symbol_table
+                pstate.dynamic_symbol_table[fname] = (cur_linkage_address, True)
 
-            # Add symbol in dynamic_symbol_table
-            pstate.dynamic_symbol_table[fname] = (cur_linkage_address, True)
+                # Apply relocation to our custom address in process memory
+                pstate.memory.write_ptr(rel_addr, cur_linkage_address)
 
-            # Apply relocation to our custom address in process memory
-            pstate.memory.write_ptr(rel_addr, cur_linkage_address)
-
-            # Increment linkage address number
-            cur_linkage_address += pstate.ptr_size
-
-        # Reenable segmentation after having performed relocations
-        pstate.memory.enable_segmentation()
+                # Increment linkage address number
+                cur_linkage_address += pstate.ptr_size
 
         # Allocate data for foreign symbols region
         pstate.memory.map(pstate.EXTERN_SYM_BASE, pstate.EXTERN_SYM_SIZE, Perm.R | Perm.W, "extern_syms")
