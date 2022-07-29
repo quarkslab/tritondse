@@ -3,6 +3,7 @@ import bisect
 from typing import Optional, Union, Generator
 from collections import namedtuple
 import struct
+from contextlib import contextmanager
 
 from tritondse.types import Perm, Addr, ByteSize, Endian
 
@@ -33,9 +34,9 @@ class MemoryAccessViolation(Exception):
 
     def __str__(self):
         if self.is_permission_error():
-            return f"MemoryAccessViolation(addr:{self.address:#08x}, access:{str(self.access)} on map:{str(self.map_perm)})"
+            return f"(addr:{self.address:#08x}, access:{str(self.access)} on map:{str(self.map_perm)})"
         else:
-            return f"MemoryAccessViolation(addr:{self.address:#08x}({str(self.access)}) unmapped)"
+            return f"({str(self.access)}: {self.address:#08x} unmapped)"
 
     def __repr__(self):
         return str(self)
@@ -105,6 +106,12 @@ class Memory(object):
         :return: None
         """
         self._segment_enabled = True
+
+    @contextmanager
+    def without_segmentation(self):
+        self.disable_segmentation()
+        yield self
+        self.enable_segmentation()
 
     def get_maps(self) -> Generator[MemMap, None, None]:
         yield from (x for x in self._linear_map_map if x)
