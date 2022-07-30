@@ -1,7 +1,6 @@
 import hashlib
 import base64
 import json
-import logging 
 from enum import Enum
 from pathlib import Path
 from tritondse.types import PathLike
@@ -93,7 +92,7 @@ class Seed(object):
 
     def is_composite(self) -> bool:
         """Returns wether the seed is a composite seed or not. """
-        return self.type == SeedFormat.COMPOSITE
+        return self._type == SeedFormat.COMPOSITE
 
     def is_bootstrap_seed(self) -> bool:
         """
