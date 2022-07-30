@@ -40,6 +40,7 @@ class Workspace(object):
             self.root_dir = Path(root_dir)
             if not self.root_dir.exists():  # Create the directory in case it was not existing
                 self.root_dir.mkdir(parents=True)
+                self.initialize()
         self.root_dir = self.root_dir.resolve()
 
     def initialize(self, flush: bool = False) -> None:
