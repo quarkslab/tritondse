@@ -52,8 +52,19 @@ class SymbolicExecutor(object):
         self.workspace = workspace                             # The current workspace
         if self.workspace is None:
             self.workspace = Workspace(config.workspace)
+
         self.seed = seed              # The current seed used to the execution
-        self._symbolic_seed = [] if self.config.seed_format == SeedFormat.RAW else CompositeData()  # (but will hold symvars)
+        if seed.is_composite():
+            if config.seed_format == SeedFormat.RAW:
+                logging.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
+                self.config.seed_format = seed.format
+            self._symbolic_seed = CompositeData()
+        else:
+            if config.seed_format == SeedFormat.COMPOSITE:
+                logging.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
+                self.config.seed_format = seed.format
+            self._symbolic_seed = []
+
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy) #: Coverage of the execution
         self.rtn_table = dict()            # Addr -> Tuple[fname, routine]
         self.uid = uid               # Unique identifier meant to unique accross Exploration instances
