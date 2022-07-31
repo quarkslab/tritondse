@@ -125,7 +125,7 @@ class Endian(IntEnum):
     BIG = 2
 
 @dataclass
-class FileDesc():
+class FileDesc:
     """
     Type representing a file descriptor
     """

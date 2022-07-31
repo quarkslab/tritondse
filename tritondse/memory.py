@@ -1,6 +1,6 @@
 from triton import TritonContext
 import bisect
-from typing import Optional, Union, Generator
+from typing import Optional, Union, Generator, List
 from collections import namedtuple
 import struct
 from contextlib import contextmanager
@@ -255,6 +255,33 @@ class Memory(object):
         :return: MemMap if found
         """
         return self._get_map(addr, size)
+
+    def find_map(self, name: str) -> Optional[List[MemMap]]:
+        """
+        Find a map given its name.
+
+        :param name: Map name
+        :return: MemMap if found
+        """
+        l = []
+        for map in (x for x in self._linear_map_map if x):
+            if map.name == name:
+                l.append(map)
+        return l
+
+    def map_from_name(self, name: str) -> MemMap:
+        """
+        Return a map from its name. This function assumes
+        the map is present.
+
+        :raise AssertionError: If the map is not found
+        :param name: Map name
+        :return: MemMap
+        """
+        for map in (x for x in self._linear_map_map if x):
+            if map.name == name:
+                return map
+        assert False
 
     def is_mapped(self, ptr: Addr, size: ByteSize = 1) -> bool:
         """

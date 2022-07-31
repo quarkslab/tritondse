@@ -3,21 +3,40 @@ from __future__ import annotations
 # built-in imports
 from collections import namedtuple
 from pathlib import Path
-from typing import Optional, Generator, Tuple, Dict
+from typing import Optional, Generator, Tuple, Dict, Union
 import logging
+from dataclasses import dataclass
 
 # local imports
 from tritondse.types import Addr, Architecture, Platform, ArchMode, PathLike, Perm
 from tritondse.arch import ARCHS
 
 
-LoadableSegment = namedtuple('LoadableSegment', 'address perms content')
+@dataclass
+class LoadableSegment:
+    """ Represent a Segment to load in memory.
+    It can either provide a content and will thus be
+    initialized in a context or virtual.
+    """
+    address: int
+    """ Virtual address where to load the segment """
+    size: int = 0
+    """ Size of the segment. If content is present use len(content)"""
+    perms: Perm = Perm.R|Perm.W|Perm.X
+    """ Permissions to assign the segment """
+    content: Optional[bytes] = None
+    """ Content of the segment """
+    name: str = ""
+    """ Name to give to the segment """
+
 
 
 class Loader(object):
     """
     This class describes how to load the target program in memory.
     """
+    def __init__(self, path: str):
+        self.bin_path = Path(path)
 
     @property
     def name(self) -> str:
@@ -121,19 +140,32 @@ class MonolithicLoader(Loader):
     in DSE memory space, with the various attributes like architecture etc.
     """
 
-    def __init__(self, path: PathLike, architecture: Architecture, load_address: Addr, cpustate: Dict[str, int] = None,
-                 vmmap: Dict[Addr, bytes] = None, set_thumb: bool = False, platform: Platform = None):
-
-        super(MonolithicLoader, self).__init__()
+    def __init__(self,
+                 path: PathLike,
+                 architecture: Architecture,
+                 load_address: Addr,
+                 perm: Perm = Perm.R|Perm.W|Perm.X,
+                 cpustate: Dict[str, int] = None,
+                 vmmap: Union[Dict[Addr, bytes], LoadableSegment] = None,
+                 set_thumb: bool = False,
+                 platform: Platform = None):
+        super(MonolithicLoader, self).__init__(path)
         self.path: Path = Path(path)  #: Binary file path
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
 
-        self.bin_path = path
         self.load_address = load_address
+        self.perm = perm
         self._architecture = architecture
         self._platform = platform if platform else None
         self._cpustate = cpustate if cpustate else {}
+        if vmmap:
+            if isinstance(vmmap, dict):
+                self.vmmap = {LoadableSegment(k, content=v, name=f"vmmap{i}") for i, (k, v) in enumerate(vmmap.items())}
+            elif isinstance(vmmap, list):
+                self.vmmap = vmmap
+            else:
+                assert False
         self.vmmap = vmmap if vmmap else None
         self._arch_mode = ArchMode.THUMB if set_thumb else None
         if self._platform and (self._architecture, self._platform) in ARCHS:
@@ -188,11 +220,8 @@ class MonolithicLoader(Loader):
         """
         with open(self.bin_path, "rb") as fd: 
             data = fd.read()
-        yield LoadableSegment(self.load_address, Perm.R | Perm.W | Perm.X, data)
-
-        if self.vmmap:
-            for (addr, buffer) in self.vmmap.items():
-                yield LoadableSegment(addr, Perm.R | Perm.W | Perm.X, buffer)
+        yield LoadableSegment(self.load_address, perms=self.perm, content=data, name=str(self.bin_path.absolute()))
+        yield from self.vmmap
 
     @property
     def cpustate(self) -> Dict[str, int]:
