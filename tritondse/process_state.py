@@ -1154,8 +1154,9 @@ class ProcessState(object):
         # Map the stack
         try:
             stack = pstate.memory.map_from_name(pstate.STACK_SEG)
-            pstate.write_register(pstate.base_pointer_register, stack.start+stack.size) # Pointing right-out of the stack
-            pstate.write_register(pstate.stack_pointer_register, stack.start+stack.size)
+            alloc = 1 * pstate.ptr_size
+            pstate.write_register(pstate.base_pointer_register, stack.start+stack.size-alloc) # Pointing right-out of the stack
+            pstate.write_register(pstate.stack_pointer_register, stack.start+stack.size-alloc)
         except AssertionError:
             logging.warning("no stack segment has been created by the loader")
 
