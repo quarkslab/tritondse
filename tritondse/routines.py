@@ -80,11 +80,18 @@ def rtn_errno_location(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     logging.debug('__errno_location hooked')
 
-    # Errno is a int* ptr
-    # Initialize it to zero
-    pstate.memory.write_dword(pstate.ERRNO_PTR, 0)
+    # Errno is a int* ptr, initialize it to zero
+    # We consider it is located in the [extern] segment
+    # Thus the process must have one of this map
+    segs = pstate.memory.find_map(pstate.EXTERN_SEG)
+    if segs:
+        map = segs[0]
+        ERRNO = map.start + map.size - 4  # Point is last int of the mapping
+    else:
+        assert False
+    pstate.memory.write_dword(ERRNO, 0)
 
-    return pstate.ERRNO_PTR
+    return ERRNO
 
 
 def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -1204,8 +1211,16 @@ def rtn_sem_trywait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     else:
         logging.debug('semaphore locked but continue')
         pstate.semaphore_locked = False
+
         # Setting errno to EAGAIN (3406)
-        pstate.memory.write_dword(pstate.ERRNO_PTR, 3406)
+        segs = pstate.memory.find_map(pstate.EXTERN_SEG)
+        if segs:
+            map = segs[0]
+            ERRNO = map.start + map.size - 4  # Point is last int of the mapping
+            pstate.memory.write_dword(ERRNO, 3406)
+        else:
+            assert False
+
         # Return -1
         return pstate.minus_one
 

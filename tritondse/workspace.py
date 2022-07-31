@@ -124,7 +124,7 @@ class Workspace(object):
     def _iter_seeds(self, directory: str, st: SeedStatus) -> Generator[Seed, None, None]:
         """ Iterate over seeds """
         for file in (self.root_dir/directory).glob("*.cov"):
-            yield Seed(file.read_bytes(), st)
+            yield Seed.from_file(file, st)
 
 
     def iter_corpus(self) -> Generator[Seed, None, None]:

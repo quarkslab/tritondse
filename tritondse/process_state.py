@@ -29,6 +29,10 @@ class ProcessState(object):
     it provides a user-friendly API to access data in both the concrete and symbolic
     state of Triton.
     """
+
+    STACK_SEG = "[stack]"
+    EXTERN_SEG = "[extern]"
+
     def __init__(self, time_inc_coefficient: float = 0.0001):
         """
         :param time_inc_coefficient: Time coefficient to represent execution time of an instruction see: :py:attr:`tritondse.Config.time_inc_coefficient`
@@ -37,20 +41,10 @@ class ProcessState(object):
         # which addresses will be used for external symbols
         self.EXTERN_FUNC_BASE = 0x01000000  # Not really PLT but a dummy address space meant to contain some pointers to external symbols
 
-        # Memory maps that will contains external symbols
-        # used
-        self.EXTERN_SYM_BASE = 0x01001000
-        self.EXTERN_SYM_SIZE = 0x1000
-        self.ERRNO_PTR = self.EXTERN_SYM_BASE+self.EXTERN_SYM_SIZE-4  # put errno at the end
-
         # This range will be dynamically allocated
         # upon request.
         self.BASE_HEAP = 0x10000000
         self.END_HEAP = 0x6fffffff
-
-        # The stack size is 0x80000000 bytes
-        self.BASE_STACK = 0xf0000000
-        self.END_STACK  = 0x70000001 # This is inclusive
 
         # The Triton's context
         self.tt_ctx = TritonContext()
@@ -106,9 +100,6 @@ class ProcessState(object):
         # It's used to provide a deterministic behavior when calling functions
         # like gettimeofday(), clock_gettime(), etc.
         self.time = time.time()
-
-        # Hold the loading address where the main program has been loaded
-        self.load_addr = 0
 
         # Configuration values
         self.time_inc_coefficient = time_inc_coefficient
@@ -191,8 +182,9 @@ class ProcessState(object):
 
         thread.cregs[self.program_counter_register.getId()] = new_pc  # set new pc
         thread.cregs[self._get_argument_register(0).getId()] = args   # set args pointer
-        thread.cregs[self.base_pointer_register.getId()] = (self.BASE_STACK - ((1 << 28) * tid))
-        thread.cregs[self.stack_pointer_register.getId()] = (self.BASE_STACK - ((1 << 28) * tid))
+        stack = self.memory.map_from_name(self.STACK_SEG)
+        thread.cregs[self.base_pointer_register.getId()] = ((stack.start+stack.size) - ((1 << 28) * tid))
+        thread.cregs[self.stack_pointer_register.getId()] = ((stack.start+stack.size) - ((1 << 28) * tid))
 
         # Add the thread in the pool of threads
         self._threads[tid] = thread
@@ -376,38 +368,6 @@ class ProcessState(object):
         self.architecture = arch
         self._archinfo = ARCHS[self.architecture]
         self.cpu = CpuState(self.tt_ctx, self._archinfo)
-        self.write_register(self.base_pointer_register, self.BASE_STACK)
-        self.write_register(self.stack_pointer_register, self.BASE_STACK)
-
-
-    def load(self, l: Loader, base_addr: Addr = 0) -> None:
-        """
-        Load the given program in the process state memory. It sets
-        the program counter to the entry point and load all segments
-        in the triton context.
-
-        :param l: Loader to use for mapping binary (can by Program, Monolithic etc..)
-        :type l: Loader
-        :param base_addr: Base address where to load the program (if PIE)
-        :type base_addr: :py:obj:`tritondse.types.Addr`
-        """
-        # Set the program counter to points to entrypoint
-        self.cpu.program_counter = l.entry_point
-
-        # Set loading address
-        self.load_addr = base_addr
-        # TODO: If PIE use this address, if not set absolute address (from binary)
-
-        # Map the stack
-        self.memory.map(self.END_STACK, self.BASE_STACK-self.END_STACK+1, Perm.R | Perm.W, "stack")
-
-        # Disable segment to be able initializing Read-only segments
-        with self.memory.without_segmentation():
-            # Load memory areas in memory
-            for i, seg in enumerate(l.memory_segments()):
-                logging.debug(f"Loading 0x{seg.address:#08x} - {seg.address+len(seg.content):#08x}")
-                self.memory.map(seg.address, len(seg.content), seg.perms, f"seg{i}")
-                self.memory.write(seg.address, seg.content)
 
 
     def read_register(self, register: Union[str, Register]) -> int:
@@ -466,16 +426,6 @@ class ProcessState(object):
             return True
         return False
 
-
-    def is_stack_ptr(self, ptr: Addr) -> bool:
-        """
-        Check whether a given address is pointing in stack area.
-
-        :param ptr: Address to check
-        :type ptr: :py:obj:`tritondse.types.Addr`
-        :return: True if pointer points to the stack area (allocated or not).
-        """
-        return self.END_STACK <= ptr <= self.BASE_STACK
 
     def fetch_instruction(self, address: Addr = None) -> Instruction:
         """
@@ -1166,8 +1116,21 @@ class ProcessState(object):
         # Initialize the architecture of the processstate
         pstate.initialize_context(loader.architecture)
 
-        # Load segments of the loader
-        pstate.load(loader)
+        # Set the program counter to points to entrypoint
+        pstate.cpu.program_counter = loader.entry_point
+
+        # Disable segmentation to map segments
+        with pstate.memory.without_segmentation():
+            # Load memory areas in memory
+            for i, seg in enumerate(loader.memory_segments()):
+                if not seg.size and not seg.content:
+                    logging.warning(f"A segment have to provide either a size or a content {seg.name} (skipped)")
+                    continue
+                size = len(seg.content) if seg.content else seg.size
+                logging.debug(f"Loading 0x{seg.address:#08x} - {seg.address+size:#08x}")
+                pstate.memory.map(seg.address, size, seg.perms, seg.name)
+                if seg.content:
+                    pstate.memory.write(seg.address, seg.content)
 
         # Apply dynamic relocations
         cur_linkage_address = pstate.EXTERN_FUNC_BASE
@@ -1187,25 +1150,34 @@ class ProcessState(object):
                 # Increment linkage address number
                 cur_linkage_address += pstate.ptr_size
 
-        # Allocate data for foreign symbols region
-        pstate.memory.map(pstate.EXTERN_SYM_BASE, pstate.EXTERN_SYM_SIZE, Perm.R | Perm.W, "extern_syms")
-        symb_base = pstate.EXTERN_SYM_BASE
+        # Try initializing stack registers if a stack is present in maps
+        # Map the stack
+        try:
+            stack = pstate.memory.map_from_name(pstate.STACK_SEG)
+            pstate.write_register(pstate.base_pointer_register, stack.start+stack.size) # Pointing right-out of the stack
+            pstate.write_register(pstate.stack_pointer_register, stack.start+stack.size)
+        except AssertionError:
+            logging.warning("no stack segment has been created by the loader")
 
-        # Link imported symbols
-        for sname, rel_addr in loader.imported_variable_symbols_relocations():
-            logging.debug(f"Hooking {sname} at {rel_addr:#x}")
+        # Search for a map to settle foreign symbols
+        segs = pstate.memory.find_map(pstate.EXTERN_SEG)
+        if segs:
+            symb_base = segs[0].start
 
-            if pstate.architecture == Architecture.X86_64:  # HACK: Keep rel_addr to directly write symbol on it
-                # Add symbol in dynamic_symbol_table
-                pstate.dynamic_symbol_table[sname] = (rel_addr, False)
-                #pstate.memory.write_ptr(rel_addr, cur_linkage_address)  # Do not write anything as symbolic executor will do it
-            else:
-                # Add symbol in dynamic_symbol_table
-                pstate.dynamic_symbol_table[sname] = (symb_base, False)
-                pstate.memory.write_ptr(rel_addr, symb_base)
+            # Link imported symbols
+            for sname, rel_addr in loader.imported_variable_symbols_relocations():
+                logging.debug(f"Hooking {sname} at {rel_addr:#x}")
 
-            symb_base += pstate.ptr_size
+                if pstate.architecture == Architecture.X86_64:  # HACK: Keep rel_addr to directly write symbol on it
+                    # Add symbol in dynamic_symbol_table
+                    pstate.dynamic_symbol_table[sname] = (rel_addr, False)
+                    #pstate.memory.write_ptr(rel_addr, cur_linkage_address)  # Do not write anything as symbolic executor will do it
+                else:
+                    # Add symbol in dynamic_symbol_table
+                    pstate.dynamic_symbol_table[sname] = (symb_base, False)
+                    pstate.memory.write_ptr(rel_addr, symb_base)
 
+                symb_base += pstate.ptr_size
 
         for reg_name in pstate.cpu:
             if reg_name in loader.cpustate:
