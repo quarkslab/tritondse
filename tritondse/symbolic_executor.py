@@ -21,7 +21,7 @@ from tritondse.workspace import Workspace
 from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
 from tritondse.exception      import AbortExecutionException, SkipInstructionException, StopExplorationException
-from tritondse.memory         import MemoryAccessViolation
+from tritondse.memory         import MemoryAccessViolation, Perm
 
 
 class SymbolicExecutor(object):
@@ -223,22 +223,16 @@ class SymbolicExecutor(object):
             # Increment the instruction counter of the thread (a bit in advance but it does not matter)
             self.pstate.current_thread.count += 1
 
-    def _symbolic_mem_callback(self, _, mem: MemoryAccess, is_read):
+    def _symbolic_mem_callback(self, se: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
         tgt_addr = mem.getAddress()
         lea_ast = mem.getLeaAst()
         if lea_ast is None:
             return
         if lea_ast.isSymbolized():
-            s = "read" if is_read else "write"
+            s = "write" if bool(args) else "read"
             pc = self.pstate.cpu.program_counter
             logging.debug(f"symbolic {s} at 0x{pc:x}: target: 0x{tgt_addr:x} [{lea_ast}]")
             self.pstate.push_constraint(lea_ast == tgt_addr, f"sym-{s}:{self.trace_offset}:{pc}")
-
-    def _symbolic_read_callback(self, ctx, mem: MemoryAccess):
-        self._symbolic_mem_callback(ctx, mem, True)
-
-    def _symbolic_write_callback(self, ctx, mem: MemoryAccess, _):
-        self._symbolic_mem_callback(ctx, mem, False)
 
     def __emulate(self):
         while not self.pstate.stop and self.pstate.threads:
@@ -533,11 +527,17 @@ class SymbolicExecutor(object):
         # bind dbm callbacks on the process state (newly initialized)
         self.cbm.bind_to(self)  # bind call
 
+        # Configure memory segmentation using configuration
+        self.pstate.memory.set_segmentation(self.config.memory_segmentation)
+        if self.config.memory_segmentation:
+            self.cbm.register_memory_read_callback(self._mem_accesses_callback)
+            self.cbm.register_memory_write_callback(self._mem_accesses_callback)
+
         # Register memory callbacks in case we activated covering mem access
         if BranchSolvingStrategy.COVER_SYM_READ in self.config.branch_solving_strategy:
-            self.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_MEMORY_VALUE, self._symbolic_read_callback)
+            self.cbm.register_memory_read_callback(self._symbolic_mem_callback)
         if BranchSolvingStrategy.COVER_SYM_WRITE in self.config.branch_solving_strategy:
-            self.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_MEMORY_VALUE, self._symbolic_write_callback)
+            self.cbm.register_memory_write_callback(self._symbolic_mem_callback)
 
         # Let's emulate the binary from the entry point
         logging.info('Starting emulation')
@@ -580,6 +580,17 @@ class SymbolicExecutor(object):
         logging.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time:.02f}s)")
         logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.path_predicate_size}")
         logging.info(f"Memory usage: {self.mem_usage_str()}")
+
+    def _mem_accesses_callback(self, se: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
+        perm = Perm.W if bool(args) else Perm.R
+        addr = mem.getAddress()
+        size = mem.getSize()
+        map = ps.memory.get_map(addr, size)  # It raises
+        if map is None:
+            raise MemoryAccessViolation(addr, perm, memory_not_mapped=True)
+        else:
+            if perm not in map.perm:
+                raise MemoryAccessViolation(addr, perm, map_perm=map.perm, perm_error=True)
 
     @property
     def exitcode(self) -> int:
