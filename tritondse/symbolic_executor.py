@@ -577,6 +577,17 @@ class SymbolicExecutor(object):
         # Unbind callbacks from the current symbolic executor instance.
         self.cbm.unbind()
 
+        # NOTE Unregister callbacks registered at the begining of the function.
+        #      This should not be necessary (now that CallbackManager is fixed),
+        #      however, it has a memory impact. Keep for now.
+        if self.config.memory_segmentation:
+            self.cbm.unregister_callback(self._mem_accesses_callback)
+
+        if BranchSolvingStrategy.COVER_SYM_READ in self.config.branch_solving_strategy:
+            self.cbm.unregister_callback(self._symbolic_mem_callback)
+        if BranchSolvingStrategy.COVER_SYM_WRITE in self.config.branch_solving_strategy:
+            self.cbm.unregister_callback(self._symbolic_mem_callback)
+
         logging.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time:.02f}s)")
         logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.path_predicate_size}")
         logging.info(f"Memory usage: {self.mem_usage_str()}")
