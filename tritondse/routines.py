@@ -9,7 +9,7 @@ from typing import Union
 
 from triton                   import CPUSIZE, MemoryAccess
 from tritondse.thread_context import ThreadContext
-from tritondse.types          import Architecture
+from tritondse.types          import Architecture, FileDesc
 from tritondse.seed           import SeedFormat, SeedStatus, Seed, CompositeField
 
 
@@ -80,11 +80,18 @@ def rtn_errno_location(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     logging.debug('__errno_location hooked')
 
-    # Errno is a int* ptr
-    # Initialize it to zero
-    pstate.memory.write_dword(pstate.ERRNO_PTR, 0)
+    # Errno is a int* ptr, initialize it to zero
+    # We consider it is located in the [extern] segment
+    # Thus the process must have one of this map
+    segs = pstate.memory.find_map(pstate.EXTERN_SEG)
+    if segs:
+        map = segs[0]
+        ERRNO = map.start + map.size - 4  # Point is last int of the mapping
+    else:
+        assert False
+    pstate.memory.write_dword(ERRNO, 0)
 
-    return pstate.ERRNO_PTR
+    return ERRNO
 
 
 def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -387,7 +394,7 @@ def rtn_fclose(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.concretize_argument(0)
 
     if arg0 in pstate.fd_table:
-        pstate.fd_table[arg0].close()
+        pstate.fd_table[arg0].fd.close()
         del pstate.fd_table[arg0]
     else:
         return pstate.minus_one
@@ -427,20 +434,22 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         return buff_ast
 
     if fd in pstate.fd_table:
-        if se.config.seed_format == SeedFormat.RAW\
+        if se.config.seed_format == SeedFormat.RAW \
                 or not se.seed.content.files \
-                or pstate.filename_table[fd] not in se.seed.content.files:
+                or pstate.fd_table[fd].name not in se.seed.content.files:
             # We use fd as concret value
             pstate.concretize_argument(1)
-            data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
+            data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd].fd, size))
             pstate.memory.write(buff, data)
             return buff_ast
         else: # SeedFormat.COMPOSITE
-            filename = pstate.filename_table[fd]
-            filecontent = se.seed.content.files[filename]
+            # File state (name and offset)
+            fs = pstate.fd_table[fd]
+            filecontent = se.seed.content.files[fs.name][fs.offset:]
             minsize  = min(len(filecontent), size)
             data = filecontent[:minsize]
-            se.inject_symbolic_input(buff, data, filename, CompositeField.FILE)
+            se.inject_symbolic_input(buff, data, fs.name, CompositeField.FILE, fs.offset)
+            fs.offset += minsize
             return buff_ast
     else:
         logging.warning(f'File descriptor ({fd}) not found')
@@ -470,8 +479,7 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     try:
         fd = open(arg0s, arg1s)
         fd_id = se.pstate.get_unique_file_id()
-        se.pstate.fd_table.update({fd_id: fd})
-        se.pstate.filename_table.update({fd_id: arg0s})
+        se.pstate.fd_table.update({fd_id: FileDesc(arg0s, 0, fd, fd_id)})
     except:
         # Return value
         return 0
@@ -505,8 +513,8 @@ def rtn_fprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     if arg0 in pstate.fd_table:
         if arg0 not in [1, 2] or (arg0 == 1 and se.config.pipe_stdout) or (arg0 == 2 and se.config.pipe_stderr):
-            pstate.fd_table[arg0].write(s)
-            pstate.fd_table[arg0].flush()
+            pstate.fd_table[arg0].fd.write(s)
+            pstate.fd_table[arg0].fd.flush()
     else:
         return 0
 
@@ -540,7 +548,7 @@ def rtn_fputc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                 sys.stderr.write(chr(arg0))
                 sys.stderr.flush()
         else:
-            fd = open(pstate.fd_table[arg1], 'wb+')
+            fd = open(pstate.fd_table[arg1].fd, 'wb+')
             fd.write(chr(arg0))
     else:
         return 0
@@ -578,7 +586,7 @@ def rtn_fputs(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                 sys.stderr.write(pstate.memory.read_string(arg0))
                 sys.stderr.flush()
         else:
-            fd = open(pstate.fd_table[arg1], 'wb+')
+            fd = open(pstate.fd_table[arg1].fd, 'wb+')
             fd.write(pstate.memory.read_string(arg0))
     else:
         return 0
@@ -618,16 +626,18 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     elif arg3 in pstate.fd_table:
         if se.config.seed_format == SeedFormat.RAW \
                 or not se.seed.content.files \
-                or pstate.filename_table[arg3] not in se.seed.content.files:
-            data = pstate.fd_table[arg3].read(arg1 * arg2)
+                or pstate.fd_table[arg3].name not in se.seed.content.files:
+            data = pstate.fd_table[arg3].fd.read(arg1 * arg2)
             if isinstance(data, str): data = data.encode()
             pstate.memory.write(arg0, data)
         else: # SeedFormat.COMPOSITE and it contains filename
-            filename = pstate.filename_table[arg3]
-            filecontent = se.seed.content.files[filename]
+            # File state (name and offset)
+            fs = pstate.fd_table[arg3]
+            filecontent = se.seed.content.files[fs.name][fs.offset:]
             minsize  = min(len(filecontent), size)
             data = filecontent[:minsize]
-            se.inject_symbolic_input(arg0, data, filename, CompositeField.FILE)
+            se.inject_symbolic_input(arg0, data, fs.name, CompositeField.FILE, fs.offset)
+            fs.offset += minsize
 
     else:
         return 0
@@ -675,7 +685,7 @@ def rtn_fwrite(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                 sys.stderr.buffer.write(data)
                 sys.stderr.flush()
         else:
-            fd = open(pstate.fd_table[arg3], 'wb+')
+            fd = open(pstate.fd_table[arg3].fd, 'wb+')
             fd.write(data)
     else:
         return 0
@@ -867,8 +877,8 @@ def rtn_printf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         s = ""
 
     if se.config.pipe_stdout:
-        pstate.fd_table[1].write(s)
-        pstate.fd_table[1].flush()
+        pstate.fd_table[1].fd.write(s)
+        pstate.fd_table[1].fd.flush()
 
     # Return value
     return len(s)
@@ -1057,13 +1067,13 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     if fd in pstate.fd_table:
         if se.config.seed_format == SeedFormat.RAW\
-                or pstate.filename_table[fd] not in se.seed.content:
+                or pstate.fd_table[fd] not in se.seed.content:
             pstate.concretize_argument(2)
-            data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd], size))
+            data = (os.read(0, size) if fd == 0 else os.read(pstate.filname_table[fd].fd, size))
             pstate.memory.write(buff, data)
             return len(data)
         else: # SeedFormat.COMPOSITE
-            filename = pstate.filename_table[fd]
+            filename = pstate.fd_table[fd]
             minsize  = (min(len(se.seed.content[filename]), size) if se.seed else size)
             data = se.seed.content[filename][:minsize] if se.seed else b'\x00' * minsize
             se.inject_symbolic_input(buff, data, filename, CompositeField.FILE)
@@ -1201,8 +1211,16 @@ def rtn_sem_trywait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     else:
         logging.debug('semaphore locked but continue')
         pstate.semaphore_locked = False
+
         # Setting errno to EAGAIN (3406)
-        pstate.memory.write_dword(pstate.ERRNO_PTR, 3406)
+        segs = pstate.memory.find_map(pstate.EXTERN_SEG)
+        if segs:
+            map = segs[0]
+            ERRNO = map.start + map.size - 4  # Point is last int of the mapping
+            pstate.memory.write_dword(ERRNO, 3406)
+        else:
+            assert False
+
         # Return -1
         return pstate.minus_one
 

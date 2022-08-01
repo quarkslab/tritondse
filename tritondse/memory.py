@@ -1,8 +1,9 @@
 from triton import TritonContext
 import bisect
-from typing import Optional, Union, Generator
+from typing import Optional, Union, Generator, List
 from collections import namedtuple
 import struct
+from contextlib import contextmanager
 
 from tritondse.types import Perm, Addr, ByteSize, Endian
 
@@ -33,9 +34,9 @@ class MemoryAccessViolation(Exception):
 
     def __str__(self):
         if self.is_permission_error():
-            return f"MemoryAccessViolation(addr:{self.address:#08x}, access:{str(self.access)} on map:{str(self.map_perm)})"
+            return f"(addr:{self.address:#08x}, access:{str(self.access)} on map:{str(self.map_perm)})"
         else:
-            return f"MemoryAccessViolation(addr:{self.address:#08x}({str(self.access)}) unmapped)"
+            return f"({str(self.access)}: {self.address:#08x} unmapped)"
 
     def __repr__(self):
         return str(self)
@@ -84,6 +85,14 @@ class Memory(object):
     def _ptr_size(self) -> int:
         return self.ctx.getGprSize()
 
+    @property
+    def segmentation_enabled(self) -> bool:
+        """
+        returns wether segmentation enforcing is enabled
+        :return: True if segmentation is enabled
+        """
+        return self._segment_enabled
+
     def disable_segmentation(self) -> None:
         """
         Turn-off segmentation enforcing.
@@ -97,6 +106,19 @@ class Memory(object):
         :return: None
         """
         self._segment_enabled = True
+
+    def set_segmentation(self, enabled: bool) -> None:
+        """
+        Set the segmentation enforcing with the given boolean.
+        :return: None
+        """
+        self._segment_enabled = enabled
+
+    @contextmanager
+    def without_segmentation(self):
+        self.disable_segmentation()
+        yield self
+        self.enable_segmentation()
 
     def get_maps(self) -> Generator[MemMap, None, None]:
         yield from (x for x in self._linear_map_map if x)
@@ -241,7 +263,34 @@ class Memory(object):
         """
         return self._get_map(addr, size)
 
-    def is_mapped(self, ptr: Addr, size: ByteSize) -> bool:
+    def find_map(self, name: str) -> Optional[List[MemMap]]:
+        """
+        Find a map given its name.
+
+        :param name: Map name
+        :return: MemMap if found
+        """
+        l = []
+        for map in (x for x in self._linear_map_map if x):
+            if map.name == name:
+                l.append(map)
+        return l
+
+    def map_from_name(self, name: str) -> MemMap:
+        """
+        Return a map from its name. This function assumes
+        the map is present.
+
+        :raise AssertionError: If the map is not found
+        :param name: Map name
+        :return: MemMap
+        """
+        for map in (x for x in self._linear_map_map if x):
+            if map.name == name:
+                return map
+        assert False
+
+    def is_mapped(self, ptr: Addr, size: ByteSize = 1) -> bool:
         """
         The function checks whether the memory is mapped or not.
         The implementation return False if the memory chunk overlap

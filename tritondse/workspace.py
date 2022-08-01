@@ -40,6 +40,7 @@ class Workspace(object):
             self.root_dir = Path(root_dir)
             if not self.root_dir.exists():  # Create the directory in case it was not existing
                 self.root_dir.mkdir(parents=True)
+                self.initialize()
         self.root_dir = self.root_dir.resolve()
 
     def initialize(self, flush: bool = False) -> None:
@@ -123,7 +124,7 @@ class Workspace(object):
     def _iter_seeds(self, directory: str, st: SeedStatus) -> Generator[Seed, None, None]:
         """ Iterate over seeds """
         for file in (self.root_dir/directory).glob("*.cov"):
-            yield Seed(file.read_bytes(), st)
+            yield Seed.from_file(file, st)
 
 
     def iter_corpus(self) -> Generator[Seed, None, None]:
