@@ -107,6 +107,13 @@ class Memory(object):
         """
         self._segment_enabled = True
 
+    def set_segmentation(self, enabled: bool) -> None:
+        """
+        Set the segmentation enforcing with the given boolean.
+        :return: None
+        """
+        self._segment_enabled = enabled
+
     @contextmanager
     def without_segmentation(self):
         self.disable_segmentation()
