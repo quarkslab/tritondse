@@ -577,9 +577,12 @@ class SymbolicExecutor(object):
         # Unbind callbacks from the current symbolic executor instance.
         self.cbm.unbind()
 
-        # NOTE Unregister callbacks registered at the begining of the function.
-        #      This should not be necessary (now that CallbackManager is fixed),
-        #      however, it has a memory impact. Keep for now.
+        # NOTE Unregister callbacks registered at the beginning of the function.
+        #      This is necessary because we currently have a circular dependency
+        #      between this class and the callback manager. Note that we create
+        #      that circular dependency indirectly when we set the callback to
+        #      a method of this class (_mem_accesses_callback and
+        #      _symbolic_mem_callback).
         if self.config.memory_segmentation:
             self.cbm.unregister_callback(self._mem_accesses_callback)
 
