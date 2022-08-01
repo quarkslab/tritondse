@@ -58,10 +58,10 @@ class SymbolicExplorator(object):
 
         # Save the binary in the workspace if not already done
         if self.loader:
-            bin_path = self.workspace.get_binary_directory() / self.loader.path.name
+            bin_path = self.workspace.get_binary_directory() / self.loader.bin_path.name
             if not bin_path.exists():  # If the program is not yet present
-                self.workspace.save_file(bin_path, self.loader.path.read_bytes())
-                self.loader.path = bin_path  # Patch its official new location
+                self.workspace.save_file(bin_path, self.loader.bin_path.read_bytes())
+                self.loader.bin_path = bin_path  # Patch its official new location
                 bin_path.chmod(stat.S_IRWXU)  # Make it executable
 
         # Configure logfile

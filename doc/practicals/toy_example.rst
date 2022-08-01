@@ -5,12 +5,49 @@ These toy examples will present you various use-cases containing a bug to trigge
 The goal is to trigger them using the tritondse exploration.
 
 
+0. Multiple input sources
+-------------------------
+
+TritonDSE supports injecting input on multiple locations. Use a `COMPOSITE` seed to inject
+`stdin` and `argv` and explore the program to trigger the crash.
+
+.. code-block:: c
+
+	#include <stdlib.h>
+	#include <stdio.h>
+
+	int entry(char *s1, char* s2) {
+
+		int *nullptr = NULL;
+		if (*s1 == 'a' && *s2 == 'b')
+		{
+			*(nullptr) = 0;
+			return 1;
+		}
+		else
+			return 0;
+	}
+
+	int main(int ac, char *av[]) {
+		char input[25];
+
+		fgets(input, sizeof(input) - 1, stdin);
+
+		if (ac != 2) 
+			return 1;
+		return entry(input, av[1]);
+	}
+
+
 1. Non standard input
 ---------------------
 
-By default tritondse is able to inject input either on stdin either on argv.
-The goal here is to trigger the bug by injection the symbolisation at an arbitrary
-location.
+The goal here is to trigger the bug by symbolizing the content of a file.
+Furthermore, `sscanf` is currently not supported by TritonDSE, you will need to provide
+the emulation yourself.
+
+Hint: In this case, `sscanf` behaves similarly to `atoi`. Check out the emulatoin of 
+`atoi` in `tritondse/routines.py`.
 
 .. code-block:: c
 

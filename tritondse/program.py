@@ -35,6 +35,12 @@ class Program(Loader):
     of its format.
     """
 
+    EXTERN_SYM_BASE = 0x01001000
+    EXTERN_SYM_SIZE = 0x1000
+
+    BASE_STACK = 0xf0000000
+    END_STACK  = 0x70000000 # This is inclusive
+
     def __init__(self, path: PathLike):
         """
         :param path: Program path
@@ -42,7 +48,7 @@ class Program(Loader):
         :raise FileNotFoundError: if the file is not properly recognized by lief
                                   or in the wrong architecture
         """
-        super(Program, self).__init__()
+        super(Program, self).__init__(path)
         self.path: Path = Path(path)  #: Binary file path
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
@@ -181,15 +187,18 @@ class Program(Loader):
         :raise NotImplementedError: if the binary format cannot be loaded
         """
         if self.format == lief.EXE_FORMATS.ELF:
-            for seg in self._binary.concrete.segments:
+            for i, seg in enumerate(self._binary.concrete.segments):
                 if seg.type == lief.ELF.SEGMENT_TYPES.LOAD:
                     content = bytearray(seg.content)
                     if seg.virtual_size != len(seg.content):  # pad with zeros (as it might be .bss)
                         content += bytearray([0]) * (seg.virtual_size - seg.physical_size)
-                    yield LoadableSegment(seg.virtual_address, Perm(int(seg.flags)), bytes(content))
+                    yield LoadableSegment(seg.virtual_address, perms=Perm(int(seg.flags)), content=bytes(content), name=f"seg{i}")
         else:
             raise NotImplementedError(f"memory segments not implemented for: {self.format.name}")
 
+        # Also return a specific map to put external symbols
+        yield LoadableSegment(self.EXTERN_SYM_BASE, self.EXTERN_SYM_SIZE, Perm.R | Perm.W, name="[extern]")
+        yield LoadableSegment(self.END_STACK, self.BASE_STACK-self.END_STACK, Perm.R | Perm.W, name="[stack]")
 
     def imported_functions_relocations(self) -> Generator[Tuple[str, Addr], None, None]:
         """

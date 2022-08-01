@@ -37,7 +37,8 @@ class Config(object):
                  workspace: str = "",
                  program_argv: List[str] = None,
                  time_inc_coefficient: float = 0.00001,
-                 skip_unsupported_import: bool = False):
+                 skip_unsupported_import: bool = False,
+                 memory_segmentation: bool = True):
         """
         :param debug: Enable debugging logging
         :type debug: bool
@@ -119,6 +120,11 @@ class Config(object):
         self.skip_unsupported_import: bool = skip_unsupported_import
         """ Whether or not to stop the emulation when hitting a external
         call to a function that is not supported.
+        """
+
+        self.memory_segmentation: bool = memory_segmentation
+        """ This option defines whether or not memory segmentation is enforced.
+        If activated all memory accesses must belong to a mapped memory area.
         """
 
         self.custom = {}

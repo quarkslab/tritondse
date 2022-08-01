@@ -8,7 +8,7 @@ from .symbolic_explorator   import SymbolicExplorator, ExplorationStatus
 from .seed                  import Seed, SeedStatus, SeedFormat, CompositeData, CompositeField
 from .heap_allocator        import AllocatorException
 from .sanitizers            import CbType, ProbeInterface, UAFSanitizer, NullDerefSanitizer, FormatStringSanitizer, IntegerOverflowSanitizer
-from .types                 import SolverStatus, Perm
+from .types                 import *
 from .workspace             import Workspace
 from .memory                import Memory, MemoryAccessViolation, MapOverlapException, MemMap
 

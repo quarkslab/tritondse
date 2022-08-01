@@ -3,7 +3,7 @@ import logging
 import time
 import os
 import resource
-from typing import Optional, Union, List, NoReturn
+from typing import Optional, Union, List, NoReturn, Dict
 
 # third party imports
 from triton import MODE, Instruction, CPUSIZE, MemoryAccess, CALLBACK
@@ -21,7 +21,7 @@ from tritondse.workspace import Workspace
 from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
 from tritondse.exception      import AbortExecutionException, SkipInstructionException, StopExplorationException
-from tritondse.memory         import MemoryAccessViolation
+from tritondse.memory         import MemoryAccessViolation, Perm
 
 
 class SymbolicExecutor(object):
@@ -52,8 +52,19 @@ class SymbolicExecutor(object):
         self.workspace = workspace                             # The current workspace
         if self.workspace is None:
             self.workspace = Workspace(config.workspace)
+
         self.seed = seed              # The current seed used to the execution
-        self._symbolic_seed = [] if self.config.seed_format == SeedFormat.RAW else CompositeData()  # (but will hold symvars)
+        if seed.is_composite():
+            if config.seed_format == SeedFormat.RAW:
+                logging.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
+                self.config.seed_format = seed.format
+            self._symbolic_seed = CompositeData()
+        else:
+            if config.seed_format == SeedFormat.COMPOSITE:
+                logging.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
+                self.config.seed_format = seed.format
+            self._symbolic_seed = []
+
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy) #: Coverage of the execution
         self.rtn_table = dict()            # Addr -> Tuple[fname, routine]
         self.uid = uid               # Unique identifier meant to unique accross Exploration instances
@@ -212,22 +223,16 @@ class SymbolicExecutor(object):
             # Increment the instruction counter of the thread (a bit in advance but it does not matter)
             self.pstate.current_thread.count += 1
 
-    def _symbolic_mem_callback(self, _, mem: MemoryAccess, is_read):
+    def _symbolic_mem_callback(self, se: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
         tgt_addr = mem.getAddress()
         lea_ast = mem.getLeaAst()
         if lea_ast is None:
             return
         if lea_ast.isSymbolized():
-            s = "read" if is_read else "write"
+            s = "write" if bool(args) else "read"
             pc = self.pstate.cpu.program_counter
             logging.debug(f"symbolic {s} at 0x{pc:x}: target: 0x{tgt_addr:x} [{lea_ast}]")
             self.pstate.push_constraint(lea_ast == tgt_addr, f"sym-{s}:{self.trace_offset}:{pc}")
-
-    def _symbolic_read_callback(self, ctx, mem: MemoryAccess):
-        self._symbolic_mem_callback(ctx, mem, True)
-
-    def _symbolic_write_callback(self, ctx, mem: MemoryAccess, _):
-        self._symbolic_mem_callback(ctx, mem, False)
 
     def __emulate(self):
         while not self.pstate.stop and self.pstate.threads:
@@ -522,11 +527,17 @@ class SymbolicExecutor(object):
         # bind dbm callbacks on the process state (newly initialized)
         self.cbm.bind_to(self)  # bind call
 
+        # Configure memory segmentation using configuration
+        self.pstate.memory.set_segmentation(self.config.memory_segmentation)
+        if self.config.memory_segmentation:
+            self.cbm.register_memory_read_callback(self._mem_accesses_callback)
+            self.cbm.register_memory_write_callback(self._mem_accesses_callback)
+
         # Register memory callbacks in case we activated covering mem access
         if BranchSolvingStrategy.COVER_SYM_READ in self.config.branch_solving_strategy:
-            self.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_MEMORY_VALUE, self._symbolic_read_callback)
+            self.cbm.register_memory_read_callback(self._symbolic_mem_callback)
         if BranchSolvingStrategy.COVER_SYM_WRITE in self.config.branch_solving_strategy:
-            self.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_MEMORY_VALUE, self._symbolic_write_callback)
+            self.cbm.register_memory_write_callback(self._symbolic_mem_callback)
 
         # Let's emulate the binary from the entry point
         logging.info('Starting emulation')
@@ -569,6 +580,17 @@ class SymbolicExecutor(object):
         logging.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time:.02f}s)")
         logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.path_predicate_size}")
         logging.info(f"Memory usage: {self.mem_usage_str()}")
+
+    def _mem_accesses_callback(self, se: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
+        perm = Perm.W if bool(args) else Perm.R
+        addr = mem.getAddress()
+        size = mem.getSize()
+        map = ps.memory.get_map(addr, size)  # It raises
+        if map is None:
+            raise MemoryAccessViolation(addr, perm, memory_not_mapped=True)
+        else:
+            if perm not in map.perm:
+                raise MemoryAccessViolation(addr, perm, map_perm=map.perm, perm_error=True)
 
     @property
     def exitcode(self) -> int:
@@ -639,7 +661,7 @@ class SymbolicExecutor(object):
         # Return the
         return new_seed
 
-    def inject_symbolic_input(self, addr: Addr, inp: bytes, var_prefix: str = "input", compfield: Optional[CompositeField] = None) -> None:
+    def inject_symbolic_input(self, addr: Addr, inp: Union[bytes, Dict], var_prefix: str = "input", compfield: Optional[CompositeField] = None, offset: int = 0) -> None:
         """
         Inject the given bytes at the given address in memory. Then
         all memory bytes are symbolized.
@@ -648,13 +670,17 @@ class SymbolicExecutor(object):
         :param inp: Input to inject in memory
         :param var_prefix: prefix name to give the symbolic variables
         :param compfield: In case of composite seed, type of the input to inject (argv, files, variables..)
+        :param offset: In the case of a file, the offset of the data within the file
         :return: None
         """
+        if isinstance(inp, dict):
+            inp = inp[var_prefix]
         # Write concrete bytes in memory
         self.pstate.memory.write(addr, inp)
 
         # Symbolize bytes
-        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(inp), var_prefix)
+        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(inp), var_prefix, offset)
+
         if self.config.seed_format == SeedFormat.RAW:
             self._symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
         else: # SeedFormat.COMPOSITE
@@ -664,7 +690,10 @@ class SymbolicExecutor(object):
             elif compfield == CompositeField.ARGV:
                 self._symbolic_seed.argv.append(sym_vars)
             elif compfield == CompositeField.FILE:
-                self._symbolic_seed.files[var_prefix] = sym_vars
+                if not var_prefix in self._symbolic_seed.files:
+                    self._symbolic_seed.files[var_prefix] = sym_vars
+                else:
+                    self._symbolic_seed.files[var_prefix] += sym_vars
             elif compfield == CompositeField.VARIABLE:
                 self._symbolic_seed.variables[var_prefix] = sym_vars
             else:

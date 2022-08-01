@@ -6,6 +6,7 @@ from pathlib import Path
 from triton import ARCH, SOLVER_STATE, SOLVER
 from typing import Union, TypeVar, Tuple
 
+from dataclasses import dataclass
 
 PathLike = Union[str, Path]
 """Type representing file either as a file, either as a Path object"""
@@ -122,3 +123,15 @@ class Perm(IntFlag):
 class Endian(IntEnum):
     LITTLE = 1
     BIG = 2
+
+@dataclass
+class FileDesc:
+    """
+    Type representing a file descriptor
+    """
+    name:   str
+    offset: int
+    """ The python file descriptor """
+    fd:     int
+    """ The target program's file descriptor """
+    fd_id:  int
