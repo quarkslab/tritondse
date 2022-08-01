@@ -783,27 +783,27 @@ class CallbackManager(object):
         cbs = CallbackManager()
 
         # SymbolicExecutor callbacks
-        cbs._pc_addr_cbs        = self._pc_addr_cbs
-        cbs._opcode_cbs         = self._opcode_cbs
-        cbs._mnemonic_cbs       = self._mnemonic_cbs
-        cbs._instr_cbs          = self._instr_cbs
-        cbs._pre_exec           = self._pre_exec
-        cbs._post_exec          = self._post_exec
-        cbs._ctx_switch         = self._ctx_switch
-        cbs._new_input_cbs      = self._new_input_cbs
-        cbs._branch_solving_cbs = self._branch_solving_cbs
-        cbs._branch_covered_cbs = self._branch_covered_cbs
-        cbs._pre_rtn_cbs        = self._pre_rtn_cbs
-        cbs._post_rtn_cbs       = self._post_rtn_cbs
-        cbs._mem_violation_cbs  = self._mem_violation_cbs
+        cbs._pc_addr_cbs        = self._pc_addr_cbs.copy()
+        cbs._opcode_cbs         = self._opcode_cbs.copy()
+        cbs._mnemonic_cbs       = self._mnemonic_cbs.copy()
+        cbs._instr_cbs          = self._instr_cbs.copy()
+        cbs._pre_exec           = self._pre_exec.copy()
+        cbs._post_exec          = self._post_exec.copy()
+        cbs._ctx_switch         = self._ctx_switch.copy()
+        cbs._new_input_cbs      = self._new_input_cbs.copy()
+        cbs._branch_solving_cbs = self._branch_solving_cbs.copy()
+        cbs._branch_covered_cbs = self._branch_covered_cbs.copy()
+        cbs._pre_rtn_cbs        = self._pre_rtn_cbs.copy()
+        cbs._post_rtn_cbs       = self._post_rtn_cbs.copy()
+        cbs._mem_violation_cbs  = self._mem_violation_cbs.copy()
         # Triton callbacks
-        cbs._mem_read_cbs  = self._mem_read_cbs
-        cbs._mem_write_cbs = self._mem_write_cbs
-        cbs._reg_read_cbs  = self._reg_read_cbs
-        cbs._reg_write_cbs = self._reg_write_cbs
+        cbs._mem_read_cbs  = self._mem_read_cbs.copy()
+        cbs._mem_write_cbs = self._mem_write_cbs.copy()
+        cbs._reg_read_cbs  = self._reg_read_cbs.copy()
+        cbs._reg_write_cbs = self._reg_write_cbs.copy()
         cbs._empty         = self._empty
         # Copy temporary data
-        cbs._func_to_register = self._func_to_register
+        cbs._func_to_register = self._func_to_register.copy()
 
         return cbs
 
