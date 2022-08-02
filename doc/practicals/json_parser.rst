@@ -22,6 +22,7 @@ The entrypoint is a call on the function parsing the JSON input.
 Its prototype is the following:
 
 .. code-block:: c
+
 	int json_parser(char* buffer, int len, JSON_ctx* ctx);
 
 While the two first parameters are straightforward. The third is an
@@ -47,4 +48,3 @@ Tips
 * Make sure both buffers ``buffer`` and ``ctx`` points to a recognizable memory area.
 
 
-*(Thanks to Lo for the sample)*

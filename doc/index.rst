@@ -1,7 +1,7 @@
-tritondse documentation
+TritonDSE documentation
 =======================
 
-tritondse is a Python library providing exploration capabilities to Triton
+TritonDSE is a Python library providing exploration capabilities to Triton
 and some refinement easing its usage. This library is primarily designed
 to perform pure emulation symbolic execution even though it can also be
 applied under different settings. It works by performing an elementary
@@ -17,25 +17,48 @@ runtime and it has not been tested on other types of programs.
    :maxdepth: 2
 
     Installation <installation>
-
-
-..
-    .. toctree::
-        :caption: Tutorials
-        :maxdepth: 3
-
-        Getting Started <tutos/starting.ipynb>
-        Hooks <tutos/hooks.ipynb>
-        Seeds <tutos/seeds.ipynb>
-        Sanitizers & Probes <tutos/sanitizers.ipynb>
-        Loaders <tutos/loaders.ipynb>
-
+    Getting Started <tutos/starting.ipynb>
 
 .. toctree::
     :caption: Python API
     :maxdepth: 3
 
-    api
+    api/program
+    api/configuration
+    api/callbacks
+    api/process
+    api/executor
+    api/explorator
+    api/sanitizers
+    api/seeds
+    api/workspace
+    api/types
+
+.. toctree::
+    :caption: Tutorials
+    :maxdepth: 3
+
+    Hooks <tutos/hooks-removed.ipynb>
+
+    Seeds <tutos/seeds.ipynb>
+    Sanitizers & Probes <tutos/sanitizers.ipynb>
+    Loaders <tutos/loaders.ipynb>
+
+.. toctree::
+    :caption: Practicals
+    :maxdepth: 3
+
+    practicals/toy_example
+    practicals/json_parser
+    practicals/crackme
+
+.. toctree::
+    :caption: Advanced API
+    :maxdepth: 3
+
+    dev_doc/coverage
+    dev_doc/routines
+    dev_doc/seedscheduling
 
 
 Indices and tables

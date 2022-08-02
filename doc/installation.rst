@@ -1,11 +1,8 @@
 TritonDSE Installation
 ======================
 
-Installing tritondse requires a valid Triton installation. Then all dependencies can
-be installed through pip. Installation steps are:
-
-* installing Triton (cf. `Documentation <https://triton.quarkslab.com/documentation/doxygen/index.html#install_sec>`_)
-* installing tritondse with:
+Now that Triton is available through Pypi, all TritonDSE dependencies can be installed via pip.
+Installing is as simple as:
 
 .. code-block:: bash
 
