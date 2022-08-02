@@ -524,9 +524,6 @@ class SymbolicExecutor(object):
 
         self.start_time = time.time()
 
-        # bind dbm callbacks on the process state (newly initialized)
-        self.cbm.bind_to(self)  # bind call
-
         # Configure memory segmentation using configuration
         self.pstate.memory.set_segmentation(self.config.memory_segmentation)
         if self.config.memory_segmentation:
@@ -538,6 +535,9 @@ class SymbolicExecutor(object):
             self.cbm.register_memory_read_callback(self._symbolic_mem_callback)
         if BranchSolvingStrategy.COVER_SYM_WRITE in self.config.branch_solving_strategy:
             self.cbm.register_memory_write_callback(self._symbolic_mem_callback)
+
+        # bind dbm callbacks on the process state (newly initialized)
+        self.cbm.bind_to(self)  # bind call
 
         # Let's emulate the binary from the entry point
         logging.info('Starting emulation')
