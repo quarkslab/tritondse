@@ -217,12 +217,18 @@ class CallbackManager(object):
 
         # Register only one trampoline by kind of callback. It will be the role
         # of the trampoline to call every registered tritondse callbacks.
-        # NOTE We register the trampoline even though there might be no callback
-        #      register at the moment.
-        se.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_MEMORY_VALUE, self._trampoline_mem_read_cb)
-        se.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_MEMORY_VALUE, self._trampoline_mem_write_cb)
-        se.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_REGISTER_VALUE, self._trampoline_reg_read_cb)
-        se.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_REGISTER_VALUE, self._trampoline_reg_write_cb)
+
+        if self._mem_read_cbs:
+            se.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_MEMORY_VALUE, self._trampoline_mem_read_cb)
+
+        if self._mem_write_cbs:
+            se.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_MEMORY_VALUE, self._trampoline_mem_write_cb)
+
+        if self._reg_read_cbs:
+            se.pstate.register_triton_callback(CALLBACK.GET_CONCRETE_REGISTER_VALUE, self._trampoline_reg_read_cb)
+
+        if self._reg_write_cbs:
+            se.pstate.register_triton_callback(CALLBACK.SET_CONCRETE_REGISTER_VALUE, self._trampoline_reg_write_cb)
 
         # Check if there is a program on which to register functions callback
         if self._func_to_register:
