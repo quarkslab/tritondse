@@ -1,5 +1,6 @@
 from .config                import Config
 from .program               import Program
+from .cle_loader            import CleLoader
 from .loader                import Loader, MonolithicLoader, LoadableSegment
 from .process_state         import ProcessState
 from .coverage              import CoverageStrategy, BranchSolvingStrategy
