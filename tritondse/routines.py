@@ -420,8 +420,6 @@ def rtn_fseek(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg1 = pstate.get_argument_value(1)
     arg2 = pstate.get_argument_value(2)
 
-    print(f'fseek hooked {arg0} {arg1} {arg2}')
-
     if arg2 != 0 and arg2 != 1 and arg2 != 2:
         return -22 # EINVAL
 
@@ -446,7 +444,6 @@ def rtn_fseek(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             fs.offset = filelength + arg1
     else: return -22
 
-    print(f"After fseek : new offset = {fs.offset}")
     return 0
 
 
@@ -464,7 +461,6 @@ def rtn_ftell(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         return -22 # EINVAL
     else:
         fs = pstate.fd_table[arg0]
-        print(f"ftell returning {fs.offset}")
         return fs.offset
 
 
@@ -535,8 +531,6 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg1  = pstate.get_argument_value(1)  # const char *mode
     arg0s = pstate.memory.read_string(arg0)
     arg1s = pstate.memory.read_string(arg1)
-
-    print(f'fopen hooked {arg0s} {arg1s}')
 
     # Concretize the whole path name
     pstate.concretize_memory_bytes(arg0, len(arg0s)+1)  # Concretize the whole string + \0
@@ -780,14 +774,9 @@ def rtn_write(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Get arguments
     fd = pstate.get_argument_value(0)
-    print(f"fd = {fd}")
     buf = pstate.get_argument_value(1)
     size = pstate.get_argument_value(2)
     data = pstate.memory.read(buf, size)
-
-    print(pstate.fd_table)
-
-    print(f"write({fd}, {buf}, {size})")
 
     if fd in pstate.fd_table:
         if fd == 0:
@@ -859,7 +848,6 @@ def rtn_realloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # Get arguments
     oldptr = pstate.get_argument_value(0)
     size = pstate.get_argument_value(1)
-    print(f"realloc({oldptr}, {size})")
 
     if oldptr == 0:
         # malloc behaviour
@@ -879,9 +867,6 @@ def rtn_realloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     data = pstate.memory.read(oldptr, size_to_copy)
     pstate.memory.write(ptr, data)
     pstate.heap_allocator.free(ptr) # This will raise an error
-
-    print(f"realloc: old={oldptr} new={ptr} oldsize={oldsize} newsize={size}\
-            size_to_copy={size_to_copy} data={data}")
 
     return ptr
 
@@ -1903,14 +1888,14 @@ def rtn_getenv(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The getenv behavior.
     """
-    print('getenv hooked')
+    # TODO
     name = pstate.get_argument_value(0)
 
     if name == 0:
         return 0
 
     environ_name = pstate.memory.read_string(name)
-    print(environ_name)
+    logging.warning(f"Target called getenv({environ_name})")
     return 0
 
 
@@ -1928,7 +1913,7 @@ def rtn__setjmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     The _setjmp behavior. 
     """
     # TODO
-    print("hooked _setjmp")
+    logging.warning("hooked _setjmp")
     return 0
 
 
