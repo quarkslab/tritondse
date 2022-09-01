@@ -6,6 +6,8 @@ from tritondse.loader import Loader, LoadableSegment
 from tritondse.types import Addr, Architecture, PathLike, Platform, Perm
 from triton import Instruction
 
+from tritondse.routines import SUPPORTED_ROUTINES
+
 import cle
 import archinfo
 
@@ -29,14 +31,13 @@ class CleLoader(Loader):
     BASE_STACK = 0xf0000000
     END_STACK  = 0x70000000 # This is inclusive
 
-    def __init__(self, path: PathLike, fcts_to_emulate={}):
+    def __init__(self, path: PathLike):
         super(CleLoader, self).__init__(path)
         self.path: Path = Path(path)  #: Binary file path
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
 
         self.ld = cle.Loader(path)
-        self.fcts_to_emulate = fcts_to_emulate
 
 
     @property
@@ -81,7 +82,14 @@ class CleLoader(Loader):
         yield LoadableSegment(self.END_STACK, self.BASE_STACK-self.END_STACK+1, Perm.R | Perm.W, name="[stack]")
 
         # FIXME. Temporary solution to prevent crashes on access to the TLB e.g fs:28
-        yield LoadableSegment(0, 0x1000, Perm.R | Perm.W, name="[fs]")
+        yield LoadableSegment(0, 0x2000, Perm.R | Perm.W, name="[fs]")
+
+    # FIXME. Temporary solution to prevent crashes on access to the TLB e.g fs:28
+    @property
+    def cpustate(self):
+        # NOTE: in Triton, the segment selector is used as the segment base and not as a selector into GDT.
+        # i.e directly store the segment base into fs
+        return {"fs": 0x1000}
 
     @property
     def platform(self) -> Optional[Platform]:
@@ -101,12 +109,14 @@ class CleLoader(Loader):
         :return: Generator of tuples function name and relocation address
         """
         # TODO I think there's a problem here. We only deal with imports from the main binary
+        # For example if a library calls a libc function, we probably need to patch the library's GOT
         for obj in self.ld.all_objects:
-            if obj.binary_basename in self.fcts_to_emulate:
-                for f in self.fcts_to_emulate[obj.binary_basename]:
-                    reloc = self.ld.main_object.imports[f]
+            for fun in self.ld.main_object.imports:
+                rtn_name = f"rtn_{fun}"
+                if fun in SUPPORTED_ROUTINES:
+                    reloc = self.ld.main_object.imports[fun]
                     got_entry_addr = reloc.relative_addr + self.ld.main_object.mapped_base
-                    yield f, got_entry_addr
+                    yield fun, got_entry_addr
 
 
     def imported_variable_symbols_relocations(self) -> Generator[Tuple[str, Addr], None, None]:

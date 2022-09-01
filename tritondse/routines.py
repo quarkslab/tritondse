@@ -119,6 +119,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         argc = len(se.config.program_argv)
     else: # SeedFormat.COMPOSITE
         argc = len(se.seed.content.argv) if se.seed.content.argv else len(se.config.program_argv)
+
     pstate.write_argument_value(0, argc)
     logging.debug(f"argc = {argc}")
 
@@ -394,13 +395,78 @@ def rtn_fclose(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.concretize_argument(0)
 
     if arg0 in pstate.fd_table:
-        pstate.fd_table[arg0].fd.close()
+        fd = pstate.fd_table[arg0].fd
+        if fd: fd.close()
         del pstate.fd_table[arg0]
     else:
         return pstate.minus_one
 
     # Return value
     return 0
+
+
+def rtn_fseek(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The fseek behavior.
+    """
+
+    #define SEEK_SET    0   /* set file offset to offset */
+    #define SEEK_CUR    1   /* set file offset to current plus offset */
+    #define SEEK_END    2   /* set file offset to EOF plus offset */
+    logging.debug('fseek hooked')
+
+    # Get arguments
+    arg0 = pstate.get_argument_value(0)
+    arg1 = pstate.get_argument_value(1)
+    arg2 = pstate.get_argument_value(2)
+
+    print(f'fseek hooked {arg0} {arg1} {arg2}')
+
+    if arg2 != 0 and arg2 != 1 and arg2 != 2:
+        return -22 # EINVAL
+
+    if arg0 in pstate.fd_table:
+        fs = pstate.fd_table[arg0]
+        if arg2 == 0: # SEEK_SET
+            fs.offset = arg1
+        if arg2 == 1: # SEEK_CUR
+            fs.offset += arg1
+        if arg2 == 2: # SEEK_END
+            # Get the file length. There are two options:
+            # either the file is in the composite seed or it's not
+            if se.config.seed_format == SeedFormat.RAW \
+                    or not se.seed.content.files \
+                    or pstate.fd_table[arg0].name not in se.seed.content.files:
+                # Get the real file's length
+                fd = pstate.fd_table[arg0].fd
+                filelength = os.fstat(fd.fileno()).st_size
+            else: # file content is provided in the seed
+                filelength = len(se.seed.content.files[fs.name])
+
+            fs.offset = filelength + arg1
+    else: return -22
+
+    print(f"After fseek : new offset = {fs.offset}")
+    return 0
+
+
+def rtn_ftell(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The ftell behavior.
+    """
+
+    logging.debug('ftell hooked')
+
+    # Get arguments
+    arg0 = pstate.get_argument_value(0)
+
+    if arg0 not in pstate.fd_table: 
+        return -22 # EINVAL
+    else:
+        fs = pstate.fd_table[arg0]
+        print(f"ftell returning {fs.offset}")
+        return fs.offset
+
 
 
 # char *fgets(char *s, int size, FILE *stream);
@@ -470,6 +536,8 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg0s = pstate.memory.read_string(arg0)
     arg1s = pstate.memory.read_string(arg1)
 
+    print(f'fopen hooked {arg0s} {arg1s}')
+
     # Concretize the whole path name
     pstate.concretize_memory_bytes(arg0, len(arg0s)+1)  # Concretize the whole string + \0
 
@@ -478,11 +546,19 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     try:
         fd = open(arg0s, arg1s)
-        fd_id = se.pstate.get_unique_file_id()
-        se.pstate.fd_table.update({fd_id: FileDesc(arg0s, 0, fd, fd_id)})
-    except:
-        # Return value
-        return 0
+    except Exception as e:
+        logging.debug(f"Failed to open {arg0s} {e}")
+        if se.config.seed_format == SeedFormat.RAW \
+                or not se.seed.content.files \
+                or arg0s not in se.seed.content.files:
+            return 0
+
+        # If the file doesn't exist in the real filesystem but is present in the seed,
+        # we simulate a success.
+        fd = None
+
+    fd_id = se.pstate.get_unique_file_id()
+    se.pstate.fd_table.update({fd_id: FileDesc(arg0s, 0, fd, fd_id)})
 
     # Return value
     return fd_id
@@ -654,6 +730,8 @@ def rtn_free(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Get arguments
     ptr = pstate.get_argument_value(0)
+    if ptr == 0: # free(NULL) is a nop
+        return None
     pstate.heap_allocator.free(ptr)
 
     return None
@@ -687,6 +765,44 @@ def rtn_fwrite(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         else:
             fd = open(pstate.fd_table[arg3].fd, 'wb+')
             fd.write(data)
+    else:
+        return 0
+
+    # Return value
+    return size
+
+
+def rtn_write(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The write behavior.
+    """
+    logging.debug('write hooked')
+
+    # Get arguments
+    fd = pstate.get_argument_value(0)
+    print(f"fd = {fd}")
+    buf = pstate.get_argument_value(1)
+    size = pstate.get_argument_value(2)
+    data = pstate.memory.read(buf, size)
+
+    print(pstate.fd_table)
+
+    print(f"write({fd}, {buf}, {size})")
+
+    if fd in pstate.fd_table:
+        if fd == 0:
+            return 0
+        elif fd == 1:
+            if se.config.pipe_stdout:
+                sys.stdout.buffer.write(data)
+                sys.stdout.flush()
+        elif fd == 2:
+            if se.config.pipe_stderr:
+                sys.stderr.buffer.write(data)
+                sys.stderr.flush()
+        else:
+            file_desc = open(pstate.fd_table[fd].fd, 'wb+')
+            file_desc.write(data)
     else:
         return 0
 
@@ -731,6 +847,42 @@ def rtn_malloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     ptr = pstate.heap_allocator.alloc(size)
 
     # Return value
+    return ptr
+
+
+def rtn_realloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The realloc behavior.
+    """
+    logging.debug('realloc hooked')
+
+    # Get arguments
+    oldptr = pstate.get_argument_value(0)
+    size = pstate.get_argument_value(1)
+    print(f"realloc({oldptr}, {size})")
+
+    if oldptr == 0:
+        # malloc behaviour
+        ptr = pstate.heap_allocator.alloc(size)
+        return ptr
+
+    ptr = pstate.heap_allocator.alloc(size)
+    if ptr == 0: return ptr
+
+    if ptr not in pstate.heap_allocator.alloc_pool:
+        logging.warning("Invalid ptr passed to realloc")
+        pstate.heap_allocator.free(ptr) # This will raise an error
+
+    old_memmap = pstate.heap_allocator.alloc_pool[oldptr]
+    old_size = old_memmap.size
+    size_to_copy = min(size, old_size)
+    data = pstate.memory.read(oldptr, size_to_copy)
+    pstate.memory.write(ptr, data)
+    pstate.heap_allocator.free(ptr) # This will raise an error
+
+    print(f"realloc: old={oldptr} new={ptr} oldsize={oldsize} newsize={size}\
+            size_to_copy={size_to_copy} data={data}")
+
     return ptr
 
 
@@ -1747,6 +1899,38 @@ def rtn_strtoul(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         return 0xffffffff
 
 
+def rtn_getenv(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The getenv behavior.
+    """
+    print('getenv hooked')
+    name = pstate.get_argument_value(0)
+
+    if name == 0:
+        return 0
+
+    environ_name = pstate.memory.read_string(name)
+    print(environ_name)
+    return 0
+
+
+def rtn___assert_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The __assert_fail behavior.
+    """
+    msg = pstate.get_argument_value(0)
+
+    msg = pstate.memory.read_string(msg)
+    logging.warning(f"__assert_fail called : {msg}")
+    
+def rtn__setjmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The _setjmp behavior. 
+    """
+    # TODO
+    print("hooked _setjmp")
+    return 0
+
 
 SUPPORTED_ROUTINES = {
     # TODO:
@@ -1809,6 +1993,14 @@ SUPPORTED_ROUTINES = {
     'strncpy':                 rtn_strncpy,
     'strtok_r':                rtn_strtok_r,
     'strtoul':                 rtn_strtoul,
+
+    'write':                   rtn_write,
+    'getenv':                  rtn_getenv,
+    'fseek':                   rtn_fseek,
+    'ftell':                   rtn_ftell,
+    '__assert_fail':                   rtn___assert_fail,
+    '_setjmp':                   rtn__setjmp,
+    'realloc':                  rtn_realloc,
 }
 
 
@@ -1818,3 +2010,4 @@ SUPORTED_GVARIABLES = {
     'stdin':                0x0000,
     'stdout':               0x0001,
 }
+
