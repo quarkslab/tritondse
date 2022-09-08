@@ -1139,16 +1139,25 @@ class ProcessState(object):
         with pstate.memory.without_segmentation():
             # Link imported functions in EXTERN_FUNC_BASE
             for fname, rel_addr in loader.imported_functions_relocations():
+                #print(f"Hooking {fname} at {rel_addr:#x} cur_linkage_addr={cur_linkage_address:#x}")
                 logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
-                # Add symbol in dynamic_symbol_table
-                pstate.dynamic_symbol_table[fname] = (cur_linkage_address, True)
+                # If we already linked this function (because another library uses it) we reuse the same
+                # linkage address.
+                if fname in pstate.dynamic_symbol_table:
+                    (linkage_address, _) = pstate.dynamic_symbol_table[fname] 
+                    logging.debug(f"Already added. {fname} at {rel_addr:#x} linkage_addr={linkage_address:#x}")
+                    pstate.memory.write_ptr(rel_addr, linkage_address)
 
-                # Apply relocation to our custom address in process memory
-                pstate.memory.write_ptr(rel_addr, cur_linkage_address)
+                else:
+                    # Add symbol in dynamic_symbol_table
+                    pstate.dynamic_symbol_table[fname] = (cur_linkage_address, True)
 
-                # Increment linkage address number
-                cur_linkage_address += pstate.ptr_size
+                    # Apply relocation to our custom address in process memory
+                    pstate.memory.write_ptr(rel_addr, cur_linkage_address)
+
+                    # Increment linkage address number
+                    cur_linkage_address += pstate.ptr_size
 
         # Try initializing stack registers if a stack is present in maps
         # Map the stack

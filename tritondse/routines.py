@@ -920,6 +920,27 @@ def rtn_memcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return dst_ast
 
 
+def rtn_mempcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The mempcpy behavior.
+    """
+    logging.debug('mempcpy hooked')
+
+    dst, dst_ast = pstate.get_full_argument(0)
+    src = pstate.get_argument_value(1)
+    cnt = pstate.get_argument_value(2)
+
+    # We constrain the logical value of size
+    pstate.concretize_argument(2)
+
+    for index in range(cnt):
+        # Read symbolic src value and copy symbolically in dst
+        sym_src = pstate.read_symbolic_memory_byte(src+index)
+        pstate.write_symbolic_memory_byte(dst+index, sym_src)
+
+    return dst + cnt
+
+
 def rtn_memmem(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memmem behavior.
@@ -1554,6 +1575,35 @@ def rtn_strcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return dst
 
 
+def rtn_strdup(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The strdup behavior.
+    """
+    logging.debug('strdup hooked')
+
+    s  = pstate.get_argument_value(0)
+    s_str = pstate.memory.read_string(s)
+    size = len(s_str)
+
+    #print(f"strdup s={s:#x} s_str={s_str} size={size}")
+
+    # constrain src buff to be != \00 and last one to be \00 (indirectly concretize length)
+    for i, c in enumerate(s_str):
+        pstate.push_constraint(pstate.read_symbolic_memory_byte(s + i).getAst() != 0x00)
+    pstate.push_constraint(pstate.read_symbolic_memory_byte(s + size).getAst() == 0x00)
+
+
+    # Malloc a chunk
+    ptr = pstate.heap_allocator.alloc(size + 1)
+
+    # Copy symbolically bytes (including \00)
+    for index in range(size+1):
+        sym_c = pstate.read_symbolic_memory_byte(s+index)
+        pstate.write_symbolic_memory_byte(ptr+index, sym_c)
+
+    return ptr
+
+
 def rtn_strerror(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strerror behavior.
@@ -1896,7 +1946,8 @@ def rtn_getenv(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     environ_name = pstate.memory.read_string(name)
     logging.warning(f"Target called getenv({environ_name})")
-    return 0
+    host_env_val = os.getenv(environ_name)
+    return host_env_val if host_env_val is not None else 0
 
 
 def rtn___assert_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -1908,6 +1959,36 @@ def rtn___assert_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     msg = pstate.memory.read_string(msg)
     logging.warning(f"__assert_fail called : {msg}")
     
+def rtn_setlocale(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The setlocale behavior.
+    """
+    logging.debug('setlocale hooked')
+
+    category = pstate.get_argument_value(0)
+    locale   = pstate.get_argument_value(1)
+
+    if locale != 0:
+        logging.warning(f"Attempt to modify Locale. Currently not supported.")
+        return 0
+
+    # This is a bit hacky but we just store the LOCALEs in the [extern] segment
+    segs = pstate.memory.find_map(pstate.EXTERN_SEG)
+    if segs:
+        map = segs[0]
+        LC_ALL = map.start + map.size - 0x20 # Point to the end of seg. But keep in mind LC_ALL is at end - 4.
+    else:
+        assert False
+    print(f"selocale writing at {LC_ALL:#x}")
+
+    if category == 0:
+        pstate.memory.write(LC_ALL, b"en_US.UTF-8\x00")
+    else:
+        logging.warning(f"setlocale called with unsupported category={category}.")
+
+    return LC_ALL
+
+
 def rtn__setjmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The _setjmp behavior. 
@@ -1983,9 +2064,12 @@ SUPPORTED_ROUTINES = {
     'getenv':                  rtn_getenv,
     'fseek':                   rtn_fseek,
     'ftell':                   rtn_ftell,
-    '__assert_fail':                   rtn___assert_fail,
-    '_setjmp':                   rtn__setjmp,
-    'realloc':                  rtn_realloc,
+    '__assert_fail':           rtn___assert_fail,
+    '_setjmp':                 rtn__setjmp,
+    'realloc':                 rtn_realloc,
+    #'setlocale':               rtn_setlocale,
+    'strdup':                  rtn_strdup,
+    'mempcpy':                 rtn_mempcpy,
 }
 
 

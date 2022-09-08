@@ -111,12 +111,28 @@ class CleLoader(Loader):
         # TODO I think there's a problem here. We only deal with imports from the main binary
         # For example if a library calls a libc function, we probably need to patch the library's GOT
         for obj in self.ld.all_objects:
-            for fun in self.ld.main_object.imports:
+            for fun in obj.imports:
                 rtn_name = f"rtn_{fun}"
                 if fun in SUPPORTED_ROUTINES:
-                    reloc = self.ld.main_object.imports[fun]
-                    got_entry_addr = reloc.relative_addr + self.ld.main_object.mapped_base
+                    reloc = obj.imports[fun]
+                    got_entry_addr = reloc.relative_addr + obj.mapped_base
                     yield fun, got_entry_addr
+
+        # Handle indirect functions.
+        # Currently we only support indirect functions if there exists a stub for them in `routines.py`
+        # Otherwise the program will crash because CLE doesn't perform the relocation for indirect functions.
+        
+        # We could perform the relocation ourself by writing to the got slot but we need a way to figure out 
+        # the correct fptr to use.
+        # In other words we should execute `resolver_fun` or parse it in some way to get the correct function ptr
+        # to write to got_slot (write with self.ld.memory.pack_word(got_slot, func_ptr))
+        for obj in self.ld.all_objects:
+            for (resolver_func, got_rva) in obj.irelatives:
+                got_slot = got_rva + obj.mapped_base
+                sym = self.ld.find_symbol(resolver_func)
+                if sym is None: continue
+                fun = sym.name
+                yield fun, got_slot
 
 
     def imported_variable_symbols_relocations(self) -> Generator[Tuple[str, Addr], None, None]:
