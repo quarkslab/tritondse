@@ -197,6 +197,7 @@ class SymbolicExplorator(object):
 
         try:
             while self.seeds_manager.seeds_available() and not self._stop:
+                gc.collect()
                 self.step()
 
             if self.status == ExplorationStatus.RUNNING:

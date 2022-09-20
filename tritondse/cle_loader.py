@@ -31,13 +31,14 @@ class CleLoader(Loader):
     BASE_STACK = 0xf0000000
     END_STACK  = 0x70000000 # This is inclusive
 
-    def __init__(self, path: PathLike):
+    def __init__(self, path: PathLike, ld_path: Optional[PathLike] = None):
         super(CleLoader, self).__init__(path)
         self.path: Path = Path(path)  #: Binary file path
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
 
-        self.ld = cle.Loader(path)
+        self.ld_path = ld_path if ld_path is not None else ()
+        self.ld = cle.Loader(path, ld_path=self.ld_path)
 
 
     @property
@@ -75,7 +76,9 @@ class CleLoader(Loader):
                 segdata = self.ld.memory.load(seg.vaddr, seg.memsize)
                 assert len(segdata) == seg.memsize
                 perms = (Perm.R if seg.is_readable else 0) | (Perm.W if seg.is_writable else 0) | (Perm.X if seg.is_executable else 0) 
-                logging.debug(f"Loading segment {seg} - perms:{perms}")
+                if seg.__class__.__name__ != "ExternSegment":
+                    # The format string in CLE is broken if the filesize is 0. This is a workaround.
+                    logging.debug(f"Loading segment {seg} - perms:{perms}")
                 yield LoadableSegment(seg.vaddr, perms, content=segdata, name=f"seg-{obj.binary_basename}")
         # Also return a specific map to put external symbols
         yield LoadableSegment(self.EXTERN_SYM_BASE, self.EXTERN_SYM_SIZE, Perm.R | Perm.W, name="[extern]")

@@ -873,6 +873,7 @@ class ProcessState(object):
         postString = [i for i, x in enumerate([i for i, c in enumerate(s_str) if c == '%']) if s_str[x+1] == "s"]
         for p in postString:
             args[p] = self.memory.read_string(args[p])
+            args[p] = args[p].encode("latin-1").decode()
         return args
 
 
@@ -989,6 +990,8 @@ class ProcessState(object):
             var = self.tt_ctx.symbolizeRegister(reg, alias)
         else:
             var = self.tt_ctx.symbolizeRegister(reg)
+        #print(f"Symbolizing {reg}")
+        #print(self.is_register_symbolic(self.registers.eax))
         return var
 
     def symbolize_memory_byte(self, addr: Addr, alias: str = None) -> SymbolicVariable:

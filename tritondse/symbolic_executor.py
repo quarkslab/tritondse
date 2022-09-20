@@ -14,7 +14,7 @@ from tritondse.coverage import CoverageSingleRun, BranchSolvingStrategy
 from tritondse.process_state import ProcessState
 from tritondse.loader import Loader
 from tritondse.seed import Seed, SeedStatus, SeedFormat, CompositeData, CompositeField
-from tritondse.types import Expression, Architecture, Addr, Model
+from tritondse.types import Expression, Architecture, Addr, Model, SymbolicVariable
 from tritondse.routines import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks import CallbackManager
 from tritondse.workspace import Workspace
@@ -675,6 +675,51 @@ class SymbolicExecutor(object):
         # Return the
         return new_seed
 
+
+    def add_vars_to_symbolic_seed(self, sym_vars: List[SymbolicVariable], var_prefix: str = "input", compfield: Optional[CompositeField] = None, offset: int = 0) -> None:
+        if self.config.seed_format == SeedFormat.RAW:
+            self._symbolic_seed += sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
+        else: # SeedFormat.COMPOSITE
+            if not compfield: 
+                logging.error('Injecting in from composite seed but CompositeField not provided')
+                assert False
+            elif compfield == CompositeField.ARGV:
+                self._symbolic_seed.argv.append(sym_vars)
+            elif compfield == CompositeField.FILE:
+                if not var_prefix in self._symbolic_seed.files:
+                    self._symbolic_seed.files[var_prefix] = sym_vars
+                else:
+                    self._symbolic_seed.files[var_prefix] += sym_vars
+            elif compfield == CompositeField.VARIABLE:
+                self._symbolic_seed.variables[var_prefix] = sym_vars
+            else:
+                logging.error('Invalid CompositeField()')
+                assert False
+
+
+    def inject_symbolic_register(self, reg, inp: int, var_prefix: str = "input", compfield: Optional[CompositeField] = None, offset: int = 0) -> None:
+        """
+        Inject the given value in the given register and symbolize the register.
+
+        :param reg: register in which to inject input
+        :param inp: Input to inject in memory
+        :param var_prefix: prefix name to give the symbolic variables
+        :param compfield: In case of composite seed, type of the input to inject (argv, files, variables..)
+        :param offset: In the case of a file, the offset of the data within the file
+        :return: None
+        """
+        # TODO Currently this only supports injecting a single byte in a register. How should we handle multi-bytes values? 
+
+        # Write concrete value in register
+        self.pstate.write_register(reg, inp)
+
+        # Symbolize bytes
+        sym_var = [self.pstate.symbolize_register(reg, f"{var_prefix}[{offset}]")]
+
+        # Add symbolic variables to symbolic seed
+        self.add_vars_to_symbolic_seed(sym_var, var_prefix, compfield, offset)
+
+
     def inject_symbolic_input(self, addr: Addr, inp: Union[bytes, Dict], var_prefix: str = "input", compfield: Optional[CompositeField] = None, offset: int = 0) -> None:
         """
         Inject the given bytes at the given address in memory. Then
@@ -695,21 +740,5 @@ class SymbolicExecutor(object):
         # Symbolize bytes
         sym_vars = self.pstate.symbolize_memory_bytes(addr, len(inp), var_prefix, offset)
 
-        if self.config.seed_format == SeedFormat.RAW:
-            self._symbolic_seed = sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
-        else: # SeedFormat.COMPOSITE
-            if not compfield: 
-                logging.error('Injecting in from composite seed but CompositeField not provided')
-                assert False
-            elif compfield == CompositeField.ARGV:
-                self._symbolic_seed.argv.append(sym_vars)
-            elif compfield == CompositeField.FILE:
-                if not var_prefix in self._symbolic_seed.files:
-                    self._symbolic_seed.files[var_prefix] = sym_vars
-                else:
-                    self._symbolic_seed.files[var_prefix] += sym_vars
-            elif compfield == CompositeField.VARIABLE:
-                self._symbolic_seed.variables[var_prefix] = sym_vars
-            else:
-                logging.error('Invalid CompositeField()')
-                assert False
+        # Add symbolic variables to symbolic seed
+        self.add_vars_to_symbolic_seed(sym_vars, var_prefix, compfield, offset)
