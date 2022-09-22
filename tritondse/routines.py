@@ -2100,6 +2100,18 @@ def rtn__setjmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return 0
 
 
+def rtn_longjmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The longjmp behavior.
+    """
+    # NOTE All the programs tested so far used `longjmp` as an error handling mechanism, right
+    # before exiting. This is why, `longjmp` is currently considered an exit condition. 
+    # TODO Real implementation
+    logging.debug('longjmp hooked')
+    pstate.stop = True
+
+
+
 SUPPORTED_ROUTINES = {
     # TODO:
     #   - tolower
