@@ -596,7 +596,7 @@ class SymbolicExecutor(object):
         logging.info(f"Memory usage: {self.mem_usage_str()}")
 
     def _mem_accesses_callback(self, se: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
-        if ps.memory._segment_enabled:
+        if ps.memory.segmentation_enabled:
             perm = Perm.W if bool(args) else Perm.R
             addr = mem.getAddress()
             size = mem.getSize()
