@@ -2180,6 +2180,7 @@ SUPPORTED_ROUTINES = {
     'ftell':                   rtn_ftell,
     '__assert_fail':           rtn___assert_fail,
     '_setjmp':                 rtn__setjmp,
+    'longjmp':                 rtn_longjmp,
     'realloc':                 rtn_realloc,
     #'setlocale':               rtn_setlocale,
     'strdup':                  rtn_strdup,
