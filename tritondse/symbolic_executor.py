@@ -596,15 +596,16 @@ class SymbolicExecutor(object):
         logging.info(f"Memory usage: {self.mem_usage_str()}")
 
     def _mem_accesses_callback(self, se: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
-        perm = Perm.W if bool(args) else Perm.R
-        addr = mem.getAddress()
-        size = mem.getSize()
-        map = ps.memory.get_map(addr, size)  # It raises
-        if map is None:
-            raise MemoryAccessViolation(addr, perm, memory_not_mapped=True)
-        else:
-            if perm not in map.perm:
-                raise MemoryAccessViolation(addr, perm, map_perm=map.perm, perm_error=True)
+        if ps.memory._segment_enabled:
+            perm = Perm.W if bool(args) else Perm.R
+            addr = mem.getAddress()
+            size = mem.getSize()
+            map = ps.memory.get_map(addr, size)  # It raises
+            if map is None:
+                raise MemoryAccessViolation(addr, perm, memory_not_mapped=True)
+            else:
+                if perm not in map.perm:
+                    raise MemoryAccessViolation(addr, perm, map_perm=map.perm, perm_error=True)
 
     @property
     def exitcode(self) -> int:
