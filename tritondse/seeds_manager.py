@@ -143,6 +143,7 @@ class SeedManager:
         # reset the current solving time
         self._current_solv_time = 0
 
+
         # Iterate all pending seeds to be added in the right location
         for s in execution.pending_seeds:
             if self.is_new_seed(s):
@@ -162,7 +163,7 @@ class SeedManager:
             # NOTE: Do not perform further processing on the seed (like generating inputs from it)
 
         elif seed.status == SeedStatus.OK_DONE:
-            if self.coverage.can_improve_coverage(execution.coverage):
+            if self.coverage.can_improve_coverage(execution.coverage) or self.coverage.can_cover_symbolic_pointers(execution):
                 items = self.coverage.new_items_to_cover(execution.coverage)
                 seed.coverage_objectives = items  # Set its new objectives
 

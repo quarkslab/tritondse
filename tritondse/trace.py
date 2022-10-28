@@ -1,3 +1,4 @@
+import json
 import atexit
 import bisect
 import logging
@@ -20,8 +21,8 @@ from tritondse.coverage import CoverageSingleRun, CoverageStrategy
 from tritondse.coverage_utils import *
 from tritondse.types import Addr
 
+#logging.basicConfig(level=logging.INFO)
 
-logging.basicConfig(level=logging.INFO)
 
 
 class TraceException(Exception):
@@ -90,22 +91,13 @@ class TritonTrace(Trace):
 
 class QBDITrace(Trace):
 
-    QBDI_SCRIPT_FILEPATH = Path(tritondse.__file__).parent / 'trace.py'
+    QBDI_SCRIPT_FILEPATH = Path(tritondse.__file__).parent / 'qbdi_trace.py'
 
     def __init__(self):
         super().__init__()
-
         self._strategy = None
-
         self._coverage = None
-
-        self._modules = None
-        self._modules_addrs = None
-        self._modules_sizes = None
-        self._modules_count = 0
-
         self._branches = None
-
         self._instructions = None
 
     @staticmethod
@@ -128,9 +120,11 @@ class QBDITrace(Trace):
             output_path = f.name
 
         # Set environment variables.
+
         environ = {
             'PYQBDIPRELOAD_COVERAGE_STRATEGY': strategy.name,
             'PYQBDIPRELOAD_OUTPUT_FILEPATH': output_path,
+            'PYQBDIPRELOAD_LONGJMP_ADDR': os.getenv("TT_LONGJMP_ADDR", default=0x0),
         }
         environ.update(os.environ)
 
@@ -165,145 +159,22 @@ class QBDITrace(Trace):
         trace = QBDITrace()
 
         logging.debug(f'Loading coverage file')
+        with open(coverage_path+".json", 'rb') as fd:
+            data = json.load(fd)
 
-        try:
-            with open(coverage_path, 'rb') as f:
-                trace._strategy = CoverageStrategy[pickle.load(f)]
-                trace._modules = pickle.load(f)
-                trace._modules_addrs = sorted([m.range.start for m in trace._modules.values()])
-                trace._modules_sizes = {m.range.start: m.range.end for m in trace._modules.values()}
-                trace._modules_count = len(trace._modules_addrs)
-                trace._branches = pickle.load(f)
-                trace._instructions = pickle.load(f)
-        except (pickle.PickleError, EOFError):
-            logging.warning('Error loading QBDI tracer coverage file.')
-            raise TraceException('QBDI tracer invalid coverage file.')
+        trace._coverage = CoverageSingleRun.from_json(data)
+        trace._strategy = CoverageStrategy[data["coverage_strategy"]]
+        trace._branches = data["covered_branches"]
+        trace._instructions = data["covered_instructions"]
 
         return trace
 
-    def get_module_name(self, address: Addr) -> Optional[str]:
-        """Return the name of the module that contains the address passed as
-        argument.
-
-        :param address: Address.
-        :type address: :py:obj:`Addr`.
-
-        :return: :py:obj:`Optional[str]`.
-        """
-        # Find insertion index.
-        idx = bisect.bisect_left(self._modules_addrs, address)
-
-        # Leftmost case. Only check current index.
-        if idx == 0:
-            m_addr = self._modules_addrs[idx]
-            m_size = self._modules_sizes[m_addr]
-
-            return self._modules[m_addr].name if m_addr <= address < m_addr + m_size else None
-
-        # Rightmost case. Only check previous index.
-        if idx == self._modules_count:
-            m_addr = self._modules_addrs[idx - 1]
-            m_size = self._modules_sizes[m_addr]
-
-            return self._modules[m_addr].name if m_addr <= address < m_addr + m_size else None
-
-        # Middle case. Check both previous and current indexes.
-        m_addr = self._modules_addrs[idx - 1]
-        m_size = self._modules_sizes[m_addr]
-
-        if m_addr <= address < m_addr + m_size:
-            return self._modules[m_addr].name
-
-        if address == self._modules_addrs[idx]:
-            return self._modules[address].name
-
-        return None
-
-    def get_module(self, address: Addr) -> Optional[Module]:
-        """Return the module that contains the address passed as
-        argument.
-
-        :param address: Address.
-        :type address: :py:obj:`Addr`.
-
-        :return: :py:obj:`Optional[str]`.
-        """
-        # Find insertion index.
-        idx = bisect.bisect_left(self._modules_addrs, address)
-
-        # Leftmost case. Only check current index.
-        if idx == 0:
-            m_addr = self._modules_addrs[idx]
-            m_size = self._modules_sizes[m_addr]
-
-            return self._modules[m_addr] if m_addr <= address < m_addr + m_size else None
-
-        # Rightmost case. Only check previous index.
-        if idx == self._modules_count:
-            m_addr = self._modules_addrs[idx - 1]
-            m_size = self._modules_sizes[m_addr]
-
-            return self._modules[m_addr] if m_addr <= address < m_addr + m_size else None
-
-        # Middle case. Check both previous and current indexes.
-        m_addr = self._modules_addrs[idx - 1]
-        m_size = self._modules_sizes[m_addr]
-
-        if m_addr <= address < m_addr + m_size:
-            return self._modules[m_addr]
-
-        if address == self._modules_addrs[idx]:
-            return self._modules[address]
-
-        return None
 
     def get_coverage(self) -> CoverageSingleRun:
         if not self._coverage:
-            self._load_coverage()
+            logging.warning("Please .run() the trace before querying coverage")
 
         return self._coverage
-
-    def _load_coverage(self):
-        self._coverage = CoverageSingleRun(self._strategy)
-
-        # Add covered instructions.
-        if self._strategy == CoverageStrategy.BLOCK and len(self._instructions) > 0:
-            # Get main module and transform absolute addresses into relative.
-            # As we only trace the main module, we only need to check that one
-            # to get the base address.
-            main_module = self.get_module(self._instructions[0])
-
-            module_start_addr = main_module.range.start
-
-            for addr in self._instructions:
-                self._coverage.add_covered_address(addr - module_start_addr)
-
-        # Add covered branches.
-        if len(self._branches) > 0:
-            # Get main module and transform absolute addresses into relative.
-            # As we only trace the main module, we only need to check that one
-            # to get the base address.
-            main_module = self.get_module(list(self._branches)[0][0])
-
-            module_start_addr = main_module.range.start
-
-            # TODO Find a better way to do this.
-            addr_mask = 0xffffffffffffffff
-
-            for branch_addr, true_branch_addr, false_branch_addr, is_taken, is_dynamic in self._branches:
-                taken_addr, not_taken_addr = (true_branch_addr, false_branch_addr) if is_taken else (false_branch_addr, true_branch_addr)
-
-                if is_dynamic:
-                    source = (branch_addr - module_start_addr) & addr_mask
-                    target = (taken_addr - module_start_addr) & addr_mask
-
-                    self._coverage.add_covered_dynamic_branch(source, target)
-                else:
-                    program_counter = (branch_addr - module_start_addr) & addr_mask
-                    taken_addr = (taken_addr - module_start_addr) & addr_mask
-                    not_taken_addr = (not_taken_addr - module_start_addr) & addr_mask
-
-                    self._coverage.add_covered_branch(program_counter, taken_addr, not_taken_addr)
 
 
 # NOTE Below you'll find the code of the QBDI tool to collect the trace
@@ -414,10 +285,12 @@ def register_branch_coverage(vm, gpr, fpr, data):
 
     return pyqbdi.CONTINUE
 
-
+import time
 def pyqbdipreload_on_run(vm, start, stop):
+    s = time.time()
     # Read parameters.
-    coverage_strategy = os.getenv('PYQBDIPRELOAD_COVERAGE_STRATEGY', 'BLOCK')
+    #coverage_strategy = os.getenv('PYQBDIPRELOAD_COVERAGE_STRATEGY', 'BLOCK')
+    coverage_strategy = os.getenv('PYQBDIPRELOAD_COVERAGE_STRATEGY', 'EDGE')
     output_filepath = os.getenv('PYQBDIPRELOAD_OUTPUT_FILEPATH', 'a.cov')
 
     # Initialize variables.
@@ -451,5 +324,24 @@ def pyqbdipreload_on_run(vm, start, stop):
     # TODO This does not work with bins that crash.
     atexit.register(write_coverage, coverage_data)
 
+
+    # TODO make generic
+    longjmp_plt = 0x401ce0
+    def longjmp_callback(vm, gpr, fpr, data):
+        print("in longjmp callback")
+        return pyqbdi.STOP
+    vm.addCodeAddrCB(longjmp_plt, pyqbdi.PREINST, longjmp_callback, None)
+
+
+#    def showInstruction(vm, gpr, fpr, data):
+#        instAnalysis = vm.getInstAnalysis()
+#        print("0x{:x}: {}".format(instAnalysis.address, instAnalysis.disassembly))
+#        return pyqbdi.CONTINUE    
+#    vm.addCodeCB(pyqbdi.PREINST, showInstruction, None)
+
     # Run program.
+    print("Run start")
     vm.run(start, stop)
+    e = time.time()
+    print("Run finished")
+    print(e - s)

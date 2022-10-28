@@ -182,9 +182,10 @@ class WorklistAddressToSet(SeedScheduler):
         # Pop the seed from all worklist[X] where it is
         for obj in seed_picked.coverage_objectives:
             if obj != item_picked:   # already poped it from item_picked thus only pop the other
-                self.worklist[obj].remove(seed_picked)
-                if not self.worklist[obj]:
-                    to_remove.add(obj)
+                if obj in self.worklist and seed_picked in self.worklist[obj]: 
+                    self.worklist[obj].remove(seed_picked)
+                    if not self.worklist[obj]:
+                        to_remove.add(obj)
 
         # Garbage the worklist
         for i in to_remove:

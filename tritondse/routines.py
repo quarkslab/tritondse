@@ -650,6 +650,41 @@ def rtn_fprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return len(s)
 
 
+def rtn___fprintf_chk(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The __fprintf_chk behavior.
+    """
+    logging.debug('__fprintf_chk hooked')
+
+    # Get arguments
+    arg0 = pstate.get_argument_value(0)
+    flag = pstate.get_argument_value(1)
+    arg1 = pstate.get_argument_value(2)
+
+    # FIXME: ARM64
+    # FIXME: pushPathConstraint
+
+    arg1f = pstate.get_format_string(arg1)
+    nbArgs = arg1f.count("{")
+    args = pstate.get_format_arguments(arg1, [pstate.get_argument_value(x) for x in range(3, nbArgs+2)])
+    try:
+        s = arg1f.format(*args)
+    except:
+        # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
+        logging.warning('Something wrong, probably UTF-8 string')
+        s = ""
+
+    if arg0 in pstate.fd_table:
+        if arg0 not in [1, 2] or (arg0 == 1 and se.config.pipe_stdout) or (arg0 == 2 and se.config.pipe_stderr):
+            pstate.fd_table[arg0].fd.write(s)
+            pstate.fd_table[arg0].fd.flush()
+    else:
+        return 0
+
+    # Return value
+    return len(s)
+
+
 # fputc(int c, FILE *stream);
 def rtn_fputc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
@@ -1291,16 +1326,16 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         return minsize
 
     if fd in pstate.fd_table:
-        if se.config.seed_format == SeedFormat.RAW\
-                or pstate.fd_table[fd] not in se.seed.content:
+        if se.config.seed_format == SeedFormat.RAW \
+                or pstate.fd_table[fd].name not in se.seed.content.files:
             pstate.concretize_argument(2)
             data = (os.read(0, size) if fd == 0 else os.read(pstate.filname_table[fd].fd, size))
             pstate.memory.write(buff, data)
             return len(data)
         else: # SeedFormat.COMPOSITE
-            filename = pstate.fd_table[fd]
+            filename = pstate.fd_table[fd].name
             minsize  = (min(len(se.seed.content.files[filename]), size) if se.seed else size)
-            data = se.seed.content.size[filename][:minsize] if se.seed else b'\x00' * minsize
+            data = se.seed.content.files[filename][:minsize] if se.seed else b'\x00' * minsize
             se.inject_symbolic_input(buff, data, filename, CompositeField.FILE)
             return len(data)
 
@@ -2186,6 +2221,7 @@ SUPPORTED_ROUTINES = {
     'strdup':                  rtn_strdup,
     'mempcpy':                 rtn_mempcpy,
     'getchar':                 rtn_getchar,
+    '__fprintf_chk':           rtn___fprintf_chk,
 
     '__ctype_toupper_loc':           rtn_ctype_toupper_loc,
 }
