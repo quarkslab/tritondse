@@ -266,6 +266,18 @@ class CoverageSingleRun(object):
         elif self.strategy == CoverageStrategy.PREFIXED_EDGE:
             return f"({covitem[0][:6]}: 0x{covitem[1][0]:08x} -> 0x{covitem[1][1]:08x})"
 
+    def from_json(data):
+        cov = CoverageSingleRun(CoverageStrategy[data["coverage_strategy"]])
+        cov.covered_instructions = data["covered_instructions"]
+
+        for (source, target) in data["covered_dynamic_branches"]:
+            cov.add_covered_dynamic_branch(source, target)
+
+        for (pc, taken, not_taken) in data["covered_branches"]:
+            cov.add_covered_branch(pc, taken, not_taken)
+
+        return cov
+
 
 class GlobalCoverage(CoverageSingleRun):
     """
@@ -489,6 +501,17 @@ class GlobalCoverage(CoverageSingleRun):
             self.not_covered_items.update(other.not_covered_items - self.covered_items.keys())
 
 
+    def improves_coverage(self, other: CoverageSingleRun) -> bool:
+        """
+        Check if `other` improves coverage
+        Used to know if an input is relevant to keep or not
+
+        :param other: The CoverageSingleRun to check against our global coverage state
+        :return: bool
+        """
+        return bool(other.covered_items.keys() - self.covered_items.keys())
+
+
     def can_improve_coverage(self, other: CoverageSingleRun) -> bool:
         """
         Check if some of the non-covered are not already in the global coverage
@@ -500,6 +523,28 @@ class GlobalCoverage(CoverageSingleRun):
         return bool(self.new_items_to_cover(other))
 
 
+    def can_cover_symbolic_pointers(self, execution: SymbolicExecutor) -> bool:
+        """
+        Determines if this execution has symbolic memory accesses to enumerate. If so we may want
+        to enumerate them even though 
+        """
+        path_constraints = execution.pstate.get_path_constraints()
+
+        for pc in path_constraints:
+            if not pc.isMultipleBranches():     # If there isn't a condition i.e it's a sym ptr access
+                cmt = pc.getComment()
+
+                if (cmt.startswith("dyn-jmp") and BranchSolvingStrategy.COVER_SYM_DYNJUMP in self.branch_strategy) or \
+                   (cmt.startswith("sym-read") and BranchSolvingStrategy.COVER_SYM_READ in self.branch_strategy) or \
+                   (cmt.startswith("sym-write") and BranchSolvingStrategy.COVER_SYM_WRITE in self.branch_strategy):
+                    typ, offset, addr = cmt.split(":")
+                    typ = SymExType(typ)
+                    offset, addr = int(offset), int(addr)
+                    if addr not in self.covered_symbolic_pointers:  # if the address pointer has never been covered
+                        return True
+        return False
+
+
     def new_items_to_cover(self, other: CoverageSingleRun) -> Set[CovItem]:
         """
         Return all coverage items (addreses, edges, paths) that the given CoverageSingleRun
@@ -509,7 +554,7 @@ class GlobalCoverage(CoverageSingleRun):
         :return: A set of CovItem
         """
         assert self.strategy == other.strategy
-        # Take not covered_items (potential candidates) substrate already covered items, uncoverable and pending ones.
+        # Take not covered_items (potential candidates) substract already covered items, uncoverable and pending ones.
         # Resulting covitem are really new ones that the trace brings
         return other.not_covered_items - self.covered_items.keys() - self.uncoverable_items.keys() - self.pending_coverage
 

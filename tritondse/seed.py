@@ -150,7 +150,7 @@ class Seed(object):
 
         :rtype: int
         """
-        return len(self.content)
+        return len(bytes(self.content))
 
 
     def __eq__(self, other) -> bool:

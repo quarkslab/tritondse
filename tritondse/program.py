@@ -35,7 +35,7 @@ class Program(Loader):
     of its format.
     """
 
-    EXTERN_SYM_BASE = 0x01001000
+    EXTERN_SYM_BASE = 0x0f001000
     EXTERN_SYM_SIZE = 0x1000
 
     BASE_STACK = 0xf0000000

@@ -1130,7 +1130,7 @@ class ProcessState(object):
                     logging.warning(f"A segment have to provide either a size or a content {seg.name} (skipped)")
                     continue
                 size = len(seg.content) if seg.content else seg.size
-                logging.debug(f"Loading 0x{seg.address:#08x} - {seg.address+size:#08x}")
+                logging.debug(f"Loading 0x{seg.address:#08x} - {seg.address+size:#08x} size={size:#x}")
                 pstate.memory.map(seg.address, size, seg.perms, seg.name)
                 if seg.content:
                     pstate.memory.write(seg.address, seg.content)
