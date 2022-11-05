@@ -295,6 +295,8 @@ class SeedManager:
         self._solv_time_sum += solving_time
         self._current_solv_time += solving_time
         self._solv_status[status] += 1
+        logging.info(f'Solve stats: solve_count={self._solv_count} solving_time={solving_time} solve_time_sum={self._solv_time_sum} current_solve_time={self._current_solv_time} solv_status={status} / {self._solv_status[status]}')
+
         if status == SolverStatus.SAT:
             self._stat_branch_reverted[covitem] += 1  # Update stats
             if covitem in self._stat_branch_fail:

@@ -8,7 +8,6 @@ import logging
 import os
 import pickle
 import subprocess
-import tempfile
 import json
 import pyqbdi
 
@@ -229,19 +228,6 @@ def write_coverage(coverage_data):
 
     with open(output_filepath+".json", "w") as fd:
         json.dump(data, fd)
-
-    coverage_strategy = coverage_data['coverage_strategy']
-    modules = get_modules()
-    branches = coverage_data['branches']
-    instructions = coverage_data['instructions']
-
-    logging.debug(f'Writing coverage file to {output_filepath}')
-
-    with open(output_filepath, 'ab') as f:
-        pickle.dump(coverage_strategy, f)
-        pickle.dump(modules, f)
-        pickle.dump(branches, f)
-        pickle.dump(instructions, f)
 
 
 def register_instruction_coverage(vm, gpr, fpr, data):
