@@ -2087,6 +2087,33 @@ def rtn_getenv(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return host_env_val if host_env_val is not None else 0
 
 
+def rtn_tolower(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The isspace behavior.
+    """
+    ptr_bit_size = pstate.ptr_bit_size
+    ast = pstate.actx
+    rdi_sym = pstate.read_symbolic_register(pstate.registers.rdi)
+    #return rdi_sym.getAst() - 0x20
+    return rdi_sym.getAst()
+
+def rtn_isspace(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The isspace behavior.
+    """
+    ptr_bit_size = pstate.ptr_bit_size
+    ast = pstate.actx
+    rdi_sym = pstate.read_symbolic_register(pstate.registers.rdi)
+
+    exp = rdi_sym.getAst() == 0x20
+    exp = ast.lor([exp, rdi_sym.getAst() == 0xa])
+    exp = ast.lor([exp, rdi_sym.getAst() == 0x9])
+    exp = ast.lor([exp, rdi_sym.getAst() == 0xc])
+    exp = ast.lor([exp, rdi_sym.getAst() == 0xd])
+    res =  ast.ite(exp, ast.bv(0, ptr_bit_size), ast.bv(1, ptr_bit_size))
+    return res
+
+
 def rtn___assert_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __assert_fail behavior.
@@ -2224,6 +2251,9 @@ SUPPORTED_ROUTINES = {
     '__fprintf_chk':           rtn___fprintf_chk,
 
     '__ctype_toupper_loc':           rtn_ctype_toupper_loc,
+
+    'isspace':                 rtn_isspace,
+    'tolower':                 rtn_tolower,
 }
 
 
