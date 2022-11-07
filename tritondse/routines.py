@@ -2087,15 +2087,15 @@ def rtn_getenv(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return host_env_val if host_env_val is not None else 0
 
 
-def rtn_tolower(se: 'SymbolicExecutor', pstate: 'ProcessState'):
-    """
-    The isspace behavior.
-    """
-    ptr_bit_size = pstate.ptr_bit_size
-    ast = pstate.actx
-    rdi_sym = pstate.read_symbolic_register(pstate.registers.rdi)
-    #return rdi_sym.getAst() - 0x20
-    return rdi_sym.getAst()
+#def rtn_tolower(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+#    # TODO
+#    """
+#    The tolower behavior.
+#    """
+#    ptr_bit_size = pstate.ptr_bit_size
+#    ast = pstate.actx
+#    arg_sym = pstate.get_argument_symbolic(0)
+#    return rdi_sym.getAst() - 0x20
 
 def rtn_isspace(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
@@ -2103,13 +2103,13 @@ def rtn_isspace(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     ptr_bit_size = pstate.ptr_bit_size
     ast = pstate.actx
-    rdi_sym = pstate.read_symbolic_register(pstate.registers.rdi)
+    arg_sym = pstate.get_argument_symbolic(0)
 
-    exp = rdi_sym.getAst() == 0x20
-    exp = ast.lor([exp, rdi_sym.getAst() == 0xa])
-    exp = ast.lor([exp, rdi_sym.getAst() == 0x9])
-    exp = ast.lor([exp, rdi_sym.getAst() == 0xc])
-    exp = ast.lor([exp, rdi_sym.getAst() == 0xd])
+    exp = arg_sym.getAst() == 0x20
+    exp = ast.lor([exp, arg_sym.getAst() == 0xa])
+    exp = ast.lor([exp, arg_sym.getAst() == 0x9])
+    exp = ast.lor([exp, arg_sym.getAst() == 0xc])
+    exp = ast.lor([exp, arg_sym.getAst() == 0xd])
     res =  ast.ite(exp, ast.bv(0, ptr_bit_size), ast.bv(1, ptr_bit_size))
     return res
 
