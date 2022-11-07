@@ -990,8 +990,6 @@ class ProcessState(object):
             var = self.tt_ctx.symbolizeRegister(reg, alias)
         else:
             var = self.tt_ctx.symbolizeRegister(reg)
-        #print(f"Symbolizing {reg}")
-        #print(self.is_register_symbolic(self.registers.eax))
         return var
 
     def symbolize_memory_byte(self, addr: Addr, alias: str = None) -> SymbolicVariable:
@@ -1142,7 +1140,6 @@ class ProcessState(object):
         with pstate.memory.without_segmentation():
             # Link imported functions in EXTERN_FUNC_BASE
             for fname, rel_addr in loader.imported_functions_relocations():
-                #print(f"Hooking {fname} at {rel_addr:#x} cur_linkage_addr={cur_linkage_address:#x}")
                 logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
                 # If we already linked this function (because another library uses it) we reuse the same

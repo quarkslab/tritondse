@@ -324,15 +324,6 @@ def pyqbdipreload_on_run(vm, start, stop):
     # TODO This does not work with bins that crash.
     atexit.register(write_coverage, coverage_data)
 
-
-    # TODO make generic
-    longjmp_plt = 0x401ce0
-    def longjmp_callback(vm, gpr, fpr, data):
-        print("in longjmp callback")
-        return pyqbdi.STOP
-    vm.addCodeAddrCB(longjmp_plt, pyqbdi.PREINST, longjmp_callback, None)
-
-
 #    def showInstruction(vm, gpr, fpr, data):
 #        instAnalysis = vm.getInstAnalysis()
 #        print("0x{:x}: {}".format(instAnalysis.address, instAnalysis.disassembly))

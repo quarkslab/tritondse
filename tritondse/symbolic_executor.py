@@ -709,7 +709,7 @@ class SymbolicExecutor(object):
         :param offset: In the case of a file, the offset of the data within the file
         :return: None
         """
-        # TODO Currently this only supports injecting a single byte in a register. How should we handle multi-bytes values? 
+        # NOTE Currently this only supports injecting a single byte in a register. How should we handle multi-bytes values? 
 
         # Write concrete value in register
         self.pstate.write_register(reg, inp)
