@@ -159,7 +159,7 @@ class QBDITrace(Trace):
         trace = QBDITrace()
 
         logging.debug(f'Loading coverage file')
-        with open(coverage_path+".json", 'rb') as fd:
+        with open(coverage_path, 'rb') as fd:
             data = json.load(fd)
 
         trace._coverage = CoverageSingleRun.from_json(data)

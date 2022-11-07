@@ -226,7 +226,7 @@ def write_coverage(coverage_data):
             "covered_dynamic_branches": covered_dynamic_branches,
             "covered_branches": covered_branches}
 
-    with open(output_filepath+".json", "w") as fd:
+    with open(output_filepath, "w") as fd:
         json.dump(data, fd)
 
 
