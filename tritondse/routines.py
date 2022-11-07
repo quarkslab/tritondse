@@ -2253,7 +2253,7 @@ SUPPORTED_ROUTINES = {
     '__ctype_toupper_loc':           rtn_ctype_toupper_loc,
 
     'isspace':                 rtn_isspace,
-    'tolower':                 rtn_tolower,
+    #'tolower':                 rtn_tolower,
 }
 
 
