@@ -13,12 +13,11 @@ from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, 
 
 # local imports
 from tritondse.thread_context import ThreadContext
-from tritondse.program import Program
 from tritondse.heap_allocator import HeapAllocator
-from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, \
-        Expression, AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode, Perm, FileDesc
+from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
+                            AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode, Perm, FileDesc
 from tritondse.arch import ARCHS, CpuState
-from tritondse.loader import Loader
+from tritondse.loaders import Loader
 from tritondse.memory import Memory, MemoryAccessViolation
 
 class ProcessState(object):

@@ -4,12 +4,11 @@ import json
 import hashlib
 import struct
 import logging
-from functools import reduce
-
 from typing import List, Generator, Tuple, Set, Union, Dict, Optional
 from collections import Counter
 from enum import IntFlag, Enum, auto
 
+# third-party imports
 from triton import AST_NODE
 
 # local imports
@@ -87,9 +86,9 @@ class CoverageSingleRun(object):
         covered by the trace (input). We call it coverage objectives."""
 
         # For path coverage
-        self.current_path: List[Addr] = []
+        self._current_path: List[Addr] = []
         """ List of addresses forming the path currently being taken """
-        self.current_path_hash = hashlib.md5()
+        self._current_path_hash = hashlib.md5()
 
 
     def add_covered_address(self, address: Addr) -> None:
@@ -121,16 +120,16 @@ class CoverageSingleRun(object):
             self.not_covered_items.discard((source, target))    # Remove it from non-taken if it was inside
 
         if self.strategy == CoverageStrategy.PATH:
-            self.current_path.append(target)
-            self.current_path_hash.update(struct.pack("<Q", target))
-            self.covered_items[self.current_path_hash.hexdigest()] += 1
+            self._current_path.append(target)
+            self._current_path_hash.update(struct.pack("<Q", target))
+            self.covered_items[self._current_path_hash.hexdigest()] += 1
 
         if self.strategy == CoverageStrategy.PREFIXED_EDGE:
             # Add covered as covered
             self.covered_items[("", (source, target))] += 1
             # update the current path hash etc
-            self.current_path.append(target)
-            self.current_path_hash.update(struct.pack("<Q", target))
+            self._current_path.append(target)
+            self._current_path_hash.update(struct.pack("<Q", target))
 
 
     def add_covered_branch(self, program_counter: Addr, taken_addr: Addr, not_taken_addr: Addr) -> None:
@@ -163,20 +162,20 @@ class CoverageSingleRun(object):
                 self.not_covered_items.add(not_taken_tuple)
 
         if self.strategy == CoverageStrategy.PATH:
-            self.current_path.append(taken_addr)
+            self._current_path.append(taken_addr)
 
             # Compute the hash of the not taken path and add it to non-covered paths
-            not_taken_path_hash = self.current_path_hash.copy()
+            not_taken_path_hash = self._current_path_hash.copy()
             not_taken_path_hash.update(struct.pack('<Q', not_taken_addr))
             self.not_covered_items.add(not_taken_path_hash.hexdigest())
 
             # Update the current path hash and add it to hashes
-            self.current_path_hash.update(struct.pack("<Q", taken_addr))
-            self.covered_items[self.current_path_hash.hexdigest()] += 1
+            self._current_path_hash.update(struct.pack("<Q", taken_addr))
+            self.covered_items[self._current_path_hash.hexdigest()] += 1
 
         if self.strategy == CoverageStrategy.PREFIXED_EDGE:
             taken_tuple, not_taken_tuple = (program_counter, taken_addr), (program_counter, not_taken_addr)
-            taken, not_taken = (self.current_path_hash.hexdigest(), taken_tuple), (self.current_path_hash.hexdigest(), not_taken_tuple)
+            taken, not_taken = (self._current_path_hash.hexdigest(), taken_tuple), (self._current_path_hash.hexdigest(), not_taken_tuple)
             gtaken, gnot_taken = ("", taken_tuple), ("", not_taken_tuple)
 
             # Add covered as covered
@@ -195,8 +194,8 @@ class CoverageSingleRun(object):
                 self.not_covered_items.add(not_taken)
 
             # update the current path hash etc
-            self.current_path.append(taken_addr)
-            self.current_path_hash.update(struct.pack("<Q", taken_addr))
+            self._current_path.append(taken_addr)
+            self._current_path_hash.update(struct.pack("<Q", taken_addr))
 
 
     @property
@@ -266,17 +265,6 @@ class CoverageSingleRun(object):
         elif self.strategy == CoverageStrategy.PREFIXED_EDGE:
             return f"({covitem[0][:6]}: 0x{covitem[1][0]:08x} -> 0x{covitem[1][1]:08x})"
 
-    def from_json(data):
-        cov = CoverageSingleRun(CoverageStrategy[data["coverage_strategy"]])
-        cov.covered_instructions = data["covered_instructions"]
-
-        for (source, target) in data["covered_dynamic_branches"]:
-            cov.add_covered_dynamic_branch(source, target)
-
-        for (pc, taken, not_taken) in data["covered_branches"]:
-            cov.add_covered_branch(pc, taken, not_taken)
-
-        return cov
 
 
 class GlobalCoverage(CoverageSingleRun):
@@ -523,7 +511,7 @@ class GlobalCoverage(CoverageSingleRun):
         return bool(self.new_items_to_cover(other))
 
 
-    def can_cover_symbolic_pointers(self, execution: SymbolicExecutor) -> bool:
+    def can_cover_symbolic_pointers(self, execution: 'SymbolicExecutor') -> bool:
         """
         Determines if this execution has symbolic memory accesses to enumerate. If so we may want
         to enumerate them even though 

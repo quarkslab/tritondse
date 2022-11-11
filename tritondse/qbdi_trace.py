@@ -1,265 +1,99 @@
-# This script is usede with pyqbdipreload to generate a json file that can be parsed with CoverageSingleRun.from_json
+# This script is used by pyqbdipreload to generate a json file that can be parsed with CoverageSingleRun.from_json
 # This needs to be fast which is why we cannot import tritondse and generate the CoverageSingleRun directly 
 # (`import tritondse` adds ~0.3 s to the execution time of the script in my experience).
 
+# built-in modules
 import atexit
 import bisect
 import logging
 import os
-import pickle
-import subprocess
 import json
+import time
+from pathlib import Path
+from typing import List, Optional, Tuple
+from collections import Counter
+from dataclasses import dataclass
+
+# Third-party modules
 import pyqbdi
 
-from pathlib import Path
-from typing import List, Optional
-from collections import Counter
+
+@dataclass
+class CoverageTrace:
+    strategy: str  # BLOCK, EDGE, etc..
+    covered_instructions: Counter
+    covered_items: List[Tuple[int, int, Optional[int]]]
 
 
-#logging.basicConfig(level=logging.INFO)
+@dataclass
+class CoverageData:
+    strategy: str  # BLOCK, EDGE, etc..
+    branch_data: Optional[Tuple[int, int, int, bool, bool]]  # (temporary data): branch pc, true-branch, false-branch, is_taken, is_dynamic
+    trace: CoverageTrace
+    modules_base: List[int]
 
-MODULES = None
-MODULES_ADDRS = None
-MODULES_SIZES = None
-MODULES_COUNT = None
-
-from enum import auto, IntFlag
-
-class Permission(IntFlag):
-    NONE = auto()
-    READ = auto()
-    WRITE = auto()
-    EXEC = auto()
+    def to_relative(self, addr: int) -> int:
+        return addr - self.modules_base[bisect.bisect_right(self.modules_base, addr)-1]
 
 
-class Range:
 
-    def __init__(self, start, end):
-        self.start = start
-        self.end = end
-
-    def overlaps(self, other_range: 'Range') -> bool:
-        return self.start <= other_range.start < self.end or \
-               self.start < other_range.end <= self.end
-
-class Segment:
-
-    def __init__(self, range_: Range, permissions: Permission):
-        self.range = range_
-        self.permissions = permissions
-
-
-class Module:
-
-    def __init__(self, name: str):
-        self.name = name
-        self.range = None
-        self.segments = dict()
-
-    def add(self, segment: Segment) -> None:
-        if not self.range:
-            self.range = Range(segment.range.start, segment.range.end)
-
-        if segment.range.start < self.range.start:
-            self.range.start = segment.range.start
-
-        if self.range.end < segment.range.end:
-            self.range.end = segment.range.end
-
-        if not segment.range.start in self.segments:
-            self.segments[segment.range.start] = segment
-
-
-# NOTE Below you'll find the code of the QBDI tool to collect the trace
-#      information.
-
-def convert_permission(permission):
-    p_read = Permission.READ if (permission & pyqbdi.PF_READ) == pyqbdi.PF_READ else Permission.NONE
-    p_write = Permission.WRITE if (permission & pyqbdi.PF_WRITE) == pyqbdi.PF_WRITE else Permission.NONE
-    p_exec = Permission.EXEC if (permission & pyqbdi.PF_EXEC) == pyqbdi.PF_EXEC else Permission.NONE
-
-    return p_read | p_write | p_exec
-
-
-def get_module(address) -> Optional[Module]:
-    """Return the module that contains the address passed as
-    argument.
-
-    :param address: Address.
-    :type address: :py:obj:`Addr`.
-
-    :return: :py:obj:`Optional[str]`.
-    """
-    # Find insertion index.
-    idx = bisect.bisect_left(MODULES_ADDRS, address)
-
-    # Leftmost case. Only check current index.
-    if idx == 0:
-        m_addr = MODULES_ADDRS[idx]
-        m_size = MODULES_SIZES[m_addr]
-
-        return MODULES[m_addr] if m_addr <= address < m_addr + m_size else None
-
-    # Rightmost case. Only check previous index.
-    if idx == MODULES_COUNT:
-        m_addr = MODULES_ADDRS[idx - 1]
-        m_size = MODULES_SIZES[m_addr]
-
-        return MODULES[m_addr] if m_addr <= address < m_addr + m_size else None
-
-    # Middle case. Check both previous and current indexes.
-    m_addr = MODULES_ADDRS[idx - 1]
-    m_size = MODULES_SIZES[m_addr]
-
-    if m_addr <= address < m_addr + m_size:
-        return MODULES[m_addr]
-
-    if address == MODULES_ADDRS[idx]:
-        return MODULES[address]
-
-    return None
-
-def get_module_name(self, address) -> Optional[str]:
-    """Return the name of the module that contains the address passed as
-    argument.
-
-    :param address: Address.
-    :type address: :py:obj:`Addr`.
-
-    :return: :py:obj:`Optional[str]`.
-    """
-    mod = get_module(address)
-    if mod: return mod.name
-    else: return None
-
-def get_modules():
-    # Collect modules.
+def get_module_bases():
+    """ Retrieve modules base address to remove ASLR. """
     modules = {}
-    for mm in pyqbdi.getCurrentProcessMaps(True):
-        logging.debug(f'Processing memory map: {mm.name}')
-
-        # TODO What should we do with special modules (anonymous, heap, stack, etc)?
-        if Path(mm.name).exists():
-            module = modules.get(mm.name, Module(mm.name))
-            segment = Segment(Range(mm.range.start, mm.range.end), convert_permission(mm.permission))
-
-            module.add(segment)
-
-            modules[mm.name] = module
-
-    modules = {m.range.start: m for m in modules.values()}
-
-    for _, m in modules.items():
-        logging.debug(f'module.name: {m.name} ({m.range.start:#x} -> {m.range.end:#x})')
-
-    return modules
-
-def convert_coverage(coverage_data):
-    #coverage_single_run = CoverageSingleRun(self._strategy)
-    strategy = coverage_data['coverage_strategy']
-    instructions = coverage_data['instructions']
-    branches = coverage_data['branches']
-
-    # CoverageSingleRun.covered_instructions
-    covered_instructions = Counter()
-    # CoverageSingleRun.covered_branches
-    covered_branches = list()
-    # CoverageSingleRun.covered_instructions
-    covered_dynamic_branches = list()
-
-    # Add covered instructions.
-    if strategy == "BLOCK" and len(instructions) > 0:
-        # Get main module and transform absolute addresses into relative.
-        # As we only trace the main module, we only need to check that one
-        # to get the base address.
-        main_module = get_module(list(branches)[0][0])
-
-        module_start_addr = main_module.range.start
-
-        for addr in instructions:
-            covered_instructions[addr - module_start_addr] += 1
-
-    # Add covered branches.
-    if len(branches) > 0:
-        # Get main module and transform absolute addresses into relative.
-        # As we only trace the main module, we only need to check that one
-        # to get the base address.
-        main_module = get_module(list(branches)[0][0])
-
-        module_start_addr = main_module.range.start
-
-        # TODO Find a better way to do this.
-        addr_mask = 0xffffffffffffffff
-
-        for branch_addr, true_branch_addr, false_branch_addr, is_taken, is_dynamic in branches:
-            taken_addr, not_taken_addr = (true_branch_addr, false_branch_addr) if is_taken else (false_branch_addr, true_branch_addr)
-
-            if is_dynamic:
-                source = (branch_addr - module_start_addr) & addr_mask
-                target = (taken_addr - module_start_addr) & addr_mask
-                covered_dynamic_branches.append((source, target))
-            else:
-                program_counter = (branch_addr - module_start_addr) & addr_mask
-                taken_addr = (taken_addr - module_start_addr) & addr_mask
-                not_taken_addr = (not_taken_addr - module_start_addr) & addr_mask
-                covered_branches.append((program_counter, taken_addr, not_taken_addr))
-
-        return (covered_instructions, covered_dynamic_branches, covered_branches)
+    for m in pyqbdi.getCurrentProcessMaps(True):
+        if m.name in modules:
+            modules[m.name] = min(m.range[0], modules[m.name])
+        else:
+            modules[m.name] = m.range[0]
+        print(f"{m.name}: {m.range}, {m.permission}")
+    return sorted(modules.values())
 
 
-def write_coverage(coverage_data):
+
+def write_coverage(covdata: CoverageData, output_file: str):
     """Write coverage into a file.
     """
-
-    global MODULES, MODULES_ADDRS, MODULES_SIZES, MODULES_COUNT
-    MODULES = get_modules()
-    MODULES_ADDRS = sorted([m.range.start for m in MODULES.values()])
-    MODULES_SIZES = {m.range.start: m.range.end for m in MODULES.values()}
-    MODULES_COUNT = len(MODULES_ADDRS)
-
-    covered_instructions, covered_dynamic_branches, covered_branches = convert_coverage(coverage_data)
-    coverage_strategy = coverage_data['coverage_strategy']
-    output_filepath = coverage_data['output_filepath']
-
-    data = {"coverage_strategy": coverage_strategy,
-            "covered_instructions": covered_instructions, 
-            "covered_dynamic_branches": covered_dynamic_branches,
-            "covered_branches": covered_branches}
-
-    with open(output_filepath, "w") as fd:
+    data = {
+        "coverage_strategy": covdata.trace.strategy,
+        "covered_instructions": covdata.trace.covered_instructions,
+        "covered_items": covdata.trace.covered_items
+    }
+    with open(output_file, "w") as fd:
         json.dump(data, fd)
 
 
-def register_instruction_coverage(vm, gpr, fpr, data):
-    inst_analysis = vm.getInstAnalysis(type=pyqbdi.AnalysisType.ANALYSIS_INSTRUCTION)
+def register_instruction_coverage(vm, gpr, fpr, data: CoverageData):
+    # inst_analysis = vm.getInstAnalysis(type=pyqbdi.AnalysisType.ANALYSIS_INSTRUCTION)
 
     # Save basic block data.
-    data['instructions'].append(inst_analysis.address)
+    data.trace.covered_instructions[data.to_relative(gpr.rip)] += 1  # change to be portable
 
     return pyqbdi.CONTINUE
 
 
-def register_basic_block_coverage(vm, evt, gpr, fpr, data):
+def register_basic_block_coverage(vm, evt, gpr, fpr, data: CoverageData):
     addr = evt.basicBlockStart
-    size = evt.basicBlockEnd - addr
-
-    # Save basic block data.
-    data['basic_blocks']['start'].add(addr)
-    data['basic_blocks']['size'][addr] = size
 
     # Process branch data in case there is one pending.
-    if data['branch_data']:
+    if data.branch_data:
         # Unpack branch data.
-        branch_addr, true_branch_addr, false_branch_addr, is_taken, is_dynamic = data['branch_data']
+        branch_addr, true_branch_addr, false_branch_addr, is_taken, is_dynamic = data.branch_data
+        br_a, true_a, false_a = data.to_relative(branch_addr), data.to_relative(true_branch_addr), data.to_relative(false_branch_addr)
 
         # Check if the branch was taken.
-        is_taken = addr == true_branch_addr
+        taken_a, not_taken_a = (true_a, false_a) if bool(addr == true_branch_addr) else (false_a, true_a)
 
-        # Save branch data.
-        data['branches'].add((branch_addr, true_branch_addr, false_branch_addr, is_taken, is_dynamic))
+        if is_dynamic:
+            data.trace.covered_items.append((br_a, taken_a, None))
+        else:
+            data.trace.covered_items.append((br_a, taken_a, not_taken_a))
 
         # Clear branch data for next occurrence.
-        data['branch_data'] = None
+        data.branch_data = None
+    else:
+        pass
+        # FIXME: There is a problem in that script is_dynamic can never be true !
+        # FIXME: as it's never set to true. I feel like the else here is the case where its dynamic?
 
     return pyqbdi.CONTINUE
 
@@ -270,46 +104,35 @@ def register_branch_coverage(vm, gpr, fpr, data):
     operand = inst_analysis.operands[0]
 
     branch_addr = inst_analysis.address
-    true_branch_addr = None
     false_branch_addr = inst_analysis.address + inst_analysis.instSize
-    is_taken = None
-    is_dynamic = False
 
     if operand.type == pyqbdi.OperandType.OPERAND_IMM:
+        # FIXME: Isn't it assuming the jump is relative ?
         true_branch_addr = inst_analysis.address + inst_analysis.instSize + operand.value
     else:
+        true_branch_addr = None
         raise Exception('Invalid operand type')
 
-    # Save current branch data.
-    data['branch_data'] = (branch_addr, true_branch_addr, false_branch_addr, is_taken, is_dynamic)
+    # Save current branch data
+    data.branch_data = (branch_addr, true_branch_addr, false_branch_addr, None, False)
 
     return pyqbdi.CONTINUE
 
-import time
+
+
 def pyqbdipreload_on_run(vm, start, stop):
     s = time.time()
     # Read parameters.
-    coverage_strategy = os.getenv('PYQBDIPRELOAD_COVERAGE_STRATEGY', 'BLOCK')
-    output_filepath = os.getenv('PYQBDIPRELOAD_OUTPUT_FILEPATH', 'a.cov')
+    strat = os.getenv('PYQBDIPRELOAD_COVERAGE_STRATEGY', 'BLOCK')
+    output = os.getenv('PYQBDIPRELOAD_OUTPUT_FILEPATH', 'a.cov')
 
-    # Initialize variables.
-    coverage_data = {
-        'coverage_strategy': coverage_strategy,
-        'output_filepath': output_filepath,
-        'instructions': list(),
-        'branches': set(),
-        'basic_blocks': {
-            'start': set(),
-            'size': dict(),
-        },
-        'branch_data': None,    # Current branch data.
-    }
+    coverage_data = CoverageData(strat, None, CoverageTrace(strat, Counter(), []), get_module_bases())
 
     # Remove all instrumented modules except the main one.
     vm.removeAllInstrumentedRanges()
     vm.addInstrumentedModuleFromAddr(start)
 
-    if coverage_strategy == 'BLOCK':
+    if coverage_data.strategy == 'BLOCK':
         # Add callback on instruction execution.
         vm.addCodeCB(pyqbdi.PREINST, register_instruction_coverage, coverage_data)
 
@@ -321,15 +144,12 @@ def pyqbdipreload_on_run(vm, start, stop):
 
     # Write coverage on exit.
     # TODO This does not work with bins that crash.
-    atexit.register(write_coverage, coverage_data)
-
+    atexit.register(write_coverage, coverage_data, output)
 
     # TODO Find a better way
     # There is no generic way to do that with LIEF https://github.com/lief-project/LIEF/issues/762
-    longjmp_plt = int(os.getenv("PYQBDIPRELOAD_LONGJMP_ADDR", default=0x0))
-    #longjmp_plt = 0x401ce0 # FT
-    #longjmp_plt = 0x401530 # libpng
-    #longjmp_plt = 0x401800 # libjpeg
+    longjmp_plt = int(os.getenv("PYQBDIPRELOAD_LONGJMP_ADDR", default="0"))
+
     print(f"in qbdi_trace {longjmp_plt}")
     if longjmp_plt != 0:
         def longjmp_callback(vm, gpr, fpr, data):
@@ -346,6 +166,4 @@ def pyqbdipreload_on_run(vm, start, stop):
     # Run program.
     print("Run start")
     vm.run(start, stop)
-    e = time.time()
-    print("Run finished")
-    print(e - s)
+    print(f"Run finished: {time.time() - s:.02f}s")
