@@ -1314,7 +1314,7 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.concretize_argument(0)
 
     if fd == 0 and se.config.seed_format == SeedFormat.RAW: # symbolize_stdin
-        minsize  = (min(len(se.seed.content), size) if se.seed else size)
+        minsize = (min(len(se.seed.content), size) if se.seed else size)
         if se.is_seed_injected():
             logging.warning("reading stdin, while seed already injected (return EOF)")
         pstate.push_constraint(size_ast.getAst() == minsize)

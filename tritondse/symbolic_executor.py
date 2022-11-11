@@ -85,6 +85,8 @@ class SymbolicExecutor(object):
         self.previous_pc = 0
         self.current_pc = 0
 
+        self.debug_pp = False
+
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532

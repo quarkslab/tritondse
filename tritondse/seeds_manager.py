@@ -259,7 +259,9 @@ class SeedManager:
                     smt_queries += count+1  # for the unsat
 
                 elif typ == SymExType.CONDITIONAL_JMP:
-                    constraint = actx.land(path_predicate + [branch['constraint']])
+                    # if debug_pp=True solve the branch that has been taken
+                    branch_cst = actx.lnot(branch['constraint']) if execution.debug_pp else branch['constraint']
+                    constraint = actx.land(path_predicate + [branch_cst])
 
                     # Solve the constraint
                     ts = time.time()
