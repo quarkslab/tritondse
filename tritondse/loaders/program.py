@@ -11,7 +11,7 @@ import lief
 
 # local imports
 from tritondse.types import PathLike, Addr, Architecture, Platform, ArchMode, Perm, Endian
-from tritondse.loader import Loader, LoadableSegment
+from tritondse.loaders import Loader, LoadableSegment
 
 
 _arch_mapper = {

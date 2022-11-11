@@ -2,14 +2,12 @@ from typing import Generator, Optional, Tuple
 from pathlib import Path
 import logging
 
-from tritondse.loader import Loader, LoadableSegment
+from tritondse.loaders import Loader, LoadableSegment
 from tritondse.types import Addr, Architecture, PathLike, Platform, Perm
-from triton import Instruction
 
 from tritondse.routines import SUPPORTED_ROUTINES
 
 import cle
-import archinfo
 
 _arch_mapper = {
     "ARMEL":   Architecture.ARM32,
@@ -29,7 +27,7 @@ class CleLoader(Loader):
     EXTERN_SYM_SIZE = 0x1000
 
     BASE_STACK = 0xf0000000
-    END_STACK  = 0x70000000 # This is inclusive
+    END_STACK = 0x70000000 # This is inclusive
 
     def __init__(self, path: PathLike, ld_path: Optional[PathLike] = None):
         super(CleLoader, self).__init__(path)
@@ -156,7 +154,8 @@ class CleLoader(Loader):
             for (resolver_func, got_rva) in obj.irelatives:
                 got_slot = got_rva + obj.mapped_base
                 sym = self.ld.find_symbol(resolver_func)
-                if sym is None: continue
+                if sym is None:
+                    continue
                 fun = sym.name
                 yield fun, got_slot
 

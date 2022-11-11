@@ -12,7 +12,7 @@ from triton import MODE, Instruction, CPUSIZE, MemoryAccess, CALLBACK
 from tritondse.config import Config
 from tritondse.coverage import CoverageSingleRun, BranchSolvingStrategy
 from tritondse.process_state import ProcessState
-from tritondse.loader import Loader
+from tritondse.loaders import Loader
 from tritondse.seed import Seed, SeedStatus, SeedFormat, CompositeData, CompositeField
 from tritondse.types import Expression, Architecture, Addr, Model, SymbolicVariable
 from tritondse.routines import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
@@ -20,8 +20,8 @@ from tritondse.callbacks import CallbackManager
 from tritondse.workspace import Workspace
 from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
-from tritondse.exception      import AbortExecutionException, SkipInstructionException, StopExplorationException
-from tritondse.memory         import MemoryAccessViolation, Perm
+from tritondse.exception import AbortExecutionException, SkipInstructionException, StopExplorationException
+from tritondse.memory import MemoryAccessViolation, Perm
 
 
 class SymbolicExecutor(object):

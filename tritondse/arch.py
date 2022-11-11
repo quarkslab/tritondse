@@ -1,6 +1,12 @@
-from collections     import namedtuple
+# built-in modules
+import platform
+from collections import namedtuple
+
+# third-party module
+from triton import OPCODE, TritonContext
+
+# local imports
 from tritondse.types import Architecture, Addr
-from triton          import OPCODE, TritonContext
 
 Arch = namedtuple("Arch", "ret_reg pc_reg bp_reg sp_reg sys_reg reg_args halt_inst")
 
@@ -134,3 +140,17 @@ class CpuState(dict):
         :type value: int
         """
         setattr(self, self.__archinfo.sp_reg, value)
+
+
+
+def local_architecture() -> Architecture:
+    """
+    Returns the architecture of the local machine.
+
+    :return: local architecture
+    """
+    arch_m = {"i386": Architecture.X86,
+              "x86_64": Architecture.X86_64,
+              "armv7l": Architecture.ARM32,
+              "aarch64": Architecture.AARCH64}
+    return arch_m[platform.machine()]
