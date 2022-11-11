@@ -91,6 +91,7 @@ class TritonTrace(Trace):
 
         return trace
 
+    @property
     def coverage(self) -> CoverageSingleRun:
         return self._coverage
 
@@ -179,6 +180,7 @@ class QBDITrace(Trace):
 
         return trace
 
+    @property
     def coverage(self) -> CoverageSingleRun:
         if not self._coverage:
             logging.warning("Please .run() the trace before querying coverage")
