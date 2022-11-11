@@ -259,11 +259,11 @@ class CoverageSingleRun(object):
         if self.strategy == CoverageStrategy.BLOCK:
             return f"0x{covitem:08x}"
         elif self.strategy == CoverageStrategy.EDGE:
-            return f"(0x{covitem[0]:08x} -> 0x{covitem[1]:08x})"
+            return f"(0x{covitem[0]:08x}-0x{covitem[1]:08x})"
         elif self.strategy == CoverageStrategy.PATH:
-            return covitem  # already a hash str
+            return covitem[:10]  # already a hash str
         elif self.strategy == CoverageStrategy.PREFIXED_EDGE:
-            return f"({covitem[0][:6]}: 0x{covitem[1][0]:08x} -> 0x{covitem[1][1]:08x})"
+            return f"({covitem[0][:6]}_0x{covitem[1][0]:08x}-0x{covitem[1][1]:08x})"
 
 
 
