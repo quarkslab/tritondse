@@ -1,5 +1,6 @@
 from .config                import Config
 from .loaders.program       import Program
+from .loaders.quokkaprogram import QuokkaProgram
 from .loaders.cle_loader    import CleLoader
 from .loaders.loader        import Loader, MonolithicLoader, LoadableSegment
 from .process_state         import ProcessState
