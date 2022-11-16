@@ -3,24 +3,21 @@ from pathlib import Path
 from typing import Union, Generator, Tuple, Optional, Any, List
 
 # third-party imports
-import qbinexport
-from qbinexport.function import Function, Chunk
-from qbinexport.block import Block
-from qbinexport.reference import ReferenceType
+import quokka
 import networkx
 import lief
 
 # local imports
-import tritondse.program
+from tritondse.loaders import Program, LoadableSegment
 from tritondse.coverage import CoverageSingleRun
 from tritondse.types import PathLike, Addr, Architecture, Platform
 
 
-class QBinExportProgram(qbinexport.Program):
+class QuokkaProgram(quokka.Program):
     def __init__(self, export_file: Union[Path, str], exec_path: Union[Path, str]):
-        super(QBinExportProgram, self).__init__(export_file, exec_path)
+        super(QuokkaProgram, self).__init__(export_file, exec_path)
 
-        self.program = tritondse.program.Program(self.executable.exec_file.as_posix())
+        self.program = Program(self.executable.exec_file.as_posix())
 
     def get_call_graph(self, backedge_on_ret=False) -> networkx.DiGraph:
         """
@@ -59,7 +56,7 @@ class QBinExportProgram(qbinexport.Program):
     def __repr__(self):
         return f"<{self.export_file.name}  funs:{len(self)}>"
 
-    def get_caller_instructions(self, target: Function) -> List[int]:
+    def get_caller_instructions(self, target: quokka.Function) -> List[int]:
         """Get the list of instructions calling `target`
         """
 
@@ -71,7 +68,7 @@ class QBinExportProgram(qbinexport.Program):
         ref = target.program.references
 
         caller_instructions = []
-        for reference in ref.resolve_inst_instance(first_inst.inst_tuple, ReferenceType.CALL, towards=True):
+        for reference in ref.resolve_inst_instance(first_inst.inst_tuple, quokka.types.ReferenceType.CALL, towards=True):
             _, block, offset = reference.source
             inst = list(block.instructions)[offset]
             caller_instructions.append(inst.address)
@@ -111,7 +108,7 @@ class QBinExportProgram(qbinexport.Program):
     def relocation_enum(self):
         return self.program.relocation_enum
 
-    def memory_segments(self) -> Generator[Tuple[Addr, bytes], None, None]:
+    def memory_segments(self) -> Generator[LoadableSegment, None, None]:
         return self.program.memory_segments()
 
     def imported_functions_relocations(self) -> Generator[Tuple[str, Addr], None, None]:
@@ -123,7 +120,7 @@ class QBinExportProgram(qbinexport.Program):
     def find_function_addr(self, name: str) -> Optional[Addr]:
         return self.program.find_function_addr(name)
 
-    def find_function_from_addr(self, address: Addr) -> Optional[qbinexport.function.Function]:
+    def find_function_from_addr(self, address: Addr) -> Optional[quokka.function.Function]:
         for f in self.values():
             if f.in_func(address):
                 return f

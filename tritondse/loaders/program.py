@@ -11,7 +11,7 @@ import lief
 
 # local imports
 from tritondse.types import PathLike, Addr, Architecture, Platform, ArchMode, Perm, Endian
-from tritondse.loader import Loader, LoadableSegment
+from tritondse.loaders import Loader, LoadableSegment
 
 
 _arch_mapper = {
@@ -35,7 +35,7 @@ class Program(Loader):
     of its format.
     """
 
-    EXTERN_SYM_BASE = 0x01001000
+    EXTERN_SYM_BASE = 0x0f001000
     EXTERN_SYM_SIZE = 0x1000
 
     BASE_STACK = 0xf0000000

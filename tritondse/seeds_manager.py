@@ -8,7 +8,7 @@ from collections import Counter
 # local imports
 from tritondse.seed              import Seed, SeedStatus
 from tritondse.callbacks         import CallbackManager
-from tritondse.coverage          import GlobalCoverage, CovItem
+from tritondse.coverage          import GlobalCoverage, CovItem, CoverageStrategy
 from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritizerWorklist, SeedScheduler
 from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
@@ -143,6 +143,7 @@ class SeedManager:
         # reset the current solving time
         self._current_solv_time = 0
 
+
         # Iterate all pending seeds to be added in the right location
         for s in execution.pending_seeds:
             if self.is_new_seed(s):
@@ -162,7 +163,7 @@ class SeedManager:
             # NOTE: Do not perform further processing on the seed (like generating inputs from it)
 
         elif seed.status == SeedStatus.OK_DONE:
-            if self.coverage.can_improve_coverage(execution.coverage):
+            if self.coverage.can_improve_coverage(execution.coverage) or self.coverage.can_cover_symbolic_pointers(execution):
                 items = self.coverage.new_items_to_cover(execution.coverage)
                 seed.coverage_objectives = items  # Set its new objectives
 
@@ -258,7 +259,9 @@ class SeedManager:
                     smt_queries += count+1  # for the unsat
 
                 elif typ == SymExType.CONDITIONAL_JMP:
-                    constraint = actx.land(path_predicate + [branch['constraint']])
+                    # if debug_pp=True solve the branch that has been taken
+                    branch_cst = actx.lnot(branch['constraint']) if execution.debug_pp else branch['constraint']
+                    constraint = actx.land(path_predicate + [branch_cst])
 
                     # Solve the constraint
                     ts = time.time()
@@ -276,6 +279,7 @@ class SeedManager:
                         new_seed = execution.mk_new_seed_from_model(model)
                         # Trick to keep track of which target a seed is meant to cover
                         new_seed.coverage_objectives.add(covitem)
+                        new_seed.meta_fname.append(self.pp_meta_filename(covitem, typ))
                         new_seed.target = covitem if typ == SymExType.CONDITIONAL_JMP else None
                         yield new_seed  # Yield the seed to get it added in the worklist
                 else:
@@ -294,6 +298,8 @@ class SeedManager:
         self._solv_time_sum += solving_time
         self._current_solv_time += solving_time
         self._solv_status[status] += 1
+        logging.debug(f'Solve stats: solve_count={self._solv_count} solving_time={solving_time} solve_time_sum={self._solv_time_sum} current_solve_time={self._current_solv_time} solv_status={status} / {self._solv_status[status]}')
+
         if status == SolverStatus.SAT:
             self._stat_branch_reverted[covitem] += 1  # Update stats
             if covitem in self._stat_branch_fail:
@@ -396,3 +402,11 @@ class SeedManager:
         """ The pretty print function of the solver status """
         mapper = {SolverStatus.SAT: 92, SolverStatus.UNSAT: 91, SolverStatus.TIMEOUT: 93, SolverStatus.UNKNOWN: 95}
         return f"\033[{mapper[status]}m{status.name}\033[0m"
+
+    def pp_meta_filename(self, covitem: CovItem, typ: SymExType) -> str:
+        pp_item = self.coverage.pp_item(covitem)
+        map = {SymExType.CONDITIONAL_JMP: "CC",
+               SymExType.SYMBOLIC_READ: "SR",
+               SymExType.SYMBOLIC_WRITE: "SW",
+               SymExType.DYNAMIC_JMP: "DYN"}
+        return f"{map[typ]}_{pp_item}"

@@ -12,7 +12,7 @@ setup(
     description="A library of Dynamic Symbolic Exploration based the Triton library",
     packages=find_packages(),
     setup_requires=[],
-    install_requires=["triton-library", "lief", "pyQBDI"],
+    install_requires=["triton-library", "lief", "pyQBDI", "cle", "quokka-project"],
     tests_require=[],
     license="qb",
     author="Quarkslab",

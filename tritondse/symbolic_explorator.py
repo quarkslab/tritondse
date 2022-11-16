@@ -2,14 +2,14 @@ import logging
 import time
 import threading
 import gc
-from enum   import Enum
+from enum import Enum
 from typing import Union, Type
 from pathlib import Path
 import stat
 
 from tritondse.config            import Config
 from tritondse.process_state     import ProcessState
-from tritondse.loader            import Loader
+from tritondse.loaders           import Loader
 from tritondse.seed              import Seed
 from tritondse.seeds_manager     import SeedManager
 from tritondse.worklist          import SeedScheduler
@@ -197,6 +197,7 @@ class SymbolicExplorator(object):
 
         try:
             while self.seeds_manager.seeds_available() and not self._stop:
+                gc.collect()
                 self.step()
 
             if self.status == ExplorationStatus.RUNNING:
