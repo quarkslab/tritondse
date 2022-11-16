@@ -46,13 +46,7 @@ class Config(object):
 
         self.seed_format: SeedFormat = seed_format
         """ Seed type is either Raw (raw bytes) or Composite (more expressive).
-            RAW seeds will be injected in stdin.
-            COMPOSITE seeds can provide argv, stdin and file inputs:
-            {
-                "argv"  : [b"./myprogram", b"bla\x12\xf0", b"bla", b"\xde\xad\xbe\xef"],
-                "files" : {'stdin': b"AZERAZERAZERAEZR"},
-                "variables" : {'myvar1': b"AZERAZERAZERAEZR"}
-            }
+            See seeds.py for more information on each format.
         """
         
         self.pipe_stdout: bool = pipe_stdout

@@ -13,12 +13,11 @@ from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, 
 
 # local imports
 from tritondse.thread_context import ThreadContext
-from tritondse.program import Program
 from tritondse.heap_allocator import HeapAllocator
-from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, \
-        Expression, AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode, Perm, FileDesc
+from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
+                            AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode, Perm, FileDesc
 from tritondse.arch import ARCHS, CpuState
-from tritondse.loader import Loader
+from tritondse.loaders import Loader
 from tritondse.memory import Memory, MemoryAccessViolation
 
 class ProcessState(object):
@@ -873,6 +872,7 @@ class ProcessState(object):
         postString = [i for i, x in enumerate([i for i, c in enumerate(s_str) if c == '%']) if s_str[x+1] == "s"]
         for p in postString:
             args[p] = self.memory.read_string(args[p])
+            args[p] = args[p].encode("latin-1").decode()
         return args
 
 
@@ -1127,7 +1127,7 @@ class ProcessState(object):
                     logging.warning(f"A segment have to provide either a size or a content {seg.name} (skipped)")
                     continue
                 size = len(seg.content) if seg.content else seg.size
-                logging.debug(f"Loading 0x{seg.address:#08x} - {seg.address+size:#08x}")
+                logging.debug(f"Loading 0x{seg.address:#08x} - {seg.address+size:#08x} size={size:#x}")
                 pstate.memory.map(seg.address, size, seg.perms, seg.name)
                 if seg.content:
                     pstate.memory.write(seg.address, seg.content)
@@ -1141,14 +1141,22 @@ class ProcessState(object):
             for fname, rel_addr in loader.imported_functions_relocations():
                 logging.debug(f"Hooking {fname} at {rel_addr:#x}")
 
-                # Add symbol in dynamic_symbol_table
-                pstate.dynamic_symbol_table[fname] = (cur_linkage_address, True)
+                # If we already linked this function (because another library uses it) we reuse the same
+                # linkage address.
+                if fname in pstate.dynamic_symbol_table:
+                    (linkage_address, _) = pstate.dynamic_symbol_table[fname] 
+                    logging.debug(f"Already added. {fname} at {rel_addr:#x} linkage_addr={linkage_address:#x}")
+                    pstate.memory.write_ptr(rel_addr, linkage_address)
 
-                # Apply relocation to our custom address in process memory
-                pstate.memory.write_ptr(rel_addr, cur_linkage_address)
+                else:
+                    # Add symbol in dynamic_symbol_table
+                    pstate.dynamic_symbol_table[fname] = (cur_linkage_address, True)
 
-                # Increment linkage address number
-                cur_linkage_address += pstate.ptr_size
+                    # Apply relocation to our custom address in process memory
+                    pstate.memory.write_ptr(rel_addr, cur_linkage_address)
+
+                    # Increment linkage address number
+                    cur_linkage_address += pstate.ptr_size
 
         # Try initializing stack registers if a stack is present in maps
         # Map the stack

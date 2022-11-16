@@ -3,8 +3,8 @@ import base64
 import json
 from enum import Enum
 from pathlib import Path
-from tritondse.types import PathLike
-from typing import List, Dict, Union
+from tritondse.types import PathLike, SymExType
+from typing import List, Dict, Union, Optional
 from dataclasses import dataclass, field
 
 
@@ -86,7 +86,8 @@ class Seed(object):
         """
         self.content = content
         self.coverage_objectives = set()  # set of coverage items that the seed is meant to cover
-        self.target = set()               # CovItem informational field indicate the item the seed was generated for
+        self.meta_fname = []
+        self.target = None                # CovItem informational field indicate the item the seed was generated for
         self._status = status
         self._type = SeedFormat.COMPOSITE if isinstance(content, CompositeData) else SeedFormat.RAW
 
@@ -150,7 +151,7 @@ class Seed(object):
 
         :rtype: int
         """
-        return len(self.content)
+        return len(bytes(self.content))
 
 
     def __eq__(self, other) -> bool:
@@ -211,7 +212,7 @@ class Seed(object):
         :returns: formatted intended filename of the seed
         :rtype: str
         """
-        return f'{self.hash}.{self.size:08x}.tritondse.cov'
+        return f"{self.hash}_{self.size:04x}_{'_'.join(self.meta_fname)}.tritondse.cov"
 
     @staticmethod
     def from_bytes(raw_seed: bytes, status: SeedStatus = SeedStatus.NEW) -> 'Seed':

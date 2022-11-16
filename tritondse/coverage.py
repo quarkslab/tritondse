@@ -4,12 +4,11 @@ import json
 import hashlib
 import struct
 import logging
-from functools import reduce
-
 from typing import List, Generator, Tuple, Set, Union, Dict, Optional
 from collections import Counter
 from enum import IntFlag, Enum, auto
 
+# third-party imports
 from triton import AST_NODE
 
 # local imports
@@ -87,9 +86,9 @@ class CoverageSingleRun(object):
         covered by the trace (input). We call it coverage objectives."""
 
         # For path coverage
-        self.current_path: List[Addr] = []
+        self._current_path: List[Addr] = []
         """ List of addresses forming the path currently being taken """
-        self.current_path_hash = hashlib.md5()
+        self._current_path_hash = hashlib.md5()
 
 
     def add_covered_address(self, address: Addr) -> None:
@@ -121,16 +120,16 @@ class CoverageSingleRun(object):
             self.not_covered_items.discard((source, target))    # Remove it from non-taken if it was inside
 
         if self.strategy == CoverageStrategy.PATH:
-            self.current_path.append(target)
-            self.current_path_hash.update(struct.pack("<Q", target))
-            self.covered_items[self.current_path_hash.hexdigest()] += 1
+            self._current_path.append(target)
+            self._current_path_hash.update(struct.pack("<Q", target))
+            self.covered_items[self._current_path_hash.hexdigest()] += 1
 
         if self.strategy == CoverageStrategy.PREFIXED_EDGE:
             # Add covered as covered
             self.covered_items[("", (source, target))] += 1
             # update the current path hash etc
-            self.current_path.append(target)
-            self.current_path_hash.update(struct.pack("<Q", target))
+            self._current_path.append(target)
+            self._current_path_hash.update(struct.pack("<Q", target))
 
 
     def add_covered_branch(self, program_counter: Addr, taken_addr: Addr, not_taken_addr: Addr) -> None:
@@ -163,20 +162,20 @@ class CoverageSingleRun(object):
                 self.not_covered_items.add(not_taken_tuple)
 
         if self.strategy == CoverageStrategy.PATH:
-            self.current_path.append(taken_addr)
+            self._current_path.append(taken_addr)
 
             # Compute the hash of the not taken path and add it to non-covered paths
-            not_taken_path_hash = self.current_path_hash.copy()
+            not_taken_path_hash = self._current_path_hash.copy()
             not_taken_path_hash.update(struct.pack('<Q', not_taken_addr))
             self.not_covered_items.add(not_taken_path_hash.hexdigest())
 
             # Update the current path hash and add it to hashes
-            self.current_path_hash.update(struct.pack("<Q", taken_addr))
-            self.covered_items[self.current_path_hash.hexdigest()] += 1
+            self._current_path_hash.update(struct.pack("<Q", taken_addr))
+            self.covered_items[self._current_path_hash.hexdigest()] += 1
 
         if self.strategy == CoverageStrategy.PREFIXED_EDGE:
             taken_tuple, not_taken_tuple = (program_counter, taken_addr), (program_counter, not_taken_addr)
-            taken, not_taken = (self.current_path_hash.hexdigest(), taken_tuple), (self.current_path_hash.hexdigest(), not_taken_tuple)
+            taken, not_taken = (self._current_path_hash.hexdigest(), taken_tuple), (self._current_path_hash.hexdigest(), not_taken_tuple)
             gtaken, gnot_taken = ("", taken_tuple), ("", not_taken_tuple)
 
             # Add covered as covered
@@ -195,8 +194,8 @@ class CoverageSingleRun(object):
                 self.not_covered_items.add(not_taken)
 
             # update the current path hash etc
-            self.current_path.append(taken_addr)
-            self.current_path_hash.update(struct.pack("<Q", taken_addr))
+            self._current_path.append(taken_addr)
+            self._current_path_hash.update(struct.pack("<Q", taken_addr))
 
 
     @property
@@ -260,11 +259,12 @@ class CoverageSingleRun(object):
         if self.strategy == CoverageStrategy.BLOCK:
             return f"0x{covitem:08x}"
         elif self.strategy == CoverageStrategy.EDGE:
-            return f"(0x{covitem[0]:08x} -> 0x{covitem[1]:08x})"
+            return f"(0x{covitem[0]:08x}-0x{covitem[1]:08x})"
         elif self.strategy == CoverageStrategy.PATH:
-            return covitem  # already a hash str
+            return covitem[:10]  # already a hash str
         elif self.strategy == CoverageStrategy.PREFIXED_EDGE:
-            return f"({covitem[0][:6]}: 0x{covitem[1][0]:08x} -> 0x{covitem[1][1]:08x})"
+            return f"({covitem[0][:6]}_0x{covitem[1][0]:08x}-0x{covitem[1][1]:08x})"
+
 
 
 class GlobalCoverage(CoverageSingleRun):
@@ -489,6 +489,17 @@ class GlobalCoverage(CoverageSingleRun):
             self.not_covered_items.update(other.not_covered_items - self.covered_items.keys())
 
 
+    def improves_coverage(self, other: CoverageSingleRun) -> bool:
+        """
+        Check if `other` improves coverage
+        Used to know if an input is relevant to keep or not
+
+        :param other: The CoverageSingleRun to check against our global coverage state
+        :return: bool
+        """
+        return bool(other.covered_items.keys() - self.covered_items.keys())
+
+
     def can_improve_coverage(self, other: CoverageSingleRun) -> bool:
         """
         Check if some of the non-covered are not already in the global coverage
@@ -500,6 +511,28 @@ class GlobalCoverage(CoverageSingleRun):
         return bool(self.new_items_to_cover(other))
 
 
+    def can_cover_symbolic_pointers(self, execution: 'SymbolicExecutor') -> bool:
+        """
+        Determines if this execution has symbolic memory accesses to enumerate. If so we may want
+        to enumerate them even though 
+        """
+        path_constraints = execution.pstate.get_path_constraints()
+
+        for pc in path_constraints:
+            if not pc.isMultipleBranches():     # If there isn't a condition i.e it's a sym ptr access
+                cmt = pc.getComment()
+
+                if (cmt.startswith("dyn-jmp") and BranchSolvingStrategy.COVER_SYM_DYNJUMP in self.branch_strategy) or \
+                   (cmt.startswith("sym-read") and BranchSolvingStrategy.COVER_SYM_READ in self.branch_strategy) or \
+                   (cmt.startswith("sym-write") and BranchSolvingStrategy.COVER_SYM_WRITE in self.branch_strategy):
+                    typ, offset, addr = cmt.split(":")
+                    typ = SymExType(typ)
+                    offset, addr = int(offset), int(addr)
+                    if addr not in self.covered_symbolic_pointers:  # if the address pointer has never been covered
+                        return True
+        return False
+
+
     def new_items_to_cover(self, other: CoverageSingleRun) -> Set[CovItem]:
         """
         Return all coverage items (addreses, edges, paths) that the given CoverageSingleRun
@@ -509,7 +542,7 @@ class GlobalCoverage(CoverageSingleRun):
         :return: A set of CovItem
         """
         assert self.strategy == other.strategy
-        # Take not covered_items (potential candidates) substrate already covered items, uncoverable and pending ones.
+        # Take not covered_items (potential candidates) substract already covered items, uncoverable and pending ones.
         # Resulting covitem are really new ones that the trace brings
         return other.not_covered_items - self.covered_items.keys() - self.uncoverable_items.keys() - self.pending_coverage
 
