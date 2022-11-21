@@ -7,6 +7,7 @@ import tempfile
 from abc import ABC
 from pathlib import Path
 from typing import List, Optional
+from collections import Counter
 
 
 # local imports
@@ -168,7 +169,7 @@ class QBDITrace(Trace):
             data = json.load(fd)
 
         cov = CoverageSingleRun(CoverageStrategy[data["coverage_strategy"]])
-        cov.covered_instructions = data["covered_instructions"]
+        cov.covered_instructions = Counter(data["covered_instructions"])
 
         for (src, dst, not_taken) in data["covered_items"]:
             if not_taken is None:
