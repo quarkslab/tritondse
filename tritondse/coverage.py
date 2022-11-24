@@ -265,6 +265,15 @@ class CoverageSingleRun(object):
         elif self.strategy == CoverageStrategy.PREFIXED_EDGE:
             return f"({covitem[0][:6]}_0x{covitem[1][0]:08x}-0x{covitem[1][1]:08x})"
 
+    def difference(self, other: CoverageSingleRun) -> Set[CovItem]:
+        if self.strategy == other.strategy:
+            return self.covered_items.keys() - other.covered_items.keys()
+        else:
+            logging.error("Trying to make difference of coverage with different strategies")
+            return set()
+
+    def __sub__(self, other) -> Set[CovItem]:
+        return self.difference(other)
 
 
 class GlobalCoverage(CoverageSingleRun):
@@ -603,3 +612,20 @@ class GlobalCoverage(CoverageSingleRun):
         :type workspace: Workspace
         """
         self.save_coverage(workspace)
+
+    def clone(self) -> 'GlobalCoverage':
+        cov2 = GlobalCoverage(self.strategy, self.branch_strategy)
+
+        # Copy items from the CoverageSingleRun
+        cov2.covered_instructions = Counter({k: v for k, v in self.covered_instructions.items()})
+        cov2.covered_items = Counter({k: v for k, v in self.covered_items.items()})
+        cov2.not_covered_items = {x for x in self.not_covered_items}
+        cov2._current_path = self._current_path[:]
+        self._current_path: List[Addr] = []
+        self._current_path_hash = self._current_path_hash.copy()
+
+        # Copy items from the global coverage
+        cov2.pending_coverage = {x for x in self.pending_coverage}
+        cov2.uncoverable_items = {k: v for k, v in self.uncoverable_items.items()}
+        cov2.covered_symbolic_pointers = {x for x in self.covered_symbolic_pointers}
+        return cov2
