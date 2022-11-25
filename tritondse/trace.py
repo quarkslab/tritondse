@@ -129,13 +129,7 @@ class QBDITrace(Trace):
 
         logging.debug(f'Command line: {" ".join(cmdlne)}')
 
-        # Set output filepath.
-        output_path = None
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            output_path = f.name
-
         # Set environment variables.
-
         environ = {
             'PYQBDIPRELOAD_COVERAGE_STRATEGY': strategy.name,
             'PYQBDIPRELOAD_OUTPUT_FILEPATH': output_path,
