@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 from abc import ABC
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 from collections import Counter
 
 
@@ -25,7 +25,7 @@ class Trace:
         pass
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str] = None, stdin_file=None) -> 'Trace':
+    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, stdin_file=None) -> bool:
         """Run the binary passed as argument and return the coverage.
 
         :param strategy: Coverage strategy.
@@ -34,9 +34,14 @@ class Trace:
         :type binary_path: :py:obj:`str`.
         :param args: List of arguments to pass to the binary.
         :type args: :py:obj:`List[str]`.
+        :type output_path: File where to store trace
         :param stdin_file: Path to the file that will act as stdin.
         :type args: :py:obj:`str`.
         """
+        raise NotImplementedError()
+
+    @staticmethod
+    def from_file(file: Union[str, Path]) -> 'QBDITrace':
         raise NotImplementedError()
 
     @property
@@ -74,7 +79,7 @@ class TritonTrace(Trace):
         self._coverage = None
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str] = None, stdin_file=None) -> 'TritonTrace':
+    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, stdin_file=None) -> bool:
         # Override stdin with the input file.
         if stdin_file:
             os.dup2(os.open(stdin_file, os.O_RDONLY), 0)
@@ -89,7 +94,11 @@ class TritonTrace(Trace):
 
         trace = TritonTrace()
         trace._coverage = se.coverage
+        # FIXME: Writing the coverage to a file
 
+    @staticmethod
+    def from_file(file: Union[str, Path]) -> 'QBDITrace':
+        # FIXME: Reading coverage file from a file
         return trace
 
     @property
@@ -107,7 +116,7 @@ class QBDITrace(Trace):
         self._coverage = None
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str] = None, stdin_file=None, timeout=None, cwd=None) -> 'QBDITrace':
+    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, stdin_file=None, timeout=None, cwd=None) -> bool:
         if not Path(binary_path).exists():
             raise FileNotFoundError()
 
@@ -150,13 +159,10 @@ class QBDITrace(Trace):
         if stdin_fp:
             stdin_fp.close()
 
-        if not Path(output_path).exists():
-            raise Exception('Error getting coverage')
-
-        return QBDITrace.from_qbdi_trace_file(output_path)
+        return Path(output_path).exists()
 
     @staticmethod
-    def from_qbdi_trace_file(coverage_path: str) -> 'QBDITrace':
+    def from_file(coverage_path: str) -> 'QBDITrace':
         """Load coverage from a file.
 
         :param coverage_path: Path to the coverage file.
@@ -197,5 +203,7 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG)
 
-    qbdi_trace = QBDITrace.run(CoverageStrategy.EDGE, sys.argv[1], sys.argv[2:])
-    coverage = qbdi_trace.coverage
+    if QBDITrace.run(CoverageStrategy.EDGE, sys.argv[1], sys.argv[2:], "/tmp/test.cov"):
+        coverage = QBDITrace.from_file("/tmp/test.cov")
+    else:
+        print("Something went wrong during trace generation")
