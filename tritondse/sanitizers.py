@@ -21,7 +21,7 @@ def mk_new_crashing_seed(se, model) -> Seed:
     # Don't tag the seed as CRASH before executing it.
     # At this stage, we do not know if the seed will really make the
     # program crash or not.
-    return Seed(new_input)
+    return Seed(bytes(new_input))
 
 
 
