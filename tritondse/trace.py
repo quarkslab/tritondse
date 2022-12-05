@@ -147,6 +147,7 @@ class QBDITrace(Trace):
             logging.debug(stdout)
             logging.debug(stderr)
         except subprocess.TimeoutExpired:
+            process.wait()
             logging.error('QBDI tracer timeout expired!')
             raise TraceException('QBDI tracer timeout expired')
 
