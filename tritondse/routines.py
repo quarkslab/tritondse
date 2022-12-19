@@ -2122,7 +2122,11 @@ def rtn___assert_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     msg = pstate.memory.read_string(msg)
     logging.warning(f"__assert_fail called : {msg}")
-    
+
+    # Write 1 as return value of the program
+    pstate.write_register(pstate.return_register, 1)
+    se.abort()
+
 def rtn_setlocale(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The setlocale behavior.
