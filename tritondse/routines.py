@@ -162,7 +162,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         assert False
 
     # Define concrete value of argc (from either the seed or the program_argv)
-    if se.config.seed_format == SeedFormat.RAW:
+    if se.config.is_format_raw():
         # Cannot provide argv in RAW seeds
         argc = len(se.config.program_argv)
     else: # SeedFormat.COMPOSITE
@@ -179,7 +179,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # Define argv
     addrs = list()
 
-    if se.config.seed_format == SeedFormat.COMPOSITE and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
+    if se.config.is_format_composite() and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
         argvs = se.seed.content.argv
     else:  # use the config argv
         argvs = [x.encode("latin-1") for x in se.config.program_argv]  # Convert it from str to bytes
@@ -196,7 +196,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         addrs.append(base)
         pstate.memory.write(base, arg + b'\x00')
 
-        if se.config.seed_format == SeedFormat.COMPOSITE and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
+        if se.config.is_format_composite() and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
             # Symbolize the argv string
             se.inject_symbolic_input(base, arg, f"argv[{i}]", CompositeField.ARGV)
             # FIXME: Shall add a constraint on every char to be != \x00
@@ -490,7 +490,7 @@ def rtn_fseek(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         if arg2 == 2: # SEEK_END
             # Get the file length. There are two options:
             # either the file is in the composite seed or it's not
-            if se.config.seed_format == SeedFormat.RAW \
+            if se.config.is_format_raw() \
                     or not se.seed.content.files \
                     or pstate.fd_table[arg0].name not in se.seed.content.files:
                 # Get the real file's length
@@ -500,7 +500,8 @@ def rtn_fseek(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                 filelength = len(se.seed.content.files[fs.name])
 
             fs.offset = filelength + arg1
-    else: return -22
+    else:
+        return -22
 
     return 0
 
@@ -537,8 +538,8 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # We use fd as concret value
     pstate.concretize_argument(2)
 
-    if fd == 0 and se.config.seed_format == SeedFormat.RAW: # symbolize_stdin
-        minsize  = (min(len(se.seed.content), size) if se.seed else size)
+    if fd == 0 and se.config.is_format_raw(): # symbolize_stdin
+        minsize = (min(len(se.seed.content), size) if se.seed else size)
 
         if se.is_seed_injected():
             logging.warning("fgets reading stdin, while seed already injected (return EOF)")
@@ -554,7 +555,7 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         return buff_ast
 
     if fd in pstate.fd_table:
-        if se.config.seed_format == SeedFormat.RAW \
+        if se.config.is_format_raw() \
                 or not se.seed.content.files \
                 or pstate.fd_table[fd].name not in se.seed.content.files:
             # We use fd as concret value
@@ -600,7 +601,7 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         fd = open(arg0s, arg1s)
     except Exception as e:
         logging.debug(f"Failed to open {arg0s} {e}")
-        if se.config.seed_format == SeedFormat.RAW \
+        if se.config.is_format_raw() \
                 or not se.seed.content.files \
                 or arg0s not in se.seed.content.files:
             return 0
@@ -773,7 +774,7 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # FIXME: pushPathConstraint
 
-    if arg3 == 0 and se.config.seed_format == SeedFormat.RAW: # symbolize_stdin
+    if arg3 == 0 and se.config.is_format_raw(): # symbolize_stdin
         minsize  = (min(len(se.seed.content), size) if se.seed else size)
 
         if se.is_seed_injected():
@@ -787,11 +788,12 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             return minsize
 
     elif arg3 in pstate.fd_table:
-        if se.config.seed_format == SeedFormat.RAW \
+        if se.config.is_format_raw() \
                 or not se.seed.content.files \
                 or pstate.fd_table[arg3].name not in se.seed.content.files:
             data = pstate.fd_table[arg3].fd.read(arg1 * arg2)
-            if isinstance(data, str): data = data.encode()
+            if isinstance(data, str):
+                data = data.encode()
             pstate.memory.write(arg0, data)
         else: # SeedFormat.COMPOSITE and it contains filename
             # File state (name and offset)
@@ -1313,7 +1315,7 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     pstate.concretize_argument(0)
 
-    if fd == 0 and se.config.seed_format == SeedFormat.RAW: # symbolize_stdin
+    if fd == 0 and se.config.is_format_raw(): # symbolize_stdin
         minsize = (min(len(se.seed.content), size) if se.seed else size)
         if se.is_seed_injected():
             logging.warning("reading stdin, while seed already injected (return EOF)")
@@ -1326,7 +1328,7 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         return minsize
 
     if fd in pstate.fd_table:
-        if se.config.seed_format == SeedFormat.RAW \
+        if se.config.is_format_raw() \
                 or pstate.fd_table[fd].name not in se.seed.content.files:
             pstate.concretize_argument(2)
             data = (os.read(0, size) if fd == 0 else os.read(pstate.filname_table[fd].fd, size))

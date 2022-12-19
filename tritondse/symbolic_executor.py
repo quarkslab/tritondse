@@ -54,16 +54,13 @@ class SymbolicExecutor(object):
             self.workspace = Workspace(config.workspace)
 
         self.seed = seed              # The current seed used to the execution
-        if seed.is_composite():
-            if config.seed_format == SeedFormat.RAW:
-                logging.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
-                self.config.seed_format = seed.format
-            self._symbolic_seed = CompositeData()
-        else:
-            if config.seed_format == SeedFormat.COMPOSITE:
-                logging.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
-                self.config.seed_format = seed.format
-            self._symbolic_seed = []
+
+        # Override config if there is a mismatch between seed format and config file
+        if seed.format != self.config.seed_format:
+            logging.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
+            self.config.seed_format = seed.format
+
+        self._symbolic_seed = CompositeData() if seed.is_composite() else []
 
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy) #: Coverage of the execution
         self.rtn_table = dict()            # Addr -> Tuple[fname, routine]
@@ -164,9 +161,9 @@ class SymbolicExecutor(object):
 
         :return: True if the seed has already been inserted
         """
-        if self.config.seed_format == SeedFormat.RAW:
+        if self.config.is_format_raw():
             return bool(self._symbolic_seed)
-        elif self.config.seed_format == SeedFormat.COMPOSITE:
+        elif self.config.is_format_composite():
             # Namely has one of the various input been injected or not
             return bool(self._symbolic_seed.content.files) or bool(self._symbolic_seed.content.variables)
         else:
@@ -643,10 +640,10 @@ class SymbolicExecutor(object):
                     concrete[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
             return concrete
 
-        if self.config.seed_format == SeedFormat.RAW: # RAW seed. => symbolize_stdin
+        if self.config.is_format_raw(): # RAW seed. => symbolize_stdin
             content = bytes(repl_bytearray(bytearray(self.seed.content), self._symbolic_seed))
 
-        elif self.config.seed_format == SeedFormat.COMPOSITE:
+        elif self.config.is_format_composite():
             # NOTE will have to update this if more things are added to CompositeData
             new_files, new_vars = {}, {}
 
@@ -680,7 +677,7 @@ class SymbolicExecutor(object):
 
 
     def add_vars_to_symbolic_seed(self, sym_vars: List[SymbolicVariable], var_prefix: str = "input", compfield: Optional[CompositeField] = None, offset: int = 0) -> None:
-        if self.config.seed_format == SeedFormat.RAW:
+        if self.config.is_format_raw():
             self._symbolic_seed += sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
         else: # SeedFormat.COMPOSITE
             if not compfield: 

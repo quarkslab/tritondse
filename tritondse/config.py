@@ -193,3 +193,11 @@ class Config(object):
             else:
                 d[k] = v
         return json.dumps(d, indent=2)
+
+    def is_format_composite(self) -> bool:
+        """ Return true if the seed format is composite"""
+        return self.seed_format == SeedFormat.COMPOSITE
+
+    def is_format_raw(self) -> bool:
+        """ Return true if the seed format is raw """
+        return self.seed_format == SeedFormat.RAW
