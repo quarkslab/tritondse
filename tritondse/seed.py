@@ -95,6 +95,11 @@ class Seed(object):
         """Returns wether the seed is a composite seed or not. """
         return self._type == SeedFormat.COMPOSITE
 
+    def is_raw(self) -> bool:
+        """Returns wether the seed is a raw seed or not. """
+        return self._type == SeedFormat.RAW
+
+
     def is_bootstrap_seed(self) -> bool:
         """
         A bootstrap seed is an empty seed (b""). It will received a
