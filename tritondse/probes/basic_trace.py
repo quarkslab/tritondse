@@ -1,4 +1,21 @@
+import logging
 from tritondse import ProbeInterface, CbType, SymbolicExecutor, ProcessState, SymbolicExplorator
+
+
+class BasicDebugTrace(ProbeInterface):
+    """
+    Basic probe that print instruction trace
+    to logging debug.
+    """
+    NAME = "debugtrace-probe"
+
+    def __init__(self):
+        super(BasicDebugTrace, self).__init__()
+        self._add_callback(CbType.PRE_INST, self.trace_debug)
+
+    def trace_debug(self, exec: SymbolicExecutor, __: ProcessState, ins: 'Instruction'):
+        logging.debug(f"[tid:{ins.getThreadId()}] {exec.trace_offset} [0x{ins.getAddress():x}]: {ins.getDisassembly()}")
+
 
 
 class BasicTextTrace(ProbeInterface):
