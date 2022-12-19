@@ -12,6 +12,9 @@ from tritondse.thread_context import ThreadContext
 from tritondse.types          import Architecture, FileDesc
 from tritondse.seed           import SeedFormat, SeedStatus, Seed, CompositeField
 
+NULL_PTR = 0
+
+
 
 def rtn_ctype_b_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
@@ -389,7 +392,7 @@ def rtn_calloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.concretize_argument(1)  # will be concretized with size value
 
     if nmemb == 0 or size == 0:
-        ptr = 0
+        ptr = NULL_PTR
     else:
         ptr = pstate.heap_allocator.alloc(nmemb * size)
         # Once the ptr allocated, the memory area must be filled with zero
@@ -575,7 +578,7 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     else:
         logging.warning(f'File descriptor ({fd}) not found')
 
-    return 0
+    return NULL_PTR
 
 
 # fopen(const char *pathname, const char *mode);
@@ -604,7 +607,7 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         if se.config.is_format_raw() \
                 or not se.seed.content.files \
                 or arg0s not in se.seed.content.files:
-            return 0
+            return NULL_PTR
 
         # If the file doesn't exist in the real filesystem but is present in the seed,
         # we simulate a success.
@@ -1062,7 +1065,7 @@ def rtn_memmem(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     offset = s1.find(s2)
     if offset == -1:
         #FIXME: faut s'assurer que le marquer dans le string
-        return 0
+        return NULL_PTR
 
     for i, c in enumerate(s2):
         c1 = pstate.read_symbolic_memory_byte(haystack+offset+i)
@@ -2048,7 +2051,7 @@ def rtn_strtok_r(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             # Return the token
             return string + offset
 
-    return 0
+    return NULL_PTR
 
 
 def rtn_strtoul(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -2081,7 +2084,7 @@ def rtn_getenv(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     name = pstate.get_argument_value(0)
 
     if name == 0:
-        return 0
+        return NULL_PTR
 
     environ_name = pstate.memory.read_string(name)
     logging.warning(f"Target called getenv({environ_name})")
