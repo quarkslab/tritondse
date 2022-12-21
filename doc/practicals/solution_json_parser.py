@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from tritondse import SymbolicExecutor, Config, Program, SymbolicExplorator, ProcessState, Workspace, Seed, \
-                      SeedFormat, Loader, MonolithicLoader, CompositeData, CompositeField, Addr, SolverStatus, Architecture, \
+                      SeedFormat, Loader, MonolithicLoader, CompositeData, Addr, SolverStatus, Architecture, \
                       LoadableSegment, Perm, SeedStatus, SmtSolver
 from tritondse.sanitizers import NullDerefSanitizer
 import struct
@@ -46,10 +46,8 @@ def hook_start(exec: SymbolicExecutor, pstate: ProcessState):
     length = pstate.get_argument_value(1)
     JSON_ctx = pstate.get_argument_value(2)
 
-    exec.inject_symbolic_input(buffer, exec.seed.content.variables,\
-            var_prefix="buffer", compfield=CompositeField.VARIABLE)
-    exec.inject_symbolic_input(JSON_ctx, exec.seed.content.variables,\
-            var_prefix="JSON_ctx", compfield=CompositeField.VARIABLE)
+    exec.inject_symbolic_variable_memory(buffer, "buffer", exec.seed.content.variables["buffer"])
+    exec.inject_symbolic_variable_memory(JSON_ctx, "JSON_ctx", exec.seed.content.variables["JSON_ctx"])
 
     # Take the length of the buffer (which is not meant to change)
     pstate.cpu.r1 = len(exec.seed.content.variables['buffer'])
@@ -73,7 +71,7 @@ workspace = Workspace("ws")
 dse = SymbolicExplorator(conf, ldr, executor_stop_at=EXIT_POINT, workspace=workspace)
 
 seed = Seed(CompositeData(variables={
-                                    "buffer" : b"A"*40,
+                                    "buffer": b"A"*40,
                                     "JSON_ctx": b"\x00"*128}))#struct.pack("<I", USER_CB)*128}))
 dse.add_input_seed(seed)
 

@@ -1,4 +1,5 @@
 # built-in imports
+import io
 import logging
 import time
 import os
@@ -13,7 +14,7 @@ from tritondse.config import Config
 from tritondse.coverage import CoverageSingleRun, BranchSolvingStrategy
 from tritondse.process_state import ProcessState
 from tritondse.loaders import Loader
-from tritondse.seed import Seed, SeedStatus, SeedFormat, CompositeData, CompositeField
+from tritondse.seed import Seed, SeedStatus, SeedFormat, CompositeData
 from tritondse.types import Expression, Architecture, Addr, Model, SymbolicVariable
 from tritondse.routines import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks import CallbackManager
@@ -60,7 +61,7 @@ class SymbolicExecutor(object):
             logging.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
             self.config.seed_format = seed.format
 
-        self._symbolic_seed = CompositeData() if seed.is_composite() else []
+        self._symbolic_seed = self._init_symbolic_seed(seed)
 
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy) #: Coverage of the execution
         self.rtn_table = dict()            # Addr -> Tuple[fname, routine]
@@ -88,6 +89,15 @@ class SymbolicExecutor(object):
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
 
+    def _init_symbolic_seed(self, seed: Seed) -> Union[list, CompositeData]:
+        if seed.is_raw():
+            return [None]*len(seed.content)
+        else:  # is composite
+            argv = [[None]*len(a) for a in seed.content.argv]
+            files = {k: [None]*len(v) for k, v in seed.content.files.items()}
+            variables = {k: [None]*len(v) for k, v in seed.content.variables.items()}
+            return CompositeData(argv=argv, files=files, variables=variables)
+
     def load(self, loader: Loader) -> None:
         """
         Use the given loader to initialize the ProcessState.
@@ -102,6 +112,7 @@ class SymbolicExecutor(object):
         logging.debug(f"Loading program {self.loader.name} [{self.loader.architecture}]")
         self.pstate = ProcessState.from_loader(loader)
         self._map_dynamic_symbols()
+        self._load_seed_process_state(self.pstate, self.seed)
 
 
     def load_process(self, pstate: ProcessState) -> None:
@@ -113,6 +124,19 @@ class SymbolicExecutor(object):
         :return: None
         """
         self.pstate = pstate
+        self._load_seed_process_state(self.pstate, self.seed)
+
+    @staticmethod
+    def _load_seed_process_state(pstate: ProcessState, seed: Seed) -> None:
+        if seed.is_raw():
+            data = seed.content
+        else: # is composite
+            if seed.is_file_defined("stdin"):
+                data = seed.get_file_input("stdin")
+            else:
+                return
+        filedesc = pstate.get_file_descriptor(0)
+        filedesc.fd = io.BytesIO(data)
 
     @property
     def execution_time(self) -> int:
@@ -636,8 +660,9 @@ class SymbolicExecutor(object):
         """
         def repl_bytearray(concrete, symbolic):
             for i, sv in enumerate(symbolic):  # Enumerate symvars associated with each bytes
-                if sv.getId() in model:  # If solver provided a new value for the symvar
-                    concrete[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
+                if sv is not None:
+                    if sv.getId() in model:  # If solver provided a new value for the symvar
+                        concrete[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
             return concrete
 
         if self.config.is_format_raw(): # RAW seed. => symbolize_stdin
@@ -676,69 +701,42 @@ class SymbolicExecutor(object):
         return new_seed
 
 
-    def add_vars_to_symbolic_seed(self, sym_vars: List[SymbolicVariable], var_prefix: str = "input", compfield: Optional[CompositeField] = None, offset: int = 0) -> None:
-        if self.config.is_format_raw():
-            self._symbolic_seed += sym_vars  # Set symbolic_seed to be able to retrieve them in generated models
-        else: # SeedFormat.COMPOSITE
-            if not compfield: 
-                logging.error('Injecting in from composite seed but CompositeField not provided')
-                assert False
-            elif compfield == CompositeField.ARGV:
-                self._symbolic_seed.argv.append(sym_vars)
-            elif compfield == CompositeField.FILE:
-                if not var_prefix in self._symbolic_seed.files:
-                    self._symbolic_seed.files[var_prefix] = sym_vars
-                else:
-                    self._symbolic_seed.files[var_prefix] += sym_vars
-            elif compfield == CompositeField.VARIABLE:
-                self._symbolic_seed.variables[var_prefix] = sym_vars
-            else:
-                logging.error('Invalid CompositeField()')
-                assert False
+    def inject_symbolic_argv_memory(self, addr: Addr, index: int, value: bytes) -> None:
+        self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
+        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), f"argv[{index}]") # Symbolize bytes
+        self._symbolic_seed.argv[index] = sym_vars # Add symbolic variables to symbolic seed
+
+    def inject_symbolic_file_memory(self, addr: Addr, name: str, value: bytes, offset: int = 0) -> None:
+        self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
+        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset) # Symbolize bytes
+        sym_seed = self._symbolic_seed.files[name] if self.seed.is_composite() else self._symbolic_seed
+        sym_seed[offset:offset+len(value)-1] = sym_vars # Add symbolic variables to symbolic seed
+        # FIXME: Handle if reading twice same input bytes !
+
+    def inject_symbolic_variable_memory(self, addr: Addr, name: str, value: bytes, offset: int = 0) -> None:
+        self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
+        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset) # Symbolize bytes
+        self._symbolic_seed.variables[name][offset:offset+len(value)-1] = sym_vars # Add symbolic variables to symbolic seed
+        # FIXME: Handle if reading twice same input bytes !
+
+    def inject_symbolic_file_register(self, reg, name: str, value: int, offset: int = 0) -> None:
+        if reg.getSize != 1:
+            logging.error("can't call inject_symbolic_file_register with regsiter larger than 1!")
+            return
+        self.pstate.write_register(reg, value)  # Write concrete value in register
+        sym_vars = self.pstate.symbolize_register(reg, f"{name}[{offset}]") # Symbolize bytes
+        sym_seed = self._symbolic_seed.files[name] if self.seed.is_composite() else self._symbolic_seed
+        sym_seed[offset] = sym_vars # Add symbolic variables to symbolic seed
+
+    def inject_symbolic_variable_register(self, reg, name: str, value: int, offset: int = 0) -> None:
+        self.pstate.write_register(reg, value)  # Write concrete value in register
+        sym_vars = [self.pstate.symbolize_register(reg, f"{name}[{offset}]")] # Symbolize bytes
+        sym_seed = self._symbolic_seed.variables[name] if self.seed.is_composite() else self._symbolic_seed
+        sym_seed[offset] = sym_vars # Add symbolic variables to symbolic seed
 
 
-    def inject_symbolic_register(self, reg, inp: int, var_prefix: str = "input", compfield: Optional[CompositeField] = None, offset: int = 0) -> None:
-        """
-        Inject the given value in the given register and symbolize the register.
-
-        :param reg: register in which to inject input
-        :param inp: Input to inject in memory
-        :param var_prefix: prefix name to give the symbolic variables
-        :param compfield: In case of composite seed, type of the input to inject (argv, files, variables..)
-        :param offset: In the case of a file, the offset of the data within the file
-        :return: None
-        """
-        # NOTE Currently this only supports injecting a single byte in a register. How should we handle multi-bytes values? 
-
-        # Write concrete value in register
-        self.pstate.write_register(reg, inp)
-
-        # Symbolize bytes
-        sym_var = [self.pstate.symbolize_register(reg, f"{var_prefix}[{offset}]")]
-
-        # Add symbolic variables to symbolic seed
-        self.add_vars_to_symbolic_seed(sym_var, var_prefix, compfield, offset)
-
-
-    def inject_symbolic_input(self, addr: Addr, inp: Union[bytes, Dict], var_prefix: str = "input", compfield: Optional[CompositeField] = None, offset: int = 0) -> None:
-        """
-        Inject the given bytes at the given address in memory. Then
-        all memory bytes are symbolized.
-
-        :param addr: address at which to inject input
-        :param inp: Input to inject in memory
-        :param var_prefix: prefix name to give the symbolic variables
-        :param compfield: In case of composite seed, type of the input to inject (argv, files, variables..)
-        :param offset: In the case of a file, the offset of the data within the file
-        :return: None
-        """
-        if isinstance(inp, dict):
-            inp = inp[var_prefix]
-        # Write concrete bytes in memory
-        self.pstate.memory.write(addr, inp)
-
-        # Symbolize bytes
-        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(inp), var_prefix, offset)
-
-        # Add symbolic variables to symbolic seed
-        self.add_vars_to_symbolic_seed(sym_vars, var_prefix, compfield, offset)
+    def inject_symbolic_raw_input(self, addr: Addr, data: bytes, offset: int = 0) -> None:
+        if self.seed.is_composite():
+            logging.warning("inject_symbolic_memory must not be used with composite seeds !")
+        else:
+            self.inject_symbolic_file_memory(addr, "input", data, offset)
