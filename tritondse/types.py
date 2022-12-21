@@ -4,7 +4,8 @@ import sys
 from enum import IntEnum, Enum, auto, IntFlag
 from pathlib import Path
 from triton import ARCH, SOLVER_STATE, SOLVER
-from typing import Union, TypeVar, Tuple
+from typing import Union, TypeVar, Tuple, Type
+import io
 
 from dataclasses import dataclass
 
@@ -129,9 +130,38 @@ class FileDesc:
     """
     Type representing a file descriptor
     """
-    name:   str
-    offset: int
-    """ The python file descriptor """
-    fd:     int
     """ The target program's file descriptor """
-    fd_id:  int
+    id: int
+    """ Name of the file """
+    name: str
+    """ The python file stream object """
+    fd: io.IOBase
+
+    @property
+    def offset(self) -> int:
+        return self.fd.tell()
+
+    def is_real_fd(self) -> bool:
+        return isinstance(self.fd, io.TextIOWrapper)
+
+    def is_input_fd(self) -> bool:
+        return isinstance(self.fd, io.BytesIO)
+
+    def fgets(self, max_size: int) -> bytes:
+        s = b""
+        for i in range(max_size):
+            c = self.fd.read(1)
+            if not c:  # EOF
+                break
+            c = c if isinstance(c, bytes) else c.encode()
+            s += c
+            if c == b"\x00":
+                return s
+            elif c == b"\n":
+                break
+        # If get there read max_size
+        return s+b"\x00"
+
+    def read(self, size: int) -> bytes:
+        data = self.fd.read(size)
+        return data if isinstance(data, bytes) else data.encode()

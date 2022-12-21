@@ -1,3 +1,4 @@
+import io
 import logging
 import os
 import random
@@ -10,7 +11,7 @@ from typing import Union
 from triton                   import CPUSIZE, MemoryAccess
 from tritondse.thread_context import ThreadContext
 from tritondse.types          import Architecture, FileDesc
-from tritondse.seed           import SeedFormat, SeedStatus, Seed, CompositeField
+from tritondse.seed           import SeedFormat, SeedStatus, Seed
 
 NULL_PTR = 0
 
@@ -201,7 +202,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
         if se.config.is_format_composite() and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
             # Symbolize the argv string
-            se.inject_symbolic_input(base, arg, f"argv[{i}]", CompositeField.ARGV)
+            se.inject_symbolic_argv_memory(base, arg)
             # FIXME: Shall add a constraint on every char to be != \x00
 
         logging.debug(f"argv[{i}] = {repr(pstate.memory.read(base, len(arg)))}")
@@ -455,10 +456,8 @@ def rtn_fclose(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # We use fd as concret value
     pstate.concretize_argument(0)
 
-    if arg0 in pstate.fd_table:
-        fd = pstate.fd_table[arg0].fd
-        if fd: fd.close()
-        del pstate.fd_table[arg0]
+    if pstate.file_descriptor_exists(arg0):
+        pstate.close_file_descriptor(arg0)
     else:
         return pstate.minus_one
 
@@ -481,32 +480,21 @@ def rtn_fseek(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg1 = pstate.get_argument_value(1)
     arg2 = pstate.get_argument_value(2)
 
-    if arg2 != 0 and arg2 != 1 and arg2 != 2:
-        return -22 # EINVAL
+    if arg2 not in [0, 1, 2]:
+        return pstate.minus_one
+        # TODO: set errno to: -22 # EINVAL
 
-    if arg0 in pstate.fd_table:
-        fs = pstate.fd_table[arg0]
-        if arg2 == 0: # SEEK_SET
-            fs.offset = arg1
-        if arg2 == 1: # SEEK_CUR
-            fs.offset += arg1
-        if arg2 == 2: # SEEK_END
-            # Get the file length. There are two options:
-            # either the file is in the composite seed or it's not
-            if se.config.is_format_raw() \
-                    or not se.seed.content.files \
-                    or pstate.fd_table[arg0].name not in se.seed.content.files:
-                # Get the real file's length
-                fd = pstate.fd_table[arg0].fd
-                filelength = os.fstat(fd.fileno()).st_size
-            else: # file content is provided in the seed
-                filelength = len(se.seed.content.files[fs.name])
+    if pstate.file_descriptor_exists(arg0):
+        desc = pstate.get_file_descriptor(arg0)
 
-            fs.offset = filelength + arg1
+        if desc.fd.seekable():
+            r = desc.fd.seek(arg1, arg2)
+            return r
+        else:
+            return -1
+            # TODO: set errno to: 29 # ESPIPE
     else:
-        return -22
-
-    return 0
+        return -1
 
 
 def rtn_ftell(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -519,12 +507,14 @@ def rtn_ftell(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # Get arguments
     arg0 = pstate.get_argument_value(0)
 
-    if arg0 not in pstate.fd_table: 
-        return -22 # EINVAL
-    else:
-        fs = pstate.fd_table[arg0]
-        return fs.offset
+    if pstate.file_descriptor_exists(arg0):
+        desc = pstate.get_file_descriptor(arg0)
 
+        if desc.fd.seekable():
+            return desc.fd.tell()
+        else:
+            return -1
+            # TODO: set errno -22 EINVAL
 
 
 # char *fgets(char *s, int size, FILE *stream);
@@ -537,48 +527,34 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # Get arguments
     buff, buff_ast = pstate.get_full_argument(0)
     size, size_ast = pstate.get_full_argument(1)
-    fd       = pstate.get_argument_value(2)
+    fd = pstate.get_argument_value(2)
     # We use fd as concret value
     pstate.concretize_argument(2)
 
-    if fd == 0 and se.config.is_format_raw(): # symbolize_stdin
-        minsize = (min(len(se.seed.content), size) if se.seed else size)
+    if pstate.file_descriptor_exists(fd):
+        filedesc = pstate.get_file_descriptor(fd)
+        offset = filedesc.offset
+        data = filedesc.fgets(size)
+        data_no_trail = data[:-1]  # not \x00 terminated
 
-        if se.is_seed_injected():
-            logging.warning("fgets reading stdin, while seed already injected (return EOF)")
-            #return 0
-        #else:
-        # We use fd as concret value
-        pstate.push_constraint(size_ast.getAst() == minsize)
+        if filedesc.is_input_fd(): # Reading into input
+            # if we started from empty seed simulate reading `size` amount of data
+            if se.seed.is_raw() and se.seed.is_bootstrap_seed() and not data_no_trail:
+                data = b'\x00' * size
 
-        content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-        se.inject_symbolic_input(buff, content, "stdin")
+            if len(data_no_trail) == size:  # if `size` limited the fgets its an indirect constraint
+                pstate.push_constraint(size_ast.getAst() == size)
 
-        logging.debug(f"stdin = {repr(pstate.memory.read(buff, minsize))}")
-        return buff_ast
-
-    if fd in pstate.fd_table:
-        if se.config.is_format_raw() \
-                or not se.seed.content.files \
-                or pstate.fd_table[fd].name not in se.seed.content.files:
-            # We use fd as concret value
+            se.inject_symbolic_file_memory(buff, filedesc.name, data, offset)
+            logging.debug(f"fgets() in {filedesc.name} = {repr(data)}")
+        else:
             pstate.concretize_argument(1)
-            data = (os.read(0, size) if fd == 0 else os.read(pstate.fd_table[fd].fd, size))
             pstate.memory.write(buff, data)
-            return buff_ast
-        else: # SeedFormat.COMPOSITE
-            # File state (name and offset)
-            fs = pstate.fd_table[fd]
-            filecontent = se.seed.content.files[fs.name][fs.offset:]
-            minsize  = min(len(filecontent), size)
-            data = filecontent[:minsize]
-            se.inject_symbolic_input(buff, data, fs.name, CompositeField.FILE, fs.offset)
-            fs.offset += minsize
-            return buff_ast
+
+        return buff_ast if data_no_trail else NULL_PTR
     else:
         logging.warning(f'File descriptor ({fd}) not found')
-
-    return NULL_PTR
+        return NULL_PTR
 
 
 # fopen(const char *pathname, const char *mode);
@@ -589,8 +565,8 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logging.debug('fopen hooked')
 
     # Get arguments
-    arg0  = pstate.get_argument_value(0)  # const char *pathname
-    arg1  = pstate.get_argument_value(1)  # const char *mode
+    arg0 = pstate.get_argument_value(0)  # const char *pathname
+    arg1 = pstate.get_argument_value(1)  # const char *mode
     arg0s = pstate.memory.read_string(arg0)
     arg1s = pstate.memory.read_string(arg1)
 
@@ -600,24 +576,20 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # We use mode as concrete value
     pstate.concretize_argument(1)
 
-    try:
-        fd = open(arg0s, arg1s)
-    except Exception as e:
-        logging.debug(f"Failed to open {arg0s} {e}")
-        if se.config.is_format_raw() \
-                or not se.seed.content.files \
-                or arg0s not in se.seed.content.files:
+    if se.seed.is_file_defined(arg0s):
+        # Program is opening an input
+        data = se.seed.get_file_input(arg0s)
+        filedesc = pstate.create_file_descriptor(arg0s, io.BytesIO(data))
+        return filedesc.id
+    else:
+        # Try to open it as a regular file
+        try:
+            fd = open(arg0s, arg1s)
+            filedesc = pstate.create_file_descriptor(arg0s, fd)
+            return filedesc.id
+        except Exception as e:
+            logging.debug(f"Failed to open {arg0s} {e}")
             return NULL_PTR
-
-        # If the file doesn't exist in the real filesystem but is present in the seed,
-        # we simulate a success.
-        fd = None
-
-    fd_id = se.pstate.get_unique_file_id()
-    se.pstate.fd_table.update({fd_id: FileDesc(arg0s, 0, fd, fd_id)})
-
-    # Return value
-    return fd_id
 
 
 def rtn_fprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -643,10 +615,11 @@ def rtn_fprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         logging.warning('Something wrong, probably UTF-8 string')
         s = ""
 
-    if arg0 in pstate.fd_table:
+    if pstate.file_descriptor_exists(arg0):
+        fdesc = pstate.get_file_descriptor(arg0)
         if arg0 not in [1, 2] or (arg0 == 1 and se.config.pipe_stdout) or (arg0 == 2 and se.config.pipe_stderr):
-            pstate.fd_table[arg0].fd.write(s)
-            pstate.fd_table[arg0].fd.flush()
+            fdesc.fd.write(s)
+            fdesc.fd.flush()
     else:
         return 0
 
@@ -678,10 +651,11 @@ def rtn___fprintf_chk(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         logging.warning('Something wrong, probably UTF-8 string')
         s = ""
 
-    if arg0 in pstate.fd_table:
+    if pstate.file_descriptor_exists(arg0):
+        fdesc = pstate.get_file_descriptor(arg0)
         if arg0 not in [1, 2] or (arg0 == 1 and se.config.pipe_stdout) or (arg0 == 2 and se.config.pipe_stderr):
-            pstate.fd_table[arg0].fd.write(s)
-            pstate.fd_table[arg0].fd.flush()
+            fdesc.fd.write(s)
+            fdesc.fd.flush()
     else:
         return 0
 
@@ -703,27 +677,19 @@ def rtn_fputc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.concretize_argument(0)
     pstate.concretize_argument(1)
 
-    if arg1 in pstate.fd_table:
+    if pstate.file_descriptor_exists(arg1):
+        fdesc = pstate.get_file_descriptor(arg1)
         if arg1 == 0:
             return 0
-        elif arg1 == 1:
-            if se.config.pipe_stdout:
-                sys.stdout.write(chr(arg0))
-                sys.stdout.flush()
-        elif arg1 == 2:
-            if se.config.pipe_stderr:
-                sys.stderr.write(chr(arg0))
-                sys.stderr.flush()
-        else:
-            fd = open(pstate.fd_table[arg1].fd, 'wb+')
-            fd.write(chr(arg0))
+        elif (arg1 == 1 and se.config.pipe_stdout) or (arg1 == 2 and se.config.pipe_stderr):
+            fdesc.fd.write(chr(arg0))
+            fdesc.fd.flush()
+        elif arg1 not in [0, 2]:
+            fdesc.fd.write(chr(arg0))
+        return 1
     else:
         return 0
 
-    # FIXME: We can iterate over all fd_tables and do the disjunction of all available fd
-
-    # Return value
-    return 1
 
 
 def rtn_fputs(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -739,27 +705,29 @@ def rtn_fputs(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.concretize_argument(0)
     pstate.concretize_argument(1)
 
+    s = pstate.memory.read_string(arg0)
+
     # FIXME: What if the fd is coming from the memory (fmemopen) ?
 
-    if arg1 in pstate.fd_table:
+    if pstate.file_descriptor_exists(arg1):
+        fdesc = pstate.get_file_descriptor(arg1)
         if arg1 == 0:
             return 0
         elif arg1 == 1:
             if se.config.pipe_stdout:
-                sys.stdout.write(pstate.memory.read_string(arg0))
-                sys.stdout.flush()
+                fdesc.fd.write(s)
+                fdesc.fd.flush()
         elif arg1 == 2:
             if se.config.pipe_stderr:
-                sys.stderr.write(pstate.memory.read_string(arg0))
-                sys.stderr.flush()
+                fdesc.fd.write(s)
+                fdesc.fd.flush()
         else:
-            fd = open(pstate.fd_table[arg1].fd, 'wb+')
-            fd.write(pstate.memory.read_string(arg0))
+            fdesc.fd.write(s)
     else:
         return 0
 
     # Return value
-    return len(pstate.memory.read_string(arg0))
+    return len(s)
 
 
 def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -769,49 +737,37 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logging.debug('fread hooked')
 
     # Get arguments
-    arg0 = pstate.get_argument_value(0) # ptr
-    arg1 = pstate.get_argument_value(1) # size
-    arg2 = pstate.get_argument_value(2) # nmemb
-    arg3 = pstate.get_argument_value(3) # stream
-    size = arg1 * arg2
+    ptr = pstate.get_argument_value(0) # ptr
+    size_t, size_ast = pstate.get_full_argument(1) # size
+    nmemb = pstate.get_argument_value(2) # nmemb
+    fd = pstate.get_argument_value(3) # stream
+    size = size_t * nmemb
 
     # FIXME: pushPathConstraint
 
-    if arg3 == 0 and se.config.is_format_raw(): # symbolize_stdin
-        minsize  = (min(len(se.seed.content), size) if se.seed else size)
+    if pstate.file_descriptor_exists(fd):
+        filedesc = pstate.get_file_descriptor(fd)
+        offset = filedesc.offset
+        data = filedesc.read(size)
 
-        if se.is_seed_injected():
-            logging.warning("fread reading stdin, while seed already injected (return EOF)")
-            return 0
+        if filedesc.is_input_fd(): # Reading into input
+            # if we started from empty seed simulate reading `size` amount of data
+            if se.seed.is_raw() and se.seed.is_bootstrap_seed() and not data:
+                data = b'\x00' * size
+
+            if len(data) == size:  # if `size` limited the fgets its an indirect constraint
+                pstate.push_constraint(size_ast.getAst() == size)
+
+            se.inject_symbolic_file_memory(ptr, filedesc.name, data, offset)
+            logging.debug(f"read in {filedesc.name} = {repr(data)}")
         else:
-            data = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-            se.inject_symbolic_input(arg0, data, "stdin")
-            logging.debug(f"stdin = {repr(pstate.memory.read(arg0, minsize))}")
-            # TODO: Could return the read value as a symbolic one
-            return minsize
+            pstate.concretize_argument(2)
+            pstate.memory.write(ptr, data)
 
-    elif arg3 in pstate.fd_table:
-        if se.config.is_format_raw() \
-                or not se.seed.content.files \
-                or pstate.fd_table[arg3].name not in se.seed.content.files:
-            data = pstate.fd_table[arg3].fd.read(arg1 * arg2)
-            if isinstance(data, str):
-                data = data.encode()
-            pstate.memory.write(arg0, data)
-        else: # SeedFormat.COMPOSITE and it contains filename
-            # File state (name and offset)
-            fs = pstate.fd_table[arg3]
-            filecontent = se.seed.content.files[fs.name][fs.offset:]
-            minsize  = min(len(filecontent), size)
-            data = filecontent[:minsize]
-            se.inject_symbolic_input(arg0, data, fs.name, CompositeField.FILE, fs.offset)
-            fs.offset += minsize
-
+        return int(len(data)/size_t) if size_t else 0  # number of items read
     else:
+        logging.warning(f'File descriptor ({fd}) not found')
         return 0
-
-    # Return value
-    return len(data)
 
 
 def rtn_free(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -843,20 +799,20 @@ def rtn_fwrite(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     size = arg1 * arg2
     data = pstate.memory.read(arg0, size)
 
-    if arg3 in pstate.fd_table:
+    if pstate.file_descriptor_exists(arg3):
+        fdesc = pstate.get_file_descriptor(arg3)
         if arg3 == 0:
             return 0
         elif arg3 == 1:
             if se.config.pipe_stdout:
-                sys.stdout.buffer.write(data)
-                sys.stdout.flush()
+                fdesc.fd.buffer.write(data)
+                fdesc.fd.flush()
         elif arg3 == 2:
             if se.config.pipe_stderr:
-                sys.stderr.buffer.write(data)
-                sys.stderr.flush()
+                fdesc.fd.buffer.write(data)
+                fdesc.fd.flush()
         else:
-            fd = open(pstate.fd_table[arg3].fd, 'wb+')
-            fd.write(data)
+            fdesc.fd.write(data)
     else:
         return 0
 
@@ -876,20 +832,20 @@ def rtn_write(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     size = pstate.get_argument_value(2)
     data = pstate.memory.read(buf, size)
 
-    if fd in pstate.fd_table:
+    if pstate.file_descriptor_exists(fd):
+        fdesc = pstate.get_file_descriptor(fd)
         if fd == 0:
             return 0
         elif fd == 1:
             if se.config.pipe_stdout:
-                sys.stdout.buffer.write(data)
-                sys.stdout.flush()
+                fdesc.fd.buffer.write(data)
+                fdesc.fd.flush()
         elif fd == 2:
             if se.config.pipe_stderr:
-                sys.stderr.buffer.write(data)
-                sys.stderr.flush()
+                fdesc.fd.buffer.write(data)
+                fdesc.fd.flush()
         else:
-            file_desc = open(pstate.fd_table[fd].fd, 'wb+')
-            file_desc.write(data)
+            fdesc.fd.write(data)
     else:
         return 0
 
@@ -1142,8 +1098,9 @@ def rtn_printf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         s = ""
 
     if se.config.pipe_stdout:
-        pstate.fd_table[1].fd.write(s)
-        pstate.fd_table[1].fd.flush()
+        stdout = pstate.get_file_descriptor(1)
+        stdout.fd.write(s)
+        stdout.fd.flush()
 
     # Return value
     return len(s)
@@ -1318,33 +1275,29 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     pstate.concretize_argument(0)
 
-    if fd == 0 and se.config.is_format_raw(): # symbolize_stdin
-        minsize = (min(len(se.seed.content), size) if se.seed else size)
-        if se.is_seed_injected():
-            logging.warning("reading stdin, while seed already injected (return EOF)")
-        pstate.push_constraint(size_ast.getAst() == minsize)
-        content = se.seed.content[:minsize] if se.seed else b'\x00' * minsize
-        se.inject_symbolic_input(buff, content, "stdin")
+    if pstate.file_descriptor_exists(fd):
+        filedesc = pstate.get_file_descriptor(fd)
+        offset = filedesc.offset
+        data = filedesc.read(size)
 
-        logging.debug(f"stdin = {repr(pstate.memory.read(buff, minsize))}")
-        # TODO: Could return the read value as a symbolic one
-        return minsize
+        if filedesc.is_input_fd(): # Reading into input
+            # if we started from empty seed simulate reading `size` amount of data
+            if se.seed.is_raw() and se.seed.is_bootstrap_seed() and not data:
+                data = b'\x00' * size
 
-    if fd in pstate.fd_table:
-        if se.config.is_format_raw() \
-                or pstate.fd_table[fd].name not in se.seed.content.files:
+            if len(data) == size:  # if `size` limited the fgets its an indirect constraint
+                pstate.push_constraint(size_ast.getAst() == size)
+
+            se.inject_symbolic_file_memory(buff, filedesc.name, data, offset)
+            logging.debug(f"read in {filedesc.name} = {repr(data)}")
+        else:
             pstate.concretize_argument(2)
-            data = (os.read(0, size) if fd == 0 else os.read(pstate.filname_table[fd].fd, size))
             pstate.memory.write(buff, data)
-            return len(data)
-        else: # SeedFormat.COMPOSITE
-            filename = pstate.fd_table[fd].name
-            minsize  = (min(len(se.seed.content.files[filename]), size) if se.seed else size)
-            data = se.seed.content.files[filename][:minsize] if se.seed else b'\x00' * minsize
-            se.inject_symbolic_input(buff, data, filename, CompositeField.FILE)
-            return len(data)
 
-    return 0
+        return len(data)
+    else:
+        logging.warning(f'File descriptor ({fd}) not found')
+        return pstate.minus_one  # todo: set errno
 
 
 def rtn_getchar(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -1354,23 +1307,18 @@ def rtn_getchar(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logging.debug('getchar hooked')
 
     # Get arguments
-    fd   = 0
-    fs = pstate.fd_table[fd]
+    filedesc = pstate.get_file_descriptor(0) # stdin
+    offset = filedesc.offset
 
-    if se.config.seed_format == SeedFormat.RAW: # symbolize_stdin
-        content = int(se.seed.content[fs.offset]) if se.seed and len(se.seed.content) > fs.offset else 0
-        se.inject_symbolic_register(pstate.return_register, content, "stdin", None, fs.offset)
-    else: # COMPOSITE
-        if "stdin" in se.seed.content.files:
-            data = se.seed.content.files["stdin"]
-            content = int(data[fs.offset]) if len(data) > fs.offset else 0
-            if len(data) <= fs.offset:
-                logging.warning("getchar reading past the end of the provided 'stdin', returning 0")
-            se.inject_symbolic_register(pstate.return_register, content, "stdin", CompositeField.FILE, fs.offset)
-        else:
-            return 0
-
-    fs.offset += 1
+    data = filedesc.read(1)
+    if data:
+        if filedesc.is_input_fd():  # Reading into input
+            data = ord(data) # convert to integer
+            se.inject_symbolic_file_register(pstate.return_register, filedesc.name, data, offset)
+            logging.debug(f"read in {filedesc.name} = {repr(data)}")
+        return data
+    else:
+        return pstate.minus_one
 
 
 def rtn_sem_destroy(se: 'SymbolicExecutor', pstate: 'ProcessState'):

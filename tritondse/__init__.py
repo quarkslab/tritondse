@@ -7,7 +7,7 @@ from .process_state         import ProcessState
 from .coverage              import CoverageStrategy, BranchSolvingStrategy, CoverageSingleRun, GlobalCoverage
 from .symbolic_executor     import SymbolicExecutor
 from .symbolic_explorator   import SymbolicExplorator, ExplorationStatus
-from .seed                  import Seed, SeedStatus, SeedFormat, CompositeData, CompositeField
+from .seed                  import Seed, SeedStatus, SeedFormat, CompositeData
 from .heap_allocator        import AllocatorException
 from .sanitizers            import CbType, ProbeInterface, UAFSanitizer, NullDerefSanitizer, FormatStringSanitizer, IntegerOverflowSanitizer
 from .types                 import *

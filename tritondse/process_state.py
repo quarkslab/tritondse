@@ -1,5 +1,7 @@
 # built-ins
 from __future__ import annotations
+
+import io
 import sys
 import time
 import logging
@@ -66,13 +68,13 @@ class ProcessState(object):
         self.dynamic_symbol_table = {}
 
         # File descriptors table used by fopen(), fprintf(), etc.
-        self.fd_table = {
-            0: FileDesc(name="stdin", offset=0, fd=sys.stdin, fd_id=0),
-            1: FileDesc("stdout", 0, sys.stdout, 1),
-            2: FileDesc("stderr", 0, sys.stderr, 2),
+        self._fd_table = {
+            0: FileDesc(0, "stdin", sys.stdin),
+            1: FileDesc(1, "stdout", sys.stdout),
+            2: FileDesc(2, "stderr", sys.stderr),
         }
         # Unique file id incrementation
-        self.fd_id = len(self.fd_table)
+        self._fd_id = len(self._fd_table)
 
         # Allocation information used by malloc()
         self.heap_allocator = HeapAllocator(self.BASE_HEAP, self.END_HEAP, self.memory)
@@ -239,16 +241,49 @@ class ProcessState(object):
         self._utid += 1
         return self._utid
 
-
-    def get_unique_file_id(self) -> int:
-        """ Return a new unique file descriptor. Used by routines
-        yielding new file descriptors.
-
-        :returns: new file descriptor identifier
+    def create_file_descriptor(self, name: str, file: io.IOBase) -> FileDesc:
         """
-        self.fd_id += 1
-        return self.fd_id
+        Create a new file descriptor out of a name.
 
+        :param name: name of the file
+        :param file: object to read from
+        :return: FileDesc object
+        """
+        new_fd_id = self._fd_id
+        self._fd_id += 1
+        filedesc = FileDesc(id=new_fd_id, name=name, fd=file)
+        self._fd_table[new_fd_id] = filedesc
+        return filedesc
+
+    def close_file_descriptor(self, id: int) -> None:
+        """
+        Close the given file descriptor id.
+
+        :param id: id of the file descriptor
+        :return: None
+        """
+        filedesc = self._fd_table.pop(id)
+        if isinstance(filedesc.fd, io.IOBase):
+            filedesc.fd.close()
+
+    def get_file_descriptor(self, id: int) -> FileDesc:
+        """
+        Get the given file descriptor.
+
+        :raise KeyError: if the file descriptor is not found
+        :param id: id of the file descriptor
+        :return: FileDesc object
+        """
+        return self._fd_table[id]
+
+    def file_descriptor_exists(self, id: int) -> bool:
+        """
+        Returns whether the file descriptor has been defined or not.
+
+        :param id: id of the file descriptor
+        :return: True if the id is found
+        """
+        return bool(id in self._fd_table)
 
     @property
     def architecture(self) -> Architecture:

@@ -31,14 +31,6 @@ class SeedFormat(Enum):
     COMPOSITE = 1
 
 
-class CompositeField(Enum):
-    """
-    Enum representing the different Fields present in CompositeData 
-    """
-    ARGV = 0
-    FILE = 1
-    VARIABLE = 2
-
 
 @dataclass(frozen=True)
 class CompositeData:
@@ -98,7 +90,6 @@ class Seed(object):
     def is_raw(self) -> bool:
         """Returns wether the seed is a raw seed or not. """
         return self._type == SeedFormat.RAW
-
 
     def is_bootstrap_seed(self) -> bool:
         """
@@ -257,3 +248,21 @@ class Seed(object):
         """
         raw = Path(path).read_bytes()
         return Seed.from_bytes(raw, status)
+
+    # Utility function for composite seeds
+    def is_file_defined(self, name: str) -> bool:
+        if self.is_composite():
+            return name in self.content.files
+        else:
+            return False
+
+    def get_file_input(self, name: str) -> bytes:
+        """
+        Return the bytes associated to a given file within
+        a composite seed.
+
+        :raise KeyError: if the name cannot be found in the seed.
+        :param name: name of the file to retrieve
+        :return: bytes of the file content
+        """
+        return self.content.files[name]
