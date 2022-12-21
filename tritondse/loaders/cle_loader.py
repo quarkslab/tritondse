@@ -35,10 +35,16 @@ class CleLoader(Loader):
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
 
+        self._disable_vex_loggers()  # disable logs of pyvex
+
         self.ld_path = ld_path if ld_path is not None else ()
         self.ld = cle.Loader(str(path), ld_path=self.ld_path)
         self.longjmp_addr_cache = None
 
+    def _disable_vex_loggers(self):
+        for name, logger in logging.root.manager.loggerDict.items():
+            if "pyvex" in name:
+                logger.propagate = False
 
     @property
     def name(self) -> str:
