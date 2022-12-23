@@ -2067,7 +2067,7 @@ def rtn_isspace(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return res
 
 
-def rtn___assert_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+def rtn_assert_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __assert_fail behavior.
     """
@@ -2129,18 +2129,25 @@ def rtn_longjmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logging.debug('longjmp hooked')
     pstate.stop = True
 
+def rtn_atexit(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    return 0
 
 
 SUPPORTED_ROUTINES = {
     # TODO:
     #   - tolower
     #   - toupper
+    '__assert_fail':           rtn_assert_fail,
     '__ctype_b_loc':           rtn_ctype_b_loc,
+    '__ctype_toupper_loc':     rtn_ctype_toupper_loc,
     '__errno_location':        rtn_errno_location,
+    '__fprintf_chk':           rtn___fprintf_chk,
     '__libc_start_main':       rtn_libc_start_main,
     '__stack_chk_fail':        rtn_stack_chk_fail,
     '__xstat':                 rtn_xstat,
     'abort':                   rtn_abort,
+    "atexit":                  rtn_atexit,
+    "__cxa_atexit":            rtn_atexit,
     'atoi':                    rtn_atoi,
     'calloc':                  rtn_calloc,
     'clock_gettime':           rtn_clock_gettime,
@@ -2197,17 +2204,15 @@ SUPPORTED_ROUTINES = {
     'getenv':                  rtn_getenv,
     'fseek':                   rtn_fseek,
     'ftell':                   rtn_ftell,
-    '__assert_fail':           rtn___assert_fail,
+
     '_setjmp':                 rtn__setjmp,
     'longjmp':                 rtn_longjmp,
     'realloc':                 rtn_realloc,
-    #'setlocale':               rtn_setlocale,
+    'setlocale':               rtn_setlocale,
     'strdup':                  rtn_strdup,
     'mempcpy':                 rtn_mempcpy,
+    '__mempcpy':               rtn_mempcpy,
     'getchar':                 rtn_getchar,
-    '__fprintf_chk':           rtn___fprintf_chk,
-
-    '__ctype_toupper_loc':           rtn_ctype_toupper_loc,
 
     'isspace':                 rtn_isspace,
     #'tolower':                 rtn_tolower,
