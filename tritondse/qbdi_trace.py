@@ -5,14 +5,15 @@
 # built-in modules
 import atexit
 import bisect
-import logging
 import os
 import json
 import time
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
 from collections import Counter
 from dataclasses import dataclass
+import lief
+import sys
 
 # Third-party modules
 import pyqbdi
@@ -23,7 +24,8 @@ class CoverageTrace:
     strategy: str  # BLOCK, EDGE, etc..
     covered_instructions: Counter
     covered_items: List[Tuple[int, int, Optional[int]]]
-
+    modules: Dict[str, int]
+    trace: List[int]
 
 @dataclass
 class CoverageData:
@@ -31,13 +33,17 @@ class CoverageData:
     branch_data: Optional[Tuple[int, int, int, bool, bool]]  # (temporary data): branch pc, true-branch, false-branch, is_taken, is_dynamic
     trace: CoverageTrace
     modules_base: List[int]
+    pie: bool
 
     def to_relative(self, addr: int) -> int:
-        return addr - self.modules_base[bisect.bisect_right(self.modules_base, addr)-1]
+        if self.pie:
+            return addr - self.modules_base[bisect.bisect_right(self.modules_base, addr)-1]
+        else:
+            return addr
 
 
 
-def get_module_bases():
+def get_modules() -> Dict[str, int]:
     """ Retrieve modules base address to remove ASLR. """
     modules = {}
     for m in pyqbdi.getCurrentProcessMaps(True):
@@ -46,8 +52,11 @@ def get_module_bases():
         else:
             modules[m.name] = m.range[0]
         print(f"{m.name}: {m.range}, {m.permission}")
-    return sorted(modules.values())
+    return modules
 
+def get_module_bases() -> List[int]:
+    """ Retrieve modules base address to remove ASLR. """
+    return sorted(get_modules().values())
 
 
 def write_coverage(covdata: CoverageData, output_file: str):
@@ -56,7 +65,9 @@ def write_coverage(covdata: CoverageData, output_file: str):
     data = {
         "coverage_strategy": covdata.trace.strategy,
         "covered_instructions": covdata.trace.covered_instructions,
-        "covered_items": covdata.trace.covered_items
+        "covered_items": covdata.trace.covered_items,
+        "trace": covdata.trace.trace,
+        "modules_base": covdata.trace.modules
     }
     with open(output_file, "w") as fd:
         json.dump(data, fd)
@@ -65,8 +76,12 @@ def write_coverage(covdata: CoverageData, output_file: str):
 def register_instruction_coverage(vm, gpr, fpr, data: CoverageData):
     # inst_analysis = vm.getInstAnalysis(type=pyqbdi.AnalysisType.ANALYSIS_INSTRUCTION)
 
-    # Save basic block data.
-    data.trace.covered_instructions[data.to_relative(gpr.rip)] += 1  # change to be portable
+    # Save instruction covered
+    rel_rip = data.to_relative(gpr.rip)
+    data.trace.covered_instructions[rel_rip] += 1  # change to be portable
+
+    # Also save the trace
+    data.trace.trace.append(rel_rip)
 
     return pyqbdi.CONTINUE
 
@@ -125,14 +140,23 @@ def pyqbdipreload_on_run(vm, start, stop):
     # Read parameters.
     strat = os.getenv('PYQBDIPRELOAD_COVERAGE_STRATEGY', 'BLOCK')
     output = os.getenv('PYQBDIPRELOAD_OUTPUT_FILEPATH', 'a.cov')
+    bool_trace = os.getenv('PYQBDIPRELOAD_DUMP_TRACE', 'False')
+    bool_trace = True if bool_trace in ['true', 'True'] else False
 
-    coverage_data = CoverageData(strat, None, CoverageTrace(strat, Counter(), []), get_module_bases())
+    mods = get_modules()
+    base_addresses = sorted(get_modules().values())
+    covtrace = CoverageTrace(strat, Counter(), [], mods, [])
+
+    # Open binary in LIEF to check if PIE or not
+    p = lief.parse(sys.argv[0])
+
+    coverage_data = CoverageData(strat, None, covtrace, base_addresses, p.is_pie)
 
     # Remove all instrumented modules except the main one.
     vm.removeAllInstrumentedRanges()
     vm.addInstrumentedModuleFromAddr(start)
 
-    if coverage_data.strategy == 'BLOCK':
+    if coverage_data.strategy == 'BLOCK' or bool_trace:
         # Add callback on instruction execution.
         vm.addCodeCB(pyqbdi.PREINST, register_instruction_coverage, coverage_data)
 
