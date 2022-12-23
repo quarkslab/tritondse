@@ -314,7 +314,11 @@ class SymbolicExecutor(object):
                     logging.info(f"hit {str(instruction)} instruction stop.")
                 else:
                     logging.error('Instruction not supported: %s' % (str(instruction)))
-                break
+
+                if self.config.skip_unsupported_instruction:
+                    self.pstate.cpu.program_counter += instruction.getSize() # try to jump over the instruction
+                else:
+                    break  # stop emulation
 
             # increment trace offset
             self.trace_offset += 1

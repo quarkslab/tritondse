@@ -38,6 +38,7 @@ class Config(object):
                  program_argv: List[str] = None,
                  time_inc_coefficient: float = 0.00001,
                  skip_unsupported_import: bool = False,
+                 skip_unsupported_instruction: bool = False,
                  memory_segmentation: bool = True):
         """
         :param debug: Enable debugging logging
@@ -114,6 +115,11 @@ class Config(object):
         self.skip_unsupported_import: bool = skip_unsupported_import
         """ Whether or not to stop the emulation when hitting a external
         call to a function that is not supported.
+        """
+
+        self.skip_unsupported_instruction: bool = skip_unsupported_instruction
+        """ Whether or not to stop the emulation when hitting an instruction
+        for which the semantic is not defined.
         """
 
         self.memory_segmentation: bool = memory_segmentation
