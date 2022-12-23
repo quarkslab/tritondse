@@ -178,7 +178,7 @@ class QBDITrace(Trace):
             data = json.load(fd)
 
         cov = CoverageSingleRun(CoverageStrategy[data["coverage_strategy"]])
-        cov.covered_instructions = Counter(data["covered_instructions"])
+        cov.covered_instructions = Counter({int(k): v for k, v in data["covered_instructions"].items()})
 
         for (src, dst, not_taken) in data["covered_items"]:
             if not_taken is None:
