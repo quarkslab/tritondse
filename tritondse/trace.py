@@ -25,7 +25,7 @@ class Trace:
         pass
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, stdin_file=None) -> bool:
+    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, dump_trace: bool = False, stdin_file=None) -> bool:
         """Run the binary passed as argument and return the coverage.
 
         :param strategy: Coverage strategy.
@@ -35,9 +35,14 @@ class Trace:
         :param args: List of arguments to pass to the binary.
         :type args: :py:obj:`List[str]`.
         :type output_path: File where to store trace
+        :param dump_trace: Enable gather the trace
         :param stdin_file: Path to the file that will act as stdin.
         :type args: :py:obj:`str`.
         """
+        raise NotImplementedError()
+
+    @property
+    def trace(self) -> List[int]:
         raise NotImplementedError()
 
     @staticmethod
@@ -79,7 +84,7 @@ class TritonTrace(Trace):
         self._coverage = None
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, stdin_file=None) -> bool:
+    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, dump_trace: bool = False, stdin_file=None) -> bool:
         # Override stdin with the input file.
         if stdin_file:
             os.dup2(os.open(stdin_file, os.O_RDONLY), 0)
@@ -114,9 +119,11 @@ class QBDITrace(Trace):
     def __init__(self):
         super().__init__()
         self._coverage = None
+        self._trace = None
+        self.modules = {}
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, stdin_file=None, timeout=None, cwd=None) -> bool:
+    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, dump_trace: bool = False, stdin_file=None, timeout=None, cwd=None) -> bool:
         if not Path(binary_path).exists():
             raise FileNotFoundError()
 
@@ -134,6 +141,7 @@ class QBDITrace(Trace):
             'PYQBDIPRELOAD_COVERAGE_STRATEGY': strategy.name,
             'PYQBDIPRELOAD_OUTPUT_FILEPATH': output_path,
             'PYQBDIPRELOAD_LONGJMP_ADDR': os.getenv("TT_LONGJMP_ADDR", default="0"),
+            'PYQBDIPRELOAD_DUMP_TRACE': str(dump_trace)
         }
         environ.update(os.environ)
 
@@ -179,6 +187,8 @@ class QBDITrace(Trace):
                 cov.add_covered_branch(src, dst, not_taken)
 
         trace._coverage = cov
+        trace._trace = data['trace']
+        trace.modules = data['modules_base']
 
         return trace
 
@@ -189,6 +199,10 @@ class QBDITrace(Trace):
 
         return self._coverage
 
+    @property
+    def trace(self) -> List[int]:
+        return self._trace
+
 
 if __name__ == "__main__":
     import sys
@@ -198,7 +212,7 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG)
 
-    if QBDITrace.run(CoverageStrategy.EDGE, sys.argv[1], sys.argv[2:], "/tmp/test.cov"):
+    if QBDITrace.run(CoverageStrategy.EDGE, sys.argv[1], sys.argv[2:], "/tmp/test.cov", dump_trace=True):
         coverage = QBDITrace.from_file("/tmp/test.cov")
     else:
         print("Something went wrong during trace generation")
