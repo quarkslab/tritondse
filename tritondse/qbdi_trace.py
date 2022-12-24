@@ -8,6 +8,7 @@ import bisect
 import os
 import json
 import time
+import ctypes
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict
 from collections import Counter
@@ -123,9 +124,8 @@ def register_branch_coverage(vm, gpr, fpr, data):
 
     if operand.type == pyqbdi.OperandType.OPERAND_IMM:
         # FIXME: Isn't it assuming the jump is relative ?
-        true_branch_addr = inst_analysis.address + inst_analysis.instSize + operand.value
+        true_branch_addr = inst_analysis.address + inst_analysis.instSize + ctypes.c_longlong(operand.value).value
     else:
-        true_branch_addr = None
         raise Exception('Invalid operand type')
 
     # Save current branch data
