@@ -35,6 +35,7 @@ class CoverageData:
     trace: CoverageTrace
     modules_base: List[int]
     pie: bool
+    dump_trace: bool
 
     def to_relative(self, addr: int) -> int:
         if self.pie:
@@ -52,7 +53,7 @@ def get_modules() -> Dict[str, int]:
             modules[m.name] = min(m.range[0], modules[m.name])
         else:
             modules[m.name] = m.range[0]
-        print(f"{m.name}: {m.range}, {m.permission}")
+        # print(f"{m.name}: {m.range}, {m.permission}")
     return modules
 
 def get_module_bases() -> List[int]:
@@ -81,8 +82,9 @@ def register_instruction_coverage(vm, gpr, fpr, data: CoverageData):
     rel_rip = data.to_relative(gpr.rip)
     data.trace.covered_instructions[rel_rip] += 1  # change to be portable
 
-    # Also save the trace
-    data.trace.trace.append(rel_rip)
+    if data.dump_trace:
+        # Also save the trace
+        data.trace.trace.append(rel_rip)
 
     return pyqbdi.CONTINUE
 
@@ -150,7 +152,7 @@ def pyqbdipreload_on_run(vm, start, stop):
     # Open binary in LIEF to check if PIE or not
     p = lief.parse(sys.argv[0])
 
-    coverage_data = CoverageData(strat, None, covtrace, base_addresses, p.is_pie)
+    coverage_data = CoverageData(strat, None, covtrace, base_addresses, p.is_pie, bool_trace)
 
     # Remove all instrumented modules except the main one.
     vm.removeAllInstrumentedRanges()
@@ -174,7 +176,7 @@ def pyqbdipreload_on_run(vm, start, stop):
     # There is no generic way to do that with LIEF https://github.com/lief-project/LIEF/issues/762
     longjmp_plt = int(os.getenv("PYQBDIPRELOAD_LONGJMP_ADDR", default="0"))
 
-    print(f"in qbdi_trace {longjmp_plt}")
+    print(f"in qbdi_trace [longjmp:{longjmp_plt}]")
     if longjmp_plt != 0:
         def longjmp_callback(vm, gpr, fpr, data):
             print("in longjmp callback")
