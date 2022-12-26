@@ -152,8 +152,10 @@ class QBDITrace(Trace):
         process = subprocess.Popen(cmdlne, stdin=stdin_fp, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, env=environ)
         try:
             stdout, stderr = process.communicate(timeout=timeout)
-            logging.debug(stdout)
-            logging.debug(stderr)
+            for line in stdout.split(b"\n"):
+                logging.debug(f"stdout: {line}")
+            for line in stderr.split(b"\n"):
+                logging.debug(f"stdout: {line}")
         except subprocess.TimeoutExpired:
             process.wait()
             logging.error('QBDI tracer timeout expired!')
@@ -212,7 +214,7 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.DEBUG)
 
-    if QBDITrace.run(CoverageStrategy.EDGE, sys.argv[1], sys.argv[2:], "/tmp/test.cov", dump_trace=True):
+    if QBDITrace.run(CoverageStrategy.EDGE, sys.argv[1], sys.argv[2:], "/tmp/test.cov", dump_trace=False):
         coverage = QBDITrace.from_file("/tmp/test.cov")
     else:
         print("Something went wrong during trace generation")
