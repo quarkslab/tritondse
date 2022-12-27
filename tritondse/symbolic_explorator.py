@@ -115,7 +115,7 @@ class SymbolicExplorator(object):
         logging.info(f'Pick-up seed: {seed.filename} (fresh: {seed.is_fresh()})')
 
         if self.config.exploration_timeout and self.__time_delta() >= self.config.exploration_timeout:
-            logging.info('Exploration timout')
+            logging.info('Exploration timeout')
             self.stop_exploration()
             return
 

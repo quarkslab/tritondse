@@ -51,7 +51,6 @@ class BranchSolvingStrategy(IntFlag):
     ALL_NOT_COVERED = auto()
     FIRST_LAST_NOT_COVERED = auto()
     UNSAT_ONCE = auto()
-    UNSAT_ALWAYS = auto()
     TIMEOUT_ONCE = auto()
     TIMEOUT_ALWAYS = auto()
     COVER_SYM_DYNJUMP = auto()
@@ -361,7 +360,7 @@ class GlobalCoverage(CoverageSingleRun):
                             elif res == SolverStatus.UNSAT:
                                 if BranchSolvingStrategy.UNSAT_ONCE in self.branch_strategy:
                                     self.uncoverable_items[covitem] = res
-                                elif BranchSolvingStrategy.UNSAT_ALWAYS in self.branch_strategy and self.strategy in [CoverageStrategy.PATH, CoverageStrategy.PREFIXED_EDGE]:
+                                elif self.strategy in [CoverageStrategy.PATH, CoverageStrategy.PREFIXED_EDGE]:
                                     self.uncoverable_items[covitem] = res  # paths, and prefixed-edge ensure to be unique thus drop if unsat
 
                             elif res == SolverStatus.TIMEOUT:
