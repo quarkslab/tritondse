@@ -73,7 +73,7 @@ class Workspace(object):
         :returns: File content as string if existing
         :rtype: Optional[str]
         """
-        p = self.root_dir / name
+        p = (self.root_dir / self.METADATA_DIR) / name
         if p.exists():
             return p.read_text()
         else:
@@ -91,7 +91,7 @@ class Workspace(object):
         :type name: str
         :return: absolute filepath (regardless of whether it exists or not)
         """
-        p = self.root_dir / name
+        p = (self.root_dir / self.METADATA_DIR) / name
         if not p.parent.exists():
             p.parent.mkdir(parents=True)
         return p
