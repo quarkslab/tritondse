@@ -196,7 +196,7 @@ class SeedManager:
                 self.workspace.save_seed(new_input)
                 logging.info(f'New seed model {new_input.filename} dumped [{new_input.status.name}]')
             else:
-                logging.debug(f"New seed {new_input.filename} has already been generated")
+                logging.info(f"New seed {new_input.filename} has already been generated")
 
 
     def __iter_new_inputs(self, execution: SymbolicExecutor) -> Generator[Seed, None, None]:
@@ -404,7 +404,10 @@ class SeedManager:
         return f"\033[{mapper[status]}m{status.name}\033[0m"
 
     def pp_meta_filename(self, covitem: CovItem, typ: SymExType) -> str:
-        pp_item = self.coverage.pp_item(covitem)
+        if typ == SymExType.CONDITIONAL_JMP:
+            pp_item = self.coverage.pp_item(covitem)
+        else:
+            pp_item = f"({covitem[0]:#08x}:@[{covitem[1]:#08x}])"
         map = {SymExType.CONDITIONAL_JMP: "CC",
                SymExType.SYMBOLIC_READ: "SR",
                SymExType.SYMBOLIC_WRITE: "SW",

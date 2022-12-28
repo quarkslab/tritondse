@@ -196,6 +196,7 @@ class Workspace(object):
         try:
             old_p.unlink()  # Remove the seed from the worklist
         except:
+            logging.warning(f"seed {seed} unlink failed")
             pass  # FIXME: Not meant to get here
         self.save_seed(seed)
 
