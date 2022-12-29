@@ -4,15 +4,16 @@ import json
 import hashlib
 import struct
 import logging
+from pathlib import Path
 from typing import List, Generator, Tuple, Set, Union, Dict, Optional
 from collections import Counter
 from enum import IntFlag, Enum, auto
+import pickle
 
 # third-party imports
 from triton import AST_NODE
 
 # local imports
-from tritondse.workspace import Workspace
 from tritondse.types import Addr, PathConstraint, PathBranch, SolverStatus, PathHash, Edge, SymExType
 
 
@@ -427,7 +428,6 @@ class GlobalCoverage(CoverageSingleRun):
         else:
             assert False
 
-
     def _get_items_trace(self, path_constraints: List[PathConstraint]) -> Dict[CovItem, List[int]]:
         """
         Iterate the all trace and retrieve all covered and not covered CovItem. For non covered one
@@ -565,52 +565,29 @@ class GlobalCoverage(CoverageSingleRun):
         """
         return bool(other.covered_items.keys() - self.covered_items.keys())
 
-    def save_coverage(self, workspace: Workspace) -> None:
-        """
-        Save the coverage in the workspace
+    @staticmethod
+    def from_file(file: Union[str, Path]) -> 'GlobalCoverage':
+        with open(file, "rb") as f:
+            obj = pickle.load(f)
+        return obj
 
-        :param workspace: Workspace in which to save coverage
-        :type workspace: Workspace
-        """
-
-        res = {"instructions": self.covered_instructions,
-               "coverage": list(self.covered_items.items()),
-               "uncoverable": [(k, v.name) for k, v in self.uncoverable_items.items()],
-               "not_covered": list(self.not_covered_items)}
-
-        workspace.save_metadata_file(self.COVERAGE_FILE, json.dumps(res, indent=2))
+    def to_file(self, file: Union[str, Path]) -> None:
+        copy = self._current_path_hash
+        self._current_path_hash = None
+        with open(file, "wb") as f:
+            pickle.dump(self, f)
+        self._current_path_hash = copy
 
 
-    def load_coverage(self, workspace: Workspace) -> None:
-        """
-        Load the coverage from the workspace
-
-        :param workspace: Workspace in which to save coverage
-        :type workspace: Workspace
-        """
-        # Load instruction coverage
-        raw = workspace.get_metadata_file(self.COVERAGE_FILE)
-        if not raw:
-            return
-
-        logging.debug(f"Loading the existing instruction coverage from: {self.COVERAGE_FILE}")
-
-        data = json.loads(raw)
-
-        self.covered_instructions = Counter(data['instructions'])
-        self.covered_items = Counter({x[0]: x[1] for x in data["coverage"]})
-        self.uncoverable_items = {x[0]: SolverStatus[x[1]] for x in data['uncoverable']}
-        self.not_covered_items = set(data['not_covered'])
-
-
-    def post_exploration(self, workspace: Workspace) -> None:
+    def post_exploration(self, workspace: 'Workspace') -> None:
         """ Function called at the very end of the exploration.
         It saves the coverage in the workspace.
 
         :param workspace: Workspace in which to save coverage
         :type workspace: Workspace
         """
-        self.save_coverage(workspace)
+        # Save the coverage
+        self.to_file(workspace.get_metadata_file(self.COVERAGE_FILE))
 
     def clone(self) -> 'GlobalCoverage':
         cov2 = GlobalCoverage(self.strategy, self.branch_strategy)
