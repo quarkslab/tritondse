@@ -72,8 +72,10 @@ class SymbolicExplorator(object):
         """ GlobalCoverage object holding information about the global coverage.
         *(not really meant to be manipulated by the user)*
         """
-        # Load workspace if any
-        self.coverage = GlobalCoverage.from_file(self.workspace.get_metadata_file(GlobalCoverage.COVERAGE_FILE))
+        # Load workspace global coverage if any
+        cov = self.workspace.get_metadata_file_path(GlobalCoverage.COVERAGE_FILE)
+        if cov.exists():
+            self.coverage = GlobalCoverage.from_file(cov)
 
         # Initialize the seed manager
         self.seeds_manager: SeedManager = SeedManager(self.coverage, self.workspace, self.config.smt_queries_limit, callback_manager=self.cbm, seed_scheduler_class=seed_scheduler_class)
