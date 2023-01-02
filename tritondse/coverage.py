@@ -82,6 +82,7 @@ class CoverageSingleRun(object):
         self.covered_items: Dict[CovItem, int] = Counter()
         """ Stores covered items whatever they are """
         self.not_covered_items: Set[CovItem] = set()
+        self._not_covered_items_mirror: Dict[CovItem, List[str]] = {}  # solely used for prefixed-edge
         """ CovItems not covered in the trace. It thus represent what can be
         covered by the trace (input). We call it coverage objectives."""
 
@@ -175,23 +176,25 @@ class CoverageSingleRun(object):
 
         if self.strategy == CoverageStrategy.PREFIXED_EDGE:
             taken_tuple, not_taken_tuple = (program_counter, taken_addr), (program_counter, not_taken_addr)
-            taken, not_taken = (self._current_path_hash.hexdigest(), taken_tuple), (self._current_path_hash.hexdigest(), not_taken_tuple)
+            _, not_taken = (self._current_path_hash.hexdigest(), taken_tuple), (self._current_path_hash.hexdigest(), not_taken_tuple)
             gtaken, gnot_taken = ("", taken_tuple), ("", not_taken_tuple)
 
             # Add covered as covered
             self.covered_items[gtaken] += 1
 
             # Find all items in not_covered that have this edge
-            to_rm = []
-            for (h, e) in self.not_covered_items:
-                if e == taken_tuple:
-                    to_rm.append((h, e))
-            for x in to_rm:  # remove
-                self.not_covered_items.discard(x)
+            if taken_tuple in self._not_covered_items_mirror:               # if a not_covered match this edge
+                for prefix in self._not_covered_items_mirror[taken_tuple]:  # iterate all the prefixes
+                    self.not_covered_items.discard((prefix, taken_tuple))   # and discard them
+                self._not_covered_items_mirror.pop(taken_tuple)             # finally discard the entry
 
-            # look if not_taken edge in covered
+            # look if not_taken edge not in covered
             if gnot_taken not in self.covered_items:
                 self.not_covered_items.add(not_taken)
+                if not_taken[1] not in self._not_covered_items_mirror:
+                    self._not_covered_items_mirror[not_taken[1]] = [not_taken[0]]
+                else:
+                    self._not_covered_items_mirror[not_taken[1]].append(not_taken[0])
 
             # update the current path hash etc
             self._current_path.append(taken_addr)
@@ -491,8 +494,25 @@ class GlobalCoverage(CoverageSingleRun):
         self.covered_items.update(other.covered_items)
 
         # Update non-covered ones
-        if self.strategy == CoverageStrategy.PREFIXED_EDGE:  # More complex as not_covered as covitem: (hash, edge) while covered has covitems: ("", edge)
-            self.not_covered_items.update(x for x in other.not_covered_items if ("", x[1]) not in self.covered_items)
+        if self.strategy == CoverageStrategy.PREFIXED_EDGE:
+            # More complex as not_covered as covitem: (hash, edge) while covered has covitems: ("", edge)
+
+            # remove self not covered that are now covered
+            for _, edge in other.covered_items.keys():
+                if edge in self._not_covered_items_mirror:
+                    for prefix in self._not_covered_items_mirror[edge]:  # iterate all the prefixes
+                        self.not_covered_items.discard((prefix, edge))  # and discard them
+                    self._not_covered_items_mirror.pop(edge)  # finally discard the entry
+
+            # Only add other not covered if still not covered
+            for prefix, edge in other.not_covered_items:
+                if ("", edge) not in self.covered_items:
+                    self.not_covered_items.add((prefix, edge))
+                    if edge not in self._not_covered_items_mirror:
+                        self._not_covered_items_mirror[edge] = [prefix]
+                    else:
+                        self._not_covered_items_mirror[edge].append(prefix)
+
         else: # Straightfoward set difference
             self.not_covered_items.update(other.not_covered_items - self.covered_items.keys())
 
@@ -596,6 +616,7 @@ class GlobalCoverage(CoverageSingleRun):
         cov2.covered_instructions = Counter({k: v for k, v in self.covered_instructions.items()})
         cov2.covered_items = Counter({k: v for k, v in self.covered_items.items()})
         cov2.not_covered_items = {x for x in self.not_covered_items}
+        cov2._not_covered_items_mirror = {k: v for k, v in self._not_covered_items_mirror.items()}
         cov2._current_path = self._current_path[:]
         self._current_path: List[Addr] = []
         self._current_path_hash = self._current_path_hash.copy()
