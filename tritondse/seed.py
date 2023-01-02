@@ -225,6 +225,10 @@ class Seed(object):
         """
         try:
             data = json.loads(raw_seed)
+
+            if not isinstance(data, dict):  # it might happen that files contains only digit which is a valid JSON
+                return Seed(raw_seed, status)
+
             if 'files' in data and 'argv' in data:
                 return Seed(CompositeData.from_dict(data), status)
             else:  # Else still consider file as raw bytes
