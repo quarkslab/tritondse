@@ -607,7 +607,7 @@ class GlobalCoverage(CoverageSingleRun):
         :type workspace: Workspace
         """
         # Save the coverage
-        self.to_file(workspace.get_metadata_file(self.COVERAGE_FILE))
+        self.to_file(workspace.get_metadata_file_path(self.COVERAGE_FILE))
 
     def clone(self) -> 'GlobalCoverage':
         cov2 = GlobalCoverage(self.strategy, self.branch_strategy)
