@@ -470,7 +470,7 @@ class GlobalCoverage(CoverageSingleRun):
                     l = not_covered[k]
                     if len(l) > 2:
                         not_covered[k] = [l[0], l[-1]]  # Only keep first and last iteration
-        else:
+        else: # ALL_NOT_COVERED
             pass  # Keep all occurences
         return not_covered
 

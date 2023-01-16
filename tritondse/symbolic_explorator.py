@@ -89,6 +89,10 @@ class SymbolicExplorator(object):
         self._total_emulation_time = 0
 
     @property
+    def total_emulation_time(self) -> float:
+        return self._total_emulation_time
+
+    @property
     def callback_manager(self) -> CallbackManager:
         """
         CallbackManager global instance that will be transmitted to
@@ -134,8 +138,8 @@ class SymbolicExplorator(object):
         # increment exec_count
         self._exec_count += 1
 
+        ts = time.time()
         try:
-            ts = time.time()
             execution.run(self._executor_stop_at)
             expl_ts = time.time() - ts
         except StopExplorationException:
@@ -150,6 +154,7 @@ class SymbolicExplorator(object):
 
         # Some analysis in post execution
         solve_time = self.seeds_manager.post_execution(execution, seed, not self._stop)
+        self._total_emulation_time += expl_ts
 
         logging.info(f"Emulation: {self._fmt_secs(expl_ts)} | Solving: {self._fmt_secs(solve_time)} | Elapsed: {self._fmt_secs(self.__time_delta())}\n")
 
