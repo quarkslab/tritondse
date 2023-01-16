@@ -63,6 +63,10 @@ class SeedManager:
         self._stat_branch_fail = Counter()
         self._current_solv_time = 0
 
+    @property
+    def total_solving_time(self) -> float:
+        return self._solv_time_sum
+
     def __load_seed_workspace(self):
         """ Load seed from the workspace """
         # Load seed from the corpus
@@ -249,10 +253,8 @@ class SeedManager:
                     # all stats updates
                     solve_time = time.time() - ts
                     count = len(results)
-                    self._solv_count += count
-                    self._solv_time_sum += solve_time
                     status = SolverStatus.SAT if count else SolverStatus.UNSAT
-                    self._solv_status[status] += count
+                    self._update_solve_stats(None, status, solve_time, count)
 
                     results = [(x[0], (addr, x[1])) for x in results]   # extract results
                     logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}-{smt_queries+count}, enumerate:{expr} (time: {solve_time:.02f}s) values:[{count}:{self._pp_smt_status(status)}]')
@@ -293,19 +295,20 @@ class SeedManager:
         except StopIteration:  # We have iterated the whole path generator
             pass
 
-    def _update_solve_stats(self, covitem: CovItem, status: SolverStatus, solving_time: float):
-        self._solv_count += 1
+    def _update_solve_stats(self, covitem: Optional[CovItem], status: SolverStatus, solving_time: float, count=1):
+        self._solv_count += count
         self._solv_time_sum += solving_time
         self._current_solv_time += solving_time
-        self._solv_status[status] += 1
+        self._solv_status[status] += count
         logging.debug(f'Solve stats: solve_count={self._solv_count} solving_time={solving_time} solve_time_sum={self._solv_time_sum} current_solve_time={self._current_solv_time} solv_status={status} / {self._solv_status[status]}')
 
-        if status == SolverStatus.SAT:
-            self._stat_branch_reverted[covitem] += 1  # Update stats
-            if covitem in self._stat_branch_fail:
-                self._stat_branch_fail.pop(covitem)
-        elif status == SolverStatus.UNSAT:
-            self._stat_branch_fail[covitem] += 1
+        if covitem:
+            if status == SolverStatus.SAT:
+                self._stat_branch_reverted[covitem] += count  # Update stats
+                if covitem in self._stat_branch_fail:
+                    self._stat_branch_fail.pop(covitem)
+            elif status == SolverStatus.UNSAT:
+                self._stat_branch_fail[covitem] += count
 
 
     def pick_seed(self) -> Optional[Seed]:
