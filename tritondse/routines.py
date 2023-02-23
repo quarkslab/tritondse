@@ -202,7 +202,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
         if se.config.is_format_composite() and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
             # Symbolize the argv string
-            se.inject_symbolic_argv_memory(base, arg)
+            se.inject_symbolic_argv_memory(base, i, arg)
             # FIXME: Shall add a constraint on every char to be != \x00
 
         logging.debug(f"argv[{i}] = {repr(pstate.memory.read(base, len(arg)))}")
