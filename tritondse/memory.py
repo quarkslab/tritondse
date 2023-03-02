@@ -68,6 +68,7 @@ class Memory(object):
         self._segment_enabled = True
         self._endian = Endian.LITTLE
         self._endian_key = ENDIAN_MAP[self._endian]
+        self._mem_cbs_enabled = True
         # self._maps = {}  # Addr: -> Map
 
     def set_endianess(self, en: Endian) -> None:
@@ -115,10 +116,21 @@ class Memory(object):
         self._segment_enabled = enabled
 
     @contextmanager
-    def without_segmentation(self):
+    def without_segmentation(self, disable_callbacks=False):
         self.disable_segmentation()
+        cbs = self._mem_cbs_enabled
+        self._mem_cbs_enabled = not disable_callbacks
         yield self
+        self._mem_cbs_enabled = cbs
         self.enable_segmentation()
+
+    def callbacks_enabled(self) -> bool:
+        """
+        Return whether or not memory callbacks are enabled.
+
+        :return: True if callbacks are enabled
+        """
+        return self._mem_cbs_enabled
 
     def get_maps(self) -> Generator[MemMap, None, None]:
         yield from (x for x in self._linear_map_map if x)

@@ -473,7 +473,7 @@ class ProcessState(object):
         """
         if address is None:
             address = self.cpu.program_counter
-        with self.memory.without_segmentation():
+        with self.memory.without_segmentation(disable_callbacks=True):
             data = self.memory.read(address, 16)
         i = Instruction(address, data)
         i.setThreadId(self.current_thread.tid)
