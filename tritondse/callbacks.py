@@ -143,8 +143,9 @@ class CallbackManager(object):
         :param mem: MemoryAccess
         :return: None
         """
-        for cb in self._mem_read_cbs:
-            cb(self._se, self._se.pstate, mem)
+        if self._se.pstate.memory.callbacks_enabled():
+            for cb in self._mem_read_cbs:
+                cb(self._se, self._se.pstate, mem)
 
 
     def _trampoline_mem_write_cb(self, ctx, mem, value):
@@ -156,8 +157,9 @@ class CallbackManager(object):
         :param value: int
         :return: None
         """
-        for cb in self._mem_write_cbs:
-            cb(self._se, self._se.pstate, mem, value)
+        if self._se.pstate.memory.callbacks_enabled():
+            for cb in self._mem_write_cbs:
+                cb(self._se, self._se.pstate, mem, value)
 
 
     def _trampoline_reg_read_cb(self, ctx, reg):
