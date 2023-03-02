@@ -90,6 +90,8 @@ class SymbolicExplorator(object):
 
     @property
     def total_emulation_time(self) -> float:
+        """ Represent total emulation time. This include all callbacks execution
+        but not the SMT solving time (performed at the end). """
         return self._total_emulation_time
 
     @property
