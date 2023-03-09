@@ -54,17 +54,20 @@ def hook_start(exec: SymbolicExecutor, pstate: ProcessState):
 
 conf = Config(skip_unsupported_import=True, seed_format=SeedFormat.COMPOSITE, smt_solver=SmtSolver.Z3)
 
-ldr = MonolithicLoader("./bugged_json_parser.bin", Architecture.ARM32, BASE_ADDRESS,
-                       perm = Perm.R | Perm.X,
+raw_firmware = Path("./bugged_json_parser.bin").read_bytes()
+
+ldr = MonolithicLoader(Architecture.ARM32,
                        cpustate = {"pc": ENTRY_POINT, 
                                    "r0": BUFFER_ADDR,
                                    "r2": STRUC_ADDR,
                                    "sp": STACK_ADDR+STACK_SIZE},
                        set_thumb=True,
-                       vmmap = [LoadableSegment(BUFFER_ADDR, 40, Perm.R|Perm.W, name="input"),
-                                LoadableSegment(STRUC_ADDR, 512, Perm.R|Perm.W, name="JSON_ctx"),
-                                LoadableSegment(USER_CB, 1000, Perm.R|Perm.X, name="user_cb"),
-                                LoadableSegment(STACK_ADDR, STACK_SIZE, Perm.R|Perm.W, name="[stack]")])
+                       maps = [LoadableSegment(BASE_ADDRESS, len(raw_firmware), Perm.R|Perm.X, content=raw_firmware, name="bugged_json_parser"), 
+                               LoadableSegment(BUFFER_ADDR, 40, Perm.R|Perm.W, name="input"),
+                               LoadableSegment(STRUC_ADDR, 512, Perm.R|Perm.W, name="JSON_ctx"),
+                               LoadableSegment(USER_CB, 1000, Perm.R|Perm.X, name="user_cb"),
+                               LoadableSegment(STACK_ADDR, STACK_SIZE, Perm.R|Perm.W, name="[stack]")
+                       ])
 
 workspace = Workspace("ws")
 
