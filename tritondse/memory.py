@@ -233,6 +233,12 @@ class Memory(object):
         return self.ctx.setConcreteMemoryAreaValue(addr, data)
 
     def read(self, addr: Addr, size: ByteSize) -> bytes:
+        if self._segment_enabled:
+            map = self._get_map(addr, size)
+            if map is None:
+                raise MemoryAccessViolation(addr, Perm.R, memory_not_mapped=True)
+            if Perm.R not in map.perm:
+                raise MemoryAccessViolation(addr, Perm.R, map_perm=map.perm, perm_error=True)
         return self.ctx.getConcreteMemoryAreaValue(addr, size)
 
     def _get_map(self, ptr: Addr, size: ByteSize) -> Optional[MemMap]:

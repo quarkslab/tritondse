@@ -85,6 +85,8 @@ class SymbolicExecutor(object):
 
         self.debug_pp = False
 
+        self._in_processing = False  # use to know if we are currently processing an instruction
+
         # TODO: Here we load the binary each time we run an execution (via ELFLoader). We can
         #       avoid this (and so gain in speed) if a TritonContext could be forked from a
         #       state. See: https://github.com/JonathanSalwan/Triton/issues/532
@@ -309,6 +311,7 @@ class SymbolicExecutor(object):
 
             # Process
             prev_pc = self.current_pc
+            self._in_processing = True
             if not self.pstate.process_instruction(instruction):
                 if self.pstate.is_halt_instruction():
                     logging.info(f"hit {str(instruction)} instruction stop.")
@@ -319,7 +322,7 @@ class SymbolicExecutor(object):
                     self.pstate.cpu.program_counter += instruction.getSize() # try to jump over the instruction
                 else:
                     break  # stop emulation
-
+            self._in_processing = False
             # increment trace offset
             self.trace_offset += 1
 
@@ -623,7 +626,12 @@ class SymbolicExecutor(object):
         logging.info(f"Memory usage: {self.mem_usage_str()}")
 
     def _mem_accesses_callback(self, se: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
-        if ps.memory.segmentation_enabled:
+        """
+        This callback is used to ensure memory accesses performed by side-effect of instructions
+        semantic correctly checks memory segmentation. Thus we only do the check during the processing
+        of an instruction.
+        """
+        if ps.memory.segmentation_enabled and self._in_processing:
             perm = Perm.W if bool(args) else Perm.R
             addr = mem.getAddress()
             size = mem.getSize()
