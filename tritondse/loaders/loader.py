@@ -3,7 +3,7 @@ from __future__ import annotations
 # built-in imports
 from collections import namedtuple
 from pathlib import Path
-from typing import Optional, Generator, Tuple, Dict, Union
+from typing import Optional, Generator, Tuple, Dict, Union, List
 import logging
 from dataclasses import dataclass
 
@@ -141,32 +141,17 @@ class MonolithicLoader(Loader):
     """
 
     def __init__(self,
-                 path: PathLike,
                  architecture: Architecture,
-                 load_address: Addr,
-                 perm: Perm = Perm.R|Perm.W|Perm.X,
                  cpustate: Dict[str, int] = None,
-                 vmmap: Union[Dict[Addr, bytes], LoadableSegment] = None,
+                 maps: List[LoadableSegment] = None,
                  set_thumb: bool = False,
                  platform: Platform = None):
-        super(MonolithicLoader, self).__init__(path)
-        self.path: Path = Path(path)  #: Binary file path
-        if not self.path.is_file():
-            raise FileNotFoundError(f"file {path} not found (or not a file)")
+        super(MonolithicLoader, self).__init__("")
 
-        self.load_address = load_address
-        self.perm = perm
         self._architecture = architecture
         self._platform = platform if platform else None
         self._cpustate = cpustate if cpustate else {}
-        if vmmap:
-            if isinstance(vmmap, dict):
-                self.vmmap = {LoadableSegment(k, content=v, name=f"vmmap{i}") for i, (k, v) in enumerate(vmmap.items())}
-            elif isinstance(vmmap, list):
-                self.vmmap = vmmap
-            else:
-                assert False
-        self.vmmap = vmmap if vmmap else None
+        self.maps = maps
         self._arch_mode = ArchMode.THUMB if set_thumb else None
         if self._platform and (self._architecture, self._platform) in ARCHS:
             self._archinfo = ARCHS[(self._architecture, self._platform)]
@@ -179,7 +164,7 @@ class MonolithicLoader(Loader):
     @property
     def name(self) -> str:
         """ Name of the loader"""
-        return f"Monolithic({self.path})"
+        return f"Monolithic({self.bin_path})"
 
     @property
     def architecture(self) -> Architecture:
@@ -218,10 +203,7 @@ class MonolithicLoader(Loader):
 
         :return: Generator of tuples addrs and content
         """
-        with open(self.bin_path, "rb") as fd: 
-            data = fd.read()
-        yield LoadableSegment(self.load_address, perms=self.perm, content=data, name=str(self.bin_path.absolute()))
-        yield from self.vmmap
+        yield from self.maps
 
     @property
     def cpustate(self) -> Dict[str, int]:
