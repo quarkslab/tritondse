@@ -10,6 +10,11 @@ is available. The MCU running this firmware is a STM32F412.
 
 The goal is exploring the implementation with TritonDSE to try finding vulnerabilities.
 
+.. raw:: html
+
+    <div style="text-align: center;"><a href="../_static/bugged_json_parser.bin"><i class="fa fa-download fa-lg"></i><br/>binary</a></div><br/>
+
+
 Practical information
 ---------------------
 
@@ -43,7 +48,7 @@ Objectives
 Tips
 ----
 
-` The `JSON_ctx` structure contains two callback functions that you will need to stub (using hooks) to enable emulation to be carried to the end.
+The `JSON_ctx` structure contains two callback functions that you will need to stub (using hooks) to enable emulation to be carried to the end.
 
 * Make sure both buffers ``buffer`` and ``ctx`` points to a recognizable memory area.
 

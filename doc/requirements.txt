@@ -3,3 +3,6 @@ sphinx
 breathe
 sphinx-intl
 nbsphinx
+
+# tritondse for autodoc
+tritondse
