@@ -2,19 +2,8 @@ import logging
 
 from tritondse.types import Addr, ByteSize, Perm
 from tritondse.memory import Memory
+from tritondse.exception import AllocatorException
 
-
-class AllocatorException(Exception):
-    """
-    Class used to represent an heap allocator exception.
-    This exception can be raised in the following conditions:
-
-    * trying to allocate data which overflow heap size
-    * trying to free a pointer already freed
-    * trying to free a non-allocated pointer
-    """
-    def __init__(self, message):
-        super(Exception, self).__init__(message)
 
 
 
