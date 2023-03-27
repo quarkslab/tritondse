@@ -1,6 +1,8 @@
+Context
+=======
 
 ProcessState
-============
+------------
 
 .. autoclass:: tritondse.ProcessState
     :members:
@@ -11,7 +13,6 @@ ProcessState
 CpuState
 --------
 
-
 .. autoclass:: tritondse.arch.CpuState
     :members:
     :undoc-members:
@@ -21,7 +22,6 @@ CpuState
 Memory
 ------
 
-
 .. autoclass:: tritondse.memory.Memory
     :members:
     :undoc-members:
@@ -30,7 +30,6 @@ Memory
 
 HeapAllocator
 -------------
-
 
 .. autoclass:: tritondse.heap_allocator.HeapAllocator
     :members:
@@ -46,7 +45,6 @@ HeapAllocator
 
 ThreadContext
 -------------
-
 
 .. autoclass:: tritondse.thread_context.ThreadContext
     :members:

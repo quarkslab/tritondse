@@ -12,12 +12,12 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+# sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'tritondse'
-copyright = '2020, Quarkslab'
+project = 'TritonDSE'
+copyright = '2022, Quarkslab'
 author = 'Quarkslab'
 
 # The full version, including alpha/beta/rc tags
@@ -91,6 +91,5 @@ gettext_compact = False     # optional.
 
 
 # For intersphinx
-
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
                        'lief': ('https://lief.quarkslab.com/doc/latest/', None)}
