@@ -8,11 +8,11 @@ from .coverage              import CoverageStrategy, BranchSolvingStrategy, Cove
 from .symbolic_executor     import SymbolicExecutor
 from .symbolic_explorator   import SymbolicExplorator, ExplorationStatus
 from .seed                  import Seed, SeedStatus, SeedFormat, CompositeData
-from .heap_allocator        import AllocatorException
 from .sanitizers            import CbType, ProbeInterface, UAFSanitizer, NullDerefSanitizer, FormatStringSanitizer, IntegerOverflowSanitizer
 from .types                 import *
 from .workspace             import Workspace
 from .memory                import Memory, MemoryAccessViolation, MapOverlapException, MemMap
+from .exception import AllocatorException, SkipInstructionException, StopExplorationException, AbortExecutionException
 
 from triton import VERSION
 
