@@ -8,3 +8,5 @@ Coverage
     :undoc-members:
     :exclude-members:
 
+.. autoenum:: tritondse.CoverageStrategy
+

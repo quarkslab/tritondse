@@ -3,6 +3,7 @@ sphinx
 breathe
 sphinx-intl
 nbsphinx
+enum-tools[sphinx]
 
 # tritondse for autodoc
 tritondse
