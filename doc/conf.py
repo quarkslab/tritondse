@@ -35,7 +35,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'breathe',
     'sphinx.ext.intersphinx',
-    "nbsphinx"
+    "nbsphinx",
+    "enum_tools.autoenum"
 ]
 
 # Add any paths that contain templates here, relative to this directory.

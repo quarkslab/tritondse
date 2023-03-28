@@ -59,19 +59,19 @@ Installing is as simple as:
     :maxdepth: 1
     :hidden:
 
-    api/program
-    api/configuration
     api/callbacks
-    api/process
+    api/configuration
+    api/coverage
     api/executor
     api/explorator
     api/exception
+    api/loaders
+    api/process
     api/sanitizers
-    api/tracing
     api/seeds
-    api/workspace
+    api/tracing
     api/types
-
+    api/workspace
 
 .. toctree::
     :caption: Practicals
@@ -87,6 +87,5 @@ Installing is as simple as:
     :maxdepth: 1
     :hidden:
 
-    dev_doc/coverage
     dev_doc/routines
     dev_doc/seedscheduling
