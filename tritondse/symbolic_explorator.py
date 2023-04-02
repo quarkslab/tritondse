@@ -6,6 +6,7 @@ from enum import Enum
 from typing import Union, Type
 from pathlib import Path
 import stat
+import enum_tools.documentation
 
 from tritondse.config            import Config
 from tritondse.process_state     import ProcessState
@@ -21,13 +22,14 @@ from tritondse.types             import Addr
 from tritondse.exception         import StopExplorationException
 
 
+@enum_tools.documentation.document_enum
 class ExplorationStatus(Enum):
     """ Enum representing the current state of the exploration """
-    NOT_RUNNING = 0
-    RUNNING     = 1
-    IDLE        = 2
-    STOPPED     = 3
-    TERMINATED  = 4
+    NOT_RUNNING = 0  # doc: The explorator has not been started yet
+    RUNNING     = 1  # doc: The explorator is running and performing exploration
+    IDLE        = 2  # doc: The explorator is idle, it has run, but is out of inputs to process
+    STOPPED     = 3  # doc: The explorator has been stopped by the user
+    TERMINATED  = 4  # doc: The explorator has stopped normally, reached its goal (user-defined)
 
 
 class SymbolicExplorator(object):

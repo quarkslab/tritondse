@@ -1,13 +1,14 @@
 from enum import Enum, auto
-
+import enum_tools.documentation
 from triton import TritonContext
 
 
+@enum_tools.documentation.document_enum
 class ThreadState(Enum):
-    RUNNING = auto()  # Normal state
-    DEAD    = auto()  # State after pthread_exit
-    JOINING = auto()  # State after pthread_join
-    LOCKED  = auto()  # State after a pthread_lock & co
+    RUNNING = auto()  # doc: Normal state
+    DEAD = auto()     # doc: State after pthread_exit
+    JOINING = auto()  # doc: State after pthread_join
+    LOCKED = auto()   # doc: State after a pthread_lock & co
 
 
 class ThreadContext(object):

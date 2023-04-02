@@ -6,8 +6,10 @@ from pathlib import Path
 from tritondse.types import PathLike, SymExType
 from typing import List, Dict, Union, Optional
 from dataclasses import dataclass, field
+import enum_tools.documentation
 
 
+@enum_tools.documentation.document_enum
 class SeedStatus(Enum):
     """
     Seed status enum.
@@ -15,21 +17,21 @@ class SeedStatus(Enum):
     At the end of a :py:obj:`SymbolicExecutor` run one of these
     status must have set to the seed.
     """
-    NEW     = 0
-    OK_DONE = 1
-    CRASH   = 2
-    HANG    = 3
+    NEW = 0      # doc: The input seed is new (has not been executed yet)
+    OK_DONE = 1  # doc: The input seed has been executed and terminated correctly
+    CRASH = 2    # doc: The input seed crashed in some ways
+    HANG = 3     # doc: The input seed made the program to hang
 
 
+@enum_tools.documentation.document_enum
 class SeedFormat(Enum):
     """
     Seed format enum
     Raw seeds are just bytes Seed(b"AAAAA\x00BBBBB")
     Composite can describe how to inject the input more precisely 
     """
-    RAW = 0
-    COMPOSITE = 1
-
+    RAW = 0        # doc: plain bytes input seed
+    COMPOSITE = 1  # doc: complex input object
 
 
 @dataclass(frozen=True)
@@ -101,7 +103,6 @@ class Seed(object):
         """
         return self.content == b""
 
-
     def is_fresh(self) -> bool:
         """
         A fresh seed is never been executed. Its is recognizable
@@ -149,14 +150,12 @@ class Seed(object):
         """
         return len(bytes(self.content))
 
-
     def __eq__(self, other) -> bool:
         """
         Equality check based on content.
 
         :returns: true if content of both seeds are equal """
         return self.content == other.content
-
 
     def bytes(self) -> bytes:
         return bytes(self)
@@ -168,7 +167,6 @@ class Seed(object):
         :rtype: bytes
         """
         return bytes(self.content)
-
 
     def __hash__(self):
         """

@@ -6,7 +6,7 @@ from pathlib import Path
 from triton import ARCH, SOLVER_STATE, SOLVER
 from typing import Union, TypeVar, Tuple, Type
 import io
-
+import enum_tools.documentation
 from dataclasses import dataclass
 
 PathLike = Union[str, Path]
@@ -55,15 +55,16 @@ PathHash = str
 """Type representing the hash of path to uniquely identify any path """
 
 
+@enum_tools.documentation.document_enum
 class SymExType(str, Enum):
     """
-    Symobolic Expression type enum.
+    Symobolic Expression type enum. (internal usage only)
     """
 
-    CONDITIONAL_JMP = 'cond-jcc'
-    DYNAMIC_JMP = 'dyn-jmp'
-    SYMBOLIC_READ = 'sym-read'
-    SYMBOLIC_WRITE = 'sym-write'
+    CONDITIONAL_JMP = 'cond-jcc'  # doc: symbolic expression is a conditional jump
+    DYNAMIC_JMP = 'dyn-jmp'       # doc: symbolic expression is a dynamic jump
+    SYMBOLIC_READ = 'sym-read'    # doc: symbolic expression is a symbolic memory read
+    SYMBOLIC_WRITE = 'sym-write'  # doc: symbolic expression is a symbolic memory write
 
 
 if sys.version_info.minor >= 8:
@@ -85,45 +86,76 @@ else:
     """
 
 
+@enum_tools.documentation.document_enum
 class Architecture(IntEnum):
-    """ Common architecture Enum fully compatible with Triton `ARCH <https://triton.quarkslab.com/documentation/doxygen/py_ARCH_page.html>`_ """
-    AARCH64 = ARCH.AARCH64
-    ARM32   = ARCH.ARM32
-    X86     = ARCH.X86
-    X86_64  = ARCH.X86_64
+    """
+    Common architecture Enum fully compatible with Triton
+    `ARCH <https://triton.quarkslab.com/documentation/doxygen/py_ARCH_page.html>`_
+    """
+    AARCH64 = ARCH.AARCH64  # doc: Aarch64 architecture
+    ARM32 = ARCH.ARM32      # doc: ARM architecture (32 bits)
+    X86 = ARCH.X86          # doc: x86 architecture (32 bits)
+    X86_64 = ARCH.X86_64    # doc: x86-64 architecture (64 bits)
 
+@enum_tools.documentation.document_enum
 class ArchMode(IntFlag):
-    THUMB = 1
+    """
+    Various architecture specific modes that can be enabled or disabledd.
+    (meant to be fullfilled)
+    """
+    THUMB = 1   # doc: set thumb mode for ARM32 architecture
 
+
+@enum_tools.documentation.document_enum
 class Platform(IntEnum):
-    """ Enum to manipulate the platform associated to a binary"""
-    LINUX = auto()
-    WINDOWS = auto()
-    MACOS = auto()
-    ANDROID = auto()
-    IOS = auto()
+    """
+    Platform associated to a binary
+    """
+    LINUX = auto()    # doc: Linux platform
+    WINDOWS = auto()  # doc: Windows platform
+    MACOS = auto()    # doc: Mac OS platform
+    ANDROID = auto()  # doc: Android platform
+    IOS = auto()      # doc: IOS platform
 
+@enum_tools.documentation.document_enum
 class SmtSolver(IntEnum):
     """ Common SMT Solver Enum fully compatible with Triton """
-    Z3 = SOLVER.Z3
-    BITWUZLA = SOLVER.BITWUZLA
+    Z3 = SOLVER.Z3              # doc: Z3 SMT solver
+    BITWUZLA = SOLVER.BITWUZLA  # doc: bitwuzla solver
 
 
+@enum_tools.documentation.document_enum
 class SolverStatus(IntEnum):
     """ Common Solver Enum fully compatible with Triton ARCH """
-    SAT     = SOLVER_STATE.SAT
-    UNSAT   = SOLVER_STATE.UNSAT
-    TIMEOUT = SOLVER_STATE.TIMEOUT
-    UNKNOWN = SOLVER_STATE.UNKNOWN
+    SAT     = SOLVER_STATE.SAT      # doc: Formula is satisfiable (SAT)
+    UNSAT   = SOLVER_STATE.UNSAT    # doc: Formula is unsatisfiable (UNSAT)
+    TIMEOUT = SOLVER_STATE.TIMEOUT  # doc: Formula solving did timeout
+    UNKNOWN = SOLVER_STATE.UNKNOWN  # doc: Formula solving failed
 
+
+@enum_tools.documentation.document_enum
 class Perm(IntFlag):
-    R = 4
-    W = 2
-    X = 1
+    """
+    Flags encoding permissions. Used for memory pages.
+    They can be combined as flags. e.g:
 
+    .. code-block:: python
+
+        rw = Perm.R | Perm.W
+    """
+    R = 4  # doc: Read
+    W = 2  # doc: Write
+    X = 1  # doc: Execute
+
+
+@enum_tools.documentation.document_enum
 class Endian(IntEnum):
-    LITTLE = 1
-    BIG = 2
+    """
+    Endianess of the binary.
+    """
+    LITTLE = 1  # doc: Little-endian
+    BIG = 2     # doc: Big-endian
+
 
 @dataclass
 class FileDesc:
