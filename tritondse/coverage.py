@@ -9,6 +9,7 @@ from typing import List, Generator, Tuple, Set, Union, Dict, Optional
 from collections import Counter
 from enum import IntFlag, Enum, auto
 import pickle
+import enum_tools.documentation
 
 # third-party imports
 from triton import AST_NODE
@@ -28,17 +29,21 @@ It can be:
 * a tuple of both a Pathhash and an edge
 """
 
-
+@enum_tools.documentation.document_enum
 class CoverageStrategy(str, Enum):
     """
-    Coverage strategy enum.
+    Coverage strategy (metric) enum.
+    This enum will change whether a given branch have
+    to be solved or not.
     """
-    BLOCK = "block"  # In practice track all instructions not specifically basic blocks
-    EDGE = "edge"
-    PATH = "path"
-    PREFIXED_EDGE = "PREFIXED_EDGE"
+
+    BLOCK = "block"   # doc: block coverage, only tracks new basic blocks covered
+    EDGE = "edge"     # doc: edge coverage, tracks CFGs edges covered
+    PATH = "path"     # doc: tracks any new path covered
+    PREFIXED_EDGE = "PREFIXED_EDGE"  # doc: edge coverage but also taking in account path prefix)
 
 
+@enum_tools.documentation.document_enum
 class BranchSolvingStrategy(IntFlag):
     """
     Branch strategy enumerate.
@@ -49,16 +54,16 @@ class BranchSolvingStrategy(IntFlag):
     * ``ALL_NOT_COVERED``: check by SMT all occurences
     * ``FIRST_LAST_NOT_COVERED``: check only the first and last occurence in the trace
     """
-    ALL_NOT_COVERED = auto()
-    FIRST_LAST_NOT_COVERED = auto()
-    UNSAT_ONCE = auto()
-    TIMEOUT_ONCE = auto()
-    TIMEOUT_ALWAYS = auto()
-    COVER_SYM_DYNJUMP = auto()
-    COVER_SYM_READ = auto()
-    COVER_SYM_WRITE = auto()
-    SOUND_MEM_ACCESS = auto()
-    MANUAL = auto()
+    ALL_NOT_COVERED = auto()         # doc: check by SMT all occurences of a given branch (true by default)
+    FIRST_LAST_NOT_COVERED = auto()  # doc: check by SMT the first and last occurence of a given branch
+    UNSAT_ONCE = auto()              # doc: if a branch is UNSAT do not try solving it again
+    TIMEOUT_ONCE = auto()            # doc: if a branch is TIMEOUT do not try solving it again
+    TIMEOUT_ALWAYS = auto()          # doc: always try solving again a TIMEOUT branch (incompatible with :py:enum:mem:`TIMEOUT_ONCE`
+    COVER_SYM_DYNJUMP = auto()       # doc: try covering dynamic jumps on a symbolic register or memory value
+    COVER_SYM_READ = auto()          # doc: try enumerating values for symbolic reads
+    COVER_SYM_WRITE = auto()         # doc: try enumerating values for symbolic writes
+    SOUND_MEM_ACCESS = auto()        # doc: enables adding a constraint when using a symbolic read/write or jump
+    MANUAL = auto()                  # doc: disable automatic branch solving after an execution (has to be done manually in callbacks)
 
 
 class CoverageSingleRun(object):
@@ -91,7 +96,6 @@ class CoverageSingleRun(object):
         """ List of addresses forming the path currently being taken """
         self._current_path_hash = hashlib.md5()
 
-
     def add_covered_address(self, address: Addr) -> None:
         """
         Add an instruction address covered.
@@ -102,7 +106,6 @@ class CoverageSingleRun(object):
         :type address: :py:obj:`tritondse.types.Addr`
         """
         self.covered_instructions[address] += 1
-
 
     def add_covered_dynamic_branch(self, source: Addr, target: Addr) -> None:
         """
@@ -131,7 +134,6 @@ class CoverageSingleRun(object):
             # update the current path hash etc
             self._current_path.append(target)
             self._current_path_hash.update(struct.pack("<Q", target))
-
 
     def add_covered_branch(self, program_counter: Addr, taken_addr: Addr, not_taken_addr: Addr) -> None:
         """
@@ -200,14 +202,12 @@ class CoverageSingleRun(object):
             self._current_path.append(taken_addr)
             self._current_path_hash.update(struct.pack("<Q", taken_addr))
 
-
     @property
     def unique_instruction_covered(self) -> int:
         """
         :return: The number of unique instructions covered
         """
         return len(self.covered_instructions)
-
 
     @property
     def unique_covitem_covered(self) -> int:
@@ -216,14 +216,12 @@ class CoverageSingleRun(object):
         """
         return len(self.covered_items)
 
-
     @property
     def total_instruction_executed(self) -> int:
         """
         :return: The number of total instruction executed
         """
         return sum(self.covered_instructions.values())
-
 
     def post_execution(self) -> None:
         """
@@ -232,7 +230,6 @@ class CoverageSingleRun(object):
         doing anythin at the moment)*
         """
         pass
-
 
     def is_covered(self, item: CovItem) -> bool:
         """
@@ -250,7 +247,6 @@ class CoverageSingleRun(object):
                 return False
         else:
             return item in self.covered_items
-
 
     def pp_item(self, covitem: CovItem) -> str:
         """

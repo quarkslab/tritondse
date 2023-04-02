@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from enum import Enum, auto
 from typing import Callable, Tuple, List, Optional, Union, Any
-
+import enum_tools.documentation
 # third-party imports
 from triton import CALLBACK, Instruction, MemoryAccess, OPCODE
 
@@ -14,36 +14,39 @@ from tritondse.thread_context import ThreadContext
 from tritondse.seed import Seed
 from tritondse.memory import MemoryAccessViolation
 
+
+@enum_tools.documentation.document_enum
 class CbPos(Enum):
     """ Enmus representing callback position """
-    BEFORE = auto()
-    AFTER = auto()
+    BEFORE = auto()  # doc: Callback should be executed before the hook location interpretation
+    AFTER = auto()   # doc: Callback should be executed after the hook location interpreation
 
 
+@enum_tools.documentation.document_enum
 class CbType(Enum):
     """ Enmus representing all kind of callbacks """
-    CTX_SWITCH = auto()
-    MEMORY_READ = auto()
-    MEMORY_WRITE = auto()
-    POST_RTN = auto()
-    POST_ADDR = auto()
-    POST_EXEC = auto()
-    POST_INST = auto()
-    PRE_ADDR = auto()
-    PRE_EXEC = auto()
-    PRE_INST = auto()
-    PRE_RTN = auto()
-    REG_READ = auto()
-    REG_WRITE = auto()
-    NEW_INPUT = auto()
-    EXPLORE_STEP = auto()
-    PRE_MNEM = auto()
-    POST_MNEM = auto()
-    PRE_OPCODE = auto()
-    POST_OPCODE = auto()
-    BRANCH_COV = auto()
-    SYMEX_SOLVING = auto()
-    MEM_VIOLATION = auto()
+    CTX_SWITCH = auto()     # doc: context-switch callback
+    MEMORY_READ = auto()    # doc: memory read callback
+    MEMORY_WRITE = auto()   # doc: memory write callback
+    POST_RTN = auto()       # doc: routine callback (after)
+    POST_ADDR = auto()      # doc: address class back (after)
+    POST_EXEC = auto()      # doc: post execution callback, after a SymbolicExecutor run
+    POST_INST = auto()      # doc: post instruction callback (all of them)
+    PRE_ADDR = auto()       # doc: pre address callback
+    PRE_EXEC = auto()       # doc: pre-execution callback (before launching a Symbolic Executor)
+    PRE_INST = auto()       # doc: pre instruction callback (all of them)
+    PRE_RTN = auto()        # doc: routine callback (before)
+    REG_READ = auto()       # doc: a register is read
+    REG_WRITE = auto()      # doc: a register is written
+    NEW_INPUT = auto()      # doc: new input has been generated
+    EXPLORE_STEP = auto()   # doc: an exploration step is reached. Called in between each SymbolicExecutor run
+    PRE_MNEM = auto()       # doc: callback on a specific mnemonic (as a string) (before)
+    POST_MNEM = auto()      # doc: callback on a specific mnemonic (as a string) (after)
+    PRE_OPCODE = auto()     # doc: callback on a specific opcode (as bytes) (before)
+    POST_OPCODE = auto()    # doc: callback on a specific opcode (as bytes) (after)
+    BRANCH_COV = auto()     # doc: a new branch is getting covered
+    SYMEX_SOLVING = auto()  # doc: An SMT formula is getting solved
+    MEM_VIOLATION = auto()  # doc: A memory violation occured
 
 
 AddrCallback            = Callable[['SymbolicExecutor', ProcessState, Addr], None]
