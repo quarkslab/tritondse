@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tritondse.loaders.program &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tritondse.loaders.program</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tritondse.loaders.program</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="c1"># built-in imports</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="c1"># third party</span>
+<span class="kn">import</span> <span class="nn">lief</span>
+
+<span class="c1"># local imports</span>
+<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">ArchMode</span><span class="p">,</span> <span class="n">Perm</span><span class="p">,</span> <span class="n">Endian</span>
+<span class="kn">from</span> <span class="nn">tritondse.loaders</span> <span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">LoadableSegment</span>
+
+
+<span class="n">_arch_mapper</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">lief</span><span class="o">.</span><span class="n">ARCHITECTURES</span><span class="o">.</span><span class="n">ARM</span><span class="p">:</span>   <span class="n">Architecture</span><span class="o">.</span><span class="n">ARM32</span><span class="p">,</span>
+    <span class="n">lief</span><span class="o">.</span><span class="n">ARCHITECTURES</span><span class="o">.</span><span class="n">ARM64</span><span class="p">:</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">AARCH64</span><span class="p">,</span>
+    <span class="n">lief</span><span class="o">.</span><span class="n">ARCHITECTURES</span><span class="o">.</span><span class="n">X86</span><span class="p">:</span>   <span class="n">Architecture</span><span class="o">.</span><span class="n">X86</span>
+<span class="p">}</span>
+
+<span class="n">_plfm_mapper</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">lief</span><span class="o">.</span><span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">LINUX</span><span class="p">,</span>
+    <span class="n">lief</span><span class="o">.</span><span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">PE</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">WINDOWS</span><span class="p">,</span>
+    <span class="n">lief</span><span class="o">.</span><span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">MACHO</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">MACOS</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="Program"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program">[docs]</a><span class="k">class</span> <span class="nc">Program</span><span class="p">(</span><span class="n">Loader</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Representation of a program (loaded in memory). This class is wrapping</span>
+<span class="sd">    `LIEF &lt;https://lief.quarkslab.com/doc/latest&gt;`_ to represent a program</span>
+<span class="sd">    and to provide all the features allowing to pseudo-load one regardless</span>
+<span class="sd">    of its format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">EXTERN_SYM_BASE</span> <span class="o">=</span> <span class="mh">0x0f001000</span>
+    <span class="n">EXTERN_SYM_SIZE</span> <span class="o">=</span> <span class="mh">0x1000</span>
+
+    <span class="n">BASE_STACK</span> <span class="o">=</span> <span class="mh">0xf0000000</span>
+    <span class="n">END_STACK</span>  <span class="o">=</span> <span class="mh">0x70000000</span> <span class="c1"># This is inclusive</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param path: Program path</span>
+<span class="sd">        :type path: :py:obj:`tritondse.types.PathLike`</span>
+<span class="sd">        :raise FileNotFoundError: if the file is not properly recognized by lief</span>
+<span class="sd">                                  or in the wrong architecture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Program</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1">#: Binary file path</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> not found (or not a file)&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span> <span class="o">=</span> <span class="n">lief</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># lief has not been able to parse it</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> not recognised by lief&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_arch</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;binary </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> architecture unsupported </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">abstract</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">architecture</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plfm</span> <span class="o">=</span> <span class="n">_plfm_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>
+            <span class="c1"># TODO: better refine for Android, iOS etc.</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plfm</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_funs</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">functions</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Name of the loader&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Program(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+<div class="viewcode-block" id="Program.endianess"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program.endianess">[docs]</a>    <span class="k">def</span> <span class="nf">endianess</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Endian</span><span class="p">:</span>
+        <span class="c1"># FIXME: Depending on architecture returning good endianess</span>
+        <span class="k">return</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Program entrypoint address as defined in the binary headers</span>
+
+<span class="sd">        :rtype: :py:obj:`tritondse.types.Addr`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">entrypoint</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Architecture</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Architecture enum representing program architecture.</span>
+
+<span class="sd">        :rtype: Architecture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arch</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">platform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Platform</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Platform of the binary. Its solely based on the format</span>
+<span class="sd">        of the file ELF, PE etc..</span>
+
+<span class="sd">        :return: Platform</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plfm</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">endianness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">lief</span><span class="o">.</span><span class="n">ENDIANNESS</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Endianness of the program as defined in binary headers.</span>
+
+<span class="sd">        :rtype: lief.ENDIANNESS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">abstract</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">endianness</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">lief</span><span class="o">.</span><span class="n">EXE_FORMATS</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Binary format. Supported formats by lief are: ELF, PE, MachO</span>
+
+<span class="sd">        :rtype: lief.EXE_FORMATS</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">format</span>
+
+    <span class="k">def</span> <span class="nf">_load_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Architecture</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load architecture as an Architecture object.</span>
+
+<span class="sd">        :return: Architecture or None if unsupported</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">arch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">abstract</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">architecture</span>
+        <span class="k">if</span> <span class="n">arch</span> <span class="ow">in</span> <span class="n">_arch_mapper</span><span class="p">:</span>
+            <span class="n">arch</span> <span class="o">=</span> <span class="n">_arch_mapper</span><span class="p">[</span><span class="n">arch</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">arch</span> <span class="o">==</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">X86</span><span class="p">:</span>
+                <span class="n">arch</span> <span class="o">=</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">X86</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">abstract</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">is_32</span> <span class="k">else</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">X86_64</span>
+            <span class="k">return</span> <span class="n">arch</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">relocation_enum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        LIEF relocation enum associated with the current</span>
+<span class="sd">        architecture of the binary.</span>
+
+<span class="sd">        :return: LIEF relocation enum</span>
+<span class="sd">        :rtype: Union[lief.ELF.RELOCATION_AARCH64,</span>
+<span class="sd">                      lief.ELF.RELOCATION_ARM,</span>
+<span class="sd">                      lief.ELF.RELOCATION_PPC64,</span>
+<span class="sd">                      lief.ELF.RELOCATION_PPC,</span>
+<span class="sd">                      lief.ELF.RELOCATION_i386,</span>
+<span class="sd">                      lief.ELF.RELOCATION_X86_64]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rel_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">AARCH64</span><span class="p">:</span> <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_AARCH64</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">ARM</span><span class="p">:</span>     <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_ARM</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">PPC64</span><span class="p">:</span>   <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_PPC64</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">PPC</span><span class="p">:</span>     <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_PPC</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">i386</span><span class="p">:</span>    <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_i386</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">x86_64</span><span class="p">:</span>  <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_X86_64</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">rel_map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">machine_type</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_is_glob_dat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">Relocation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get whether the given relocation is of type GLOB_DAT.</span>
+<span class="sd">        Used locally to find mandatory relocations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rel_enum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relocation_enum</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rel_enum</span><span class="p">,</span> <span class="s2">&quot;GLOB_DAT&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">rel_enum</span><span class="p">(</span><span class="n">rel</span><span class="o">.</span><span class="n">type</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rel_enum</span><span class="p">,</span> <span class="s2">&quot;GLOB_DAT&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Not GLOB_DAT relocation for this architecture</span>
+
+<div class="viewcode-block" id="Program.memory_segments"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program.memory_segments">[docs]</a>    <span class="k">def</span> <span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over all memory segments of the program as loaded in memory.</span>
+
+<span class="sd">        :return: Generator of tuples addrs and content</span>
+<span class="sd">        :raise NotImplementedError: if the binary format cannot be loaded</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">lief</span><span class="o">.</span><span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">segments</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">SEGMENT_TYPES</span><span class="o">.</span><span class="n">LOAD</span><span class="p">:</span>
+                    <span class="n">content</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">virtual_size</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>  <span class="c1"># pad with zeros (as it might be .bss)</span>
+                        <span class="n">content</span> <span class="o">+=</span> <span class="nb">bytearray</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">virtual_size</span> <span class="o">-</span> <span class="n">seg</span><span class="o">.</span><span class="n">physical_size</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">LoadableSegment</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">virtual_address</span><span class="p">,</span> <span class="n">perms</span><span class="o">=</span><span class="n">Perm</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">flags</span><span class="p">)),</span> <span class="n">content</span><span class="o">=</span><span class="nb">bytes</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;seg</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;memory segments not implemented for: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Also return a specific map to put external symbols</span>
+        <span class="k">yield</span> <span class="n">LoadableSegment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">EXTERN_SYM_BASE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EXTERN_SYM_SIZE</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">W</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;[extern]&quot;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">LoadableSegment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">END_STACK</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_STACK</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">END_STACK</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">W</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;[stack]&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Program.imported_functions_relocations"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program.imported_functions_relocations">[docs]</a>    <span class="k">def</span> <span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over all imported functions by the program. This function</span>
+<span class="sd">        is a generator of tuples associating the function and its relocation</span>
+<span class="sd">        address in the binary.</span>
+
+<span class="sd">        :return: Generator of tuples function name and relocation address</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">lief</span><span class="o">.</span><span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Iterate functions imported through PLT</span>
+                <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">pltgot_relocations</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">rel</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">rel</span><span class="o">.</span><span class="n">address</span>
+
+                <span class="c1"># Iterate functions imported via mandatory relocation (e.g: __libc_start_main)</span>
+                <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">dynamic_relocations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_glob_dat</span><span class="p">(</span><span class="n">rel</span><span class="p">)</span> <span class="ow">and</span> <span class="n">rel</span><span class="o">.</span><span class="n">has_symbol</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rel</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">is_variable</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">rel</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">rel</span><span class="o">.</span><span class="n">address</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Something wrong with the pltgot relocations&#39;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Imported functions relocations not implemented for: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Program.imported_variable_symbols_relocations"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program.imported_variable_symbols_relocations">[docs]</a>    <span class="k">def</span> <span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over all imported variable symbols. Yield for each of them the name and</span>
+<span class="sd">        the relocation address in the binary.</span>
+
+<span class="sd">        :return: Generator of tuples with symbol name, relocation address</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">lief</span><span class="o">.</span><span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span>
+            <span class="n">rel_enum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relocation_enum</span>
+            <span class="c1"># Iterate imported symbols</span>
+            <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">dynamic_relocations</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">has_symbol</span><span class="p">:</span>
+                <span class="c1">#if rel_enum(rel.type) == rel_enum.COPY and rel.has_symbol:</span>
+                    <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">is_variable</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">rel</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">rel</span><span class="o">.</span><span class="n">address</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Imported symbols relocations not implemented for: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Program.find_function_addr"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program.find_function_addr">[docs]</a>    <span class="k">def</span> <span class="nf">find_function_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Addr</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search for the function name in fonctions of the binary.</span>
+
+<span class="sd">        :param name: Function name</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :return: Address of function if found</span>
+<span class="sd">        :rtype: Addr</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_funs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">address</span> <span class="k">if</span> <span class="n">f</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">arch_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArchMode</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># TODO: Richard</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

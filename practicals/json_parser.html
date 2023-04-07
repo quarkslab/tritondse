@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON Parser &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Crackme" href="crackme.html" />
+    <link rel="prev" title="Toy Example" href="toy_example.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="toy_example.html">Toy Example</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">JSON Parser</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#practical-information">Practical information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#objectives">Objectives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tips">Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">JSON Parser</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/practicals/json_parser.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="json-parser">
+<h1>JSON Parser<a class="headerlink" href="#json-parser" title="Permalink to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<p>The firmware is extracted from an IoT device that needs parsing some files
+and in this use-case JSON files. Only the JSON parsing part of the firmware
+is available. The MCU running this firmware is a STM32F412.</p>
+<p>The goal is exploring the implementation with TritonDSE to try finding vulnerabilities.</p>
+<div style="text-align: center;"><a href="../_static/bugged_json_parser.bin"><i class="fa fa-download fa-lg"></i><br/>binary</a></div><br/></section>
+<section id="practical-information">
+<h2>Practical information<a class="headerlink" href="#practical-information" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>The code is ARM Thumb-2</p></li>
+<li><p>Base address is: 0x08000000</p></li>
+<li><p>Entrypoint is: 0x81dc46e | 1</p></li>
+<li><p>Exit point: (can be set to instruction just after)</p></li>
+</ul>
+<p>The entrypoint is a call on the function parsing the JSON input.
+Its prototype is the following:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">json_parser</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">,</span><span class="w"> </span><span class="n">JSON_ctx</span><span class="o">*</span><span class="w"> </span><span class="n">ctx</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>While the two first parameters are straightforward. The third is an
+object for which we don’t know the exact structure.</p>
+</section>
+<section id="objectives">
+<h2>Objectives<a class="headerlink" href="#objectives" title="Permalink to this heading"></a></h2>
+<ul>
+<li><p>Load the firmware into a <code class="docutils literal notranslate"><span class="pre">SymbolicExplorator</span></code> (see the <cite>Loaders</cite> section of the tutorial).</p></li>
+<li><p>Try out different exploration strategies and visualize the resulting coverage in Lighthouse.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Different <cite>CoverageStrategy</cite> values.</p></li>
+<li><p>Inject one one parameter at the time then multiple ones (see <cite>How to inject arbitrary variables</cite> in the <cite>Seeds</cite> section of the tutorial).</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Use <cite>Sanitizers</cite> to detect potential bugs.</p></li>
+</ul>
+</section>
+<section id="tips">
+<h2>Tips<a class="headerlink" href="#tips" title="Permalink to this heading"></a></h2>
+<p>The <cite>JSON_ctx</cite> structure contains two callback functions that you will need to stub (using hooks) to enable emulation to be carried to the end.</p>
+<ul class="simple">
+<li><p>Make sure both buffers <code class="docutils literal notranslate"><span class="pre">buffer</span></code> and <code class="docutils literal notranslate"><span class="pre">ctx</span></code> points to a recognizable memory area.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="toy_example.html" class="btn btn-neutral float-left" title="Toy Example" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="crackme.html" class="btn btn-neutral float-right" title="Crackme" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

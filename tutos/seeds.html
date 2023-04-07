@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Managing Seeds &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Sanitizers &amp; Probes" href="sanitizers.html" />
+    <link rel="prev" title="Playing with Hooks" href="hooks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Seeds</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Initial-Corpus">Initial Corpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Managing-generated-corpus">Managing generated corpus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Setting-seed-status">Setting seed status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#How-to-inject-arbitrary-variables">How to inject arbitrary variables</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Managing Seeds</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutos/seeds.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Managing-Seeds">
+<h1>Managing Seeds<a class="headerlink" href="#Managing-Seeds" title="Permalink to this heading"></a></h1>
+<p>This tutorial explains how to deal with input files manipulated and generated during the execution. Let’s reuse the following base snippet. The only difference here is that we are going to change the coverage strategy to <code class="docutils literal notranslate"><span class="pre">PATH_COVERAGE</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[80]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExecutor, Config, Seed, Program, ProcessState, SymbolicExplorator, CoverageStrategy, SeedFormat, CompositeData
+
+config = Config(pipe_stdout=False, coverage_strategy=CoverageStrategy.PATH, seed_format=SeedFormat.COMPOSITE)
+
+def post_exec_hook(se: SymbolicExecutor, state: ProcessState):
+    print(f&quot;seed:{se.seed.hash} ({repr(se.seed.content.argv)})   [exitcode:{se.exitcode}]&quot;)
+
+dse = SymbolicExplorator(config, Program(&quot;crackme_xor&quot;))
+
+dse.add_input_seed(Seed(CompositeData(argv=[b&quot;./crackme&quot;, b&quot;AAAAAAAAAAAAAAA&quot;])))
+
+dse.callback_manager.register_post_execution_callback(post_exec_hook)
+
+dse.explore()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:symbol __gmon_start__ imported but unsupported
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+seed:e2f673d0fd7980a2bdad7910f0f6da7a ([b&#39;./crackme&#39;, b&#39;AAAAAAAAAAAAAAA&#39;])   [exitcode:0]
+seed:b204f9c8720b4ee299a215ef4c9f168f ([b&#39;./crackme&#39;, b&#39;eAAAAAAAAAAAAAA&#39;])   [exitcode:0]
+seed:cab6e4b729327d1e088c9d459e0340eb ([b&#39;./crackme&#39;, b&#39;elAAAAAAAAAAAAA&#39;])   [exitcode:0]
+seed:c8f3df9e460142aed1158aa354d7179d ([b&#39;./crackme&#39;, b&#39;eliAAAAAAAAAAAA&#39;])   [exitcode:0]
+seed:2cb80846ef5684501c73e1e19f595230 ([b&#39;./crackme&#39;, b&#39;elitAAAAAAAAAAA&#39;])   [exitcode:0]
+seed:dc1d802d1c2796a1a21d96827ce1cae7 ([b&#39;./crackme&#39;, b&#39;eliteAAAAAAAAAA&#39;])   [exitcode:0]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[80]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ExplorationStatus.IDLE: 2&gt;
+</pre></div></div>
+</div>
+<p>Just by exploring all possible paths we managed to solve the challenge. Let’s play with the corpus.</p>
+<section id="Initial-Corpus">
+<h2>Initial Corpus<a class="headerlink" href="#Initial-Corpus" title="Permalink to this heading"></a></h2>
+<p>There are two ways to provide an initial corpus:</p>
+<ul class="simple">
+<li><p>providing in existing workspace directory and putting manually files in the <em>worklist</em> directory</p></li>
+<li><p>via the API by adding the seed with <code class="docutils literal notranslate"><span class="pre">add_input_seed</span></code>, it will automatically be added in seeds to process.</p></li>
+</ul>
+</section>
+<section id="Managing-generated-corpus">
+<h2>Managing generated corpus<a class="headerlink" href="#Managing-generated-corpus" title="Permalink to this heading"></a></h2>
+<p><strong>SymbolicExecutor</strong>: This class is solely meant to execute a single seed, not to produce new ones <em>(that is the purpose of the explorator)</em>. However if a one wants to generate a new input to process in a callback, it is possible with the method <code class="docutils literal notranslate"><span class="pre">enqueue_seed</span></code>. That method will just fill a list that will later be picked-up by the <code class="docutils literal notranslate"><span class="pre">SymbolicExplorator</span></code> instance.</p>
+<p>Here is a dummy hook function that manually negates a branching condition to generate a new input file:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[81]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def hook_cmp(se: SymbolicExecutor, pstate: ProcessState, addr: int):
+    zf = pstate.cpu.zf  # concrete value
+    sym_zf = pstate.read_symbolic_register(pstate.registers.zf)
+
+    # Revert the current value of zf to &quot;negate&quot; condition
+    status, model = pstate.solve(sym_zf.getAst() != zf)
+
+    if status == SolverStatus.SAT:
+        new_seed = se.mk_new_seed_from_model(model)
+        se.enqueue_seed(new_seed)
+</pre></div>
+</div>
+</div>
+<p>By default the status of the seed generated is <code class="docutils literal notranslate"><span class="pre">FRESH</span></code>. However, one can directly assign it the <code class="docutils literal notranslate"><span class="pre">CRASH</span></code> status if it is a faulty one.</p>
+<p><strong>SymbolicExplorator</strong>: All seeds generated during the exploration are moved in the <code class="docutils literal notranslate"><span class="pre">Workspace</span></code> instance from the <em>worklist</em> folder to the appropriate one <em>corpus</em>, <em>hangs</em> and <em>crashs</em>. One can iterate them using the workspace instance.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[82]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&quot;seed to process:&quot;, len(list(dse.workspace.iter_worklist())))
+
+print(&quot;\nCorpus:&quot;)
+for seed in dse.workspace.iter_corpus():
+      print(seed.filename)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+seed to process: 0
+
+Corpus:
+2cb80846ef5684501c73e1e19f595230.00000064.tritondse.cov
+dc1d802d1c2796a1a21d96827ce1cae7.00000064.tritondse.cov
+b204f9c8720b4ee299a215ef4c9f168f.00000064.tritondse.cov
+e2f673d0fd7980a2bdad7910f0f6da7a.00000064.tritondse.cov
+c8f3df9e460142aed1158aa354d7179d.00000064.tritondse.cov
+cab6e4b729327d1e088c9d459e0340eb.00000064.tritondse.cov
+</pre></div></div>
+</div>
+</section>
+<section id="Setting-seed-status">
+<h2>Setting seed status<a class="headerlink" href="#Setting-seed-status" title="Permalink to this heading"></a></h2>
+<p>During the execution one, can assign a status to the seed currently being executed in any callback. <em>(Make sure not to override a status previously set by another callback)</em>. At the end of an execution if no status has been assigned, the seed is automatically assigned <code class="docutils literal notranslate"><span class="pre">OK_DONE</span></code>.</p>
+<p>## Seed Formats</p>
+<p>In TritonDSE, a seed contains the user input that will be processed by the target program.</p>
+<p>TritonDSE supports two seed formats: <code class="docutils literal notranslate"><span class="pre">RAW</span></code> and <code class="docutils literal notranslate"><span class="pre">COMPOSITE</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RAW</span></code> seed is a contiguous buffer of bytes that will be injected in memory. By default it is done when the program reads from <code class="docutils literal notranslate"><span class="pre">stdin</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">COMPOSITE</span></code> seeds allow providing more complex input to the program such as <code class="docutils literal notranslate"><span class="pre">argv</span></code> or the content of files. Note that <code class="docutils literal notranslate"><span class="pre">stdin</span></code> is treated as a file. Their content is provided as a <code class="docutils literal notranslate"><span class="pre">CompositeData</span></code> instance which is defined in <code class="docutils literal notranslate"><span class="pre">tritondse/seeds.py</span></code> as follows:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#Excerpt from /tritondse/seeds.py</span>
+<span class="k">class</span> <span class="nc">CompositeData</span><span class="p">:</span>
+    <span class="n">argv</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span>
+    <span class="s2">&quot;list of argv values&quot;</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]</span>
+    <span class="s2">&quot;dictionnary of files and the associated content (stdin is one of them)&quot;</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]</span>
+    <span class="s2">&quot;user defined variables, that the use must take care to inject at right location&quot;</span>
+</pre></div>
+</div>
+<p>The following example shows a complex input type where user-input are read on <code class="docutils literal notranslate"><span class="pre">argv</span></code>, <code class="docutils literal notranslate"><span class="pre">stdin</span></code> a file called <code class="docutils literal notranslate"><span class="pre">filename.txt</span></code> and a variable <code class="docutils literal notranslate"><span class="pre">var1</span></code>. Symbolic variables like <code class="docutils literal notranslate"><span class="pre">var1</span></code> will not be injected automatically, the user has to do it himself at the appropriate location.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">CompositeData</span>
+
+<span class="n">composite_seed</span> <span class="o">=</span> <span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="sa">b</span><span class="s2">&quot;this&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;will&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;injected&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;into&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;argv&quot;</span><span class="p">],</span>\
+                                   <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;stdin&quot;</span><span class="p">:</span> <span class="sa">b</span><span class="s2">&quot;This will be injected when the program reads from stdin&quot;</span><span class="p">,</span>\
+                                          <span class="s2">&quot;filename.txt&quot;</span><span class="p">:</span> <span class="sa">b</span><span class="s2">&quot;This will be injected when the program reads from filename.txt&quot;</span>\
+                                         <span class="p">},</span>\
+                                   <span class="n">variables</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;var1&quot;</span><span class="p">:</span> <span class="sa">b</span><span class="s2">&quot;The user is responsible for injecting this manually (more on this later)&quot;</span><span class="p">}</span>\
+                                   <span class="p">))</span>
+</pre></div>
+</div>
+<p>It is not necessary to provide all the fields in <code class="docutils literal notranslate"><span class="pre">CompositeData</span></code> when creating a new seed. The following seeds are valid.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[83]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>composite_seed_1 = Seed(CompositeData(argv=[b&quot;this&quot;, b&quot;will&quot;, b&quot;injected&quot;, b&quot;into&quot;, b&quot;argv&quot;]))
+composite_seed_2 = Seed(CompositeData(files={&quot;stdin&quot;: b&quot;This will be injected when the program reads from stdin&quot;}))
+</pre></div>
+</div>
+</div>
+<p>When creating a <code class="docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> or <code class="docutils literal notranslate"><span class="pre">SymbolicExplorator</span></code> the seed format can be specified in the <code class="docutils literal notranslate"><span class="pre">Config</span></code>. The default seed format is <code class="docutils literal notranslate"><span class="pre">RAW</span></code>. Seed formats cannot be mixed, all the seeds of a given <code class="docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> or <code class="docutils literal notranslate"><span class="pre">SymbolicExplorator</span></code> must have the same format.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[84]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExplorator, Config, SeedFormat, Program
+dse_using_raw_seeds = SymbolicExplorator(Config(), Program(&quot;crackme_xor&quot;))
+dse_using_composite_seeds = SymbolicExplorator(Config(seed_format=SeedFormat.COMPOSITE), Program(&quot;crackme_xor&quot;))
+</pre></div>
+</div>
+</div>
+</section>
+<section id="How-to-inject-arbitrary-variables">
+<h2>How to inject arbitrary variables<a class="headerlink" href="#How-to-inject-arbitrary-variables" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">variables</span></code> field of <code class="docutils literal notranslate"><span class="pre">CompositeData</span></code> is never injected by the framework. It is the user’s responsability to inject it in the appropriate places with <code class="docutils literal notranslate"><span class="pre">inject_symbolic_variable_memory</span></code> or <code class="docutils literal notranslate"><span class="pre">inject_symbolic_variable_register</span></code>.</p>
+<p>Let’s see an example. Say the target application contains the following function that we want to explore:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">parse_buffer</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The following script will register a callback at the start of <code class="docutils literal notranslate"><span class="pre">parse_buffer</span></code> and inject input into <code class="docutils literal notranslate"><span class="pre">buffer</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExplorator</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">SeedFormat</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">CompositeData</span>
+
+<span class="k">def</span> <span class="nf">example_hook</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="c1"># In the callback, retrieve the pointer to the buffer we want to inject</span>
+    <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Inject the data from the seed into the buffer</span>
+    <span class="c1"># var_prefix should be the key of the variable in dictionary se.seed.content.variables</span>
+    <span class="n">se</span><span class="o">.</span><span class="n">inject_symbolic_variable_memory</span><span class="p">(</span><span class="n">arg0</span><span class="p">,</span> <span class="s2">&quot;buffer&quot;</span><span class="p">,</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;buffer&quot;</span><span class="p">])</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="s2">&quot;parser_program&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create a new symbolic explorator that uses COMPOSITE seeds</span>
+<span class="n">dse</span> <span class="o">=</span> <span class="n">SymbolicExplorator</span><span class="p">(</span><span class="n">Config</span><span class="p">(</span><span class="n">seed_format</span><span class="o">=</span><span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
+<span class="c1"># Add an initial seed</span>
+<span class="n">composite_data</span> <span class="o">=</span> <span class="n">CompositeData</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;buffer&quot;</span> <span class="p">:</span> <span class="sa">b</span><span class="s2">&quot;A&quot;</span><span class="o">*</span><span class="mi">128</span><span class="p">})</span>
+<span class="n">dse</span><span class="o">.</span><span class="n">add_input_seed</span><span class="p">(</span><span class="n">Seed</span><span class="p">(</span><span class="n">composite_data</span><span class="p">))</span>
+<span class="c1"># Register a callback on the function whose parameter we want to inject</span>
+<span class="n">dse</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">register_pre_addr_callback</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">find_function_addr</span><span class="p">(</span><span class="s2">&quot;parse_buffer&quot;</span><span class="p">),</span> <span class="n">example_hook</span><span class="p">)</span>
+
+<span class="n">dse</span><span class="o">.</span><span class="n">explore</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="hooks.html" class="btn btn-neutral float-left" title="Playing with Hooks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sanitizers.html" class="btn btn-neutral float-right" title="Sanitizers &amp; Probes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

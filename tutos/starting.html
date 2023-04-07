@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Playing with Hooks" href="hooks.html" />
+    <link rel="prev" title="TritonDSE" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#I.-Program">I. Program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#II.-Single-Execution">II. Single Execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#III.-Concrete-State-Manipulation">III. Concrete State Manipulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a.-Reading,-writing-registers-(function-API)">a. Reading, writing registers (function API)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#b.-Reading,-writing-registers-(Pythonic-API)">b. Reading, writing registers (Pythonic API)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#c.-Reading,-writing-memory">c. Reading, writing memory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#IV.-Manipulating-symbolic-state">IV. Manipulating symbolic state</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#V.-Configuration">V. Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#VI.-Exploration">VI. Exploration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#VII.-Workspace-&amp;-Corpus">VII. Workspace &amp; Corpus</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutos/starting.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Getting-Started">
+<h1>Getting Started<a class="headerlink" href="#Getting-Started" title="Permalink to this heading"></a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This library is experimental. Most code has been writing toward satisfying PASTIS objectives. Thus it lacks many
+features and the API is subject to changes.</p>
+</div><p>Tritondse works in pure emulation so it theoretically have to model all program side-effects syscalls etc. This is not possible so it works in a very opportunistic manner. As of now limitations are the following:</p>
+<ul class="simple">
+<li><p>Limited to Linux ELF binaries</p></li>
+<li><p>Only support a subset of libc function calls <em>(no C++ runtime functions)</em></p></li>
+<li><p>No modeling of syscalls, <em>(they have to be modeled manually)</em></p></li>
+<li><p>TritonDSE have the same weaknesses than Triton in model floating point, or some specific instruction sets.</p></li>
+</ul>
+<section id="I.-Program">
+<h2>I. Program<a class="headerlink" href="#I.-Program" title="Permalink to this heading"></a></h2>
+<p>For this tutorial the following crackme is going to be used:</p>
+<div style="text-align: center;"><a href="../_static/crackme_xor"><i class="fa fa-download fa-lg"></i><br/>binary</a></div><br/><p>We first need to create a <code class="docutils literal notranslate"><span class="pre">Program</span></code> object which is a thin wrapper on <a class="reference external" href="https://lief.quarkslab.com">LIEF</a>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[119]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import Program
+
+p = Program(&quot;crackme_xor&quot;)
+
+print(p.architecture, p.endianness)
+print(hex(p.entry_point))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Architecture.X86_64 ENDIANNESS.LITTLE
+0x400460
+</pre></div></div>
+</div>
+<p>By default <code class="docutils literal notranslate"><span class="pre">Program</span></code> only exposes the few fields required to peform the loading of the program. That includes segments or imported functions. The main utility is being able to retrieve a function object <em>(as LIEF object)</em>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To load a program with its shared libraries dependencies, the cle loader (see: CleLoader) shall be used.</p>
+</div><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[120]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>p.find_function_addr(&quot;main&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[120]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+4195763
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[121]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>for seg in p.memory_segments():
+    print(f&quot;0x{seg.address:x} size:{len(seg.content)}&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0x400000 size:2036
+0x600e10 size:576
+</pre></div></div>
+</div>
+</section>
+<section id="II.-Single-Execution">
+<h2>II. Single Execution<a class="headerlink" href="#II.-Single-Execution" title="Permalink to this heading"></a></h2>
+<p>Now we need to load the program in the TritonDSE context representing containing both the concrete and the symbolic state. A context is a <code class="docutils literal notranslate"><span class="pre">ProcessState</span></code> object. It provides all primitives to read or write both registers and memory in a concrete or symbolic manner.</p>
+<p>Thus, we need to load the program in such context and then starting the symbolic emulation at its entrypoint by providing it a concrete input. Hopefully the loading and execution steps are done transparently by the <code class="docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> object.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[123]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExecutor, Config, Seed, CompositeData
+
+config = Config()
+seed = Seed(CompositeData(argv=[b&quot;Hello&quot;, b&quot;world&quot;]))
+
+executor = SymbolicExecutor(config, seed)
+executor.load(p)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:symbol __gmon_start__ imported but unsupported
+</pre></div></div>
+</div>
+<p>This object provides features to perform a single execution using the given configuration on the process state using the given program.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">run</span></code> methods will take care of loading the program, performing the dynamic relocations (PLT stuff etc) and then to start emulating from the entrypoint.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[124]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.run()
+</pre></div>
+</div>
+</div>
+<p>We now have successfully performed a single run of our program. After execution, the <code class="docutils literal notranslate"><span class="pre">ProcessState</span></code> has been updated and represent the program after execution.</p>
+<p>and a <code class="docutils literal notranslate"><span class="pre">CoverageSingleRun</span></code> as been produced which represent to coverage generated by the execution.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate = executor.pstate  # ProcessState object
+</pre></div>
+</div>
+</div>
+<p>The execution also produces a <code class="docutils literal notranslate"><span class="pre">CoverageSingleRun</span></code> which represent to coverage generated by the execution.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[125]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.coverage.total_instruction_executed
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[125]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+23
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[126]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.exitcode
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[126]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+255
+</pre></div></div>
+</div>
+</section>
+<section id="III.-Concrete-State-Manipulation">
+<h2>III. Concrete State Manipulation<a class="headerlink" href="#III.-Concrete-State-Manipulation" title="Permalink to this heading"></a></h2>
+<p>Both the concrete state and symbolic state can be modified at any time during the execution.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[127]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse.types import Architecture
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[128]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate = executor.pstate
+print(f&quot;arch: {pstate.architecture.name}  ptrsize:{pstate.ptr_bit_size}&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+arch: X86_64  ptrsize:64
+</pre></div></div>
+</div>
+<section id="a.-Reading,-writing-registers-(function-API)">
+<h3>a. Reading, writing registers (function API)<a class="headerlink" href="#a.-Reading,-writing-registers-(function-API)" title="Permalink to this heading"></a></h3>
+<p>Most of the API enables addressing register either by an enum identifier <em>(triton one)</em> or directly with theirs string.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[129]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.registers.rax
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[129]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+rax:64 bv[63..0]
+</pre></div></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">ProcessState</span></code> also provides some alias to access program counter, stack register, base pointer or return register in a portable way.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[130]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.program_counter_register, \
+pstate.base_pointer_register, \
+pstate.stack_pointer_register, \
+pstate.return_register
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[130]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(rip:64 bv[63..0], rbp:64 bv[63..0], rsp:64 bv[63..0], rax:64 bv[63..0])
+</pre></div></div>
+</div>
+<p>Then both concrete an symbolic values can be modified using a function-style API.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[131]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.write_register(pstate.registers.rax, 0xdeadbeef)
+
+hex(pstate.read_register(pstate.registers.rax))
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[131]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&#39;0xdeadbeef&#39;
+</pre></div></div>
+</div>
+</section>
+<section id="b.-Reading,-writing-registers-(Pythonic-API)">
+<h3>b. Reading, writing registers (Pythonic API)<a class="headerlink" href="#b.-Reading,-writing-registers-(Pythonic-API)" title="Permalink to this heading"></a></h3>
+<p>To ease manipulation of the registers concrete values, the <code class="docutils literal notranslate"><span class="pre">ProcessState</span></code> introduces a <code class="docutils literal notranslate"><span class="pre">cpu</span></code> attributes that transparently updates the underlying triton context.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[132]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.cpu.rax
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[132]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+3735928559
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[133]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.cpu.rax += 4
+
+pstate.cpu.rax
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[133]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+3735928563
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[134]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(f&quot;RIP: 0x{pstate.cpu.program_counter:x}&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+RIP: 0x400489
+</pre></div></div>
+</div>
+</section>
+<section id="c.-Reading,-writing-memory">
+<h3>c. Reading, writing memory<a class="headerlink" href="#c.-Reading,-writing-memory" title="Permalink to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">memory</span></code> field of a <code class="docutils literal notranslate"><span class="pre">ProcessState</span></code> allows reading and writing memory. <code class="docutils literal notranslate"><span class="pre">pstate.memory.read</span></code> returns bytes and all the other return an int. <code class="docutils literal notranslate"><span class="pre">pstate.memory.read_int</span></code> and the others return an integer and take endianness into account.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[135]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(pstate.memory.read(p.entry_point, 10))  # Reads 10 bytes
+print(hex(pstate.memory.read_ptr(p.entry_point)))  # Reads a pointer size
+print(pstate.memory.read_int(p.entry_point))  # Reads a 4 bytes signed int
+print(pstate.memory.read_uint(p.entry_point))  # Reads a 4 bytes unsigned int
+print(pstate.memory.read_char(p.entry_point))  # Reads a 1 bytes signed char
+print(pstate.memory.read_uchar(p.entry_point))  # Reads a 1 bytes unsigned char
+print(pstate.memory.read_word(p.entry_point))  # Reads a 2 bytes unsigned integer
+print(pstate.memory.read_dword(p.entry_point))  # Reads a 4 bytes unsigned integer
+print(pstate.memory.read_qword(p.entry_point))  # Reads a 8 bytes unsigned integer
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+b&#39;1\xedI\x89\xd1^H\x89\xe2H&#39;
+0x89485ed18949ed31
+-1991643855
+2303323441
+49
+49
+60721
+2303323441
+9892260835563793713
+</pre></div></div>
+</div>
+<p>Analogous functions exists for writing: <code class="docutils literal notranslate"><span class="pre">write</span></code>, <code class="docutils literal notranslate"><span class="pre">write_int</span></code>, <code class="docutils literal notranslate"><span class="pre">write_ptr</span></code>, <code class="docutils literal notranslate"><span class="pre">write_long</span></code> etc.</p>
+<p>One can also use the slice interface of the memory to both read and write memory</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = pstate.memory[p.entry_point:10]   # Read 10 bytes in memory
+</pre></div>
+</div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">ProcessState</span></code> object also enables checking whether an address is mapped in memory:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[136]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.memory.is_mapped(p.entry_point), pstate.memory.is_mapped(0)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[136]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(True, False)
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="IV.-Manipulating-symbolic-state">
+<h2>IV. Manipulating symbolic state<a class="headerlink" href="#IV.-Manipulating-symbolic-state" title="Permalink to this heading"></a></h2>
+<p>Both symbolic registers and symbolic memory can be manipulated in a similar fashion than the concrete state.</p>
+<p>One should be cautious when manipulating the symbolic state to keep it consistent with the concrete state.</p>
+<p>Symbolic values can be read written with a similar API than concrete state.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[137]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>new_sym = pstate.actx.bv(32, 64)  # new symbolic expression representing a constant
+
+pstate.write_symbolic_register(pstate.registers.rax, new_sym)  # the expression can either be a AstNode or SymbolicExpression triton object
+
+pstate.read_symbolic_register(pstate.registers.rax)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[137]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(define-fun ref!116 () (_ BitVec 64) (_ bv32 64)) ; assign rax:
+</pre></div></div>
+</div>
+<p>The same can be done on memory with <code class="docutils literal notranslate"><span class="pre">read_symbolic_memory_byte</span></code>, <code class="docutils literal notranslate"><span class="pre">read_symbolic_memory_bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">read_symbolic_memory_int</span></code> and theirs equivalent for writing.</p>
+<div class="admonition warning">
+<b>Disclaimer:</b> Writing an arbitrary symbolic value in a register or memory might break soundness, and the dependency with previous definition of the variable. In standard usage a user, is usually not supposed to modify symbolic values but rather to concretize values or adding new constraints in the path predicate.
+</div><p>We also can push our own constraints in the symbolic state.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[139]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>sym_rax = pstate.read_symbolic_register(pstate.registers.rax)
+
+constraint = sym_rax.getAst() == 4
+print(constraint)
+
+pstate.push_constraint(constraint)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(= (_ bv32 64) (_ bv4 64))
+</pre></div></div>
+</div>
+</section>
+<section id="V.-Configuration">
+<h2>V. Configuration<a class="headerlink" href="#V.-Configuration" title="Permalink to this heading"></a></h2>
+<p>As seen before, a <code class="docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> takes a a <code class="docutils literal notranslate"><span class="pre">Config</span></code> object as input. It tunes multiple parameters that will be used during execution and exploration. These parameters are the following:</p>
+<ul class="simple">
+<li><p>seed_format (SeedFormat) : Indicates whether to use <code class="docutils literal notranslate"><span class="pre">RAW</span></code> or <code class="docutils literal notranslate"><span class="pre">COMPOSITE</span></code> seeds (see the <code class="docutils literal notranslate"><span class="pre">seeds</span></code> tutorial for more detail). For now, just note that to provide <code class="docutils literal notranslate"><span class="pre">stdin</span></code> input, a <code class="docutils literal notranslate"><span class="pre">RAW</span></code> seed can be used, for anything else (<code class="docutils literal notranslate"><span class="pre">argv</span></code>, file content etc.), a <code class="docutils literal notranslate"><span class="pre">COMPOSITE</span></code> seed is needed.</p></li>
+<li><p>pipe_stdout (bool): Pipe the program stdout to Python’s stdout</p></li>
+<li><p>pipe_stderr (bool): Pipe the program stderr to Python’s stderr</p></li>
+<li><p>skip_sleep_routine (bool): Whether to emulate sleeps routine or to skip it</p></li>
+<li><p>smt_timeout (int): Timeout for a single SMT query in milliseconds</p></li>
+<li><p>execution_timeout (int): Timeout of a single execution <em>(in secs)</em></p></li>
+<li><p>exploration_timeout (int): Overall timeout of the exploration (in secs)*</p></li>
+<li><p>exploration_limit (int): Number of execution iterations. <em>(0 means unlimited)</em></p></li>
+<li><p>thread_scheduling (int): Number of instructions to execute before switching to the next thread</p></li>
+<li><p>smt_queries_limit (int): Limit of SMT queries to perform for a single execution</p></li>
+<li><p>coverage_strategy (CoverageStrategy): Coverage strategy to apply for the whole exploration</p></li>
+<li><p>branch_solving_strategy (BranchCheckStrategy): Branch solving strategy to apply for a single execution</p></li>
+<li><p>debug (bool): Enable debug logging or not</p></li>
+<li><p>workspace (str): Workspace directory to use</p></li>
+<li><p>program_argv (List[str]): Concrete program argument as given on the command line</p></li>
+<li><p>time_inc_coefficient (float): Execution time of each instruction <em>(for rdtsc)</em></p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[140]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SeedFormat
+c = Config()
+c.seed_format=SeedFormat.COMPOSITE
+</pre></div>
+</div>
+</div>
+</section>
+<section id="VI.-Exploration">
+<h2>VI. Exploration<a class="headerlink" href="#VI.-Exploration" title="Permalink to this heading"></a></h2>
+<p>Now that we performed a single run, lets try to explore the program by symbolizing <code class="docutils literal notranslate"><span class="pre">argv</span></code> to see how many different paths can be taken.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[141]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExplorator, SymbolicExecutor, ProcessState, Seed, Config, CoverageStrategy, Program, SeedFormat, CompositeData
+
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+# Load the program
+p = Program(&quot;crackme_xor&quot;)
+
+dse = SymbolicExplorator(Config(debug=True, pipe_stdout=True, seed_format=SeedFormat.COMPOSITE), p)
+
+# create a dummy seed representing argv and add it to inputs
+seed = Seed(CompositeData(argv=[b&quot;./crackme&quot;, b&quot;AAAAAAAAAAAAAAA&quot;]))
+dse.add_input_seed(seed)
+
+dse.explore()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:symbol __gmon_start__ imported but unsupported
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+fail
+fail
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[141]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ExplorationStatus.IDLE: 2&gt;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[142]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dse.execution_count
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[142]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2
+</pre></div></div>
+</div>
+<p>We now have completed a very simple exploration, where we covered two distincts paths.</p>
+<p><strong>Question</strong>: Find the appropriate configuration parameter that enables solving automatically the challenge.</p>
+</section>
+<section id="VII.-Workspace-&amp;-Corpus">
+<h2>VII. Workspace &amp; Corpus<a class="headerlink" href="#VII.-Workspace-&-Corpus" title="Permalink to this heading"></a></h2>
+<p>All inputs, crashes and various metadata are stored in a workspace. Unless explicitely specified the workspace is created in <em>/tmp/triton_workspace/[timestamp]</em>. If a workspace directory is given via the <code class="docutils literal notranslate"><span class="pre">Config</span></code> this one is loaded <em>(which enables restarting an interrupted run)</em>.</p>
+<p>The whole corpus and crashes generated shall now be available in this directory.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="TritonDSE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hooks.html" class="btn btn-neutral float-right" title="Playing with Hooks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

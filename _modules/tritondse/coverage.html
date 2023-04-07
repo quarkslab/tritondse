@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tritondse.coverage &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tritondse.coverage</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tritondse.coverage</h1><div class="highlight"><pre>
+<span></span><span class="c1"># built-in imports</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntFlag</span><span class="p">,</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">enum_tools.documentation</span>
+
+<span class="c1"># third-party imports</span>
+<span class="kn">from</span> <span class="nn">triton</span> <span class="kn">import</span> <span class="n">AST_NODE</span>
+
+<span class="c1"># local imports</span>
+<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">PathConstraint</span><span class="p">,</span> <span class="n">PathBranch</span><span class="p">,</span> <span class="n">SolverStatus</span><span class="p">,</span> <span class="n">PathHash</span><span class="p">,</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">SymExType</span>
+
+
+<span class="n">CovItem</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Addr</span><span class="p">,</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">PathHash</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PathHash</span><span class="p">,</span> <span class="n">Edge</span><span class="p">]]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Variant type representing a coverage item.</span>
+<span class="sd">It can be:</span>
+
+<span class="sd">* an address :py:obj:`tritondse.types.Addr` for block coverage</span>
+<span class="sd">* an edge :py:obj:`tritondse.types.Edge` for edge coverage</span>
+<span class="sd">* a string :py:obj:`tritondse.types.PathHash` for path coverage</span>
+<span class="sd">* a tuple of both a Pathhash and an edge</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CoverageStrategy"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageStrategy">[docs]</a><span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
+<span class="k">class</span> <span class="nc">CoverageStrategy</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Coverage strategy (metric) enum.</span>
+<span class="sd">    This enum will change whether a given branch have</span>
+<span class="sd">    to be solved or not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">BLOCK</span> <span class="o">=</span> <span class="s2">&quot;block&quot;</span>   <span class="c1"># doc: block coverage, only tracks new basic blocks covered</span>
+    <span class="n">EDGE</span> <span class="o">=</span> <span class="s2">&quot;edge&quot;</span>     <span class="c1"># doc: edge coverage, tracks CFGs edges covered</span>
+    <span class="n">PATH</span> <span class="o">=</span> <span class="s2">&quot;path&quot;</span>     <span class="c1"># doc: tracks any new path covered</span>
+    <span class="n">PREFIXED_EDGE</span> <span class="o">=</span> <span class="s2">&quot;PREFIXED_EDGE&quot;</span>  <span class="c1"># doc: edge coverage but also taking in account path prefix)</span></div>
+
+
+<div class="viewcode-block" id="BranchSolvingStrategy"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.BranchSolvingStrategy">[docs]</a><span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
+<span class="k">class</span> <span class="nc">BranchSolvingStrategy</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Branch strategy enumerate.</span>
+<span class="sd">    It defines the manner with which branches are checked with SMT</span>
+<span class="sd">    on a single trace, namely a :py:obj:`CoverageSingleRun`. For a</span>
+<span class="sd">    given branch that has not been covered strategies are:</span>
+
+<span class="sd">    * ``ALL_NOT_COVERED``: check by SMT all occurences</span>
+<span class="sd">    * ``FIRST_LAST_NOT_COVERED``: check only the first and last occurence in the trace</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ALL_NOT_COVERED</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>         <span class="c1"># doc: check by SMT all occurences of a given branch (true by default)</span>
+    <span class="n">FIRST_LAST_NOT_COVERED</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># doc: check by SMT the first and last occurence of a given branch</span>
+    <span class="n">UNSAT_ONCE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>              <span class="c1"># doc: if a branch is UNSAT do not try solving it again</span>
+    <span class="n">TIMEOUT_ONCE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>            <span class="c1"># doc: if a branch is TIMEOUT do not try solving it again</span>
+    <span class="n">TIMEOUT_ALWAYS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>          <span class="c1"># doc: always try solving again a TIMEOUT branch (incompatible with :py:enum:mem:`TIMEOUT_ONCE`</span>
+    <span class="n">COVER_SYM_DYNJUMP</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>       <span class="c1"># doc: try covering dynamic jumps on a symbolic register or memory value</span>
+    <span class="n">COVER_SYM_READ</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>          <span class="c1"># doc: try enumerating values for symbolic reads</span>
+    <span class="n">COVER_SYM_WRITE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>         <span class="c1"># doc: try enumerating values for symbolic writes</span>
+    <span class="n">SOUND_MEM_ACCESS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>        <span class="c1"># doc: enables adding a constraint when using a symbolic read/write or jump</span>
+    <span class="n">MANUAL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>                  <span class="c1"># doc: disable automatic branch solving after an execution (has to be done manually in callbacks)</span></div>
+
+
+<div class="viewcode-block" id="CoverageSingleRun"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun">[docs]</a><span class="k">class</span> <span class="nc">CoverageSingleRun</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Coverage produced by a **Single Execution**</span>
+<span class="sd">    Depending on the strategy given to the constructor</span>
+<span class="sd">    it stores different data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">:</span> <span class="n">CoverageStrategy</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param strategy: Strategy to employ</span>
+<span class="sd">        :type strategy: CoverageStrategy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="p">:</span> <span class="n">CoverageStrategy</span> <span class="o">=</span> <span class="n">strategy</span>  <span class="c1">#: Coverage strategy</span>
+
+        <span class="c1"># For instruction coverage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covered_instructions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">Addr</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Instruction coverage. Counter for code coverage) &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">CovItem</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Stores covered items whatever they are &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">CovItem</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># solely used for prefixed-edge</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; CovItems not covered in the trace. It thus represent what can be</span>
+<span class="sd">        covered by the trace (input). We call it coverage objectives.&quot;&quot;&quot;</span>
+
+        <span class="c1"># For path coverage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_path</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Addr</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; List of addresses forming the path currently being taken &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CoverageSingleRun.add_covered_address"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.add_covered_address">[docs]</a>    <span class="k">def</span> <span class="nf">add_covered_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add an instruction address covered.</span>
+<span class="sd">        *(Called by :py:obj:`SymbolicExecutor` for each</span>
+<span class="sd">        instruction executed)*</span>
+
+<span class="sd">        :param address: The address of the instruction</span>
+<span class="sd">        :type address: :py:obj:`tritondse.types.Addr`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covered_instructions</span><span class="p">[</span><span class="n">address</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="CoverageSingleRun.add_covered_dynamic_branch"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.add_covered_dynamic_branch">[docs]</a>    <span class="k">def</span> <span class="nf">add_covered_dynamic_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a dynamic branch covered. The branch will be encoded according to the</span>
+<span class="sd">        coverage strategy.</span>
+
+<span class="sd">        :param source: Address of the dynamic jump</span>
+<span class="sd">        :param target: Target address on which the jump is performed</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">:</span>
+            <span class="k">pass</span> <span class="c1"># Target address will be covered anyway</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">EDGE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">[(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">discard</span><span class="p">((</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>    <span class="c1"># Remove it from non-taken if it was inside</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PATH</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PREFIXED_EDGE</span><span class="p">:</span>
+            <span class="c1"># Add covered as covered</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">[(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">))]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># update the current path hash etc</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CoverageSingleRun.add_covered_branch"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.add_covered_branch">[docs]</a>    <span class="k">def</span> <span class="nf">add_covered_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program_counter</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">taken_addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">not_taken_addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a branch to our covered branches list. Each branch is encoded according</span>
+<span class="sd">        to the coverage strategy. For code coverage, the branch encoding is the</span>
+<span class="sd">        address of the instruction. For edge coverage, the branch encoding is the</span>
+<span class="sd">        tupe (src address, dst address). For path coverage, the branch encoding</span>
+<span class="sd">        is the MD5 of the conjunction of all taken branch addresses.</span>
+
+<span class="sd">        :param program_counter: The address taken in by the branch</span>
+<span class="sd">        :type program_counter: :py:obj:`tritondse.types.Addr`</span>
+<span class="sd">        :param taken_addr: Target address of branch taken</span>
+<span class="sd">        :type taken_addr: Addr</span>
+<span class="sd">        :param not_taken_addr: Target address of branch **not** taken</span>
+<span class="sd">        :type not_taken_addr: Addr</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">[</span><span class="n">taken_addr</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">taken_addr</span><span class="p">)</span>    <span class="c1"># remove address from non-covered if inside</span>
+            <span class="k">if</span> <span class="n">not_taken_addr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">:</span>  <span class="c1"># Keep the address that has not been covered (and could have)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">not_taken_addr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">EDGE</span><span class="p">:</span>
+            <span class="n">taken_tuple</span><span class="p">,</span> <span class="n">not_taken_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">program_counter</span><span class="p">,</span> <span class="n">taken_addr</span><span class="p">),</span> <span class="p">(</span><span class="n">program_counter</span><span class="p">,</span> <span class="n">not_taken_addr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">[</span><span class="n">taken_tuple</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">taken_tuple</span><span class="p">)</span>    <span class="c1"># Remove it from non-taken if it was inside</span>
+            <span class="k">if</span> <span class="n">not_taken_tuple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">:</span>  <span class="c1"># Add the not taken tuple in non-covered</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">not_taken_tuple</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PATH</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">taken_addr</span><span class="p">)</span>
+
+            <span class="c1"># Compute the hash of the not taken path and add it to non-covered paths</span>
+            <span class="n">not_taken_path_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">not_taken_path_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;&lt;Q&#39;</span><span class="p">,</span> <span class="n">not_taken_addr</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">not_taken_path_hash</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">())</span>
+
+            <span class="c1"># Update the current path hash and add it to hashes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="n">taken_addr</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PREFIXED_EDGE</span><span class="p">:</span>
+            <span class="n">taken_tuple</span><span class="p">,</span> <span class="n">not_taken_tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">program_counter</span><span class="p">,</span> <span class="n">taken_addr</span><span class="p">),</span> <span class="p">(</span><span class="n">program_counter</span><span class="p">,</span> <span class="n">not_taken_addr</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">not_taken</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span> <span class="n">taken_tuple</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span> <span class="n">not_taken_tuple</span><span class="p">)</span>
+            <span class="n">gtaken</span><span class="p">,</span> <span class="n">gnot_taken</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">taken_tuple</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">not_taken_tuple</span><span class="p">)</span>
+
+            <span class="c1"># Add covered as covered</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">[</span><span class="n">gtaken</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Find all items in not_covered that have this edge</span>
+            <span class="k">if</span> <span class="n">taken_tuple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">:</span>               <span class="c1"># if a not_covered match this edge</span>
+                <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">[</span><span class="n">taken_tuple</span><span class="p">]:</span>  <span class="c1"># iterate all the prefixes</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">discard</span><span class="p">((</span><span class="n">prefix</span><span class="p">,</span> <span class="n">taken_tuple</span><span class="p">))</span>   <span class="c1"># and discard them</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">taken_tuple</span><span class="p">)</span>             <span class="c1"># finally discard the entry</span>
+
+            <span class="c1"># look if not_taken edge not in covered</span>
+            <span class="k">if</span> <span class="n">gnot_taken</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">not_taken</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">not_taken</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">[</span><span class="n">not_taken</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">not_taken</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">[</span><span class="n">not_taken</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">not_taken</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+            <span class="c1"># update the current path hash etc</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">taken_addr</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="n">taken_addr</span><span class="p">))</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unique_instruction_covered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: The number of unique instructions covered</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">covered_instructions</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">unique_covitem_covered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: The number of unique edges covered</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_instruction_executed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: The number of total instruction executed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">covered_instructions</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<div class="viewcode-block" id="CoverageSingleRun.post_execution"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.post_execution">[docs]</a>    <span class="k">def</span> <span class="nf">post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function is called after each execution</span>
+<span class="sd">        for post processing or clean-up. *(Not</span>
+<span class="sd">        doing anythin at the moment)*</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CoverageSingleRun.is_covered"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.is_covered">[docs]</a>    <span class="k">def</span> <span class="nf">is_covered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">CovItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return whether the item has been covered or not.</span>
+<span class="sd">        **The item should match the strategy**</span>
+
+<span class="sd">        :param item: An address, an edge or a path</span>
+<span class="sd">        :type item: CovItem</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PREFIXED_EDGE</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># in case of ellipsis</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span></div>
+
+<div class="viewcode-block" id="CoverageSingleRun.pp_item"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.pp_item">[docs]</a>    <span class="k">def</span> <span class="nf">pp_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covitem</span><span class="p">:</span> <span class="n">CovItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pretty print a CovItem according the coverage strategy</span>
+
+<span class="sd">        :param covitem: An address, an edge or a path</span>
+<span class="sd">        :return: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;0x</span><span class="si">{</span><span class="n">covitem</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">EDGE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(0x</span><span class="si">{</span><span class="n">covitem</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2">-0x</span><span class="si">{</span><span class="n">covitem</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PATH</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">covitem</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>  <span class="c1"># already a hash str</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PREFIXED_EDGE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">covitem</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s2">_0x</span><span class="si">{</span><span class="n">covitem</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2">-0x</span><span class="si">{</span><span class="n">covitem</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
+<div class="viewcode-block" id="CoverageSingleRun.difference"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.difference">[docs]</a>    <span class="k">def</span> <span class="nf">difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">strategy</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Trying to make difference of coverage with different strategies&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">set</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GlobalCoverage"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage">[docs]</a><span class="k">class</span> <span class="nc">GlobalCoverage</span><span class="p">(</span><span class="n">CoverageSingleRun</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Global Coverage.</span>
+<span class="sd">    Represent the overall coverage of the exploration.</span>
+<span class="sd">    It is filled by iteratively call merge with the</span>
+<span class="sd">    :py:obj:`CoverageSingleRun` objects created during</span>
+<span class="sd">    exploration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COVERAGE_FILE</span> <span class="o">=</span> <span class="s2">&quot;coverage.json&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strategy</span><span class="p">:</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="n">branch_strategy</span><span class="p">:</span> <span class="n">BranchSolvingStrategy</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param strategy: Coverage strategy to use</span>
+<span class="sd">        :type strategy: CoverageStrategy</span>
+<span class="sd">        :param branch_strategy: Branch checking strategies</span>
+<span class="sd">        :type branch_strategy: BranchSolvingStrategy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">strategy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span> <span class="o">=</span> <span class="n">branch_strategy</span>
+
+        <span class="c1"># Keep pending items to be covered (code, edge, path)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending_coverage</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set of pending coverage items. These are items for which a branch</span>
+<span class="sd">        as already been solved and </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">uncoverable_items</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">CovItem</span><span class="p">,</span> <span class="n">SolverStatus</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; CovItems that are determined not to be coverable. &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">covered_symbolic_pointers</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Addr</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set of addresses for which pointers have been enumerated &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GlobalCoverage.iter_new_paths"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.iter_new_paths">[docs]</a>    <span class="k">def</span> <span class="nf">iter_new_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PathConstraint</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">SymExType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">PathConstraint</span><span class="p">],</span> <span class="n">PathBranch</span><span class="p">,</span> <span class="n">CovItem</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SolverStatus</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The function iterate the given path predicate and yield PatchConstraint to</span>
+<span class="sd">        consider as-is and PathBranch representing the new branch to take. It acts</span>
+<span class="sd">        as a black-box so that the SeedManager does not have to know what strategy</span>
+<span class="sd">        is being used under the hood. From an implementation perspective the goal</span>
+<span class="sd">        of the function is to manipulate the path WITHOUT doing any SMT related things.</span>
+
+<span class="sd">        :param path_constraints: list of path constraint to iterate</span>
+<span class="sd">        :return: generator of path constraint and branches to solve. The first tuple</span>
+<span class="sd">                 item is a list of PathConstraint to add in the path predicate and the second</span>
+<span class="sd">                 is the branch to solve (but not to keep in path predicate)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">MANUAL</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Branch solving strategy set to MANUAL.&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">pending_csts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">current_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>  <span class="c1"># Current path hash for PATH coverage</span>
+
+        <span class="c1"># NOTE: When we arrive here the CoverageSingleRun associated with the path_constraints</span>
+        <span class="c1"># has already been merge. Thus covered, pending etc do include ones of the CoverageSingleRuns</span>
+
+        <span class="n">not_covered_items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_items_trace</span><span class="p">(</span><span class="n">path_constraints</span><span class="p">)</span>  <span class="c1"># Map of CovItem -&gt; [idx1, idx2, ..., .] (occurence in list)</span>
+        <span class="c1"># is_ok_with_branch_strategy = lambda covitem, idx: True if self.strategy == CoverageStrategy.PATH else (idx in occurence_map[covitem])</span>
+
+        <span class="c1"># Re-iterate through all path constraints to solve them concretely (with knowledge of what is beyond in the trace)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">path_constraints</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pc</span><span class="o">.</span><span class="n">isMultipleBranches</span><span class="p">():</span>     <span class="c1"># If there is a condition</span>
+                <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">pc</span><span class="o">.</span><span class="n">getBranchConstraints</span><span class="p">():</span>  <span class="c1"># Get all branches</span>
+                    <span class="c1"># Get the constraint of the branch which has not been taken.</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">branch</span><span class="p">[</span><span class="s1">&#39;isTaken&#39;</span><span class="p">]:</span>
+                        <span class="n">covitem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_covitem</span><span class="p">(</span><span class="n">current_hash</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span>
+                        <span class="n">generic_covitem</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">covitem</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PREFIXED_EDGE</span> <span class="k">else</span> <span class="n">covitem</span>
+                        <span class="c1">#print(f&quot;Covitem: {covitem}: {covitem not in self.covered_items} | {covitem not in self.pending_coverage} | {covitem not in self.uncoverable_items} | {i in not_covered_items.get(covitem, [])} | {i} | {not_covered_items.get(covitem)}&quot;)</span>
+
+                        <span class="c1"># Not covered in: previous runs | yet to be covered by a seed already SAT | not uncoverable | parts of items to solve</span>
+                        <span class="k">if</span> <span class="n">generic_covitem</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span> <span class="ow">and</span> \
+                           <span class="n">generic_covitem</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_coverage</span> <span class="ow">and</span> \
+                           <span class="n">covitem</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uncoverable_items</span> <span class="ow">and</span> \
+                           <span class="n">i</span> <span class="ow">in</span> <span class="n">not_covered_items</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">covitem</span><span class="p">,</span> <span class="p">[]):</span>
+
+                            <span class="c1"># Send the branch to solve to the function iterating</span>
+                            <span class="n">res</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">SymExType</span><span class="o">.</span><span class="n">CONDITIONAL_JMP</span><span class="p">,</span> <span class="n">pending_csts</span><span class="p">,</span> <span class="n">branch</span><span class="p">,</span> <span class="n">covitem</span><span class="p">,</span> <span class="n">i</span>
+
+                            <span class="c1"># If path SAT add it to pending coverage</span>
+                            <span class="k">if</span> <span class="n">res</span> <span class="o">==</span> <span class="n">SolverStatus</span><span class="o">.</span><span class="n">SAT</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">pending_coverage</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">generic_covitem</span><span class="p">)</span>
+
+                            <span class="k">elif</span> <span class="n">res</span> <span class="o">==</span> <span class="n">SolverStatus</span><span class="o">.</span><span class="n">UNSAT</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">UNSAT_ONCE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">:</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">uncoverable_items</span><span class="p">[</span><span class="n">covitem</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
+                                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="ow">in</span> <span class="p">[</span><span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PATH</span><span class="p">,</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PREFIXED_EDGE</span><span class="p">]:</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">uncoverable_items</span><span class="p">[</span><span class="n">covitem</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>  <span class="c1"># paths, and prefixed-edge ensure to be unique thus drop if unsat</span>
+
+                            <span class="k">elif</span> <span class="n">res</span> <span class="o">==</span> <span class="n">SolverStatus</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">TIMEOUT_ONCE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">:</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">uncoverable_items</span><span class="p">[</span><span class="n">covitem</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
+
+                            <span class="k">elif</span> <span class="n">res</span> <span class="o">==</span> <span class="n">SolverStatus</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">:</span>
+                                <span class="k">pass</span>
+
+                            <span class="k">else</span><span class="p">:</span> <span class="c1"># status == None</span>
+                                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Branch skipped!&#39;</span><span class="p">)</span>
+
+                            <span class="n">pending_csts</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># reset pending constraint added</span>
+
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">pass</span>  <span class="c1"># Branch was taken do nothing</span>
+
+                <span class="c1"># Add it the path predicate constraints and update current path hash</span>
+                <span class="n">pending_csts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>
+                <span class="n">current_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="n">pc</span><span class="o">.</span><span class="n">getTakenAddress</span><span class="p">()))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cmt</span> <span class="o">=</span> <span class="n">pc</span><span class="o">.</span><span class="n">getComment</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">cmt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;dyn-jmp&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">COVER_SYM_DYNJUMP</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">)</span> <span class="ow">or</span> \
+                   <span class="p">(</span><span class="n">cmt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sym-read&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">COVER_SYM_READ</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">)</span> <span class="ow">or</span> \
+                   <span class="p">(</span><span class="n">cmt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sym-write&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">COVER_SYM_WRITE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">):</span>
+                    <span class="n">typ</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">cmt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                    <span class="n">typ</span> <span class="o">=</span> <span class="n">SymExType</span><span class="p">(</span><span class="n">typ</span><span class="p">)</span>
+                    <span class="n">offset</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">addr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_symbolic_pointers</span><span class="p">:</span>  <span class="c1"># if the address pointer has never been covered</span>
+                        <span class="n">pred</span> <span class="o">=</span> <span class="n">pc</span><span class="o">.</span><span class="n">getTakenPredicate</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">pred</span><span class="o">.</span><span class="n">getType</span><span class="p">()</span> <span class="o">==</span> <span class="n">AST_NODE</span><span class="o">.</span><span class="n">EQUAL</span><span class="p">:</span>
+                            <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">getChildren</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">p2</span><span class="o">.</span><span class="n">getType</span><span class="p">()</span> <span class="o">==</span> <span class="n">AST_NODE</span><span class="o">.</span><span class="n">BV</span><span class="p">:</span>
+                                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Try to enumerate value </span><span class="si">{</span><span class="n">offset</span><span class="si">}</span><span class="s2">:0x</span><span class="si">{</span><span class="n">addr</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                <span class="n">res</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">typ</span><span class="p">,</span> <span class="n">pending_csts</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">p2</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()),</span> <span class="n">i</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">covered_symbolic_pointers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>  <span class="c1"># add the pointer in covered regardless of result</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;memory constraint unexpected pattern: </span><span class="si">{</span><span class="n">pred</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;memory constraint unexpected pattern: </span><span class="si">{</span><span class="n">pred</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">SOUND_MEM_ACCESS</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">:</span>
+                    <span class="n">pending_csts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>  <span class="c1"># if sound add the mem dereference as a constraint in path predicate</span></div>
+                    <span class="c1"># NOTE: in both case the branch is not taken in account in the current_path_hash</span>
+
+
+    <span class="k">def</span> <span class="nf">_get_covitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_hash</span><span class="p">,</span> <span class="n">branch</span><span class="p">:</span> <span class="n">PathBranch</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CovItem</span><span class="p">:</span>
+        <span class="n">src</span><span class="p">,</span> <span class="n">dst</span> <span class="o">=</span> <span class="n">branch</span><span class="p">[</span><span class="s1">&#39;srcAddr&#39;</span><span class="p">],</span> <span class="n">branch</span><span class="p">[</span><span class="s1">&#39;dstAddr&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Check if the target is new with regards to the strategy</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dst</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">EDGE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">src</span><span class="p">,</span> <span class="n">dst</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PATH</span><span class="p">:</span>
+            <span class="c1"># Have to fork the hash of the current pc for each branch we want to revert</span>
+            <span class="n">forked_hash</span> <span class="o">=</span> <span class="n">path_hash</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">forked_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="n">dst</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">forked_hash</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PREFIXED_EDGE</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">path_hash</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_get_items_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PathConstraint</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">CovItem</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate the all trace and retrieve all covered and not covered CovItem. For non covered one</span>
+<span class="sd">        it filter instances to check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">not_covered</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">current_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>  <span class="c1"># Current path hash for PATH coverage</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">path_constraints</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pc</span><span class="o">.</span><span class="n">isMultipleBranches</span><span class="p">():</span>     <span class="c1"># If there is a condition</span>
+                <span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">pc</span><span class="o">.</span><span class="n">getBranchConstraints</span><span class="p">():</span>  <span class="c1"># Get all branches</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">branch</span><span class="p">[</span><span class="s1">&#39;isTaken&#39;</span><span class="p">]:</span>
+                        <span class="n">covitem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_covitem</span><span class="p">(</span><span class="n">current_hash</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">covitem</span> <span class="ow">in</span> <span class="n">not_covered</span><span class="p">:</span>
+                            <span class="n">not_covered</span><span class="p">[</span><span class="n">covitem</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">not_covered</span><span class="p">[</span><span class="n">covitem</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">current_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="n">pc</span><span class="o">.</span><span class="n">getTakenAddress</span><span class="p">()))</span>  <span class="c1"># compute current path hash along the way</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># Ignore all other dynamic constraints in path computation</span>
+
+        <span class="c1"># Now filter the map according to the branch solving strategy</span>
+        <span class="k">if</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">FIRST_LAST_NOT_COVERED</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PREFIXED_EDGE</span><span class="p">:</span>
+                <span class="c1"># Black magic</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="p">{(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">not_covered</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>  <span class="c1"># Map: (&quot;&quot;, edge) -&gt; []</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">e</span><span class="p">),</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">not_covered</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>          <span class="c1"># fill map with all occurences edges regardless of path</span>
+                    <span class="n">m</span><span class="p">[(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">m</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>                             <span class="c1"># iterate the result and only keep min and max occurence</span>
+                    <span class="n">idxs</span> <span class="o">=</span> <span class="n">m</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">m</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">idxs</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">idxs</span><span class="p">)]</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">not_covered</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>                   <span class="c1"># Push back resulting list in not_covered items</span>
+                    <span class="n">not_covered</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">[(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Straightforward</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">not_covered</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">l</span> <span class="o">=</span> <span class="n">not_covered</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">not_covered</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">l</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>  <span class="c1"># Only keep first and last iteration</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># ALL_NOT_COVERED</span>
+            <span class="k">pass</span>  <span class="c1"># Keep all occurences</span>
+        <span class="k">return</span> <span class="n">not_covered</span>
+
+
+<div class="viewcode-block" id="GlobalCoverage.merge"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Merge a CoverageSingeRun instance into this instance</span>
+
+<span class="sd">        :param other: The CoverageSingleRun to merge into self</span>
+<span class="sd">        :type other: CoverageSingleRun</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">strategy</span>
+
+        <span class="c1"># Update instruction coverage for code coverage (in all cases keep code coverage)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covered_instructions</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">covered_instructions</span><span class="p">)</span>
+
+        <span class="c1"># Remove covered items from pending ones</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pending_coverage</span><span class="o">.</span><span class="n">difference_update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">covered_items</span><span class="p">)</span>
+
+        <span class="c1"># Update covered items</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">covered_items</span><span class="p">)</span>
+
+        <span class="c1"># Update non-covered ones</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PREFIXED_EDGE</span><span class="p">:</span>
+            <span class="c1"># More complex as not_covered as covitem: (hash, edge) while covered has covitems: (&quot;&quot;, edge)</span>
+
+            <span class="c1"># remove self not covered that are now covered</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">prefix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">[</span><span class="n">edge</span><span class="p">]:</span>  <span class="c1"># iterate all the prefixes</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">discard</span><span class="p">((</span><span class="n">prefix</span><span class="p">,</span> <span class="n">edge</span><span class="p">))</span>  <span class="c1"># and discard them</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>  <span class="c1"># finally discard the entry</span>
+
+            <span class="c1"># Only add other not covered if still not covered</span>
+            <span class="k">for</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">not_covered_items</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">edge</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">prefix</span><span class="p">,</span> <span class="n">edge</span><span class="p">))</span>
+                    <span class="k">if</span> <span class="n">edge</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">prefix</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># Straightfoward set difference</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">not_covered_items</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="GlobalCoverage.improves_coverage"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.improves_coverage">[docs]</a>    <span class="k">def</span> <span class="nf">improves_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if `other` improves coverage</span>
+<span class="sd">        Used to know if an input is relevant to keep or not</span>
+
+<span class="sd">        :param other: The CoverageSingleRun to check against our global coverage state</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="GlobalCoverage.can_improve_coverage"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.can_improve_coverage">[docs]</a>    <span class="k">def</span> <span class="nf">can_improve_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if some of the non-covered are not already in the global coverage</span>
+<span class="sd">        Used to know if an input is relevant to keep or not</span>
+
+<span class="sd">        :param other: The CoverageSingleRun to check against our global coverage state</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">new_items_to_cover</span><span class="p">(</span><span class="n">other</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="GlobalCoverage.can_cover_symbolic_pointers"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.can_cover_symbolic_pointers">[docs]</a>    <span class="k">def</span> <span class="nf">can_cover_symbolic_pointers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determines if this execution has symbolic memory accesses to enumerate. If so we may want</span>
+<span class="sd">        to enumerate them even though </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path_constraints</span> <span class="o">=</span> <span class="n">execution</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">get_path_constraints</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">pc</span> <span class="ow">in</span> <span class="n">path_constraints</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pc</span><span class="o">.</span><span class="n">isMultipleBranches</span><span class="p">():</span>     <span class="c1"># If there isn&#39;t a condition i.e it&#39;s a sym ptr access</span>
+                <span class="n">cmt</span> <span class="o">=</span> <span class="n">pc</span><span class="o">.</span><span class="n">getComment</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">cmt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;dyn-jmp&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">COVER_SYM_DYNJUMP</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">)</span> <span class="ow">or</span> \
+                   <span class="p">(</span><span class="n">cmt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sym-read&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">COVER_SYM_READ</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">)</span> <span class="ow">or</span> \
+                   <span class="p">(</span><span class="n">cmt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;sym-write&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">COVER_SYM_WRITE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">):</span>
+                    <span class="n">typ</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">cmt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                    <span class="n">typ</span> <span class="o">=</span> <span class="n">SymExType</span><span class="p">(</span><span class="n">typ</span><span class="p">)</span>
+                    <span class="n">offset</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">offset</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">addr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_symbolic_pointers</span><span class="p">:</span>  <span class="c1"># if the address pointer has never been covered</span>
+                        <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="GlobalCoverage.new_items_to_cover"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.new_items_to_cover">[docs]</a>    <span class="k">def</span> <span class="nf">new_items_to_cover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return all coverage items (addreses, edges, paths) that the given CoverageSingleRun</span>
+<span class="sd">        can cover if it is possible to negate their branches</span>
+
+<span class="sd">        :param other: The CoverageSingleRun to check with our global coverage state</span>
+<span class="sd">        :return: A set of CovItem</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">strategy</span>
+        <span class="c1"># Take not covered_items (potential candidates) substract already covered items, uncoverable and pending ones.</span>
+        <span class="c1"># Resulting covitem are really new ones that the trace brings</span>
+        <span class="k">return</span> <span class="n">other</span><span class="o">.</span><span class="n">not_covered_items</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">uncoverable_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_coverage</span></div>
+
+<div class="viewcode-block" id="GlobalCoverage.improve_coverage"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.improve_coverage">[docs]</a>    <span class="k">def</span> <span class="nf">improve_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the given object do cover new covitem than the current</span>
+<span class="sd">        coverage. More concretely it performs the difference between the</span>
+<span class="sd">        two covered dicts. If ``other`` contains new items return True.</span>
+
+<span class="sd">        :param other: coverage on which to check coverage</span>
+<span class="sd">        :return: Whether the coverage covers new items</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="GlobalCoverage.from_file"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;GlobalCoverage&#39;</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">obj</span></div>
+
+<div class="viewcode-block" id="GlobalCoverage.to_file"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.to_file">[docs]</a>    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span> <span class="o">=</span> <span class="n">copy</span></div>
+
+
+<div class="viewcode-block" id="GlobalCoverage.post_exploration"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.post_exploration">[docs]</a>    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="s1">&#39;Workspace&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Function called at the very end of the exploration.</span>
+<span class="sd">        It saves the coverage in the workspace.</span>
+
+<span class="sd">        :param workspace: Workspace in which to save coverage</span>
+<span class="sd">        :type workspace: Workspace</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Save the coverage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">workspace</span><span class="o">.</span><span class="n">get_metadata_file_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">COVERAGE_FILE</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="GlobalCoverage.clone"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;GlobalCoverage&#39;</span><span class="p">:</span>
+        <span class="n">cov2</span> <span class="o">=</span> <span class="n">GlobalCoverage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">)</span>
+
+        <span class="c1"># Copy items from the CoverageSingleRun</span>
+        <span class="n">cov2</span><span class="o">.</span><span class="n">covered_instructions</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_instructions</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+        <span class="n">cov2</span><span class="o">.</span><span class="n">covered_items</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+        <span class="n">cov2</span><span class="o">.</span><span class="n">not_covered_items</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="p">}</span>
+        <span class="n">cov2</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_not_covered_items_mirror</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">cov2</span><span class="o">.</span><span class="n">_current_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_path</span><span class="p">[:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_path</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Addr</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># Copy items from the global coverage</span>
+        <span class="n">cov2</span><span class="o">.</span><span class="n">pending_coverage</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_coverage</span><span class="p">}</span>
+        <span class="n">cov2</span><span class="o">.</span><span class="n">uncoverable_items</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uncoverable_items</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">cov2</span><span class="o">.</span><span class="n">covered_symbolic_pointers</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_symbolic_pointers</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">cov2</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

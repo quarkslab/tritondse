@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tritondse.loaders.cle_loader &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tritondse.loaders.cle_loader</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tritondse.loaders.cle_loader</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">tritondse.loaders</span> <span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">LoadableSegment</span>
+<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">Perm</span>
+
+<span class="kn">from</span> <span class="nn">tritondse.routines</span> <span class="kn">import</span> <span class="n">SUPPORTED_ROUTINES</span>
+
+<span class="kn">import</span> <span class="nn">cle</span>
+
+<span class="n">_arch_mapper</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;ARMEL&quot;</span><span class="p">:</span>   <span class="n">Architecture</span><span class="o">.</span><span class="n">ARM32</span><span class="p">,</span>
+    <span class="s2">&quot;AARCH64&quot;</span><span class="p">:</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">AARCH64</span><span class="p">,</span>
+    <span class="s2">&quot;AMD64&quot;</span><span class="p">:</span>   <span class="n">Architecture</span><span class="o">.</span><span class="n">X86_64</span><span class="p">,</span>
+    <span class="s2">&quot;X86&quot;</span><span class="p">:</span>   <span class="n">Architecture</span><span class="o">.</span><span class="n">X86</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_plfm_mapper</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;UNIX - System V&quot;</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">LINUX</span><span class="p">,</span>
+    <span class="s2">&quot;windows&quot;</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">WINDOWS</span><span class="p">,</span>
+    <span class="s2">&quot;macos&quot;</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">MACOS</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="CleLoader"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader">[docs]</a><span class="k">class</span> <span class="nc">CleLoader</span><span class="p">(</span><span class="n">Loader</span><span class="p">):</span>
+    <span class="n">EXTERN_SYM_BASE</span> <span class="o">=</span> <span class="mh">0x0f001000</span>
+    <span class="n">EXTERN_SYM_SIZE</span> <span class="o">=</span> <span class="mh">0x1000</span>
+
+    <span class="n">BASE_STACK</span> <span class="o">=</span> <span class="mh">0xf0000000</span>
+    <span class="n">END_STACK</span> <span class="o">=</span> <span class="mh">0x70000000</span>  <span class="c1"># This is inclusive</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">ld_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PathLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CleLoader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1">#: Binary file path</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> not found (or not a file)&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_disable_vex_loggers</span><span class="p">()</span>  <span class="c1"># disable logs of pyvex</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ld_path</span> <span class="o">=</span> <span class="n">ld_path</span> <span class="k">if</span> <span class="n">ld_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ld</span> <span class="o">=</span> <span class="n">cle</span><span class="o">.</span><span class="n">Loader</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">ld_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ld_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">longjmp_addr_cache</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_disable_vex_loggers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">logger</span> <span class="ow">in</span> <span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">loggerDict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;pyvex&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">propagate</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Name of the loader&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;CleLoader(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Architecture</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Architecture enum representing program architecture.</span>
+
+<span class="sd">        :rtype: Architecture</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_arch_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">main_object</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Program entrypoint address as defined in the binary headers</span>
+
+<span class="sd">        :rtype: :py:obj:`tritondse.types.Addr`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">main_object</span><span class="o">.</span><span class="n">entry</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">longjmp_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
+        <span class="c1"># TODO find a better way to do this</span>
+        <span class="c1"># There is no generic way but since the plt layout is known we could do </span>
+        <span class="c1"># https://github.com/lief-project/LIEF/issues/762</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">longjmp_addr_cache</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">subprocess</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">proc1</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;objdump&#39;</span><span class="p">,</span> <span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+                <span class="n">proc2</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s1">&#39;grep&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;longjmp@plt&gt;:&#39;</span><span class="p">],</span> <span class="n">stdin</span><span class="o">=</span><span class="n">proc1</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
+                                         <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+
+                <span class="n">proc1</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span> <span class="c1"># Allow proc1 to receive a SIGPIPE if proc2 exits.</span>
+                <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">proc2</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">longjmp_addr_cache</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">longjmp_addr_cache</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">longjmp_addr_cache</span>
+
+<div class="viewcode-block" id="CleLoader.memory_segments"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.memory_segments">[docs]</a>    <span class="k">def</span> <span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: Generator of tuples addrs and content</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">all_objects</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
+                <span class="n">segdata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">vaddr</span><span class="p">,</span> <span class="n">seg</span><span class="o">.</span><span class="n">memsize</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">segdata</span><span class="p">)</span> <span class="o">==</span> <span class="n">seg</span><span class="o">.</span><span class="n">memsize</span>
+                <span class="n">perms</span> <span class="o">=</span> <span class="p">(</span><span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">is_readable</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">Perm</span><span class="o">.</span><span class="n">W</span> <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">is_writable</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">Perm</span><span class="o">.</span><span class="n">X</span> <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">is_executable</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> 
+                <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s2">&quot;ExternSegment&quot;</span><span class="p">:</span>
+                    <span class="c1"># The format string in CLE is broken if the filesize is 0. This is a workaround.</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading segment </span><span class="si">{</span><span class="n">seg</span><span class="si">}</span><span class="s2"> - perms:</span><span class="si">{</span><span class="n">perms</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">LoadableSegment</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">vaddr</span><span class="p">,</span> <span class="n">perms</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="n">segdata</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;seg-</span><span class="si">{</span><span class="n">obj</span><span class="o">.</span><span class="n">binary_basename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># Also return a specific map to put external symbols</span>
+        <span class="k">yield</span> <span class="n">LoadableSegment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">EXTERN_SYM_BASE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EXTERN_SYM_SIZE</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">W</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;[extern]&quot;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">LoadableSegment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">END_STACK</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BASE_STACK</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">END_STACK</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">W</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;[stack]&quot;</span><span class="p">)</span>
+
+        <span class="c1"># FIXME. Temporary solution to prevent crashes on access to the TLB e.g fs:28</span>
+        <span class="k">yield</span> <span class="n">LoadableSegment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0x2000</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">W</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;[fs]&quot;</span><span class="p">)</span></div>
+
+    <span class="c1"># FIXME. Temporary solution to prevent crashes on access to the TLB e.g fs:28</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cpustate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># NOTE: in Triton, the segment selector is used as the segment base and not as a selector into GDT.</span>
+        <span class="c1"># i.e directly store the segment base into fs</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="mh">0x1000</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">platform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Platform</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Platform of the binary.</span>
+
+<span class="sd">        :return: Platform</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_plfm_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">main_object</span><span class="o">.</span><span class="n">os</span><span class="p">]</span>
+
+<div class="viewcode-block" id="CleLoader.imported_functions_relocations"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.imported_functions_relocations">[docs]</a>    <span class="k">def</span> <span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over all imported functions by the program. This function</span>
+<span class="sd">        is a generator of tuples associating the function and its relocation</span>
+<span class="sd">        address in the binary.</span>
+
+<span class="sd">        :return: Generator of tuples function name and relocation address</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO I think there&#39;s a problem here. We only deal with imports from the main binary</span>
+        <span class="c1"># For example if a library calls a libc function, we probably need to patch the library&#39;s GOT</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">all_objects</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">fun</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">imports</span><span class="p">:</span>
+                <span class="n">rtn_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;rtn_</span><span class="si">{</span><span class="n">fun</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">fun</span> <span class="ow">in</span> <span class="n">SUPPORTED_ROUTINES</span><span class="p">:</span>
+                    <span class="n">reloc</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">imports</span><span class="p">[</span><span class="n">fun</span><span class="p">]</span>
+                    <span class="n">got_entry_addr</span> <span class="o">=</span> <span class="n">reloc</span><span class="o">.</span><span class="n">relative_addr</span> <span class="o">+</span> <span class="n">obj</span><span class="o">.</span><span class="n">mapped_base</span>
+                    <span class="k">yield</span> <span class="n">fun</span><span class="p">,</span> <span class="n">got_entry_addr</span>
+
+        <span class="c1"># Handle indirect functions.</span>
+        <span class="c1"># Currently we only support indirect functions if there exists a stub for them in `routines.py`</span>
+        <span class="c1"># Otherwise the program will crash because CLE doesn&#39;t perform the relocation for indirect functions.</span>
+        
+        <span class="c1"># We could perform the relocation ourself by writing to the got slot but we need a way to figure out </span>
+        <span class="c1"># the correct fptr to use.</span>
+        <span class="c1"># In other words we should execute `resolver_fun` or parse it in some way to get the correct function ptr</span>
+        <span class="c1"># to write to got_slot (write with self.ld.memory.pack_word(got_slot, func_ptr))</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">all_objects</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">resolver_func</span><span class="p">,</span> <span class="n">got_rva</span><span class="p">)</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">irelatives</span><span class="p">:</span>
+                <span class="n">got_slot</span> <span class="o">=</span> <span class="n">got_rva</span> <span class="o">+</span> <span class="n">obj</span><span class="o">.</span><span class="n">mapped_base</span>
+                <span class="n">sym</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">find_symbol</span><span class="p">(</span><span class="n">resolver_func</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">sym</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">fun</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">yield</span> <span class="n">fun</span><span class="p">,</span> <span class="n">got_slot</span></div>
+
+<div class="viewcode-block" id="CleLoader.imported_variable_symbols_relocations"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.imported_variable_symbols_relocations">[docs]</a>    <span class="k">def</span> <span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over all imported variable symbols. Yield for each of them the name and</span>
+<span class="sd">        the relocation address in the binary.</span>
+
+<span class="sd">        :return: Generator of tuples with symbol name, relocation address</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO I think there&#39;s a problem here. We only deal with imports from the main binary</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">main_object</span><span class="o">.</span><span class="n">symbols</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">resolved</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">cle</span><span class="o">.</span><span class="n">SymbolType</span><span class="o">.</span><span class="n">TYPE_OBJECT</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CleLoader: hooking symbol </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> @ </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">relative_addr</span><span class="si">:</span><span class="s2">#x</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">resolved</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">resolvedby</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">s_addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">relative_addr</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">main_object</span><span class="o">.</span><span class="n">mapped_base</span>
+                <span class="k">yield</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">s_addr</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

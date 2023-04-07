@@ -1,0 +1,343 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "casual-peninsula",
+   "metadata": {},
+   "source": [
+    "# Managing Seeds\n",
+    "\n",
+    "\n",
+    "This tutorial explains how to deal with input files manipulated and generated during the execution.\n",
+    "Let's reuse the following base snippet. The only difference here is that we are going to change the coverage\n",
+    "strategy to `PATH_COVERAGE`."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 80,
+   "id": "bizarre-pursuit",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "WARNING:root:symbol __gmon_start__ imported but unsupported\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "seed:e2f673d0fd7980a2bdad7910f0f6da7a ([b'./crackme', b'AAAAAAAAAAAAAAA'])   [exitcode:0]\n",
+      "seed:b204f9c8720b4ee299a215ef4c9f168f ([b'./crackme', b'eAAAAAAAAAAAAAA'])   [exitcode:0]\n",
+      "seed:cab6e4b729327d1e088c9d459e0340eb ([b'./crackme', b'elAAAAAAAAAAAAA'])   [exitcode:0]\n",
+      "seed:c8f3df9e460142aed1158aa354d7179d ([b'./crackme', b'eliAAAAAAAAAAAA'])   [exitcode:0]\n",
+      "seed:2cb80846ef5684501c73e1e19f595230 ([b'./crackme', b'elitAAAAAAAAAAA'])   [exitcode:0]\n",
+      "seed:dc1d802d1c2796a1a21d96827ce1cae7 ([b'./crackme', b'eliteAAAAAAAAAA'])   [exitcode:0]\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<ExplorationStatus.IDLE: 2>"
+      ]
+     },
+     "execution_count": 80,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from tritondse import SymbolicExecutor, Config, Seed, Program, ProcessState, SymbolicExplorator, CoverageStrategy, SeedFormat, CompositeData\n",
+    "\n",
+    "config = Config(pipe_stdout=False, coverage_strategy=CoverageStrategy.PATH, seed_format=SeedFormat.COMPOSITE)\n",
+    "\n",
+    "def post_exec_hook(se: SymbolicExecutor, state: ProcessState):\n",
+    "    print(f\"seed:{se.seed.hash} ({repr(se.seed.content.argv)})   [exitcode:{se.exitcode}]\")\n",
+    "\n",
+    "dse = SymbolicExplorator(config, Program(\"crackme_xor\"))\n",
+    "\n",
+    "dse.add_input_seed(Seed(CompositeData(argv=[b\"./crackme\", b\"AAAAAAAAAAAAAAA\"])))\n",
+    "\n",
+    "dse.callback_manager.register_post_execution_callback(post_exec_hook)\n",
+    "\n",
+    "dse.explore()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "another-ecuador",
+   "metadata": {},
+   "source": [
+    "Just by exploring all possible paths we managed to solve the challenge. Let's play\n",
+    "with the corpus."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "touched-disposition",
+   "metadata": {},
+   "source": [
+    "## Initial Corpus\n",
+    "\n",
+    "There are two ways to provide an initial corpus:\n",
+    "\n",
+    "* providing in existing workspace directory and putting manually files in the *worklist* directory\n",
+    "* via the API by adding the seed with `add_input_seed`, it will automatically be added in seeds to process."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "lesser-potter",
+   "metadata": {},
+   "source": [
+    "## Managing generated corpus\n",
+    "\n",
+    "**SymbolicExecutor**: This class is solely meant to execute a single seed, not to produce\n",
+    "new ones *(that is the purpose of the explorator)*. However if a one wants to generate a\n",
+    "new input to process in a callback, it is possible with the method `enqueue_seed`. That\n",
+    "method will just fill a list that will later be picked-up by the `SymbolicExplorator` instance.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "desirable-development",
+   "metadata": {},
+   "source": [
+    "Here is a dummy hook function that manually negates a branching condition to generate a new input file:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 81,
+   "id": "verified-poster",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def hook_cmp(se: SymbolicExecutor, pstate: ProcessState, addr: int):\n",
+    "    zf = pstate.cpu.zf  # concrete value\n",
+    "    sym_zf = pstate.read_symbolic_register(pstate.registers.zf)\n",
+    "    \n",
+    "    # Revert the current value of zf to \"negate\" condition\n",
+    "    status, model = pstate.solve(sym_zf.getAst() != zf)\n",
+    "    \n",
+    "    if status == SolverStatus.SAT:\n",
+    "        new_seed = se.mk_new_seed_from_model(model)\n",
+    "        se.enqueue_seed(new_seed)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "exterior-wagon",
+   "metadata": {},
+   "source": [
+    "By default the status of the seed generated is `FRESH`. However, one can directly assign it the `CRASH` status if it is a faulty one."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "suffering-infection",
+   "metadata": {},
+   "source": [
+    "**SymbolicExplorator**: All seeds generated during the exploration are moved in the `Workspace` instance from the *worklist* folder to the appropriate one *corpus*, *hangs* and *crashs*.\n",
+    "One can iterate them using the workspace instance."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 82,
+   "id": "numeric-ministry",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "seed to process: 0\n",
+      "\n",
+      "Corpus:\n",
+      "2cb80846ef5684501c73e1e19f595230.00000064.tritondse.cov\n",
+      "dc1d802d1c2796a1a21d96827ce1cae7.00000064.tritondse.cov\n",
+      "b204f9c8720b4ee299a215ef4c9f168f.00000064.tritondse.cov\n",
+      "e2f673d0fd7980a2bdad7910f0f6da7a.00000064.tritondse.cov\n",
+      "c8f3df9e460142aed1158aa354d7179d.00000064.tritondse.cov\n",
+      "cab6e4b729327d1e088c9d459e0340eb.00000064.tritondse.cov\n"
+     ]
+    }
+   ],
+   "source": [
+    "print(\"seed to process:\", len(list(dse.workspace.iter_worklist())))\n",
+    "\n",
+    "print(\"\\nCorpus:\")\n",
+    "for seed in dse.workspace.iter_corpus():\n",
+    "      print(seed.filename)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "sealed-photographer",
+   "metadata": {},
+   "source": [
+    "## Setting seed status\n",
+    "\n",
+    "During the execution one, can assign a status to the seed currently being executed in any callback.\n",
+    "*(Make sure not to override a status previously set by another callback)*. At the end of an execution\n",
+    "if no status has been assigned, the seed is automatically assigned `OK_DONE`."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2e91adb1",
+   "metadata": {},
+   "source": [
+    "## Seed Formats\n",
+    "\n",
+    "\n",
+    "In TritonDSE, a seed contains the user input that will be processed by the target program.\n",
+    "\n",
+    "TritonDSE supports two seed formats: `RAW` and `COMPOSITE`.\n",
+    "\n",
+    "* `RAW` seed is a contiguous buffer of bytes that will be injected in memory. By default it is done when the program reads from `stdin`.\n",
+    "* `COMPOSITE` seeds allow providing more complex input to the program such as `argv` or the content of files. Note that `stdin` is treated as a file. Their content is provided as a `CompositeData` instance which is defined in `tritondse/seeds.py` as follows:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "2ac8b93b",
+   "metadata": {},
+   "source": [
+    "```python\n",
+    "#Excerpt from /tritondse/seeds.py\n",
+    "class CompositeData:\n",
+    "    argv: List[bytes]\n",
+    "    \"list of argv values\"\n",
+    "    files: Dict[str, bytes]\n",
+    "    \"dictionnary of files and the associated content (stdin is one of them)\"\n",
+    "    variables: Dict[str, bytes]\n",
+    "    \"user defined variables, that the use must take care to inject at right location\"\n",
+    " ```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ececbccf",
+   "metadata": {},
+   "source": [
+    "The following example shows a complex input type where user-input are read on `argv`, `stdin` a file called `filename.txt` and a variable `var1`.\n",
+    "Symbolic variables like `var1` will not be injected automatically, the user has to do it himself at the appropriate location.\n",
+    "\n",
+    "```python\n",
+    "from tritondse import Seed, CompositeData\n",
+    "\n",
+    "composite_seed = Seed(CompositeData(argv=[b\"this\", b\"will\", b\"injected\", b\"into\", b\"argv\"],\\\n",
+    "                                   files={\"stdin\": b\"This will be injected when the program reads from stdin\",\\\n",
+    "                                          \"filename.txt\": b\"This will be injected when the program reads from filename.txt\"\\\n",
+    "                                         },\\\n",
+    "                                   variables={\"var1\": b\"The user is responsible for injecting this manually (more on this later)\"}\\\n",
+    "                                   ))\n",
+    "\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9e2be777",
+   "metadata": {},
+   "source": [
+    "It is not necessary to provide all the fields in `CompositeData` when creating a new seed. The following seeds are valid."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 83,
+   "id": "648cb022",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "composite_seed_1 = Seed(CompositeData(argv=[b\"this\", b\"will\", b\"injected\", b\"into\", b\"argv\"]))\n",
+    "composite_seed_2 = Seed(CompositeData(files={\"stdin\": b\"This will be injected when the program reads from stdin\"}))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "59a0897d",
+   "metadata": {},
+   "source": [
+    "When creating a `SymbolicExecutor` or `SymbolicExplorator` the seed format can be specified in the `Config`. The default seed format is `RAW`. Seed formats cannot be mixed, all the seeds of a given `SymbolicExecutor` or `SymbolicExplorator` must have the same format. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 84,
+   "id": "685c00f5",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from tritondse import SymbolicExplorator, Config, SeedFormat, Program\n",
+    "dse_using_raw_seeds = SymbolicExplorator(Config(), Program(\"crackme_xor\"))\n",
+    "dse_using_composite_seeds = SymbolicExplorator(Config(seed_format=SeedFormat.COMPOSITE), Program(\"crackme_xor\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cda0d10a",
+   "metadata": {},
+   "source": [
+    "## How to inject arbitrary variables\n",
+    "The `variables` field of `CompositeData` is never injected by the framework. It is the user's responsability to inject it in the appropriate places with `inject_symbolic_variable_memory` or `inject_symbolic_variable_register`.\n",
+    "\n",
+    "Let's see an example. Say the target application contains the following function that we want to explore: \n",
+    "```c\n",
+    "void parse_buffer(char* buffer);\n",
+    "```\n",
+    "\n",
+    "The following script will register a callback at the start of `parse_buffer` and inject input into `buffer`.\n",
+    "```python\n",
+    "from tritondse import SymbolicExplorator, Config, SeedFormat, Program, CompositeData\n",
+    "\n",
+    "def example_hook(se: SymbolicExecutor, pstate: ProcessState, addr: int):\n",
+    "    # In the callback, retrieve the pointer to the buffer we want to inject\n",
+    "    arg0 = pstate.get_argument_value(0)\n",
+    "    # Inject the data from the seed into the buffer\n",
+    "    # var_prefix should be the key of the variable in dictionary se.seed.content.variables\n",
+    "    se.inject_symbolic_variable_memory(arg0, \"buffer\", se.seed.content.variables[\"buffer\"])\n",
+    "\n",
+    "p = Program(\"parser_program\")\n",
+    "\n",
+    "# Create a new symbolic explorator that uses COMPOSITE seeds\n",
+    "dse = SymbolicExplorator(Config(seed_format=SeedFormat.COMPOSITE), p)\n",
+    "# Add an initial seed\n",
+    "composite_data = CompositeData(variables={\"buffer\" : b\"A\"*128})\n",
+    "dse.add_input_seed(Seed(composite_data))\n",
+    "# Register a callback on the function whose parameter we want to inject\n",
+    "dse.callback_manager.register_pre_addr_callback(p.find_function_addr(\"parse_buffer\"), example_hook)\n",
+    "\n",
+    "dse.explore()\n",
+    "```"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "neopastis",
+   "language": "python",
+   "name": "neopastis"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

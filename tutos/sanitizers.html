@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanitizers &amp; Probes &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Loaders" href="loaders.html" />
+    <link rel="prev" title="Managing Seeds" href="seeds.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seeds.html">Seeds</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sanitizers &amp; Probes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Probe-mechanism">Probe mechanism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Using-built-in-sanitizers">Using built-in sanitizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Writing-a-sanitizer">Writing a sanitizer</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Sanitizers &amp; Probes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutos/sanitizers.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Sanitizers-&amp;-Probes">
+<h1>Sanitizers &amp; Probes<a class="headerlink" href="#Sanitizers-&-Probes" title="Permalink to this heading"></a></h1>
+<section id="Probe-mechanism">
+<h2>Probe mechanism<a class="headerlink" href="#Probe-mechanism" title="Permalink to this heading"></a></h2>
+<p>TritonDSE introduces a probe mechanism. A probe is a class exposing a set of callbacks to register on a given exploration or execution. That enables writing more complex checkers that can be easily registered on a callback manager.</p>
+<p>A probe as the following interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ProbeInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; The Probe interface &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cbs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">CbType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">CbType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cbs</span>
+
+    <span class="k">def</span> <span class="nf">_add_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">typ</span><span class="p">:</span> <span class="n">CbType</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Add a callback &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cbs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">typ</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">arg</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>So to write its own probe one, just have to call <code class="docutils literal notranslate"><span class="pre">_add_callback</span></code> with its own hooks <em>(usually some other methods)</em>. They will automatically be picked by the callback manager and registered.</p>
+</section>
+<section id="Using-built-in-sanitizers">
+<h2>Using built-in sanitizers<a class="headerlink" href="#Using-built-in-sanitizers" title="Permalink to this heading"></a></h2>
+<p>TritonDSE provides few simple sanitizers developped as probes. These sanitizers are the following:</p>
+<ul class="simple">
+<li><p>UAFSanitizer: checks for UaF using the simple built-in allocator <em>(in ProcessState)</em></p></li>
+<li><p>NullDerefSanitizer: checks that no read or write in memory is performed at address 0</p></li>
+<li><p>FormatStringSanitizer: hooks various libc functions and checks that format string are not controlled</p></li>
+</ul>
+<p>The registration of a probe can be done as follows:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExecutor, Config, Seed, Program, ProcessState, SymbolicExplorator, CoverageStrategy
+from tritondse.sanitizers import NullDerefSanitizer
+
+dse = SymbolicExplorator(Config(), Program(&quot;crackme_xor&quot;))
+
+dse.callback_manager.register_probe(NullDerefSanitizer())
+</pre></div>
+</div>
+</div>
+<p>The probe will now be enabled for all executions.</p>
+</section>
+<section id="Writing-a-sanitizer">
+<h2>Writing a sanitizer<a class="headerlink" href="#Writing-a-sanitizer" title="Permalink to this heading"></a></h2>
+<p>For the purpose of this tutorial, let’s write a sanitizer that will checks <code class="docutils literal notranslate"><span class="pre">fopen</span></code> libc call and its variant <code class="docutils literal notranslate"><span class="pre">freopen</span></code> cannot be hijacked to open an unwanted file <em>(here /etc/passwd)</em>. We are first going to check that the string given in input is controllable and if it is, checking by SMT that it can be the intended string.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import ProbeInterface, SymbolicExecutor, ProcessState, CbType, SeedStatus
+from tritondse.types import Addr, SolverStatus
+
+class OpenSanitizer(ProbeInterface):
+
+    PASSWD_FILE = &quot;/etc/passwd&quot;
+
+    def __init__(self):
+        super(OpenSanitizer, self).__init__()
+        self._add_callback(CbType.PRE_RTN, self.fopen_check, &#39;fopen&#39;)
+        self._add_callback(CbType.PRE_RTN, self.fopen_check, &#39;freopen&#39;)
+
+    def fopen_check(self, se: SymbolicExecutor, pstate: ProcessState, rtn_name: str, addr: Addr):
+        # the filepath is located in arg0 (ptr to a string)
+        string_ptr = se.pstate.get_argument_value(0)
+
+        symbolic = True
+        cur_ptr = string_ptr
+        while pstate.read_memory_int(cur_ptr, 1):        # while different from 0
+            if not se.pstate.is_memory_symbolic(cur_ptr, 1): # check that the byte is symbolic
+                symbolic = False
+            cur_ptr += 1
+
+        # if all memory bytes are symbolic and we have enough place to fit our string
+        if symbolic and (cur_ptr - string_ptr) &gt; len(self.PASSWD_FILE):
+
+            # Try to solve by SMT that the filepath string is /etc/passwd
+            constraints = [pstate.read_symbolic_memory_byte(string_ptr+i).getAst() == ord(pwd_byte) for i, pwd_byte in enumerate(self.PASSWD_FILE)]
+            st, model = pstate.solve(constraints)
+
+            if st == SolverStatus.SAT:                          # if formula satisfiable
+                new_seed = se.mk_new_seed_from_model(model)  # create a new input from the model
+                new_seed.status = SeedStatus.CRASH           # mark it as crash
+                se.enqueue_seed(new_seed)                    # enqueue it *(so that it will put in the workspace..)*
+<br/></pre></div>
+</div>
+</div>
+<p>Then we just have to register our new sanitizer!</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dse.callback_manager.register_probe(OpenSanitizer())
+</pre></div>
+</div>
+</div>
+<blockquote>
+<div><p>There are no open in the crackme <em>(but one can try with another example)</em></p>
+</div></blockquote>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="seeds.html" class="btn btn-neutral float-left" title="Managing Seeds" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="loaders.html" class="btn btn-neutral float-right" title="Loaders" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

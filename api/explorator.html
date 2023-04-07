@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SymbolicExplorator &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Exception" href="exception.html" />
+    <link rel="prev" title="SymbolicExecutor" href="executor.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">SymbolicExplorator</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.SymbolicExplorator"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.add_input_seed"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.add_input_seed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.callback_manager"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.callback_manager</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.cbm"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.cbm</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.config"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.coverage"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.coverage</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.current_executor"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.current_executor</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.execution_count"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.execution_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.explore"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.explore()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.loader"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.loader</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.post_exploration"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.post_exploration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.seeds_manager"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.seeds_manager</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.status"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.status</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.step"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.step()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.stop_exploration"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.stop_exploration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.terminate_exploration"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.terminate_exploration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.total_emulation_time"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.total_emulation_time</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.ts"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.ts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExplorator.workspace"><code class="docutils literal notranslate"><span class="pre">SymbolicExplorator.workspace</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.ExplorationStatus"><code class="docutils literal notranslate"><span class="pre">ExplorationStatus</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.ExplorationStatus.IDLE"><code class="docutils literal notranslate"><span class="pre">ExplorationStatus.IDLE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.ExplorationStatus.NOT_RUNNING"><code class="docutils literal notranslate"><span class="pre">ExplorationStatus.NOT_RUNNING</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.ExplorationStatus.RUNNING"><code class="docutils literal notranslate"><span class="pre">ExplorationStatus.RUNNING</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.ExplorationStatus.STOPPED"><code class="docutils literal notranslate"><span class="pre">ExplorationStatus.STOPPED</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.ExplorationStatus.TERMINATED"><code class="docutils literal notranslate"><span class="pre">ExplorationStatus.TERMINATED</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#seedmanager">SeedManager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager"><code class="docutils literal notranslate"><span class="pre">SeedManager</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.add_new_seed"><code class="docutils literal notranslate"><span class="pre">SeedManager.add_new_seed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.add_seed_queue"><code class="docutils literal notranslate"><span class="pre">SeedManager.add_seed_queue()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.archive_seed"><code class="docutils literal notranslate"><span class="pre">SeedManager.archive_seed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.drop_seed"><code class="docutils literal notranslate"><span class="pre">SeedManager.drop_seed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.is_new_seed"><code class="docutils literal notranslate"><span class="pre">SeedManager.is_new_seed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.pick_seed"><code class="docutils literal notranslate"><span class="pre">SeedManager.pick_seed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.post_execution"><code class="docutils literal notranslate"><span class="pre">SeedManager.post_execution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.post_exploration"><code class="docutils literal notranslate"><span class="pre">SeedManager.post_exploration()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.pp_meta_filename"><code class="docutils literal notranslate"><span class="pre">SeedManager.pp_meta_filename()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.seeds_available"><code class="docutils literal notranslate"><span class="pre">SeedManager.seeds_available()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.seeds_manager.SeedManager.total_solving_time"><code class="docutils literal notranslate"><span class="pre">SeedManager.total_solving_time</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">SymbolicExplorator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/explorator.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="symbolicexplorator">
+<h1>SymbolicExplorator<a class="headerlink" href="#symbolicexplorator" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">SymbolicExplorator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="configuration.html#tritondse.Config" title="tritondse.config.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="loaders.html#tritondse.Loader" title="tritondse.loaders.loader.Loader"><span class="pre">Loader</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="workspace.html#tritondse.workspace.Workspace" title="tritondse.workspace.Workspace"><span class="pre">Workspace</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">executor_stop_at</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_scheduler_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler" title="tritondse.worklist.SeedScheduler"><span class="pre">SeedScheduler</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/symbolic_explorator.html#SymbolicExplorator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExplorator" title="Permalink to this definition"></a></dt>
+<dd><p>Symbolic Exploration. This class is in charge of iterating
+executions with the different seeds available in the workspace
+and generated along the way.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.add_input_seed">
+<span class="sig-name descname"><span class="pre">add_input_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/symbolic_explorator.html#SymbolicExplorator.add_input_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExplorator.add_input_seed" title="Permalink to this definition"></a></dt>
+<dd><p>Add the given bytes or Seed object as input for the exploration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seed</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><em>bytes</em></a><em>, </em><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><em>Seed</em></a><em>]</em>) – input seed to add in the pending inputs to process</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.callback_manager">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">callback_manager</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="callbacks.html#tritondse.callbacks.CallbackManager" title="tritondse.callbacks.CallbackManager"><span class="pre">CallbackManager</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.callback_manager" title="Permalink to this definition"></a></dt>
+<dd><p>CallbackManager global instance that will be transmitted to
+all <a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="callbacks.html#tritondse.callbacks.CallbackManager" title="tritondse.callbacks.CallbackManager">CallbackManager</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.cbm">
+<span class="sig-name descname"><span class="pre">cbm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="callbacks.html#tritondse.callbacks.CallbackManager" title="tritondse.callbacks.CallbackManager"><span class="pre">CallbackManager</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.cbm" title="Permalink to this definition"></a></dt>
+<dd><p>CallbackManager to register callbacks</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.config">
+<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="configuration.html#tritondse.Config" title="tritondse.config.Config"><span class="pre">Config</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.config" title="Permalink to this definition"></a></dt>
+<dd><p>Configuration file</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.coverage">
+<span class="sig-name descname"><span class="pre">coverage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="coverage.html#tritondse.coverage.GlobalCoverage" title="tritondse.coverage.GlobalCoverage"><span class="pre">GlobalCoverage</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.coverage" title="Permalink to this definition"></a></dt>
+<dd><p>GlobalCoverage object holding information about the global coverage.
+<em>(not really meant to be manipulated by the user)</em></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.current_executor">
+<span class="sig-name descname"><span class="pre">current_executor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.symbolic_executor.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.current_executor" title="Permalink to this definition"></a></dt>
+<dd><p>last symbolic executor executed</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.execution_count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">execution_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.execution_count" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of execution performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number of execution performed</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.explore">
+<span class="sig-name descname"><span class="pre">explore</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tritondse.ExplorationStatus" title="tritondse.symbolic_explorator.ExplorationStatus"><span class="pre">ExplorationStatus</span></a></span></span><a class="reference internal" href="../_modules/tritondse/symbolic_explorator.html#SymbolicExplorator.explore"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExplorator.explore" title="Permalink to this definition"></a></dt>
+<dd><p>Start the symbolic exploration. That function
+holds until the exploration is interrupted or finished.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the status of the exploration</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#tritondse.ExplorationStatus" title="tritondse.ExplorationStatus">ExplorationStatus</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.loader">
+<span class="sig-name descname"><span class="pre">loader</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="loaders.html#tritondse.Loader" title="tritondse.loaders.loader.Loader"><span class="pre">Loader</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.loader" title="Permalink to this definition"></a></dt>
+<dd><p>Program being analyzed</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.post_exploration">
+<span class="sig-name descname"><span class="pre">post_exploration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/symbolic_explorator.html#SymbolicExplorator.post_exploration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExplorator.post_exploration" title="Permalink to this definition"></a></dt>
+<dd><p>Perform  all calls to post exploration functions</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.seeds_manager">
+<span class="sig-name descname"><span class="pre">seeds_manager</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#tritondse.seeds_manager.SeedManager" title="tritondse.seeds_manager.SeedManager"><span class="pre">SeedManager</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.seeds_manager" title="Permalink to this definition"></a></dt>
+<dd><p>Manager of seed, holding all seeds related data and various statistics</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.status">
+<span class="sig-name descname"><span class="pre">status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#tritondse.ExplorationStatus" title="tritondse.symbolic_explorator.ExplorationStatus"><span class="pre">ExplorationStatus</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.status" title="Permalink to this definition"></a></dt>
+<dd><p>status of the execution</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/symbolic_explorator.html#SymbolicExplorator.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExplorator.step" title="Permalink to this definition"></a></dt>
+<dd><p>Perform a single exploration step. That means it execute
+a single <a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code></a>. Then it gives the hand
+back to the user.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.stop_exploration">
+<span class="sig-name descname"><span class="pre">stop_exploration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/symbolic_explorator.html#SymbolicExplorator.stop_exploration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExplorator.stop_exploration" title="Permalink to this definition"></a></dt>
+<dd><p>Interrupt the exploration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.terminate_exploration">
+<span class="sig-name descname"><span class="pre">terminate_exploration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/symbolic_explorator.html#SymbolicExplorator.terminate_exploration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExplorator.terminate_exploration" title="Permalink to this definition"></a></dt>
+<dd><p>Terminate exploration with status terminated (normal shutdown)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.total_emulation_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_emulation_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.total_emulation_time" title="Permalink to this definition"></a></dt>
+<dd><p>Represent total emulation time. This include all callbacks execution
+but not the SMT solving time (performed at the end).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.ts">
+<span class="sig-name descname"><span class="pre">ts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.ts" title="Permalink to this definition"></a></dt>
+<dd><p>Timestamp (object instanciation)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.SymbolicExplorator.workspace">
+<span class="sig-name descname"><span class="pre">workspace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="workspace.html#tritondse.workspace.Workspace" title="tritondse.workspace.Workspace"><span class="pre">Workspace</span></a></em><a class="headerlink" href="#tritondse.SymbolicExplorator.workspace" title="Permalink to this definition"></a></dt>
+<dd><p>workspace object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.ExplorationStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">ExplorationStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/symbolic_explorator.html#ExplorationStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.ExplorationStatus" title="Permalink to this definition"></a></dt>
+<dd><p>Enum representing the current state of the exploration</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.ExplorationStatus.IDLE">
+<span class="sig-name descname"><span class="pre">IDLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#tritondse.ExplorationStatus.IDLE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.ExplorationStatus.NOT_RUNNING">
+<span class="sig-name descname"><span class="pre">NOT_RUNNING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#tritondse.ExplorationStatus.NOT_RUNNING" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.ExplorationStatus.RUNNING">
+<span class="sig-name descname"><span class="pre">RUNNING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#tritondse.ExplorationStatus.RUNNING" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.ExplorationStatus.STOPPED">
+<span class="sig-name descname"><span class="pre">STOPPED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#tritondse.ExplorationStatus.STOPPED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.ExplorationStatus.TERMINATED">
+<span class="sig-name descname"><span class="pre">TERMINATED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#tritondse.ExplorationStatus.TERMINATED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<section id="seedmanager">
+<h2>SeedManager<a class="headerlink" href="#seedmanager" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.seeds_manager.</span></span><span class="sig-name descname"><span class="pre">SeedManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="coverage.html#tritondse.coverage.GlobalCoverage" title="tritondse.coverage.GlobalCoverage"><span class="pre">GlobalCoverage</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="workspace.html#tritondse.workspace.Workspace" title="tritondse.workspace.Workspace"><span class="pre">Workspace</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">smt_queries_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback_manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="callbacks.html#tritondse.callbacks.CallbackManager" title="tritondse.callbacks.CallbackManager"><span class="pre">CallbackManager</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed_scheduler_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.11)"><span class="pre">Type</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler" title="tritondse.worklist.SeedScheduler"><span class="pre">SeedScheduler</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager" title="Permalink to this definition"></a></dt>
+<dd><p>Seed Manager.
+This class is in charge of providing the next seed to execute by prioritizing
+them. It also holds various sets of pending seeds, corpus, crashes etc and
+manages them in the workspace.</p>
+<p>It contains basically 2 types of seeds which are:</p>
+<ul class="simple">
+<li><p>pending seeds (kept in the seed scheduler). These are the seeds that might
+be selected to be run</p></li>
+<li><p>seed consumed (corpus, crash, hangs) which are seeds not meant to be re-executed
+as they cannot lead to new paths, all candidate paths are UNSAT etc.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coverage</strong> (<a class="reference internal" href="coverage.html#tritondse.coverage.GlobalCoverage" title="tritondse.coverage.GlobalCoverage"><em>GlobalCoverage</em></a>) – global coverage object. The instance will be updated by the seed manager</p></li>
+<li><p><strong>workspace</strong> (<a class="reference internal" href="workspace.html#tritondse.workspace.Workspace" title="tritondse.workspace.Workspace"><em>Workspace</em></a>) – workspace instance object.</p></li>
+<li><p><strong>smt_queries_limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – maximum number of queries for  a given execution</p></li>
+<li><p><strong>scheduler</strong> (<a class="reference internal" href="../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler" title="tritondse.worklist.SeedScheduler"><em>SeedScheduler</em></a>) – seed scheduler object to use as scheduling strategy</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.add_new_seed">
+<span class="sig-name descname"><span class="pre">add_new_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager.add_new_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.add_new_seed" title="Permalink to this definition"></a></dt>
+<dd><p>Add the given seed in the manager.
+The function uses its type to know where to add the seed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seed</strong> (<a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><em>Seed</em></a>) – seed to add</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.add_seed_queue">
+<span class="sig-name descname"><span class="pre">add_seed_queue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager.add_seed_queue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.add_seed_queue" title="Permalink to this definition"></a></dt>
+<dd><p>Add a seed to to appropriate internal queue depending
+on its status. If it is new it is added in pending seed,
+if OK, HANG or CRASH it the appropriate set.
+<strong>Note that the seed is not written in the workspace</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seed</strong> (<a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><em>Seed</em></a>) – Seed to add in an internal queue</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.archive_seed">
+<span class="sig-name descname"><span class="pre">archive_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="seeds.html#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><span class="pre">SeedStatus</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager.archive_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.archive_seed" title="Permalink to this definition"></a></dt>
+<dd><p>Send a seed in the corpus. As such, the seed
+is not meant to be used anymore (for finding
+new seeds).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seed</strong> (<a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><em>Seed</em></a>) – seed object</p></li>
+<li><p><strong>status</strong> (<a class="reference internal" href="seeds.html#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><em>SeedStatus</em></a>) – optional status to assign the seed</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.drop_seed">
+<span class="sig-name descname"><span class="pre">drop_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager.drop_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.drop_seed" title="Permalink to this definition"></a></dt>
+<dd><p>Drop a seed that is not of interest anymore.
+The function thus switch its status to <code class="docutils literal notranslate"><span class="pre">OK_DONE</span></code>
+and move it in the corpus. <em>(the seed is not removed
+from the corpus)</em></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seed</strong> (<a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><em>Seed</em></a>) – seed object to drop</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.is_new_seed">
+<span class="sig-name descname"><span class="pre">is_new_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager.is_new_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.is_new_seed" title="Permalink to this definition"></a></dt>
+<dd><p>Check if a seed is a new one (not into corpus, crash and hangs)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seed</strong> (<a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><em>Seed</em></a>) – The seed to test</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the seed is a new one</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>That function does not check that the seed
+is not in the pending seeds queue</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.pick_seed">
+<span class="sig-name descname"><span class="pre">pick_seed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager.pick_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.pick_seed" title="Permalink to this definition"></a></dt>
+<dd><p>Get the next seed to be executed by querying it
+in the seed scheduler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Seed to execute from the pending seeds</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed">Seed</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.post_execution">
+<span class="sig-name descname"><span class="pre">post_execution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.symbolic_executor.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">solve_new_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager.post_execution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.post_execution" title="Permalink to this definition"></a></dt>
+<dd><p>Function called after each execution. It updates the global
+code coverage object, and tries to generate new paths through
+SMT in accordance with the seed scheduling strategy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>execution</strong> (<a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><em>SymbolicExecutor</em></a>) – The current execution</p></li>
+<li><p><strong>seed</strong> (<a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><em>Seed</em></a>) – The seed of the execution</p></li>
+<li><p><strong>solve_new_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Whether or not to solve constraint to find new paths</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Total SMT solving time</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.post_exploration">
+<span class="sig-name descname"><span class="pre">post_exploration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager.post_exploration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.post_exploration" title="Permalink to this definition"></a></dt>
+<dd><p>Function called at the end of exploration. It perform
+some stats printing, but would also perform any clean
+up tasks. <em>(not meant to be called by the user)</em></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.pp_meta_filename">
+<span class="sig-name descname"><span class="pre">pp_meta_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">covitem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typ</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.SymExType" title="tritondse.types.SymExType"><span class="pre">SymExType</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager.pp_meta_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.pp_meta_filename" title="Permalink to this definition"></a></dt>
+<dd><p>pretty-print a covitem</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.seeds_available">
+<span class="sig-name descname"><span class="pre">seeds_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seeds_manager.html#SeedManager.seeds_available"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.seeds_available" title="Permalink to this definition"></a></dt>
+<dd><p>Checks whether or not there is still pending seeds to process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if seeds are still pending</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.seeds_manager.SeedManager.total_solving_time">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_solving_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></em><a class="headerlink" href="#tritondse.seeds_manager.SeedManager.total_solving_time" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="executor.html" class="btn btn-neutral float-left" title="SymbolicExecutor" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="exception.html" class="btn btn-neutral float-right" title="Exception" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

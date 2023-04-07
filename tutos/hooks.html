@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Playing with Hooks &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Managing Seeds" href="seeds.html" />
+    <link rel="prev" title="Getting Started" href="starting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="starting.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Hooks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#I.-Instruction-hooking">I. Instruction hooking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#II.-Address/Function-hooking">II. Address/Function hooking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#III.-Solving-queries">III. Solving queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#IV.-Hooking-exploration-events">IV. Hooking exploration events</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Playing with Hooks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutos/hooks.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Playing-with-Hooks">
+<h1>Playing with Hooks<a class="headerlink" href="#Playing-with-Hooks" title="Permalink to this heading"></a></h1>
+<p>Setting hooks is the main interface with an execution and an exploration to perform user-defined actions. TritonDSE enables hooking the following events:</p>
+<ul class="simple">
+<li><p>address reached</p></li>
+<li><p>instruction executed <em>(all of them)</em></p></li>
+<li><p>memory address read or written</p></li>
+<li><p>register read or written</p></li>
+<li><p>function reached <em>(from its name)</em></p></li>
+<li><p>end of an execution</p></li>
+<li><p>thread context switch</p></li>
+<li><p>new input creation <em>(before it gets appended in the pool of seeds)</em></p></li>
+</ul>
+<p>The library introduces a <code class="docutils literal notranslate"><span class="pre">CallbackManager</span></code> object which enables registering callbacks. A <code class="docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> does contain this object.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">SymbolicExplorator</span></code> object it also contains a callback_manager instance. In this case, callbacks will be transmitted to all subsequent <code class="docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> instances.</p>
+<p>Let’s reuse the following base snippet:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from triton import Instruction
+from tritondse import SymbolicExecutor, Config, Seed, Program, ProcessState, SeedFormat, CompositeData
+
+p = Program(&quot;crackme_xor&quot;)
+config = Config(pipe_stdout=False, seed_format=SeedFormat.COMPOSITE)
+seed = Seed(CompositeData(argv=[b&quot;./crackme_xor&quot;, b&quot;AAAAAAAAAAAA&quot;]))
+
+executor = SymbolicExecutor(config, seed)
+executor.load(p)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:symbol __gmon_start__ imported but unsupported
+</pre></div></div>
+</div>
+<section id="I.-Instruction-hooking">
+<h2>I. Instruction hooking<a class="headerlink" href="#I.-Instruction-hooking" title="Permalink to this heading"></a></h2>
+<p>Instruction hooking enables hooking the execution of every instructions executed regardless of theirs address etc.</p>
+<p>The signature for an instruction hook is the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">Instruction</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>We can use it to print every instructions executed:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def trace_inst(se: SymbolicExecutor, pstate: ProcessState, inst: Instruction):
+    print(f&quot;[tid:{inst.getThreadId()}] 0x{inst.getAddress():x}: {inst.getDisassembly()}&quot;)
+
+executor.callback_manager.register_post_instruction_callback(trace_inst)
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.run()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[tid:0] 0x400460: xor ebp, ebp
+[tid:0] 0x400462: mov r9, rdx
+[tid:0] 0x400465: pop rsi
+[tid:0] 0x400466: mov rdx, rsp
+[tid:0] 0x400469: and rsp, 0xfffffffffffffff0
+[tid:0] 0x40046d: push rax
+[tid:0] 0x40046e: push rsp
+[tid:0] 0x40046f: mov r8, 0x400680
+[tid:0] 0x400476: mov rcx, 0x400610
+[tid:0] 0x40047d: mov rdi, 0x4005b3
+[tid:0] 0x400484: call 0x400440
+[tid:0] 0x400440: jmp qword ptr [rip + 0x200bda]
+[tid:0] 0x4005b3: push rbp
+[tid:0] 0x4005b4: mov rbp, rsp
+[tid:0] 0x4005b7: sub rsp, 0x20
+[tid:0] 0x4005bb: mov dword ptr [rbp - 0x14], edi
+[tid:0] 0x4005be: mov qword ptr [rbp - 0x20], rsi
+[tid:0] 0x4005c2: cmp dword ptr [rbp - 0x14], 2
+[tid:0] 0x4005c6: je 0x4005cf
+[tid:0] 0x4005cf: mov rax, qword ptr [rbp - 0x20]
+[tid:0] 0x4005d3: add rax, 8
+[tid:0] 0x4005d7: mov rax, qword ptr [rax]
+[tid:0] 0x4005da: mov rdi, rax
+[tid:0] 0x4005dd: call 0x400556
+[tid:0] 0x400556: push rbp
+[tid:0] 0x400557: mov rbp, rsp
+[tid:0] 0x40055a: mov qword ptr [rbp - 0x18], rdi
+[tid:0] 0x40055e: mov dword ptr [rbp - 4], 0
+[tid:0] 0x400565: jmp 0x4005a6
+[tid:0] 0x4005a6: cmp dword ptr [rbp - 4], 4
+[tid:0] 0x4005aa: jle 0x400567
+[tid:0] 0x400567: mov eax, dword ptr [rbp - 4]
+[tid:0] 0x40056a: movsxd rdx, eax
+[tid:0] 0x40056d: mov rax, qword ptr [rbp - 0x18]
+[tid:0] 0x400571: add rax, rdx
+[tid:0] 0x400574: movzx eax, byte ptr [rax]
+[tid:0] 0x400577: movsx eax, al
+[tid:0] 0x40057a: sub eax, 1
+[tid:0] 0x40057d: xor eax, 0x55
+[tid:0] 0x400580: mov ecx, eax
+[tid:0] 0x400582: mov rdx, qword ptr [rip + 0x200ab7]
+[tid:0] 0x400589: mov eax, dword ptr [rbp - 4]
+[tid:0] 0x40058c: cdqe
+[tid:0] 0x40058e: add rax, rdx
+[tid:0] 0x400591: movzx eax, byte ptr [rax]
+[tid:0] 0x400594: movsx eax, al
+[tid:0] 0x400597: cmp ecx, eax
+[tid:0] 0x400599: je 0x4005a2
+[tid:0] 0x40059b: mov eax, 1
+[tid:0] 0x4005a0: jmp 0x4005b1
+[tid:0] 0x4005b1: pop rbp
+[tid:0] 0x4005b2: ret
+[tid:0] 0x4005e2: mov dword ptr [rbp - 4], eax
+[tid:0] 0x4005e5: cmp dword ptr [rbp - 4], 0
+[tid:0] 0x4005e9: jne 0x4005f7
+[tid:0] 0x4005f7: mov edi, 0x40069e
+[tid:0] 0x4005fc: call 0x400430
+[tid:0] 0x400430: jmp qword ptr [rip + 0x200be2]
+[tid:0] 0x400601: mov eax, 0
+[tid:0] 0x400606: leave
+[tid:0] 0x400607: ret
+</pre></div></div>
+</div>
+<p>The <strong>pre</strong> and <strong>post</strong> defines whether the callback is called before the instruction is executed or after.</p>
+<p>In this case we could also have used <code class="docutils literal notranslate"><span class="pre">register_pre_instruction_callback</span></code> but the <code class="docutils literal notranslate"><span class="pre">Instruction</span></code> object would not be decoded yet, so it prevents getting its disassembly.</p>
+</section>
+<section id="II.-Address/Function-hooking">
+<h2>II. Address/Function hooking<a class="headerlink" href="#II.-Address/Function-hooking" title="Permalink to this heading"></a></h2>
+<div class="line-block">
+<div class="line">We can hook any address and perform an associated action.</div>
+<div class="line">We can also hook any function as long as the symbol is set. They both have the same signature:</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>For the purpose of the challenge let’s hook the compare instruction and patch de ZF flag to force looping. Let’s also hook the <code class="docutils literal notranslate"><span class="pre">puts</span></code> function to print the string given to each call.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def hook_cmp(se: SymbolicExecutor, pstate: ProcessState, addr: int):
+    print(f&quot;{pstate.cpu.al} - {pstate.cpu.cl}&quot;)
+    pstate.cpu.zf = 1
+    #exec.abort()
+
+def hook_puts(se: SymbolicExecutor, pstate: ProcessState, routine: str, addr: int):
+    s = pstate.memory.read_string(pstate.get_argument_value(0))
+    print(f&quot;puts: {s}&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor = SymbolicExecutor(config, seed)
+executor.load(p)
+
+# Remove trace printing callback
+executor.callback_manager.reset()
+executor.callback_manager.register_post_addr_callback(0x0400597, hook_cmp)
+executor.callback_manager.register_post_imported_routine_callback(&quot;puts&quot;, hook_puts)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:symbol __gmon_start__ imported but unsupported
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.run()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+49 - 21
+62 - 21
+61 - 21
+38 - 21
+49 - 21
+puts: Win
+</pre></div></div>
+</div>
+<p>We did not really won where as we forced the ZF flag, but we retrieved encoded values on wich the comparison is made.</p>
+</section>
+<section id="III.-Solving-queries">
+<h2>III. Solving queries<a class="headerlink" href="#III.-Solving-queries" title="Permalink to this heading"></a></h2>
+<p>We can modify our hooks to directly solve by SMT what shall be the appropriate value of CL in order to match the comparison.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse.types import SolverStatus
+
+def hook_cmp2(se: SymbolicExecutor, pstate: ProcessState, addr: int):
+    # CL contains the input of the user (hashed)
+
+    # retrieve the symbolic value of both characters
+    sym_al = pstate.read_symbolic_register(pstate.registers.al)
+    sym_cl = pstate.read_symbolic_register(pstate.registers.cl)
+
+    # Solve the constraint such that one match the other
+    status, model = pstate.solve(sym_al.getAst() == sym_cl.getAst())
+
+    # If formula is SAT retrieve input values
+    if status == SolverStatus.SAT:
+        # Retrieve value of the input variable involved in the cl value here (shall be only one here)
+        var_values = pstate.get_expression_variable_values_model(sym_cl, model)
+        for var, value in var_values.items():
+            print(f&quot;{var}: {chr(value)}&quot;)
+    else:
+        print(status.name)
+
+    pstate.cpu.zf = 1
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor = SymbolicExecutor(config, seed)
+executor.load(p)
+
+executor.callback_manager.reset()
+executor.callback_manager.register_post_addr_callback(0x0400597, hook_cmp2)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:symbol __gmon_start__ imported but unsupported
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.run()
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+argv[1][0]:8: e
+argv[1][1]:8: l
+argv[1][2]:8: i
+argv[1][3]:8: t
+argv[1][4]:8: e
+</pre></div></div>
+</div>
+</section>
+<section id="IV.-Hooking-exploration-events">
+<h2>IV. Hooking exploration events<a class="headerlink" href="#IV.-Hooking-exploration-events" title="Permalink to this heading"></a></h2>
+<p>We can similarly put callbacks on a <code class="docutils literal notranslate"><span class="pre">SymbolicExplorator</span></code>. In this case, the callback manager will be shared among all the <code class="docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> instances. Let’s hook every iteration to print some statistics:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExplorator, Config, Seed, Program, ProcessState, SeedFormat, CompositeData
+
+def pre_exec_hook(se: SymbolicExecutor, state: ProcessState):
+    print(f&quot;input: {se.seed.hash} {se.seed.content.argv} &quot;, end=&quot;&quot;)
+
+def post_exec_hook(se: SymbolicExecutor, state: ProcessState):
+    print(f&quot;status:{se.seed.status.name}   [exitcode:{se.exitcode}]&quot;)
+
+dse = SymbolicExplorator(Config(seed_format=SeedFormat.COMPOSITE), p)
+dse.add_input_seed(Seed(CompositeData(argv=[b&quot;./crackme_xor&quot;, b&quot;AAAAAAAAAAAA&quot;])))
+
+dse.callback_manager.register_pre_execution_callback(pre_exec_hook)
+dse.callback_manager.register_post_execution_callback(post_exec_hook)
+
+dse.explore()
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+WARNING:root:symbol __gmon_start__ imported but unsupported
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+input: 0063e1d416400b0a0401dc471be64a8f [b&#39;./crackme_xor&#39;, b&#39;AAAAAAAAAAAA&#39;] status:OK_DONE   [exitcode:0]
+input: 415d0d4405119b88530788282aa06d7d [b&#39;./crackme_xor&#39;, b&#39;eAAAAAAAAAAA&#39;] status:OK_DONE   [exitcode:0]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;ExplorationStatus.IDLE: 2&gt;
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="starting.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="seeds.html" class="btn btn-neutral float-right" title="Managing Seeds" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

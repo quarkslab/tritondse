@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supported Routines &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Seed Scheduling" href="seedscheduling.html" />
+    <link rel="prev" title="Crackme" href="../practicals/crackme.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Supported Routines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-tritondse.routines">Linux</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn___fprintf_chk"><code class="docutils literal notranslate"><span class="pre">rtn___fprintf_chk()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn__setjmp"><code class="docutils literal notranslate"><span class="pre">rtn__setjmp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_abort"><code class="docutils literal notranslate"><span class="pre">rtn_abort()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_assert_fail"><code class="docutils literal notranslate"><span class="pre">rtn_assert_fail()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_atexit"><code class="docutils literal notranslate"><span class="pre">rtn_atexit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_atoi"><code class="docutils literal notranslate"><span class="pre">rtn_atoi()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_calloc"><code class="docutils literal notranslate"><span class="pre">rtn_calloc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_clock_gettime"><code class="docutils literal notranslate"><span class="pre">rtn_clock_gettime()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_ctype_b_loc"><code class="docutils literal notranslate"><span class="pre">rtn_ctype_b_loc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_ctype_toupper_loc"><code class="docutils literal notranslate"><span class="pre">rtn_ctype_toupper_loc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_errno_location"><code class="docutils literal notranslate"><span class="pre">rtn_errno_location()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_exit"><code class="docutils literal notranslate"><span class="pre">rtn_exit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_fclose"><code class="docutils literal notranslate"><span class="pre">rtn_fclose()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_fgets"><code class="docutils literal notranslate"><span class="pre">rtn_fgets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_fopen"><code class="docutils literal notranslate"><span class="pre">rtn_fopen()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_fprintf"><code class="docutils literal notranslate"><span class="pre">rtn_fprintf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_fputc"><code class="docutils literal notranslate"><span class="pre">rtn_fputc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_fputs"><code class="docutils literal notranslate"><span class="pre">rtn_fputs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_fread"><code class="docutils literal notranslate"><span class="pre">rtn_fread()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_free"><code class="docutils literal notranslate"><span class="pre">rtn_free()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_fseek"><code class="docutils literal notranslate"><span class="pre">rtn_fseek()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_ftell"><code class="docutils literal notranslate"><span class="pre">rtn_ftell()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_fwrite"><code class="docutils literal notranslate"><span class="pre">rtn_fwrite()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_getchar"><code class="docutils literal notranslate"><span class="pre">rtn_getchar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_getenv"><code class="docutils literal notranslate"><span class="pre">rtn_getenv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_gettimeofday"><code class="docutils literal notranslate"><span class="pre">rtn_gettimeofday()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_isspace"><code class="docutils literal notranslate"><span class="pre">rtn_isspace()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_libc_start_main"><code class="docutils literal notranslate"><span class="pre">rtn_libc_start_main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_longjmp"><code class="docutils literal notranslate"><span class="pre">rtn_longjmp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_malloc"><code class="docutils literal notranslate"><span class="pre">rtn_malloc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_memcmp"><code class="docutils literal notranslate"><span class="pre">rtn_memcmp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_memcpy"><code class="docutils literal notranslate"><span class="pre">rtn_memcpy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_memmem"><code class="docutils literal notranslate"><span class="pre">rtn_memmem()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_memmove"><code class="docutils literal notranslate"><span class="pre">rtn_memmove()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_mempcpy"><code class="docutils literal notranslate"><span class="pre">rtn_mempcpy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_memset"><code class="docutils literal notranslate"><span class="pre">rtn_memset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_printf"><code class="docutils literal notranslate"><span class="pre">rtn_printf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_pthread_create"><code class="docutils literal notranslate"><span class="pre">rtn_pthread_create()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_pthread_exit"><code class="docutils literal notranslate"><span class="pre">rtn_pthread_exit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_pthread_join"><code class="docutils literal notranslate"><span class="pre">rtn_pthread_join()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_pthread_mutex_destroy"><code class="docutils literal notranslate"><span class="pre">rtn_pthread_mutex_destroy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_pthread_mutex_init"><code class="docutils literal notranslate"><span class="pre">rtn_pthread_mutex_init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_pthread_mutex_lock"><code class="docutils literal notranslate"><span class="pre">rtn_pthread_mutex_lock()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_pthread_mutex_unlock"><code class="docutils literal notranslate"><span class="pre">rtn_pthread_mutex_unlock()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_puts"><code class="docutils literal notranslate"><span class="pre">rtn_puts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_rand"><code class="docutils literal notranslate"><span class="pre">rtn_rand()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_read"><code class="docutils literal notranslate"><span class="pre">rtn_read()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_realloc"><code class="docutils literal notranslate"><span class="pre">rtn_realloc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_sem_destroy"><code class="docutils literal notranslate"><span class="pre">rtn_sem_destroy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_sem_getvalue"><code class="docutils literal notranslate"><span class="pre">rtn_sem_getvalue()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_sem_init"><code class="docutils literal notranslate"><span class="pre">rtn_sem_init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_sem_post"><code class="docutils literal notranslate"><span class="pre">rtn_sem_post()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_sem_timedwait"><code class="docutils literal notranslate"><span class="pre">rtn_sem_timedwait()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_sem_trywait"><code class="docutils literal notranslate"><span class="pre">rtn_sem_trywait()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_sem_wait"><code class="docutils literal notranslate"><span class="pre">rtn_sem_wait()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_setlocale"><code class="docutils literal notranslate"><span class="pre">rtn_setlocale()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_sleep"><code class="docutils literal notranslate"><span class="pre">rtn_sleep()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_sprintf"><code class="docutils literal notranslate"><span class="pre">rtn_sprintf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_stack_chk_fail"><code class="docutils literal notranslate"><span class="pre">rtn_stack_chk_fail()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strcasecmp"><code class="docutils literal notranslate"><span class="pre">rtn_strcasecmp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strchr"><code class="docutils literal notranslate"><span class="pre">rtn_strchr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strcmp"><code class="docutils literal notranslate"><span class="pre">rtn_strcmp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strcpy"><code class="docutils literal notranslate"><span class="pre">rtn_strcpy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strdup"><code class="docutils literal notranslate"><span class="pre">rtn_strdup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strerror"><code class="docutils literal notranslate"><span class="pre">rtn_strerror()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strlen"><code class="docutils literal notranslate"><span class="pre">rtn_strlen()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strncasecmp"><code class="docutils literal notranslate"><span class="pre">rtn_strncasecmp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strncmp"><code class="docutils literal notranslate"><span class="pre">rtn_strncmp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strncpy"><code class="docutils literal notranslate"><span class="pre">rtn_strncpy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strtok_r"><code class="docutils literal notranslate"><span class="pre">rtn_strtok_r()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_strtoul"><code class="docutils literal notranslate"><span class="pre">rtn_strtoul()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_write"><code class="docutils literal notranslate"><span class="pre">rtn_write()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.routines.rtn_xstat"><code class="docutils literal notranslate"><span class="pre">rtn_xstat()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Supported Routines</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/dev_doc/routines.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="supported-routines">
+<h1>Supported Routines<a class="headerlink" href="#supported-routines" title="Permalink to this heading"></a></h1>
+<section id="module-tritondse.routines">
+<span id="linux"></span><h2>Linux<a class="headerlink" href="#module-tritondse.routines" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn___fprintf_chk">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn___fprintf_chk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn___fprintf_chk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn___fprintf_chk" title="Permalink to this definition"></a></dt>
+<dd><p>The __fprintf_chk behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn__setjmp">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn__setjmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn__setjmp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn__setjmp" title="Permalink to this definition"></a></dt>
+<dd><p>The _setjmp behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_abort">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_abort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_abort"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_abort" title="Permalink to this definition"></a></dt>
+<dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">void</span> <span class="n">abort</span><span class="p">(</span><span class="n">void</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Mark the input seed as OK and stop execution.</p>
+<p>[<a class="reference external" href="https://man7.org/linux/man-pages/man3/abort.3.html">Man Page</a>]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_assert_fail">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_assert_fail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_assert_fail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_assert_fail" title="Permalink to this definition"></a></dt>
+<dd><p>The __assert_fail behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_atexit">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_atexit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_atexit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_atexit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_atoi">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_atoi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_atoi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_atoi" title="Permalink to this definition"></a></dt>
+<dd><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">int</span> <span class="n">atoi</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">nptr</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Description</strong>: The atoi() function converts the initial portion of the string
+pointed to by nptr to int.  The behavior is the same as</p>
+<p>Concrete: /</p>
+<p>Symbolic: Represent the return value symbolically with 10 nested if
+to represent the value.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The function does not support all possibles representation
+of an integer. It does not support negative integer nor values
+prefixed by spaces.</p>
+</div>
+<p>[<a class="reference external" href="https://man7.org/linux/man-pages/man3/abort.3.html">Man Page</a>]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Symbolic value of the integer base on the symbolic string <code class="docutils literal notranslate"><span class="pre">nptr</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_calloc">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_calloc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_calloc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_calloc" title="Permalink to this definition"></a></dt>
+<dd><p>The calloc behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_clock_gettime">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_clock_gettime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_clock_gettime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_clock_gettime" title="Permalink to this definition"></a></dt>
+<dd><p>The clock_gettime behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_ctype_b_loc">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_ctype_b_loc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_ctype_b_loc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_ctype_b_loc" title="Permalink to this definition"></a></dt>
+<dd><p>The __ctype_b_loc behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_ctype_toupper_loc">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_ctype_toupper_loc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_ctype_toupper_loc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_ctype_toupper_loc" title="Permalink to this definition"></a></dt>
+<dd><p>The __ctype_toupper_loc behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_errno_location">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_errno_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_errno_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_errno_location" title="Permalink to this definition"></a></dt>
+<dd><p>The __errno_location behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_exit">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_exit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_exit" title="Permalink to this definition"></a></dt>
+<dd><p>The exit behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_fclose">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_fclose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_fclose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_fclose" title="Permalink to this definition"></a></dt>
+<dd><p>The fclose behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_fgets">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_fgets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_fgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_fgets" title="Permalink to this definition"></a></dt>
+<dd><p>The fgets behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_fopen">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_fopen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_fopen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_fopen" title="Permalink to this definition"></a></dt>
+<dd><p>The fopen behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_fprintf">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_fprintf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_fprintf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_fprintf" title="Permalink to this definition"></a></dt>
+<dd><p>The fprintf behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_fputc">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_fputc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_fputc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_fputc" title="Permalink to this definition"></a></dt>
+<dd><p>The fputc behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_fputs">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_fputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_fputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_fputs" title="Permalink to this definition"></a></dt>
+<dd><p>The fputs behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_fread">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_fread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_fread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_fread" title="Permalink to this definition"></a></dt>
+<dd><p>The fread behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_free">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_free</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_free"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_free" title="Permalink to this definition"></a></dt>
+<dd><p>The free behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_fseek">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_fseek</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_fseek"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_fseek" title="Permalink to this definition"></a></dt>
+<dd><p>The fseek behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_ftell">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_ftell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_ftell"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_ftell" title="Permalink to this definition"></a></dt>
+<dd><p>The ftell behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_fwrite">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_fwrite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_fwrite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_fwrite" title="Permalink to this definition"></a></dt>
+<dd><p>The fwrite behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_getchar">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_getchar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_getchar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_getchar" title="Permalink to this definition"></a></dt>
+<dd><p>The getchar behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_getenv">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_getenv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_getenv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_getenv" title="Permalink to this definition"></a></dt>
+<dd><p>The getenv behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_gettimeofday">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_gettimeofday</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_gettimeofday"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_gettimeofday" title="Permalink to this definition"></a></dt>
+<dd><p>The gettimeofday behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_isspace">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_isspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_isspace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_isspace" title="Permalink to this definition"></a></dt>
+<dd><p>The isspace behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_libc_start_main">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_libc_start_main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_libc_start_main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_libc_start_main" title="Permalink to this definition"></a></dt>
+<dd><p>The __libc_start_main behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_longjmp">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_longjmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_longjmp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_longjmp" title="Permalink to this definition"></a></dt>
+<dd><p>The longjmp behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_malloc">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_malloc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_malloc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_malloc" title="Permalink to this definition"></a></dt>
+<dd><p>The malloc behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_memcmp">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_memcmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_memcmp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_memcmp" title="Permalink to this definition"></a></dt>
+<dd><p>The memcmp behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_memcpy">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_memcpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_memcpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_memcpy" title="Permalink to this definition"></a></dt>
+<dd><p>The memcpy behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_memmem">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_memmem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_memmem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_memmem" title="Permalink to this definition"></a></dt>
+<dd><p>The memmem behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_memmove">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_memmove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_memmove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_memmove" title="Permalink to this definition"></a></dt>
+<dd><p>The memmove behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_mempcpy">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_mempcpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_mempcpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_mempcpy" title="Permalink to this definition"></a></dt>
+<dd><p>The mempcpy behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_memset">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_memset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_memset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_memset" title="Permalink to this definition"></a></dt>
+<dd><p>The memset behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_printf">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_printf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_printf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_printf" title="Permalink to this definition"></a></dt>
+<dd><p>The printf behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_pthread_create">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_pthread_create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_pthread_create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_pthread_create" title="Permalink to this definition"></a></dt>
+<dd><p>The pthread_create behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_pthread_exit">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_pthread_exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_pthread_exit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_pthread_exit" title="Permalink to this definition"></a></dt>
+<dd><p>The pthread_exit behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_pthread_join">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_pthread_join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_pthread_join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_pthread_join" title="Permalink to this definition"></a></dt>
+<dd><p>The pthread_join behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_pthread_mutex_destroy">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_pthread_mutex_destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_pthread_mutex_destroy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_pthread_mutex_destroy" title="Permalink to this definition"></a></dt>
+<dd><p>The pthread_mutex_destroy behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_pthread_mutex_init">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_pthread_mutex_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_pthread_mutex_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_pthread_mutex_init" title="Permalink to this definition"></a></dt>
+<dd><p>The pthread_mutex_init behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_pthread_mutex_lock">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_pthread_mutex_lock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_pthread_mutex_lock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_pthread_mutex_lock" title="Permalink to this definition"></a></dt>
+<dd><p>The pthread_mutex_lock behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_pthread_mutex_unlock">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_pthread_mutex_unlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_pthread_mutex_unlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_pthread_mutex_unlock" title="Permalink to this definition"></a></dt>
+<dd><p>The pthread_mutex_unlock behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_puts">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_puts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_puts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_puts" title="Permalink to this definition"></a></dt>
+<dd><p>The puts behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_rand">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_rand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_rand"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_rand" title="Permalink to this definition"></a></dt>
+<dd><p>The rand behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_read">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_read" title="Permalink to this definition"></a></dt>
+<dd><p>The read behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_realloc">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_realloc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_realloc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_realloc" title="Permalink to this definition"></a></dt>
+<dd><p>The realloc behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_sem_destroy">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_sem_destroy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_sem_destroy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_sem_destroy" title="Permalink to this definition"></a></dt>
+<dd><p>The sem_destroy behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_sem_getvalue">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_sem_getvalue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_sem_getvalue"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_sem_getvalue" title="Permalink to this definition"></a></dt>
+<dd><p>The sem_getvalue behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_sem_init">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_sem_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_sem_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_sem_init" title="Permalink to this definition"></a></dt>
+<dd><p>The sem_init behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_sem_post">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_sem_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_sem_post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_sem_post" title="Permalink to this definition"></a></dt>
+<dd><p>The sem_post behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_sem_timedwait">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_sem_timedwait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_sem_timedwait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_sem_timedwait" title="Permalink to this definition"></a></dt>
+<dd><p>The sem_timedwait behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_sem_trywait">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_sem_trywait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_sem_trywait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_sem_trywait" title="Permalink to this definition"></a></dt>
+<dd><p>The sem_trywait behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_sem_wait">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_sem_wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_sem_wait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_sem_wait" title="Permalink to this definition"></a></dt>
+<dd><p>The sem_wait behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_setlocale">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_setlocale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_setlocale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_setlocale" title="Permalink to this definition"></a></dt>
+<dd><p>The setlocale behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_sleep">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_sleep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_sleep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_sleep" title="Permalink to this definition"></a></dt>
+<dd><p>The sleep behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_sprintf">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_sprintf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_sprintf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_sprintf" title="Permalink to this definition"></a></dt>
+<dd><p>The sprintf behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_stack_chk_fail">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_stack_chk_fail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_stack_chk_fail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_stack_chk_fail" title="Permalink to this definition"></a></dt>
+<dd><p>The __stack_chk_fail behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strcasecmp">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strcasecmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strcasecmp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strcasecmp" title="Permalink to this definition"></a></dt>
+<dd><p>The strcasecmp behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strchr">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strchr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strchr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strchr" title="Permalink to this definition"></a></dt>
+<dd><p>The strchr behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strcmp">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strcmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strcmp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strcmp" title="Permalink to this definition"></a></dt>
+<dd><p>The strcmp behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strcpy">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strcpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strcpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strcpy" title="Permalink to this definition"></a></dt>
+<dd><p>The strcpy behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strdup">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strdup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strdup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strdup" title="Permalink to this definition"></a></dt>
+<dd><p>The strdup behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strerror">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strerror</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strerror"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strerror" title="Permalink to this definition"></a></dt>
+<dd><p>The strerror behavior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>se</strong> – The current symbolic execution instance</p></li>
+<li><p><strong>pstate</strong> – The current process state</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a concrete value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strlen">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strlen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strlen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strlen" title="Permalink to this definition"></a></dt>
+<dd><p>The strlen behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strncasecmp">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strncasecmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strncasecmp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strncasecmp" title="Permalink to this definition"></a></dt>
+<dd><p>The strncasecmp behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strncmp">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strncmp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strncmp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strncmp" title="Permalink to this definition"></a></dt>
+<dd><p>The strncmp behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strncpy">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strncpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strncpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strncpy" title="Permalink to this definition"></a></dt>
+<dd><p>The strncpy behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strtok_r">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strtok_r</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strtok_r"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strtok_r" title="Permalink to this definition"></a></dt>
+<dd><p>The strtok_r behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_strtoul">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_strtoul</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_strtoul"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_strtoul" title="Permalink to this definition"></a></dt>
+<dd><p>The strtoul behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_write">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_write" title="Permalink to this definition"></a></dt>
+<dd><p>The write behavior.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tritondse.routines.rtn_xstat">
+<span class="sig-prename descclassname"><span class="pre">tritondse.routines.</span></span><span class="sig-name descname"><span class="pre">rtn_xstat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../api/process.html#tritondse.ProcessState" title="tritondse.ProcessState"><span class="pre">ProcessState</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/routines.html#rtn_xstat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.routines.rtn_xstat" title="Permalink to this definition"></a></dt>
+<dd><p>The __xstat behavior.</p>
+</dd></dl>
+
+</section>
+<section id="windows">
+<h2>Windows<a class="headerlink" href="#windows" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../practicals/crackme.html" class="btn btn-neutral float-left" title="Crackme" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="seedscheduling.html" class="btn btn-neutral float-right" title="Seed Scheduling" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

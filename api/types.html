@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Types &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Workspace" href="workspace.html" />
+    <link rel="prev" title="Trace" href="tracing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracing.html">Trace</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Addr"><code class="docutils literal notranslate"><span class="pre">Addr</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.ArchMode"><code class="docutils literal notranslate"><span class="pre">ArchMode</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.ArchMode.THUMB"><code class="docutils literal notranslate"><span class="pre">ArchMode.THUMB</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Architecture"><code class="docutils literal notranslate"><span class="pre">Architecture</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Architecture.AARCH64"><code class="docutils literal notranslate"><span class="pre">Architecture.AARCH64</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Architecture.ARM32"><code class="docutils literal notranslate"><span class="pre">Architecture.ARM32</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Architecture.X86"><code class="docutils literal notranslate"><span class="pre">Architecture.X86</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Architecture.X86_64"><code class="docutils literal notranslate"><span class="pre">Architecture.X86_64</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.AstNode"><code class="docutils literal notranslate"><span class="pre">AstNode</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.BitSize"><code class="docutils literal notranslate"><span class="pre">BitSize</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.ByteSize"><code class="docutils literal notranslate"><span class="pre">ByteSize</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Edge"><code class="docutils literal notranslate"><span class="pre">Edge</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Endian"><code class="docutils literal notranslate"><span class="pre">Endian</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Endian.LITTLE"><code class="docutils literal notranslate"><span class="pre">Endian.LITTLE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Endian.BIG"><code class="docutils literal notranslate"><span class="pre">Endian.BIG</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Expression"><code class="docutils literal notranslate"><span class="pre">Expression</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.FileDesc"><code class="docutils literal notranslate"><span class="pre">FileDesc</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.FileDesc.fd"><code class="docutils literal notranslate"><span class="pre">FileDesc.fd</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.FileDesc.fgets"><code class="docutils literal notranslate"><span class="pre">FileDesc.fgets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.FileDesc.id"><code class="docutils literal notranslate"><span class="pre">FileDesc.id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.FileDesc.is_input_fd"><code class="docutils literal notranslate"><span class="pre">FileDesc.is_input_fd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.FileDesc.is_real_fd"><code class="docutils literal notranslate"><span class="pre">FileDesc.is_real_fd()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.FileDesc.name"><code class="docutils literal notranslate"><span class="pre">FileDesc.name</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.FileDesc.offset"><code class="docutils literal notranslate"><span class="pre">FileDesc.offset</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.FileDesc.read"><code class="docutils literal notranslate"><span class="pre">FileDesc.read()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Input"><code class="docutils literal notranslate"><span class="pre">Input</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.PathBranch"><code class="docutils literal notranslate"><span class="pre">PathBranch</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.PathBranch.constraint"><code class="docutils literal notranslate"><span class="pre">PathBranch.constraint</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.PathBranch.dstAddr"><code class="docutils literal notranslate"><span class="pre">PathBranch.dstAddr</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.PathBranch.isTaken"><code class="docutils literal notranslate"><span class="pre">PathBranch.isTaken</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.PathBranch.srcAddr"><code class="docutils literal notranslate"><span class="pre">PathBranch.srcAddr</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.PathConstraint"><code class="docutils literal notranslate"><span class="pre">PathConstraint</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.PathHash"><code class="docutils literal notranslate"><span class="pre">PathHash</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.PathLike"><code class="docutils literal notranslate"><span class="pre">PathLike</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Perm"><code class="docutils literal notranslate"><span class="pre">Perm</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Perm.R"><code class="docutils literal notranslate"><span class="pre">Perm.R</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Perm.W"><code class="docutils literal notranslate"><span class="pre">Perm.W</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Perm.X"><code class="docutils literal notranslate"><span class="pre">Perm.X</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Platform"><code class="docutils literal notranslate"><span class="pre">Platform</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Platform.LINUX"><code class="docutils literal notranslate"><span class="pre">Platform.LINUX</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Platform.WINDOWS"><code class="docutils literal notranslate"><span class="pre">Platform.WINDOWS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Platform.MACOS"><code class="docutils literal notranslate"><span class="pre">Platform.MACOS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Platform.ANDROID"><code class="docutils literal notranslate"><span class="pre">Platform.ANDROID</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.Platform.IOS"><code class="docutils literal notranslate"><span class="pre">Platform.IOS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Register"><code class="docutils literal notranslate"><span class="pre">Register</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.Registers"><code class="docutils literal notranslate"><span class="pre">Registers</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.SmtSolver"><code class="docutils literal notranslate"><span class="pre">SmtSolver</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.SmtSolver.Z3"><code class="docutils literal notranslate"><span class="pre">SmtSolver.Z3</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.SmtSolver.BITWUZLA"><code class="docutils literal notranslate"><span class="pre">SmtSolver.BITWUZLA</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.SolverStatus"><code class="docutils literal notranslate"><span class="pre">SolverStatus</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.SolverStatus.SAT"><code class="docutils literal notranslate"><span class="pre">SolverStatus.SAT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.SolverStatus.UNSAT"><code class="docutils literal notranslate"><span class="pre">SolverStatus.UNSAT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.SolverStatus.TIMEOUT"><code class="docutils literal notranslate"><span class="pre">SolverStatus.TIMEOUT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.SolverStatus.UNKNOWN"><code class="docutils literal notranslate"><span class="pre">SolverStatus.UNKNOWN</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.SymExType"><code class="docutils literal notranslate"><span class="pre">SymExType</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.SymExType.CONDITIONAL_JMP"><code class="docutils literal notranslate"><span class="pre">SymExType.CONDITIONAL_JMP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.SymExType.DYNAMIC_JMP"><code class="docutils literal notranslate"><span class="pre">SymExType.DYNAMIC_JMP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.SymExType.SYMBOLIC_READ"><code class="docutils literal notranslate"><span class="pre">SymExType.SYMBOLIC_READ</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.types.SymExType.SYMBOLIC_WRITE"><code class="docutils literal notranslate"><span class="pre">SymExType.SYMBOLIC_WRITE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.SymbolicVariable"><code class="docutils literal notranslate"><span class="pre">SymbolicVariable</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.types.rAddr"><code class="docutils literal notranslate"><span class="pre">rAddr</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Types</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/types.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-tritondse.types">
+<span id="types"></span><h1>Types<a class="headerlink" href="#module-tritondse.types" title="Permalink to this heading"></a></h1>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Addr">
+<span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Addr</span></span><a class="headerlink" href="#tritondse.types.Addr" title="Permalink to this definition"></a></dt>
+<dd><p>Integer representing an address</p>
+</dd></dl>
+
+<dl class="py class flag">
+<dt class="sig sig-object py" id="tritondse.types.ArchMode">
+<em class="property"><span class="pre">flag</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">ArchMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/types.html#ArchMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.ArchMode" title="Permalink to this definition"></a></dt>
+<dd><p>Various architecture specific modes that can be enabled or disabledd.
+(meant to be fullfilled)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.ArchMode.THUMB">
+<span class="sig-name descname"><span class="pre">THUMB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;ArchMode.THUMB:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#tritondse.types.ArchMode.THUMB" title="Permalink to this definition"></a></dt>
+<dd><p>set thumb mode for ARM32 architecture</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class enum">
+<dt class="sig sig-object py" id="tritondse.types.Architecture">
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Architecture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/types.html#Architecture"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.Architecture" title="Permalink to this definition"></a></dt>
+<dd><p>Common architecture Enum fully compatible with Triton
+<a class="reference external" href="https://triton.quarkslab.com/documentation/doxygen/py_ARCH_page.html">ARCH</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Architecture.AARCH64">
+<span class="sig-name descname"><span class="pre">AARCH64</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Architecture.AARCH64:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#tritondse.types.Architecture.AARCH64" title="Permalink to this definition"></a></dt>
+<dd><p>Aarch64 architecture</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Architecture.ARM32">
+<span class="sig-name descname"><span class="pre">ARM32</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Architecture.ARM32:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#tritondse.types.Architecture.ARM32" title="Permalink to this definition"></a></dt>
+<dd><p>ARM architecture (32 bits)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Architecture.X86">
+<span class="sig-name descname"><span class="pre">X86</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Architecture.X86:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#tritondse.types.Architecture.X86" title="Permalink to this definition"></a></dt>
+<dd><p>x86 architecture (32 bits)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Architecture.X86_64">
+<span class="sig-name descname"><span class="pre">X86_64</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Architecture.X86_64:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#tritondse.types.Architecture.X86_64" title="Permalink to this definition"></a></dt>
+<dd><p>x86-64 architecture (64 bits)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.types.AstNode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">AstNode</span></span><a class="headerlink" href="#tritondse.types.AstNode" title="Permalink to this definition"></a></dt>
+<dd><p>SMT logic formula as returned by Triton (<a class="reference external" href="https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html">AstNode</a>)</p>
+<p>alias of TypeVar(‘AstNode’)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.BitSize">
+<span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">BitSize</span></span><a class="headerlink" href="#tritondse.types.BitSize" title="Permalink to this definition"></a></dt>
+<dd><p>Integer representing a value in bits</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.ByteSize">
+<span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">ByteSize</span></span><a class="headerlink" href="#tritondse.types.ByteSize" title="Permalink to this definition"></a></dt>
+<dd><p>Integer representing a value in bytes</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tritondse.types.Edge">
+<span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Edge</span></span><a class="headerlink" href="#tritondse.types.Edge" title="Permalink to this definition"></a></dt>
+<dd><p>Type representing a edge in the program</p>
+<p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">Tuple</span></code>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</p>
+</dd></dl>
+
+<dl class="py class enum">
+<dt class="sig sig-object py" id="tritondse.types.Endian">
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Endian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/types.html#Endian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.Endian" title="Permalink to this definition"></a></dt>
+<dd><p>Endianess of the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Endian.LITTLE">
+<span class="sig-name descname"><span class="pre">LITTLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Endian.LITTLE:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#tritondse.types.Endian.LITTLE" title="Permalink to this definition"></a></dt>
+<dd><p>Little-endian</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Endian.BIG">
+<span class="sig-name descname"><span class="pre">BIG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Endian.BIG:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#tritondse.types.Endian.BIG" title="Permalink to this definition"></a></dt>
+<dd><p>Big-endian</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.types.Expression">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Expression</span></span><a class="headerlink" href="#tritondse.types.Expression" title="Permalink to this definition"></a></dt>
+<dd><p>Symbolic Expression as returned by Triton (<a class="reference external" href="https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html">SymbolicExpression</a>)</p>
+<p>alias of TypeVar(‘Expression’)</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.types.FileDesc">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">FileDesc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/io.html#io.IOBase" title="(in Python v3.11)"><span class="pre">IOBase</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/types.html#FileDesc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.FileDesc" title="Permalink to this definition"></a></dt>
+<dd><p>Type representing a file descriptor</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.FileDesc.fd">
+<span class="sig-name descname"><span class="pre">fd</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/io.html#io.IOBase" title="(in Python v3.11)"><span class="pre">IOBase</span></a></em><a class="headerlink" href="#tritondse.types.FileDesc.fd" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.types.FileDesc.fgets">
+<span class="sig-name descname"><span class="pre">fgets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a></span></span><a class="reference internal" href="../_modules/tritondse/types.html#FileDesc.fgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.FileDesc.fgets" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.FileDesc.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.types.FileDesc.id" title="Permalink to this definition"></a></dt>
+<dd><p>Name of the file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.types.FileDesc.is_input_fd">
+<span class="sig-name descname"><span class="pre">is_input_fd</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/types.html#FileDesc.is_input_fd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.FileDesc.is_input_fd" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.types.FileDesc.is_real_fd">
+<span class="sig-name descname"><span class="pre">is_real_fd</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/types.html#FileDesc.is_real_fd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.FileDesc.is_real_fd" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.FileDesc.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#tritondse.types.FileDesc.name" title="Permalink to this definition"></a></dt>
+<dd><p>The python file stream object</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.types.FileDesc.offset">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">offset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.types.FileDesc.offset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.types.FileDesc.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a></span></span><a class="reference internal" href="../_modules/tritondse/types.html#FileDesc.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.FileDesc.read" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Input">
+<span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Input</span></span><a class="headerlink" href="#tritondse.types.Input" title="Permalink to this definition"></a></dt>
+<dd><p>Type representing an Input (which is bytes)</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.types.Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><a class="headerlink" href="#tritondse.types.Model" title="Permalink to this definition"></a></dt>
+<dd><p>Solver <a class="reference external" href="https://triton.quarkslab.com/documentation/doxygen/py_SolverModel_page.html">Model</a> as returned by Triton</p>
+<p>alias of TypeVar(‘Model’)</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.types.PathBranch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">PathBranch</span></span><a class="reference internal" href="../_modules/tritondse/types.html#PathBranch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.PathBranch" title="Permalink to this definition"></a></dt>
+<dd><p>PathBranchobject as returned by Triton.
+Thus it is a dictionnary with the keys:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.PathBranch.constraint">
+<span class="sig-name descname"><span class="pre">constraint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#tritondse.types.AstNode" title="tritondse.types.AstNode"><span class="pre">AstNode</span></a></em><a class="headerlink" href="#tritondse.types.PathBranch.constraint" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.PathBranch.dstAddr">
+<span class="sig-name descname"><span class="pre">dstAddr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Addr</span></em><a class="headerlink" href="#tritondse.types.PathBranch.dstAddr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.PathBranch.isTaken">
+<span class="sig-name descname"><span class="pre">isTaken</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></em><a class="headerlink" href="#tritondse.types.PathBranch.isTaken" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.PathBranch.srcAddr">
+<span class="sig-name descname"><span class="pre">srcAddr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Addr</span></em><a class="headerlink" href="#tritondse.types.PathBranch.srcAddr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.types.PathConstraint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">PathConstraint</span></span><a class="headerlink" href="#tritondse.types.PathConstraint" title="Permalink to this definition"></a></dt>
+<dd><p><a class="reference external" href="https://triton.quarkslab.com/documentation/doxygen/py_PathConstraint_page.html">PathConstraint</a> object as returned by Triton</p>
+<p>alias of TypeVar(‘PathConstraint’)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.PathHash">
+<span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">PathHash</span></span><a class="headerlink" href="#tritondse.types.PathHash" title="Permalink to this definition"></a></dt>
+<dd><p>Type representing the hash of path to uniquely identify any path</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tritondse.types.PathLike">
+<span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">PathLike</span></span><a class="headerlink" href="#tritondse.types.PathLike" title="Permalink to this definition"></a></dt>
+<dd><p>Type representing file either as a file, either as a Path object</p>
+<p>alias of <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>]</p>
+</dd></dl>
+
+<dl class="py class flag">
+<dt class="sig sig-object py" id="tritondse.types.Perm">
+<em class="property"><span class="pre">flag</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Perm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/types.html#Perm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.Perm" title="Permalink to this definition"></a></dt>
+<dd><p>Flags encoding permissions. Used for memory pages.
+They can be combined as flags. e.g:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rw</span> <span class="o">=</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">W</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Perm.R">
+<span class="sig-name descname"><span class="pre">R</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Perm.R:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#tritondse.types.Perm.R" title="Permalink to this definition"></a></dt>
+<dd><p>Read</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Perm.W">
+<span class="sig-name descname"><span class="pre">W</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Perm.W:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#tritondse.types.Perm.W" title="Permalink to this definition"></a></dt>
+<dd><p>Write</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Perm.X">
+<span class="sig-name descname"><span class="pre">X</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Perm.X:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#tritondse.types.Perm.X" title="Permalink to this definition"></a></dt>
+<dd><p>Execute</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class enum">
+<dt class="sig sig-object py" id="tritondse.types.Platform">
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Platform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/types.html#Platform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.Platform" title="Permalink to this definition"></a></dt>
+<dd><p>Platform associated to a binary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Platform.LINUX">
+<span class="sig-name descname"><span class="pre">LINUX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Platform.LINUX:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#tritondse.types.Platform.LINUX" title="Permalink to this definition"></a></dt>
+<dd><p>Linux platform</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Platform.WINDOWS">
+<span class="sig-name descname"><span class="pre">WINDOWS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Platform.WINDOWS:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#tritondse.types.Platform.WINDOWS" title="Permalink to this definition"></a></dt>
+<dd><p>Windows platform</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Platform.MACOS">
+<span class="sig-name descname"><span class="pre">MACOS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Platform.MACOS:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#tritondse.types.Platform.MACOS" title="Permalink to this definition"></a></dt>
+<dd><p>Mac OS platform</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Platform.ANDROID">
+<span class="sig-name descname"><span class="pre">ANDROID</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Platform.ANDROID:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#tritondse.types.Platform.ANDROID" title="Permalink to this definition"></a></dt>
+<dd><p>Android platform</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.Platform.IOS">
+<span class="sig-name descname"><span class="pre">IOS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Platform.IOS:</span> <span class="pre">5&gt;</span></em><a class="headerlink" href="#tritondse.types.Platform.IOS" title="Permalink to this definition"></a></dt>
+<dd><p>IOS platform</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.types.Register">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Register</span></span><a class="headerlink" href="#tritondse.types.Register" title="Permalink to this definition"></a></dt>
+<dd><p>Register identifier as used by Triton <em>(not the Register object itself)</em></p>
+<p>alias of TypeVar(‘Register’)</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.types.Registers">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">Registers</span></span><a class="headerlink" href="#tritondse.types.Registers" title="Permalink to this definition"></a></dt>
+<dd><p>Set of registers as used by Triton</p>
+<p>alias of TypeVar(‘Registers’)</p>
+</dd></dl>
+
+<dl class="py class enum">
+<dt class="sig sig-object py" id="tritondse.types.SmtSolver">
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">SmtSolver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/types.html#SmtSolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.SmtSolver" title="Permalink to this definition"></a></dt>
+<dd><p>Common SMT Solver Enum fully compatible with Triton</p>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.SmtSolver.Z3">
+<span class="sig-name descname"><span class="pre">Z3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SmtSolver.Z3:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#tritondse.types.SmtSolver.Z3" title="Permalink to this definition"></a></dt>
+<dd><p>Z3 SMT solver</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.SmtSolver.BITWUZLA">
+<span class="sig-name descname"><span class="pre">BITWUZLA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SmtSolver.BITWUZLA:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#tritondse.types.SmtSolver.BITWUZLA" title="Permalink to this definition"></a></dt>
+<dd><p>bitwuzla solver</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class enum">
+<dt class="sig sig-object py" id="tritondse.types.SolverStatus">
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">SolverStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/types.html#SolverStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.SolverStatus" title="Permalink to this definition"></a></dt>
+<dd><p>Common Solver Enum fully compatible with Triton ARCH</p>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.SolverStatus.SAT">
+<span class="sig-name descname"><span class="pre">SAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SolverStatus.SAT:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#tritondse.types.SolverStatus.SAT" title="Permalink to this definition"></a></dt>
+<dd><p>Formula is satisfiable (SAT)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.SolverStatus.UNSAT">
+<span class="sig-name descname"><span class="pre">UNSAT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SolverStatus.UNSAT:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#tritondse.types.SolverStatus.UNSAT" title="Permalink to this definition"></a></dt>
+<dd><p>Formula is unsatisfiable (UNSAT)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.SolverStatus.TIMEOUT">
+<span class="sig-name descname"><span class="pre">TIMEOUT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SolverStatus.TIMEOUT:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#tritondse.types.SolverStatus.TIMEOUT" title="Permalink to this definition"></a></dt>
+<dd><p>Formula solving did timeout</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.SolverStatus.UNKNOWN">
+<span class="sig-name descname"><span class="pre">UNKNOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SolverStatus.UNKNOWN:</span> <span class="pre">4&gt;</span></em><a class="headerlink" href="#tritondse.types.SolverStatus.UNKNOWN" title="Permalink to this definition"></a></dt>
+<dd><p>Formula solving failed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class enum">
+<dt class="sig sig-object py" id="tritondse.types.SymExType">
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">SymExType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/types.html#SymExType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.types.SymExType" title="Permalink to this definition"></a></dt>
+<dd><p>Symobolic Expression type enum. (internal usage only)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.SymExType.CONDITIONAL_JMP">
+<span class="sig-name descname"><span class="pre">CONDITIONAL_JMP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SymExType.CONDITIONAL_JMP:</span> <span class="pre">'cond-jcc'&gt;</span></em><a class="headerlink" href="#tritondse.types.SymExType.CONDITIONAL_JMP" title="Permalink to this definition"></a></dt>
+<dd><p>symbolic expression is a conditional jump</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.SymExType.DYNAMIC_JMP">
+<span class="sig-name descname"><span class="pre">DYNAMIC_JMP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SymExType.DYNAMIC_JMP:</span> <span class="pre">'dyn-jmp'&gt;</span></em><a class="headerlink" href="#tritondse.types.SymExType.DYNAMIC_JMP" title="Permalink to this definition"></a></dt>
+<dd><p>symbolic expression is a dynamic jump</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.SymExType.SYMBOLIC_READ">
+<span class="sig-name descname"><span class="pre">SYMBOLIC_READ</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SymExType.SYMBOLIC_READ:</span> <span class="pre">'sym-read'&gt;</span></em><a class="headerlink" href="#tritondse.types.SymExType.SYMBOLIC_READ" title="Permalink to this definition"></a></dt>
+<dd><p>symbolic expression is a symbolic memory read</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.SymExType.SYMBOLIC_WRITE">
+<span class="sig-name descname"><span class="pre">SYMBOLIC_WRITE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SymExType.SYMBOLIC_WRITE:</span> <span class="pre">'sym-write'&gt;</span></em><a class="headerlink" href="#tritondse.types.SymExType.SYMBOLIC_WRITE" title="Permalink to this definition"></a></dt>
+<dd><p>symbolic expression is a symbolic memory write</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.types.SymbolicVariable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">SymbolicVariable</span></span><a class="headerlink" href="#tritondse.types.SymbolicVariable" title="Permalink to this definition"></a></dt>
+<dd><p>Symbolic Variable as returned by Triton (<a class="reference external" href="https://triton.quarkslab.com/documentation/doxygen/py_SymbolicVariable_page.html">SymbolicExpression</a>)</p>
+<p>alias of TypeVar(‘SymbolicVariable’)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.types.rAddr">
+<span class="sig-prename descclassname"><span class="pre">tritondse.types.</span></span><span class="sig-name descname"><span class="pre">rAddr</span></span><a class="headerlink" href="#tritondse.types.rAddr" title="Permalink to this definition"></a></dt>
+<dd><p>Integer representing a relative address</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tracing.html" class="btn btn-neutral float-left" title="Trace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="workspace.html" class="btn btn-neutral float-right" title="Workspace" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

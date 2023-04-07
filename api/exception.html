@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exception &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Loaders" href="loaders.html" />
+    <link rel="prev" title="SymbolicExplorator" href="explorator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Exception</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.exception.AbortExecutionException"><code class="docutils literal notranslate"><span class="pre">AbortExecutionException</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.exception.AllocatorException"><code class="docutils literal notranslate"><span class="pre">AllocatorException</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.exception.SkipInstructionException"><code class="docutils literal notranslate"><span class="pre">SkipInstructionException</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.exception.StopExplorationException"><code class="docutils literal notranslate"><span class="pre">StopExplorationException</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Exception</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/exception.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-tritondse.exception">
+<span id="exception"></span><h1>Exception<a class="headerlink" href="#module-tritondse.exception" title="Permalink to this heading"></a></h1>
+<dl class="py exception">
+<dt class="sig sig-object py" id="tritondse.exception.AbortExecutionException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">AbortExecutionException</span></span><a class="reference internal" href="../_modules/tritondse/exception.html#AbortExecutionException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.AbortExecutionException" title="Permalink to this definition"></a></dt>
+<dd><p>Exception to rais in a callback to stop current SymbolicExecutor.
+The user should be careful to set the status of the current seed
+being executed.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="tritondse.exception.AllocatorException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">AllocatorException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/exception.html#AllocatorException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.AllocatorException" title="Permalink to this definition"></a></dt>
+<dd><p>Class used to represent an heap allocator exception.
+This exception can be raised in the following conditions:</p>
+<ul class="simple">
+<li><p>trying to allocate data which overflow heap size</p></li>
+<li><p>trying to free a pointer already freed</p></li>
+<li><p>trying to free a non-allocated pointer</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="tritondse.exception.SkipInstructionException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">SkipInstructionException</span></span><a class="reference internal" href="../_modules/tritondse/exception.html#SkipInstructionException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.SkipInstructionException" title="Permalink to this definition"></a></dt>
+<dd><p>Exception to raise in a PRE callback to skip the evaluation
+of the current instruction. It will thus force a SymbolicExecutor
+to fetch the next instruction. Thus the user have to update the
+RIP of the ProcessState currently being executed.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="tritondse.exception.StopExplorationException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">StopExplorationException</span></span><a class="reference internal" href="../_modules/tritondse/exception.html#StopExplorationException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.StopExplorationException" title="Permalink to this definition"></a></dt>
+<dd><p>Exception to raise in a callback to stop the whole exploration of
+the program. It is caught by SymbolicExplorator.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="explorator.html" class="btn btn-neutral float-left" title="SymbolicExplorator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="loaders.html" class="btn btn-neutral float-right" title="Loaders" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

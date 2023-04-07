@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loaders &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Context" href="process.html" />
+    <link rel="prev" title="Exception" href="exception.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exception.html">Exception</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Loaders</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#program">Program</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.Program"><code class="docutils literal notranslate"><span class="pre">Program</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.BASE_STACK"><code class="docutils literal notranslate"><span class="pre">Program.BASE_STACK</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.END_STACK"><code class="docutils literal notranslate"><span class="pre">Program.END_STACK</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.EXTERN_SYM_BASE"><code class="docutils literal notranslate"><span class="pre">Program.EXTERN_SYM_BASE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.EXTERN_SYM_SIZE"><code class="docutils literal notranslate"><span class="pre">Program.EXTERN_SYM_SIZE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.arch_mode"><code class="docutils literal notranslate"><span class="pre">Program.arch_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.architecture"><code class="docutils literal notranslate"><span class="pre">Program.architecture</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.cpustate"><code class="docutils literal notranslate"><span class="pre">Program.cpustate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.endianess"><code class="docutils literal notranslate"><span class="pre">Program.endianess()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.endianness"><code class="docutils literal notranslate"><span class="pre">Program.endianness</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.entry_point"><code class="docutils literal notranslate"><span class="pre">Program.entry_point</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.find_function_addr"><code class="docutils literal notranslate"><span class="pre">Program.find_function_addr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.format"><code class="docutils literal notranslate"><span class="pre">Program.format</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.imported_functions_relocations"><code class="docutils literal notranslate"><span class="pre">Program.imported_functions_relocations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.imported_variable_symbols_relocations"><code class="docutils literal notranslate"><span class="pre">Program.imported_variable_symbols_relocations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.memory_segments"><code class="docutils literal notranslate"><span class="pre">Program.memory_segments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.name"><code class="docutils literal notranslate"><span class="pre">Program.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.path"><code class="docutils literal notranslate"><span class="pre">Program.path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.platform"><code class="docutils literal notranslate"><span class="pre">Program.platform</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.relocation_enum"><code class="docutils literal notranslate"><span class="pre">Program.relocation_enum</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cleloader">CleLoader</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.CleLoader"><code class="docutils literal notranslate"><span class="pre">CleLoader</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.BASE_STACK"><code class="docutils literal notranslate"><span class="pre">CleLoader.BASE_STACK</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.END_STACK"><code class="docutils literal notranslate"><span class="pre">CleLoader.END_STACK</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.EXTERN_SYM_BASE"><code class="docutils literal notranslate"><span class="pre">CleLoader.EXTERN_SYM_BASE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.EXTERN_SYM_SIZE"><code class="docutils literal notranslate"><span class="pre">CleLoader.EXTERN_SYM_SIZE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.arch_mode"><code class="docutils literal notranslate"><span class="pre">CleLoader.arch_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.architecture"><code class="docutils literal notranslate"><span class="pre">CleLoader.architecture</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.cpustate"><code class="docutils literal notranslate"><span class="pre">CleLoader.cpustate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.entry_point"><code class="docutils literal notranslate"><span class="pre">CleLoader.entry_point</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.find_function_addr"><code class="docutils literal notranslate"><span class="pre">CleLoader.find_function_addr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.imported_functions_relocations"><code class="docutils literal notranslate"><span class="pre">CleLoader.imported_functions_relocations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.imported_variable_symbols_relocations"><code class="docutils literal notranslate"><span class="pre">CleLoader.imported_variable_symbols_relocations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.longjmp_addr"><code class="docutils literal notranslate"><span class="pre">CleLoader.longjmp_addr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.memory_segments"><code class="docutils literal notranslate"><span class="pre">CleLoader.memory_segments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.name"><code class="docutils literal notranslate"><span class="pre">CleLoader.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.path"><code class="docutils literal notranslate"><span class="pre">CleLoader.path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.platform"><code class="docutils literal notranslate"><span class="pre">CleLoader.platform</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quokkaprogram">QuokkaProgram</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.QuokkaProgram"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.architecture"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.architecture</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.call_graph"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.call_graph</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.capstone"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.capstone</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.clear"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.copy"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.copy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.endianness"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.endianness</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.entry_point"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.entry_point</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.find_function_addr"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.find_function_addr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.find_function_from_addr"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.find_function_from_addr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.format"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.format</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.from_binary"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.from_binary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.fromkeys"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.fromkeys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.func_chunk_index"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.func_chunk_index</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get_call_graph"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get_call_graph()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get_caller_instructions"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get_caller_instructions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get_chunk"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get_chunk()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get_data"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get_first_function_by_chunk"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get_first_function_by_chunk()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get_function"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get_function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get_function_by_chunk"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get_function_by_chunk()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get_instruction"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get_instruction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get_segment"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get_segment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.get_slice"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.get_slice()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.hash"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.hash</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.imported_functions_relocations"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.imported_functions_relocations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.imported_variable_symbols_relocations"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.imported_variable_symbols_relocations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.items"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.items()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.iter_chunk"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.iter_chunk()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.keys"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.keys()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.logger"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.logger</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.memory_segments"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.memory_segments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.merge"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.merge()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.name"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.path"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.platform"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.platform</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.pop"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.pop()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.popitem"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.popitem()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.pypcode"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.pypcode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.relocation_enum"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.relocation_enum</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.segments"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.segments</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.setdefault"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.setdefault()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.strings"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.strings</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.structures"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.structures</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.update"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.update()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.QuokkaProgram.values"><code class="docutils literal notranslate"><span class="pre">QuokkaProgram.values()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#monolithicloader">MonolithicLoader</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.MonolithicLoader"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.arch_mode"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.arch_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.architecture"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.architecture</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.cpustate"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.cpustate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.entry_point"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.entry_point</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.find_function_addr"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.find_function_addr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.imported_functions_relocations"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.imported_functions_relocations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.imported_variable_symbols_relocations"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.imported_variable_symbols_relocations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.memory_segments"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.memory_segments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.name"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.platform"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.platform</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-new-loader">Creating a new Loader</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.LoadableSegment"><code class="docutils literal notranslate"><span class="pre">LoadableSegment</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.LoadableSegment.address"><code class="docutils literal notranslate"><span class="pre">LoadableSegment.address</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.LoadableSegment.content"><code class="docutils literal notranslate"><span class="pre">LoadableSegment.content</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.LoadableSegment.name"><code class="docutils literal notranslate"><span class="pre">LoadableSegment.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.LoadableSegment.perms"><code class="docutils literal notranslate"><span class="pre">LoadableSegment.perms</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.LoadableSegment.size"><code class="docutils literal notranslate"><span class="pre">LoadableSegment.size</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.Loader"><code class="docutils literal notranslate"><span class="pre">Loader</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.arch_mode"><code class="docutils literal notranslate"><span class="pre">Loader.arch_mode</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.architecture"><code class="docutils literal notranslate"><span class="pre">Loader.architecture</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.cpustate"><code class="docutils literal notranslate"><span class="pre">Loader.cpustate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.entry_point"><code class="docutils literal notranslate"><span class="pre">Loader.entry_point</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.find_function_addr"><code class="docutils literal notranslate"><span class="pre">Loader.find_function_addr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.imported_functions_relocations"><code class="docutils literal notranslate"><span class="pre">Loader.imported_functions_relocations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.imported_variable_symbols_relocations"><code class="docutils literal notranslate"><span class="pre">Loader.imported_variable_symbols_relocations()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.memory_segments"><code class="docutils literal notranslate"><span class="pre">Loader.memory_segments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.name"><code class="docutils literal notranslate"><span class="pre">Loader.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.platform"><code class="docutils literal notranslate"><span class="pre">Loader.platform</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Loaders</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/loaders.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="loaders">
+<h1>Loaders<a class="headerlink" href="#loaders" title="Permalink to this heading"></a></h1>
+<section id="program">
+<h2>Program<a class="headerlink" href="#program" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.Program">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">Program</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tritondse.types.PathLike</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/loaders/program.html#Program"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Program" title="Permalink to this definition"></a></dt>
+<dd><p>Representation of a program (loaded in memory). This class is wrapping
+<a class="reference external" href="https://lief.quarkslab.com/doc/latest">LIEF</a> to represent a program
+and to provide all the features allowing to pseudo-load one regardless
+of its format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference internal" href="types.html#tritondse.types.PathLike" title="tritondse.types.PathLike"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.types.PathLike</span></code></a>) – Program path</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError" title="(in Python v3.11)"><strong>FileNotFoundError</strong></a> – if the file is not properly recognized by lief
+or in the wrong architecture</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.Program.BASE_STACK">
+<span class="sig-name descname"><span class="pre">BASE_STACK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4026531840</span></em><a class="headerlink" href="#tritondse.Program.BASE_STACK" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.Program.END_STACK">
+<span class="sig-name descname"><span class="pre">END_STACK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1879048192</span></em><a class="headerlink" href="#tritondse.Program.END_STACK" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.Program.EXTERN_SYM_BASE">
+<span class="sig-name descname"><span class="pre">EXTERN_SYM_BASE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">251662336</span></em><a class="headerlink" href="#tritondse.Program.EXTERN_SYM_BASE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.Program.EXTERN_SYM_SIZE">
+<span class="sig-name descname"><span class="pre">EXTERN_SYM_SIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4096</span></em><a class="headerlink" href="#tritondse.Program.EXTERN_SYM_SIZE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Program.arch_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.ArchMode" title="tritondse.types.ArchMode"><span class="pre">ArchMode</span></a></em><a class="headerlink" href="#tritondse.Program.arch_mode" title="Permalink to this definition"></a></dt>
+<dd><p>ArchMode enum representing the starting mode (e.g Thumb for ARM).
+if None, the default mode of the architecture will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="types.html#tritondse.types.ArchMode" title="tritondse.types.ArchMode">ArchMode</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Program.architecture">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">architecture</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture"><span class="pre">Architecture</span></a></em><a class="headerlink" href="#tritondse.Program.architecture" title="Permalink to this definition"></a></dt>
+<dd><p>Architecture enum representing program architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture">Architecture</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Program.cpustate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpustate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.Program.cpustate" title="Permalink to this definition"></a></dt>
+<dd><p>Provide the initial cpu state in the forma of a dictionary of
+{“register_name” : register_value}</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.Program.endianess">
+<span class="sig-name descname"><span class="pre">endianess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="types.html#tritondse.types.Endian" title="tritondse.types.Endian"><span class="pre">Endian</span></a></span></span><a class="reference internal" href="../_modules/tritondse/loaders/program.html#Program.endianess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Program.endianess" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Program.endianness">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.13.0-8c5d2e37)"><span class="pre">ENDIANNESS</span></a></em><a class="headerlink" href="#tritondse.Program.endianness" title="Permalink to this definition"></a></dt>
+<dd><p>Endianness of the program as defined in binary headers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.13.0-8c5d2e37)">lief.ENDIANNESS</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Program.entry_point">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entry_point</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tritondse.types.Addr</span></em><a class="headerlink" href="#tritondse.Program.entry_point" title="Permalink to this definition"></a></dt>
+<dd><p>Program entrypoint address as defined in the binary headers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#tritondse.types.Addr" title="tritondse.types.Addr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.types.Addr</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.Program.find_function_addr">
+<span class="sig-name descname"><span class="pre">find_function_addr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tritondse.types.Addr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/loaders/program.html#Program.find_function_addr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Program.find_function_addr" title="Permalink to this definition"></a></dt>
+<dd><p>Search for the function name in fonctions of the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Function name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Address of function if found</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Addr</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Program.format">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.13.0-8c5d2e37)"><span class="pre">EXE_FORMATS</span></a></em><a class="headerlink" href="#tritondse.Program.format" title="Permalink to this definition"></a></dt>
+<dd><p>Binary format. Supported formats by lief are: ELF, PE, MachO</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.13.0-8c5d2e37)">lief.EXE_FORMATS</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.Program.imported_functions_relocations">
+<span class="sig-name descname"><span class="pre">imported_functions_relocations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tritondse.types.Addr</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/program.html#Program.imported_functions_relocations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Program.imported_functions_relocations" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all imported functions by the program. This function
+is a generator of tuples associating the function and its relocation
+address in the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples function name and relocation address</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.Program.imported_variable_symbols_relocations">
+<span class="sig-name descname"><span class="pre">imported_variable_symbols_relocations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tritondse.types.Addr</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/program.html#Program.imported_variable_symbols_relocations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Program.imported_variable_symbols_relocations" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all imported variable symbols. Yield for each of them the name and
+the relocation address in the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples with symbol name, relocation address</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.Program.memory_segments">
+<span class="sig-name descname"><span class="pre">memory_segments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tritondse.LoadableSegment" title="tritondse.loaders.loader.LoadableSegment"><span class="pre">LoadableSegment</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/program.html#Program.memory_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Program.memory_segments" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all memory segments of the program as loaded in memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples addrs and content</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.11)"><strong>NotImplementedError</strong></a> – if the binary format cannot be loaded</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Program.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#tritondse.Program.name" title="Permalink to this definition"></a></dt>
+<dd><p>Name of the loader</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.Program.path">
+<span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a></em><a class="headerlink" href="#tritondse.Program.path" title="Permalink to this definition"></a></dt>
+<dd><p>Binary file path</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Program.platform">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">platform</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Platform" title="tritondse.types.Platform"><span class="pre">Platform</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#tritondse.Program.platform" title="Permalink to this definition"></a></dt>
+<dd><p>Platform of the binary. Its solely based on the format
+of the file ELF, PE etc..</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Platform</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Program.relocation_enum">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">relocation_enum</span></span><a class="headerlink" href="#tritondse.Program.relocation_enum" title="Permalink to this definition"></a></dt>
+<dd><p>LIEF relocation enum associated with the current
+architecture of the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>LIEF relocation enum</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Union[<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_AARCH64" title="(in LIEF v0.13.0-8c5d2e37)">lief.ELF.RELOCATION_AARCH64</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_ARM" title="(in LIEF v0.13.0-8c5d2e37)">lief.ELF.RELOCATION_ARM</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_PPC64" title="(in LIEF v0.13.0-8c5d2e37)">lief.ELF.RELOCATION_PPC64</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_PPC" title="(in LIEF v0.13.0-8c5d2e37)">lief.ELF.RELOCATION_PPC</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_i386" title="(in LIEF v0.13.0-8c5d2e37)">lief.ELF.RELOCATION_i386</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_X86_64" title="(in LIEF v0.13.0-8c5d2e37)">lief.ELF.RELOCATION_X86_64</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="cleloader">
+<h2>CleLoader<a class="headerlink" href="#cleloader" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.CleLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">CleLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ld_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/loaders/cle_loader.html#CleLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.CleLoader" title="Permalink to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.CleLoader.BASE_STACK">
+<span class="sig-name descname"><span class="pre">BASE_STACK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4026531840</span></em><a class="headerlink" href="#tritondse.CleLoader.BASE_STACK" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.CleLoader.END_STACK">
+<span class="sig-name descname"><span class="pre">END_STACK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1879048192</span></em><a class="headerlink" href="#tritondse.CleLoader.END_STACK" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.CleLoader.EXTERN_SYM_BASE">
+<span class="sig-name descname"><span class="pre">EXTERN_SYM_BASE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">251662336</span></em><a class="headerlink" href="#tritondse.CleLoader.EXTERN_SYM_BASE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.CleLoader.EXTERN_SYM_SIZE">
+<span class="sig-name descname"><span class="pre">EXTERN_SYM_SIZE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4096</span></em><a class="headerlink" href="#tritondse.CleLoader.EXTERN_SYM_SIZE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.CleLoader.arch_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.ArchMode" title="tritondse.types.ArchMode"><span class="pre">ArchMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#tritondse.CleLoader.arch_mode" title="Permalink to this definition"></a></dt>
+<dd><p>ArchMode enum representing the starting mode (e.g Thumb for ARM).
+if None, the default mode of the architecture will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="types.html#tritondse.types.ArchMode" title="tritondse.types.ArchMode">ArchMode</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.CleLoader.architecture">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">architecture</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture"><span class="pre">Architecture</span></a></em><a class="headerlink" href="#tritondse.CleLoader.architecture" title="Permalink to this definition"></a></dt>
+<dd><p>Architecture enum representing program architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture">Architecture</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.CleLoader.cpustate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpustate</span></span><a class="headerlink" href="#tritondse.CleLoader.cpustate" title="Permalink to this definition"></a></dt>
+<dd><p>Provide the initial cpu state in the forma of a dictionary of
+{“register_name” : register_value}</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.CleLoader.entry_point">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entry_point</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.CleLoader.entry_point" title="Permalink to this definition"></a></dt>
+<dd><p>Program entrypoint address as defined in the binary headers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#tritondse.types.Addr" title="tritondse.types.Addr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.types.Addr</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.CleLoader.find_function_addr">
+<span class="sig-name descname"><span class="pre">find_function_addr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tritondse.types.Addr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#tritondse.CleLoader.find_function_addr" title="Permalink to this definition"></a></dt>
+<dd><p>Search for the function name in fonctions of the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Function name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Address of function if found</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Addr</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.CleLoader.imported_functions_relocations">
+<span class="sig-name descname"><span class="pre">imported_functions_relocations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/cle_loader.html#CleLoader.imported_functions_relocations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.CleLoader.imported_functions_relocations" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all imported functions by the program. This function
+is a generator of tuples associating the function and its relocation
+address in the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples function name and relocation address</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.CleLoader.imported_variable_symbols_relocations">
+<span class="sig-name descname"><span class="pre">imported_variable_symbols_relocations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/cle_loader.html#CleLoader.imported_variable_symbols_relocations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.CleLoader.imported_variable_symbols_relocations" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all imported variable symbols. Yield for each of them the name and
+the relocation address in the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples with symbol name, relocation address</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.CleLoader.longjmp_addr">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">longjmp_addr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.CleLoader.longjmp_addr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.CleLoader.memory_segments">
+<span class="sig-name descname"><span class="pre">memory_segments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tritondse.LoadableSegment" title="tritondse.loaders.loader.LoadableSegment"><span class="pre">LoadableSegment</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/cle_loader.html#CleLoader.memory_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.CleLoader.memory_segments" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples addrs and content</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.CleLoader.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#tritondse.CleLoader.name" title="Permalink to this definition"></a></dt>
+<dd><p>Name of the loader</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.CleLoader.path">
+<span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a></em><a class="headerlink" href="#tritondse.CleLoader.path" title="Permalink to this definition"></a></dt>
+<dd><p>Binary file path</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.CleLoader.platform">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">platform</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Platform" title="tritondse.types.Platform"><span class="pre">Platform</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#tritondse.CleLoader.platform" title="Permalink to this definition"></a></dt>
+<dd><p>Platform of the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Platform</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="quokkaprogram">
+<h2>QuokkaProgram<a class="headerlink" href="#quokkaprogram" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">QuokkaProgram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">export_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">exec_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/loaders/quokkaprogram.html#QuokkaProgram"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.QuokkaProgram" title="Permalink to this definition"></a></dt>
+<dd><p>Constructor</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.architecture">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">architecture</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture"><span class="pre">Architecture</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.architecture" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.call_graph">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">call_graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DiGraph</span></em><a class="headerlink" href="#tritondse.QuokkaProgram.call_graph" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the Call Graph of the binary</p>
+<p>Every node in the call graph is a chunk (and not a function).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A Call Graph (a networkx DiGraph)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.capstone">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">capstone</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Cs</span></em><a class="headerlink" href="#tritondse.QuokkaProgram.capstone" title="Permalink to this definition"></a></dt>
+<dd><p>Compute a capstone context</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None.</span>&#160; <span class="pre">Remove</span> <span class="pre">all</span> <span class="pre">items</span> <span class="pre">from</span> <span class="pre">D.</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.clear" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">shallow</span> <span class="pre">copy</span> <span class="pre">of</span> <span class="pre">D</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.copy" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.endianness">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.13.0-8c5d2e37)"><span class="pre">ENDIANNESS</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.endianness" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.entry_point">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entry_point</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.entry_point" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.find_function_addr">
+<span class="sig-name descname"><span class="pre">find_function_addr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/loaders/quokkaprogram.html#QuokkaProgram.find_function_addr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.QuokkaProgram.find_function_addr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.find_function_from_addr">
+<span class="sig-name descname"><span class="pre">find_function_from_addr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Function</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/loaders/quokkaprogram.html#QuokkaProgram.find_function_from_addr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.QuokkaProgram.find_function_from_addr" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.format">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.13.0-8c5d2e37)"><span class="pre">EXE_FORMATS</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.format" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.from_binary">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exec_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Program</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.from_binary" title="Permalink to this definition"></a></dt>
+<dd><p>Generate an export file directly from the binary.</p>
+<p>This methods will export <cite>exec_path</cite> directly using Quokka IDA’s plugin if
+installed.</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>exec_path: Binary to export.
+output_file: Where to store the result (by default: near the executable)
+database_file: Where to store IDA database (by default: near the executable)
+timeout: How long should we wait for the export to finish (default: 10 min)
+debug: Activate the debug output</p>
+</dd>
+<dt>Returns:</dt><dd><p>A <a href="#id1"><span class="problematic" id="id2">|</span></a><cite>Program</cite> instance or None if</p>
+</dd>
+<dt>Raises:</dt><dd><p>FileNotFoundError: If the executable is not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.fromkeys">
+<span class="sig-name descname"><span class="pre">fromkeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tritondse.QuokkaProgram.fromkeys" title="Permalink to this definition"></a></dt>
+<dd><p>Create a new dictionary with keys from iterable and values set to value.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.func_chunk_index">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">func_chunk_index</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Function</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.QuokkaProgram.func_chunk_index" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the list of functions attached to a chunk.</p>
+<p>This method allows to find all the functions using a specific chunk.
+However, it is mostly an internal method and should not be directly used by a
+user. Instead, use <cite>get_function_by_chunk</cite>.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>A mapping of ChunkIndex to a list of Function.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tritondse.QuokkaProgram.get" title="Permalink to this definition"></a></dt>
+<dd><p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get_call_graph">
+<span class="sig-name descname"><span class="pre">get_call_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backedge_on_ret</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DiGraph</span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/quokkaprogram.html#QuokkaProgram.get_call_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.QuokkaProgram.get_call_graph" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the call graph of the program.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>backedge_on_ret</strong> – if true, add a back edge to represent the “return”</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>call graph as a digraph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get_caller_instructions">
+<span class="sig-name descname"><span class="pre">get_caller_instructions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Function</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/quokkaprogram.html#QuokkaProgram.get_caller_instructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.QuokkaProgram.get_caller_instructions" title="Permalink to this definition"></a></dt>
+<dd><p>Get the list of instructions calling <cite>target</cite></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get_chunk">
+<span class="sig-name descname"><span class="pre">get_chunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunk_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Chunk</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.get_chunk" title="Permalink to this definition"></a></dt>
+<dd><p>Get a <cite>Chunk</cite></p>
+<p>If the candidate Chunk is a SuperChunk, this method will resolve it to find the
+appropriate chunk (given a block index).</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>chunk_index: Chunk index
+block_index: Used to resolve SuperChunks</p>
+</dd>
+<dt>Returns:</dt><dd><p>A Chunk matching the criteria</p>
+</dd>
+<dt>Raises:</dt><dd><p>ChunkMissingError: When no chunk has been found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Data</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.get_data" title="Permalink to this definition"></a></dt>
+<dd><p>Get data by address</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>address: Address to query</p>
+</dd>
+<dt>Returns:</dt><dd><p>A data at the address</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get_first_function_by_chunk">
+<span class="sig-name descname"><span class="pre">get_first_function_by_chunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Chunk</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Function</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.get_first_function_by_chunk" title="Permalink to this definition"></a></dt>
+<dd><p>Return the first function found when searching for a chunk.</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>chunk: Chunk belonging to the function</p>
+</dd>
+<dt>Returns:</dt><dd><p>A function in which <cite>chunk</cite> belongs</p>
+</dd>
+<dt>Raises:</dt><dd><p>FunctionMissingError: No function has been found for the chunk</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get_function">
+<span class="sig-name descname"><span class="pre">get_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximative</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Function</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.get_function" title="Permalink to this definition"></a></dt>
+<dd><p>Find a function in a program by its name</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>name: Function name
+approximative: Should the name exactly match or allow partial matches?
+normal: Return only FunctionType.NORMAL functions</p>
+</dd>
+<dt>Returns:</dt><dd><p>A function matching the research criteria</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: When no function is found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get_function_by_chunk">
+<span class="sig-name descname"><span class="pre">get_function_by_chunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Chunk</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Function</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.get_function_by_chunk" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves all the functions where <cite>chunk</cite> belongs.</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>chunk: Chunk to search for</p>
+</dd>
+<dt>Returns:</dt><dd><p>A list of corresponding functions</p>
+</dd>
+<dt>Raises:</dt><dd><p>IndexError: When no function is found for the chunk.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get_instruction">
+<span class="sig-name descname"><span class="pre">get_instruction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Instruction</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.get_instruction" title="Permalink to this definition"></a></dt>
+<dd><p>Get an instruction by its address</p>
+<p>Note: the address must be the head of the instruction.</p>
+<p>TODO(dm): Improve the algorithm because the chunks are sorted (use bisect)</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>address: AddressT: Address to query</p>
+</dd>
+<dt>Returns:</dt><dd><p>A <cite>quokka.Instruction</cite></p>
+</dd>
+<dt>Raises:</dt><dd><p>IndexError: When no instruction is found at this address</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get_segment">
+<span class="sig-name descname"><span class="pre">get_segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Segment</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.get_segment" title="Permalink to this definition"></a></dt>
+<dd><p>Get a <cite>Segment</cite> by an address</p>
+<p>The address must be in [segment.start, segment.end) to be found.</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><p>address: Segment’s address</p>
+</dd>
+<dt>Returns:</dt><dd><p>The corresponding Segment</p>
+</dd>
+<dt>Raises:</dt><dd><p>KeyError: When the segment is not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.get_slice">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">to</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DiGraph</span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/quokkaprogram.html#QuokkaProgram.get_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.QuokkaProgram.get_slice" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the slice between the two nodes on the given graph.
+The slice is the intersection of reachable node (of <code class="docutils literal notranslate"><span class="pre">frm</span></code>) and
+ancestors of <code class="docutils literal notranslate"><span class="pre">to</span></code>. The result is a subgraph of the original graph.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graph</strong> – Graph on which to compute the slice</p></li>
+<li><p><strong>frm</strong> – node identifier</p></li>
+<li><p><strong>to</strong> – node identifier</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>sub graph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.hash">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hash</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.hash" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the hash value of the binary (either sha256 or MD5).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.imported_functions_relocations">
+<span class="sig-name descname"><span class="pre">imported_functions_relocations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/quokkaprogram.html#QuokkaProgram.imported_functions_relocations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.QuokkaProgram.imported_functions_relocations" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.imported_variable_symbols_relocations">
+<span class="sig-name descname"><span class="pre">imported_variable_symbols_relocations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/quokkaprogram.html#QuokkaProgram.imported_variable_symbols_relocations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.QuokkaProgram.imported_variable_symbols_relocations" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">items</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.items" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.iter_chunk">
+<span class="sig-name descname"><span class="pre">iter_chunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunk_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">FunctionType</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterator" title="(in Python v3.11)"><span class="pre">Iterator</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Chunk</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.iter_chunk" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all the chunks in the program.</p>
+<p>If a <cite>SuperChunk</cite> is found, it will split it and return individual chunks.
+By default, it iterates over all the chunks, even extern functions.</p>
+<dl class="simple">
+<dt>Arguments:</dt><dd><dl class="simple">
+<dt>chunk_types: Allow list of chunk types. By default, it retrieves every</dt><dd><p>chunk.</p>
+</dd>
+</dl>
+</dd>
+<dt>Yields:</dt><dd><p>All the chunks in the program.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">keys</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.keys" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.logger">
+<span class="sig-name descname"><span class="pre">logger</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.11)"><span class="pre">logging.Logger</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Logger</span> <span class="pre">quokka.program</span> <span class="pre">(WARNING)&gt;</span></em><a class="headerlink" href="#tritondse.QuokkaProgram.logger" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.memory_segments">
+<span class="sig-name descname"><span class="pre">memory_segments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tritondse.LoadableSegment" title="tritondse.loaders.loader.LoadableSegment"><span class="pre">LoadableSegment</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/quokkaprogram.html#QuokkaProgram.memory_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.QuokkaProgram.memory_segments" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.merge">
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="coverage.html#tritondse.coverage.CoverageSingleRun" title="tritondse.coverage.CoverageSingleRun"><span class="pre">CoverageSingleRun</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/loaders/quokkaprogram.html#QuokkaProgram.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.QuokkaProgram.merge" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.name" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the underlying binary name</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.platform">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">platform</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Platform" title="tritondse.types.Platform"><span class="pre">Platform</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.platform" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.pop" title="Permalink to this definition"></a></dt>
+<dd><p>If the key is not found, return the default if given; otherwise,
+raise a KeyError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.popitem">
+<span class="sig-name descname"><span class="pre">popitem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tritondse.QuokkaProgram.popitem" title="Permalink to this definition"></a></dt>
+<dd><p>Remove and return a (key, value) pair as a 2-tuple.</p>
+<p>Pairs are returned in LIFO (last-in, first-out) order.
+Raises KeyError if the dict is empty.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.pypcode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">pypcode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Context</span></em><a class="headerlink" href="#tritondse.QuokkaProgram.pypcode" title="Permalink to this definition"></a></dt>
+<dd><p>Generate the Pypcode context.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.relocation_enum">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">relocation_enum</span></span><a class="headerlink" href="#tritondse.QuokkaProgram.relocation_enum" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.segments">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">segments</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Segment</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.QuokkaProgram.segments" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the list of segments defined in the program.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.setdefault">
+<span class="sig-name descname"><span class="pre">setdefault</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tritondse.QuokkaProgram.setdefault" title="Permalink to this definition"></a></dt>
+<dd><p>Insert key with a value of default if key is not in the dictionary.</p>
+<p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.strings">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">strings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Iterable" title="(in Python v3.11)"><span class="pre">Iterable</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.QuokkaProgram.strings" title="Permalink to this definition"></a></dt>
+<dd><p>Program strings</p>
+<p>Retrieves all the strings used in the program.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>A list of strings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.structures">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">structures</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Structure</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.QuokkaProgram.structures" title="Permalink to this definition"></a></dt>
+<dd><p>Structures accessor</p>
+<p>Allows to retrieve the different structures of a program (as defined by the
+disassembler).</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>A list of structures</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <span class="optional">]</span><em class="sig-param"><span class="n"><span class="pre">**F</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None.</span>&#160; <span class="pre">Update</span> <span class="pre">D</span> <span class="pre">from</span> <span class="pre">dict/iterable</span> <span class="pre">E</span> <span class="pre">and</span> <span class="pre">F.</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.update" title="Permalink to this definition"></a></dt>
+<dd><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+In either case, this is followed by: for k in F:  D[k] = F[k]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.QuokkaProgram.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">values</span></span></span><a class="headerlink" href="#tritondse.QuokkaProgram.values" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="monolithicloader">
+<h2>MonolithicLoader<a class="headerlink" href="#monolithicloader" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">MonolithicLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">architecture</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture"><span class="pre">Architecture</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpustate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tritondse.LoadableSegment" title="tritondse.loaders.loader.LoadableSegment"><span class="pre">LoadableSegment</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_thumb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.Platform" title="tritondse.types.Platform"><span class="pre">Platform</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/loaders/loader.html#MonolithicLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.MonolithicLoader" title="Permalink to this definition"></a></dt>
+<dd><p>Monolithic loader. It helps loading raw firmware at a given address
+in DSE memory space, with the various attributes like architecture etc.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.arch_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.ArchMode" title="tritondse.types.ArchMode"><span class="pre">ArchMode</span></a></em><a class="headerlink" href="#tritondse.MonolithicLoader.arch_mode" title="Permalink to this definition"></a></dt>
+<dd><p>ArchMode enum representing the starting mode (e.g Thumb for ARM).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#tritondse.types.ArchMode" title="tritondse.types.ArchMode">ArchMode</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.architecture">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">architecture</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture"><span class="pre">Architecture</span></a></em><a class="headerlink" href="#tritondse.MonolithicLoader.architecture" title="Permalink to this definition"></a></dt>
+<dd><p>Architecture enum representing program architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture">Architecture</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.cpustate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpustate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.MonolithicLoader.cpustate" title="Permalink to this definition"></a></dt>
+<dd><p>Provide the initial cpu state in the format of a dictionary of
+{“register_name” : register_value}</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.entry_point">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entry_point</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tritondse.types.Addr</span></em><a class="headerlink" href="#tritondse.MonolithicLoader.entry_point" title="Permalink to this definition"></a></dt>
+<dd><p>Program entrypoint address as defined in the binary headers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#tritondse.types.Addr" title="tritondse.types.Addr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.types.Addr</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.find_function_addr">
+<span class="sig-name descname"><span class="pre">find_function_addr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tritondse.types.Addr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#tritondse.MonolithicLoader.find_function_addr" title="Permalink to this definition"></a></dt>
+<dd><p>Search for the function name in fonctions of the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Function name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Address of function if found</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Addr</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.imported_functions_relocations">
+<span class="sig-name descname"><span class="pre">imported_functions_relocations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tritondse.types.Addr</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tritondse.MonolithicLoader.imported_functions_relocations" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all imported functions by the program. This function
+is a generator of tuples associating the function and its relocation
+address in the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples function name and relocation address</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.imported_variable_symbols_relocations">
+<span class="sig-name descname"><span class="pre">imported_variable_symbols_relocations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tritondse.types.Addr</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tritondse.MonolithicLoader.imported_variable_symbols_relocations" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all imported variable symbols. Yield for each of them the name and
+the relocation address in the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples with symbol name, relocation address</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.memory_segments">
+<span class="sig-name descname"><span class="pre">memory_segments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tritondse.LoadableSegment" title="tritondse.loaders.loader.LoadableSegment"><span class="pre">LoadableSegment</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/loader.html#MonolithicLoader.memory_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.MonolithicLoader.memory_segments" title="Permalink to this definition"></a></dt>
+<dd><p>In the case of a monolithic firmware, there is a single segment.
+The generator returns a single tuple with the load address and the content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples addrs and content</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#tritondse.MonolithicLoader.name" title="Permalink to this definition"></a></dt>
+<dd><p>Name of the loader</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.platform">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">platform</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Platform" title="tritondse.types.Platform"><span class="pre">Platform</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#tritondse.MonolithicLoader.platform" title="Permalink to this definition"></a></dt>
+<dd><p>Platform of the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Platform</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="creating-a-new-loader">
+<h2>Creating a new Loader<a class="headerlink" href="#creating-a-new-loader" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.LoadableSegment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">LoadableSegment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.Perm" title="tritondse.types.Perm"><span class="pre">Perm</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Perm.R</span> <span class="pre">|</span> <span class="pre">W</span> <span class="pre">|</span> <span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/loaders/loader.html#LoadableSegment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.LoadableSegment" title="Permalink to this definition"></a></dt>
+<dd><p>Represent a Segment to load in memory.
+It can either provide a content and will thus be
+initialized in a context or virtual.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.LoadableSegment.address">
+<span class="sig-name descname"><span class="pre">address</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.LoadableSegment.address" title="Permalink to this definition"></a></dt>
+<dd><p>Virtual address where to load the segment</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.LoadableSegment.content">
+<span class="sig-name descname"><span class="pre">content</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#tritondse.LoadableSegment.content" title="Permalink to this definition"></a></dt>
+<dd><p>Content of the segment</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.LoadableSegment.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></em><a class="headerlink" href="#tritondse.LoadableSegment.name" title="Permalink to this definition"></a></dt>
+<dd><p>Name to give to the segment</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.LoadableSegment.perms">
+<span class="sig-name descname"><span class="pre">perms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Perm" title="tritondse.types.Perm"><span class="pre">Perm</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#tritondse.LoadableSegment.perms" title="Permalink to this definition"></a></dt>
+<dd><p>Permissions to assign the segment</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.LoadableSegment.size">
+<span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#tritondse.LoadableSegment.size" title="Permalink to this definition"></a></dt>
+<dd><p>Size of the segment. If content is present use len(content)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.Loader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">Loader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/loaders/loader.html#Loader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Loader" title="Permalink to this definition"></a></dt>
+<dd><p>This class describes how to load the target program in memory.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Loader.arch_mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">arch_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.ArchMode" title="tritondse.types.ArchMode"><span class="pre">ArchMode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#tritondse.Loader.arch_mode" title="Permalink to this definition"></a></dt>
+<dd><p>ArchMode enum representing the starting mode (e.g Thumb for ARM).
+if None, the default mode of the architecture will be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="types.html#tritondse.types.ArchMode" title="tritondse.types.ArchMode">ArchMode</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Loader.architecture">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">architecture</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture"><span class="pre">Architecture</span></a></em><a class="headerlink" href="#tritondse.Loader.architecture" title="Permalink to this definition"></a></dt>
+<dd><p>Architecture enum representing program architecture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture">Architecture</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Loader.cpustate">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpustate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.Loader.cpustate" title="Permalink to this definition"></a></dt>
+<dd><p>Provide the initial cpu state in the forma of a dictionary of
+{“register_name” : register_value}</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Loader.entry_point">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">entry_point</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tritondse.types.Addr</span></em><a class="headerlink" href="#tritondse.Loader.entry_point" title="Permalink to this definition"></a></dt>
+<dd><p>Program entrypoint address as defined in the binary headers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="types.html#tritondse.types.Addr" title="tritondse.types.Addr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.types.Addr</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.Loader.find_function_addr">
+<span class="sig-name descname"><span class="pre">find_function_addr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tritondse.types.Addr</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/loaders/loader.html#Loader.find_function_addr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Loader.find_function_addr" title="Permalink to this definition"></a></dt>
+<dd><p>Search for the function name in fonctions of the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Function name</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Address of function if found</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Addr</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.Loader.imported_functions_relocations">
+<span class="sig-name descname"><span class="pre">imported_functions_relocations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tritondse.types.Addr</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/loader.html#Loader.imported_functions_relocations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Loader.imported_functions_relocations" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all imported functions by the program. This function
+is a generator of tuples associating the function and its relocation
+address in the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples function name and relocation address</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.Loader.imported_variable_symbols_relocations">
+<span class="sig-name descname"><span class="pre">imported_variable_symbols_relocations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tritondse.types.Addr</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/loader.html#Loader.imported_variable_symbols_relocations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Loader.imported_variable_symbols_relocations" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all imported variable symbols. Yield for each of them the name and
+the relocation address in the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples with symbol name, relocation address</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.Loader.memory_segments">
+<span class="sig-name descname"><span class="pre">memory_segments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tritondse.LoadableSegment" title="tritondse.loaders.loader.LoadableSegment"><span class="pre">LoadableSegment</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/loader.html#Loader.memory_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Loader.memory_segments" title="Permalink to this definition"></a></dt>
+<dd><p>Iterate over all memory segments of the program as loaded in memory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Generator of tuples addrs and content</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.11)"><strong>NotImplementedError</strong></a> – if the binary format cannot be loaded</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Loader.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#tritondse.Loader.name" title="Permalink to this definition"></a></dt>
+<dd><p>Name of the loader and target being loaded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str of the loader name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Loader.platform">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">platform</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Platform" title="tritondse.types.Platform"><span class="pre">Platform</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></em><a class="headerlink" href="#tritondse.Loader.platform" title="Permalink to this definition"></a></dt>
+<dd><p>Platform of the binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Platform</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="exception.html" class="btn btn-neutral float-left" title="Exception" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="process.html" class="btn btn-neutral float-right" title="Context" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

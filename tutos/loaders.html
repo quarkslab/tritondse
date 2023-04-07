@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loaders &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Callback Mechanism" href="../api/callbacks.html" />
+    <link rel="prev" title="Sanitizers &amp; Probes" href="sanitizers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Loaders</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Linux-ELF-loader">Linux ELF loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#CLE-Loader">CLE Loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Firmware-Loading">Firmware Loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Writing-a-Loader">Writing a Loader</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Loaders</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutos/loaders.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Loaders">
+<h1>Loaders<a class="headerlink" href="#Loaders" title="Permalink to this heading"></a></h1>
+<p>Loaders are the objects enabling loading a given binary intro TritonDSE memory so that it can get symbolically executed. In essence, they map the program in memory and to initialize registers.</p>
+<section id="Linux-ELF-loader">
+<h2>Linux ELF loader<a class="headerlink" href="#Linux-ELF-loader" title="Permalink to this heading"></a></h2>
+<p>TritonDSE primarly supports userland Linux programs and provides a basic ELF file loader based on LIEF. It will only loads the main binary but not other shared libraries.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import ProcessState, Program
+
+p = Program(&quot;crackme_xor&quot;)
+
+ps = ProcessState.from_loader(p)
+
+list(ps.memory.get_maps())
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Map(start=4194304, size=2036, perm=&lt;Perm.R|X: 5&gt;, name=&#39;seg2&#39;),
+ Map(start=6295056, size=576, perm=&lt;Perm.R|W: 6&gt;, name=&#39;seg3&#39;),
+ Map(start=251662336, size=4096, perm=&lt;Perm.R|W: 6&gt;, name=&#39;[extern]&#39;),
+ Map(start=1879048192, size=2147483648, perm=&lt;Perm.R|W: 6&gt;, name=&#39;[stack]&#39;)]
+</pre></div></div>
+</div>
+<p>The loader maps the <code class="docutils literal notranslate"><span class="pre">LOAD</span></code> segment of the ELF file and creates two additional segments for imported functions and for the stack.</p>
+</section>
+<section id="CLE-Loader">
+<h2>CLE Loader<a class="headerlink" href="#CLE-Loader" title="Permalink to this heading"></a></h2>
+<p>To enable supporting more file format and shared libraries TritonDSE uses the infamous <a class="reference external" href="https://github.com/angr/cle">cle project</a> from the angr symbolic executor.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import ProcessState, CleLoader
+
+p = CleLoader(&quot;crackme_xor&quot;)
+
+ps = ProcessState.from_loader(p)
+
+list(ps.memory.get_maps())
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Map(start=0, size=8192, perm=&lt;Perm.R|W: 6&gt;, name=&#39;[fs]&#39;),
+ Map(start=4194304, size=2036, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-crackme_xor&#39;),
+ Map(start=6295056, size=496, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-crackme_xor&#39;),
+ Map(start=6295552, size=80, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-crackme_xor&#39;),
+ Map(start=7340032, size=152376, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-libc.so.6&#39;),
+ Map(start=7495680, size=1395900, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-libc.so.6&#39;),
+ Map(start=8892416, size=338734, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-libc.so.6&#39;),
+ Map(start=9234640, size=14128, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-libc.so.6&#39;),
+ Map(start=9248768, size=61264, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-libc.so.6&#39;),
+ Map(start=9437184, size=3464, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-ld-linux-x86-64.so.2&#39;),
+ Map(start=9441280, size=151249, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-ld-linux-x86-64.so.2&#39;),
+ Map(start=9592832, size=39932, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-ld-linux-x86-64.so.2&#39;),
+ Map(start=9636320, size=5664, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-ld-linux-x86-64.so.2&#39;),
+ Map(start=9641984, size=4824, perm=&lt;Perm.R|W|X: 7&gt;, name=&#39;seg-ld-linux-x86-64.so.2&#39;),
+ Map(start=251662336, size=4096, perm=&lt;Perm.R|W: 6&gt;, name=&#39;[extern]&#39;),
+ Map(start=1879048192, size=2147483649, perm=&lt;Perm.R|W: 6&gt;, name=&#39;[stack]&#39;)]
+</pre></div></div>
+</div>
+<p>As expected it resolved all the required shared libraries and loaded them in the <code class="docutils literal notranslate"><span class="pre">ProcessState</span></code> memory.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Using CLE requires emulating binaries using the same architecture than the host.</p>
+</div><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>While CLE can theoretically load MachO or PE binary they have not been loaded.</p>
+</div></section>
+<section id="Firmware-Loading">
+<h2>Firmware Loading<a class="headerlink" href="#Firmware-Loading" title="Permalink to this heading"></a></h2>
+<p>Performing symbolic execution on low-level firmware requires a specific loader. TritonDSE provides the <code class="docutils literal notranslate"><span class="pre">MonolithicLoader</span></code> that enables loading monolithic firmware by defining the memory segments manually.</p>
+<p>The following example shows how to load a small firmware:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import Architecture, MonolithicLoader, LoadableSegment
+
+BASE_ADDRESS= 0x8000000
+ENTRY_POINT = 0x81dc46e
+STACK_ADDR  = 0x1000000
+STACK_SIZE  = 1024*6
+
+raw_f = Path(&quot;./bugged_json_parser.bin&quot;).read_bytes()
+
+ldr = MonolithicLoader(Architecture.ARM32,
+                       cpustate = {&quot;pc&quot;: ENTRY_POINT,
+                                   &quot;sp&quot;: STACK_ADDR+STACK_SIZE},
+                       set_thumb=True,
+                       maps = [LoadableSegment(BASE_ADDRESS, len(raw_f), Perm.R|Perm.X, raw_f, name=&quot;bugged_json_parser&quot;),
+                               LoadableSegment(STACK_ADDR, STACK_SIZE, Perm.R|Perm.W, name=&quot;[stack]&quot;)])
+<br/></pre></div>
+</div>
+</div>
+<p>In this example we define two memory segments, one for the firmware itself, and one for an arbitrary stack. We also adjust <code class="docutils literal notranslate"><span class="pre">pc</span></code> and <code class="docutils literal notranslate"><span class="pre">sp</span></code> to point respectively to the entry point and the base of the stack.</p>
+</section>
+<section id="Writing-a-Loader">
+<h2>Writing a Loader<a class="headerlink" href="#Writing-a-Loader" title="Permalink to this heading"></a></h2>
+<p>If none of the available loaders are available for the program to emulate, one can define its own loader. It has to inherit <code class="docutils literal notranslate"><span class="pre">Loader</span></code> and have to implement all methods of this class. The class to inherit have the following interface:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>class Loader(object):
+    def __init__(self, path: str):
+        self.bin_path = Path(path)
+
+    @property
+    def name(self) -&gt; str:
+        raise NotImplementedError()
+
+    @property
+    def entry_point(self) -&gt; Addr:
+        raise NotImplementedError()
+
+    @property
+    def architecture(self) -&gt; Architecture:
+        raise NotImplementedError()
+
+    @property
+    def arch_mode(self) -&gt; Optional[ArchMode]:
+        return None
+
+    @property
+    def platform(self) -&gt; Optional[Platform]:
+        return None
+
+    def memory_segments(self) -&gt; Generator[LoadableSegment, None, None]:
+        raise NotImplementedError()
+
+    @property
+    def cpustate(self) -&gt; Dict[str, int]:
+        return {}
+
+
+    def imported_functions_relocations(self) -&gt; Generator[Tuple[str, Addr], None, None]:
+        yield from ()
+
+    def imported_variable_symbols_relocations(self) -&gt; Generator[Tuple[str, Addr], None, None]:
+        yield from ()
+
+    def find_function_addr(self, name: str) -&gt; Optional[Addr]:
+        return None
+</pre></div>
+</div>
+</div>
+<p>Function <code class="docutils literal notranslate"><span class="pre">find_function_addr</span></code> is used to attach a callback using the name of the function. As such, the loader has to provide a function to resolve a function name to its address.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sanitizers.html" class="btn btn-neutral float-left" title="Sanitizers &amp; Probes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api/callbacks.html" class="btn btn-neutral float-right" title="Callback Mechanism" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

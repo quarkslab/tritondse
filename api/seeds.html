@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seed &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Trace" href="tracing.html" />
+    <link rel="prev" title="Sanitizers" href="sanitizers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Seed</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.seed.CompositeData"><code class="docutils literal notranslate"><span class="pre">CompositeData</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__annotations__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__annotations__</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__bytes__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__bytes__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__dataclass_fields__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__dataclass_fields__</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__dataclass_params__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__dataclass_params__</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__delattr__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__delattr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__dict__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__dict__</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__eq__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__hash__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__hash__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__init__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__match_args__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__match_args__</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__module__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__module__</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__repr__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__repr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__setattr__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__setattr__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.__weakref__"><code class="docutils literal notranslate"><span class="pre">CompositeData.__weakref__</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.argv"><code class="docutils literal notranslate"><span class="pre">CompositeData.argv</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.files"><code class="docutils literal notranslate"><span class="pre">CompositeData.files</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.from_dict"><code class="docutils literal notranslate"><span class="pre">CompositeData.from_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.CompositeData.variables"><code class="docutils literal notranslate"><span class="pre">CompositeData.variables</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.seed.Seed"><code class="docutils literal notranslate"><span class="pre">Seed</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.__bytes__"><code class="docutils literal notranslate"><span class="pre">Seed.__bytes__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.__dict__"><code class="docutils literal notranslate"><span class="pre">Seed.__dict__</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.__eq__"><code class="docutils literal notranslate"><span class="pre">Seed.__eq__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.__hash__"><code class="docutils literal notranslate"><span class="pre">Seed.__hash__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.__init__"><code class="docutils literal notranslate"><span class="pre">Seed.__init__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.__len__"><code class="docutils literal notranslate"><span class="pre">Seed.__len__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.__module__"><code class="docutils literal notranslate"><span class="pre">Seed.__module__</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.__weakref__"><code class="docutils literal notranslate"><span class="pre">Seed.__weakref__</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.bytes"><code class="docutils literal notranslate"><span class="pre">Seed.bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.filename"><code class="docutils literal notranslate"><span class="pre">Seed.filename</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.format"><code class="docutils literal notranslate"><span class="pre">Seed.format</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.from_bytes"><code class="docutils literal notranslate"><span class="pre">Seed.from_bytes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.from_file"><code class="docutils literal notranslate"><span class="pre">Seed.from_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.get_file_input"><code class="docutils literal notranslate"><span class="pre">Seed.get_file_input()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.hash"><code class="docutils literal notranslate"><span class="pre">Seed.hash</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.is_bootstrap_seed"><code class="docutils literal notranslate"><span class="pre">Seed.is_bootstrap_seed()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.is_composite"><code class="docutils literal notranslate"><span class="pre">Seed.is_composite()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.is_file_defined"><code class="docutils literal notranslate"><span class="pre">Seed.is_file_defined()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.is_fresh"><code class="docutils literal notranslate"><span class="pre">Seed.is_fresh()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.is_raw"><code class="docutils literal notranslate"><span class="pre">Seed.is_raw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.is_status_set"><code class="docutils literal notranslate"><span class="pre">Seed.is_status_set()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.size"><code class="docutils literal notranslate"><span class="pre">Seed.size</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.Seed.status"><code class="docutils literal notranslate"><span class="pre">Seed.status</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.seed.SeedFormat"><code class="docutils literal notranslate"><span class="pre">SeedFormat</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.SeedFormat.RAW"><code class="docutils literal notranslate"><span class="pre">SeedFormat.RAW</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.SeedFormat.COMPOSITE"><code class="docutils literal notranslate"><span class="pre">SeedFormat.COMPOSITE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.SeedFormat.__module__"><code class="docutils literal notranslate"><span class="pre">SeedFormat.__module__</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.seed.SeedStatus"><code class="docutils literal notranslate"><span class="pre">SeedStatus</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.SeedStatus.NEW"><code class="docutils literal notranslate"><span class="pre">SeedStatus.NEW</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.SeedStatus.OK_DONE"><code class="docutils literal notranslate"><span class="pre">SeedStatus.OK_DONE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.SeedStatus.CRASH"><code class="docutils literal notranslate"><span class="pre">SeedStatus.CRASH</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.SeedStatus.HANG"><code class="docutils literal notranslate"><span class="pre">SeedStatus.HANG</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.seed.SeedStatus.__module__"><code class="docutils literal notranslate"><span class="pre">SeedStatus.__module__</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../practicals/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Seed</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/seeds.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-tritondse.seed">
+<span id="seed"></span><h1>Seed<a class="headerlink" href="#module-tritondse.seed" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.seed.</span></span><span class="sig-name descname"><span class="pre">CompositeData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv:</span> <span class="pre">List[bytes]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files:</span> <span class="pre">Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bytes]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables:</span> <span class="pre">Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bytes]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/seed.html#CompositeData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.CompositeData" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__annotations__">
+<span class="sig-name descname"><span class="pre">__annotations__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'argv':</span> <span class="pre">typing.List[bytes],</span> <span class="pre">'files':</span> <span class="pre">typing.Dict[str,</span> <span class="pre">bytes],</span> <span class="pre">'variables':</span> <span class="pre">typing.Dict[str,</span> <span class="pre">bytes]}</span></em><a class="headerlink" href="#tritondse.seed.CompositeData.__annotations__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__bytes__">
+<span class="sig-name descname"><span class="pre">__bytes__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#CompositeData.__bytes__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.CompositeData.__bytes__" title="Permalink to this definition"></a></dt>
+<dd><p>Serialize data into a json string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>JSON serialized data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__dataclass_fields__">
+<span class="sig-name descname"><span class="pre">__dataclass_fields__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'argv':</span> <span class="pre">Field(name='argv',type=typing.List[bytes],default=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;,default_factory=&lt;class</span> <span class="pre">'list'&gt;,init=True,repr=True,hash=None,compare=True,metadata=mappingproxy({}),kw_only=False,_field_type=_FIELD),</span> <span class="pre">'files':</span> <span class="pre">Field(name='files',type=typing.Dict[str,</span> <span class="pre">bytes],default=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;,default_factory=&lt;class</span> <span class="pre">'dict'&gt;,init=True,repr=True,hash=None,compare=True,metadata=mappingproxy({}),kw_only=False,_field_type=_FIELD),</span> <span class="pre">'variables':</span> <span class="pre">Field(name='variables',type=typing.Dict[str,</span> <span class="pre">bytes],default=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;,default_factory=&lt;class</span> <span class="pre">'dict'&gt;,init=True,repr=True,hash=None,compare=True,metadata=mappingproxy({}),kw_only=False,_field_type=_FIELD)}</span></em><a class="headerlink" href="#tritondse.seed.CompositeData.__dataclass_fields__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__dataclass_params__">
+<span class="sig-name descname"><span class="pre">__dataclass_params__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">_DataclassParams(init=True,repr=True,eq=True,order=False,unsafe_hash=False,frozen=True)</span></em><a class="headerlink" href="#tritondse.seed.CompositeData.__dataclass_params__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__delattr__">
+<span class="sig-name descname"><span class="pre">__delattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tritondse.seed.CompositeData.__delattr__" title="Permalink to this definition"></a></dt>
+<dd><p>Implement delattr(self, name).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__dict__">
+<span class="sig-name descname"><span class="pre">__dict__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">mappingproxy({'__module__':</span> <span class="pre">'tritondse.seed',</span> <span class="pre">'__annotations__':</span> <span class="pre">{'argv':</span> <span class="pre">typing.List[bytes],</span> <span class="pre">'files':</span> <span class="pre">typing.Dict[str,</span> <span class="pre">bytes],</span> <span class="pre">'variables':</span> <span class="pre">typing.Dict[str,</span> <span class="pre">bytes]},</span> <span class="pre">'_to_json':</span> <span class="pre">&lt;function</span> <span class="pre">CompositeData._to_json&gt;,</span> <span class="pre">'__bytes__':</span> <span class="pre">&lt;function</span> <span class="pre">CompositeData.__bytes__&gt;,</span> <span class="pre">'from_dict':</span> <span class="pre">&lt;staticmethod(&lt;function</span> <span class="pre">CompositeData.from_dict&gt;)&gt;,</span> <span class="pre">'__hash__':</span> <span class="pre">&lt;function</span> <span class="pre">CompositeData.__hash__&gt;,</span> <span class="pre">'__dict__':</span> <span class="pre">&lt;attribute</span> <span class="pre">'__dict__'</span> <span class="pre">of</span> <span class="pre">'CompositeData'</span> <span class="pre">objects&gt;,</span> <span class="pre">'__weakref__':</span> <span class="pre">&lt;attribute</span> <span class="pre">'__weakref__'</span> <span class="pre">of</span> <span class="pre">'CompositeData'</span> <span class="pre">objects&gt;,</span> <span class="pre">'__doc__':</span> <span class="pre">'CompositeData(argv:</span> <span class="pre">List[bytes]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">files:</span> <span class="pre">Dict[str,</span> <span class="pre">bytes]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;,</span> <span class="pre">variables:</span> <span class="pre">Dict[str,</span> <span class="pre">bytes]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;)',</span> <span class="pre">'__dataclass_params__':</span> <span class="pre">_DataclassParams(init=True,repr=True,eq=True,order=False,unsafe_hash=False,frozen=True),</span> <span class="pre">'__dataclass_fields__':</span> <span class="pre">{'argv':</span> <span class="pre">Field(name='argv',type=typing.List[bytes],default=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;,default_factory=&lt;class</span> <span class="pre">'list'&gt;,init=True,repr=True,hash=None,compare=True,metadata=mappingproxy({}),kw_only=False,_field_type=_FIELD),</span> <span class="pre">'files':</span> <span class="pre">Field(name='files',type=typing.Dict[str,</span> <span class="pre">bytes],default=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;,default_factory=&lt;class</span> <span class="pre">'dict'&gt;,init=True,repr=True,hash=None,compare=True,metadata=mappingproxy({}),kw_only=False,_field_type=_FIELD),</span> <span class="pre">'variables':</span> <span class="pre">Field(name='variables',type=typing.Dict[str,</span> <span class="pre">bytes],default=&lt;dataclasses._MISSING_TYPE</span> <span class="pre">object&gt;,default_factory=&lt;class</span> <span class="pre">'dict'&gt;,init=True,repr=True,hash=None,compare=True,metadata=mappingproxy({}),kw_only=False,_field_type=_FIELD)},</span> <span class="pre">'__init__':</span> <span class="pre">&lt;function</span> <span class="pre">CompositeData.__init__&gt;,</span> <span class="pre">'__repr__':</span> <span class="pre">&lt;function</span> <span class="pre">CompositeData.__repr__&gt;,</span> <span class="pre">'__eq__':</span> <span class="pre">&lt;function</span> <span class="pre">CompositeData.__eq__&gt;,</span> <span class="pre">'__setattr__':</span> <span class="pre">&lt;function</span> <span class="pre">CompositeData.__setattr__&gt;,</span> <span class="pre">'__delattr__':</span> <span class="pre">&lt;function</span> <span class="pre">CompositeData.__delattr__&gt;,</span> <span class="pre">'__match_args__':</span> <span class="pre">('argv',</span> <span class="pre">'files',</span> <span class="pre">'variables')})</span></em><a class="headerlink" href="#tritondse.seed.CompositeData.__dict__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__eq__">
+<span class="sig-name descname"><span class="pre">__eq__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tritondse.seed.CompositeData.__eq__" title="Permalink to this definition"></a></dt>
+<dd><p>Return self==value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__hash__">
+<span class="sig-name descname"><span class="pre">__hash__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/seed.html#CompositeData.__hash__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.CompositeData.__hash__" title="Permalink to this definition"></a></dt>
+<dd><p>Return hash(self).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv:</span> <span class="pre">~typing.List[bytes]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bytes]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables:</span> <span class="pre">~typing.Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bytes]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#tritondse.seed.CompositeData.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__match_args__">
+<span class="sig-name descname"><span class="pre">__match_args__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('argv',</span> <span class="pre">'files',</span> <span class="pre">'variables')</span></em><a class="headerlink" href="#tritondse.seed.CompositeData.__match_args__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__module__">
+<span class="sig-name descname"><span class="pre">__module__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tritondse.seed'</span></em><a class="headerlink" href="#tritondse.seed.CompositeData.__module__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#tritondse.seed.CompositeData.__repr__" title="Permalink to this definition"></a></dt>
+<dd><p>Return repr(self).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__setattr__">
+<span class="sig-name descname"><span class="pre">__setattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tritondse.seed.CompositeData.__setattr__" title="Permalink to this definition"></a></dt>
+<dd><p>Implement setattr(self, name, value).</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.__weakref__">
+<span class="sig-name descname"><span class="pre">__weakref__</span></span><a class="headerlink" href="#tritondse.seed.CompositeData.__weakref__" title="Permalink to this definition"></a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.argv">
+<span class="sig-name descname"><span class="pre">argv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.seed.CompositeData.argv" title="Permalink to this definition"></a></dt>
+<dd><p>list of argv values</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.files">
+<span class="sig-name descname"><span class="pre">files</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.seed.CompositeData.files" title="Permalink to this definition"></a></dt>
+<dd><p>dictionnary of files and the associated content (stdin is one of them)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.from_dict">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><span class="pre">dict</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tritondse.seed.CompositeData" title="tritondse.seed.CompositeData"><span class="pre">CompositeData</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#CompositeData.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.CompositeData.from_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Convert dict data into a <a class="reference internal" href="#tritondse.seed.CompositeData" title="tritondse.seed.CompositeData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CompositeData</span></code></a> object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>json_data</strong> – json data</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>new object instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.CompositeData.variables">
+<span class="sig-name descname"><span class="pre">variables</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.seed.CompositeData.variables" title="Permalink to this definition"></a></dt>
+<dd><p>user defined variables, that the use must take care to inject at right location</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tritondse.seed.Seed">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.seed.</span></span><span class="sig-name descname"><span class="pre">Seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#tritondse.seed.CompositeData" title="tritondse.seed.CompositeData"><span class="pre">CompositeData</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">b''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SeedStatus.NEW</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Seed input.
+Holds the bytes buffer of the content a status after execution
+but also some metadata of code portions it is meant to cover.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>content</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><em>bytes</em></a>) – content of the input. By default is b”” <em>(and is thus considered as a bootstrap seed)</em></p></li>
+<li><p><strong>status</strong> (<a class="reference internal" href="#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><em>SeedStatus</em></a>) – status of the seed if already known</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.__bytes__">
+<span class="sig-name descname"><span class="pre">__bytes__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.__bytes__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.__bytes__" title="Permalink to this definition"></a></dt>
+<dd><p>Return a representation of the seed’s content in bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)">bytes</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.__dict__">
+<span class="sig-name descname"><span class="pre">__dict__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">mappingproxy({'__module__':</span> <span class="pre">'tritondse.seed',</span> <span class="pre">'__doc__':</span> <span class="pre">'\n</span>&#160;&#160;&#160; <span class="pre">Seed</span> <span class="pre">input.\n</span>&#160;&#160;&#160; <span class="pre">Holds</span> <span class="pre">the</span> <span class="pre">bytes</span> <span class="pre">buffer</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">content</span> <span class="pre">a</span> <span class="pre">status</span> <span class="pre">after</span> <span class="pre">execution\n</span>&#160;&#160;&#160; <span class="pre">but</span> <span class="pre">also</span> <span class="pre">some</span> <span class="pre">metadata</span> <span class="pre">of</span> <span class="pre">code</span> <span class="pre">portions</span> <span class="pre">it</span> <span class="pre">is</span> <span class="pre">meant</span> <span class="pre">to</span> <span class="pre">cover.\n</span>&#160;&#160;&#160; <span class="pre">',</span> <span class="pre">'__init__':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.__init__&gt;,</span> <span class="pre">'is_composite':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.is_composite&gt;,</span> <span class="pre">'is_raw':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.is_raw&gt;,</span> <span class="pre">'is_bootstrap_seed':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.is_bootstrap_seed&gt;,</span> <span class="pre">'is_fresh':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.is_fresh&gt;,</span> <span class="pre">'status':</span> <span class="pre">&lt;property</span> <span class="pre">object&gt;,</span> <span class="pre">'format':</span> <span class="pre">&lt;property</span> <span class="pre">object&gt;,</span> <span class="pre">'is_status_set':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.is_status_set&gt;,</span> <span class="pre">'__len__':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.__len__&gt;,</span> <span class="pre">'__eq__':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.__eq__&gt;,</span> <span class="pre">'bytes':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.bytes&gt;,</span> <span class="pre">'__bytes__':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.__bytes__&gt;,</span> <span class="pre">'__hash__':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.__hash__&gt;,</span> <span class="pre">'hash':</span> <span class="pre">&lt;property</span> <span class="pre">object&gt;,</span> <span class="pre">'size':</span> <span class="pre">&lt;property</span> <span class="pre">object&gt;,</span> <span class="pre">'filename':</span> <span class="pre">&lt;property</span> <span class="pre">object&gt;,</span> <span class="pre">'from_bytes':</span> <span class="pre">&lt;staticmethod(&lt;function</span> <span class="pre">Seed.from_bytes&gt;)&gt;,</span> <span class="pre">'from_file':</span> <span class="pre">&lt;staticmethod(&lt;function</span> <span class="pre">Seed.from_file&gt;)&gt;,</span> <span class="pre">'is_file_defined':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.is_file_defined&gt;,</span> <span class="pre">'get_file_input':</span> <span class="pre">&lt;function</span> <span class="pre">Seed.get_file_input&gt;,</span> <span class="pre">'__dict__':</span> <span class="pre">&lt;attribute</span> <span class="pre">'__dict__'</span> <span class="pre">of</span> <span class="pre">'Seed'</span> <span class="pre">objects&gt;,</span> <span class="pre">'__weakref__':</span> <span class="pre">&lt;attribute</span> <span class="pre">'__weakref__'</span> <span class="pre">of</span> <span class="pre">'Seed'</span> <span class="pre">objects&gt;,</span> <span class="pre">'__annotations__':</span> <span class="pre">{}})</span></em><a class="headerlink" href="#tritondse.seed.Seed.__dict__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.__eq__">
+<span class="sig-name descname"><span class="pre">__eq__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.__eq__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.__eq__" title="Permalink to this definition"></a></dt>
+<dd><p>Equality check based on content.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>true if content of both seeds are equal</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.__hash__">
+<span class="sig-name descname"><span class="pre">__hash__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.__hash__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.__hash__" title="Permalink to this definition"></a></dt>
+<dd><p>Seed hash function overriden to base itself on content.
+That enable storing seed in dictionnaries directly based
+on their content to discriminate them.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#tritondse.seed.CompositeData" title="tritondse.seed.CompositeData"><span class="pre">CompositeData</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">b''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">SeedStatus.NEW</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>content</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><em>bytes</em></a>) – content of the input. By default is b”” <em>(and is thus considered as a bootstrap seed)</em></p></li>
+<li><p><strong>status</strong> (<a class="reference internal" href="#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><em>SeedStatus</em></a>) – status of the seed if already known</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.__len__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.__len__" title="Permalink to this definition"></a></dt>
+<dd><p>Size of the content of the seed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.__module__">
+<span class="sig-name descname"><span class="pre">__module__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tritondse.seed'</span></em><a class="headerlink" href="#tritondse.seed.Seed.__module__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.__weakref__">
+<span class="sig-name descname"><span class="pre">__weakref__</span></span><a class="headerlink" href="#tritondse.seed.Seed.__weakref__" title="Permalink to this definition"></a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.bytes">
+<span class="sig-name descname"><span class="pre">bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.bytes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.filename">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filename</span></span><a class="headerlink" href="#tritondse.seed.Seed.filename" title="Permalink to this definition"></a></dt>
+<dd><p>Standardized filename based on hash and size.
+That does not mean the file exists or anything.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>formatted intended filename of the seed</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.format">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#tritondse.seed.SeedFormat" title="tritondse.seed.SeedFormat"><span class="pre">SeedFormat</span></a></em><a class="headerlink" href="#tritondse.seed.Seed.format" title="Permalink to this definition"></a></dt>
+<dd><p>Format of the seed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tritondse.seed.SeedFormat" title="tritondse.seed.SeedFormat">SeedFormat</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.from_bytes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><span class="pre">SeedStatus</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SeedStatus.NEW</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.from_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.from_bytes" title="Permalink to this definition"></a></dt>
+<dd><p>Parse a seed from its byte representation. If its a composite one
+it will parse the bytes as JSON and create the CompositeData accordingly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_seed</strong> – bytes: raw bytes of the seed</p></li>
+<li><p><strong>status</strong> (<a class="reference internal" href="#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><em>SeedStatus</em></a>) – status of the seed if any, otherwise <a class="reference internal" href="#tritondse.seed.SeedStatus.NEW" title="tritondse.seed.SeedStatus.NEW"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SeedStatus.NEW</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>fresh seed instance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tritondse.seed.Seed" title="tritondse.seed.Seed">Seed</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.from_file">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><span class="pre">SeedStatus</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SeedStatus.NEW</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.from_file" title="Permalink to this definition"></a></dt>
+<dd><p>Read a seed from a file. The status can optionally given
+as it cannot be determined from the file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference internal" href="types.html#tritondse.types.PathLike" title="tritondse.types.PathLike"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.types.PathLike</span></code></a>) – seed path</p></li>
+<li><p><strong>status</strong> (<a class="reference internal" href="#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><em>SeedStatus</em></a>) – status of the seed if any, otherwise <a class="reference internal" href="#tritondse.seed.SeedStatus.NEW" title="tritondse.seed.SeedStatus.NEW"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SeedStatus.NEW</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>fresh seed instance</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tritondse.seed.Seed" title="tritondse.seed.Seed">Seed</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.get_file_input">
+<span class="sig-name descname"><span class="pre">get_file_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.get_file_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.get_file_input" title="Permalink to this definition"></a></dt>
+<dd><p>Return the bytes associated to a given file within
+a composite seed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.11)"><strong>KeyError</strong></a> – if the name cannot be found in the seed.</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>name</strong> – name of the file to retrieve</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bytes of the file content</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.hash">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hash</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></em><a class="headerlink" href="#tritondse.seed.Seed.hash" title="Permalink to this definition"></a></dt>
+<dd><p>MD5 hash of the seed content</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.is_bootstrap_seed">
+<span class="sig-name descname"><span class="pre">is_bootstrap_seed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.is_bootstrap_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.is_bootstrap_seed" title="Permalink to this definition"></a></dt>
+<dd><p>A bootstrap seed is an empty seed (b””). It will received a
+specific processing in the engine as its size will be automatically
+adapted to the size read (in stdin for instance)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>true if the seed is a bootstrap seed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.is_composite">
+<span class="sig-name descname"><span class="pre">is_composite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.is_composite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.is_composite" title="Permalink to this definition"></a></dt>
+<dd><p>Returns wether the seed is a composite seed or not.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.is_file_defined">
+<span class="sig-name descname"><span class="pre">is_file_defined</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.is_file_defined"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.is_file_defined" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.is_fresh">
+<span class="sig-name descname"><span class="pre">is_fresh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.is_fresh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.is_fresh" title="Permalink to this definition"></a></dt>
+<dd><p>A fresh seed is never been executed. Its is recognizable
+as it does not contain any coverage objectives.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the seed has never been executed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.is_raw">
+<span class="sig-name descname"><span class="pre">is_raw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.is_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.is_raw" title="Permalink to this definition"></a></dt>
+<dd><p>Returns wether the seed is a raw seed or not.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.is_status_set">
+<span class="sig-name descname"><span class="pre">is_status_set</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.is_status_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.is_status_set" title="Permalink to this definition"></a></dt>
+<dd><p>Checks whether a status has already been assigned to the seed.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.seed.Seed.size" title="Permalink to this definition"></a></dt>
+<dd><p>Size of the seed content in bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.seed.Seed.status">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><span class="pre">SeedStatus</span></a></em><a class="headerlink" href="#tritondse.seed.Seed.status" title="Permalink to this definition"></a></dt>
+<dd><p>Status of the seed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus">SeedStatus</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class enum">
+<dt class="sig sig-object py" id="tritondse.seed.SeedFormat">
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.seed.</span></span><span class="sig-name descname"><span class="pre">SeedFormat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/seed.html#SeedFormat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.SeedFormat" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Seed format enum
+Raw seeds are just bytes Seed(b”AAAAABBBBB”)
+Composite can describe how to inject the input more precisely</p>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.SeedFormat.RAW">
+<span class="sig-name descname"><span class="pre">RAW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SeedFormat.RAW:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#tritondse.seed.SeedFormat.RAW" title="Permalink to this definition"></a></dt>
+<dd><p>plain bytes input seed</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.SeedFormat.COMPOSITE">
+<span class="sig-name descname"><span class="pre">COMPOSITE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SeedFormat.COMPOSITE:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#tritondse.seed.SeedFormat.COMPOSITE" title="Permalink to this definition"></a></dt>
+<dd><p>complex input object</p>
+</dd></dl>
+
+<p>The <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a> and its members also have the following methods:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.SeedFormat.__module__">
+<span class="sig-name descname"><span class="pre">__module__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tritondse.seed'</span></em><a class="headerlink" href="#tritondse.seed.SeedFormat.__module__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class enum">
+<dt class="sig sig-object py" id="tritondse.seed.SeedStatus">
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.seed.</span></span><span class="sig-name descname"><span class="pre">SeedStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/seed.html#SeedStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.SeedStatus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Seed status enum.
+Enables giving a status to a seed during its execution.
+At the end of a <code class="xref py py-obj docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> run one of these
+status must have set to the seed.</p>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.SeedStatus.NEW">
+<span class="sig-name descname"><span class="pre">NEW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SeedStatus.NEW:</span> <span class="pre">0&gt;</span></em><a class="headerlink" href="#tritondse.seed.SeedStatus.NEW" title="Permalink to this definition"></a></dt>
+<dd><p>The input seed is new (has not been executed yet)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.SeedStatus.OK_DONE">
+<span class="sig-name descname"><span class="pre">OK_DONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SeedStatus.OK_DONE:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#tritondse.seed.SeedStatus.OK_DONE" title="Permalink to this definition"></a></dt>
+<dd><p>The input seed has been executed and terminated correctly</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.SeedStatus.CRASH">
+<span class="sig-name descname"><span class="pre">CRASH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SeedStatus.CRASH:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#tritondse.seed.SeedStatus.CRASH" title="Permalink to this definition"></a></dt>
+<dd><p>The input seed crashed in some ways</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.SeedStatus.HANG">
+<span class="sig-name descname"><span class="pre">HANG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;SeedStatus.HANG:</span> <span class="pre">3&gt;</span></em><a class="headerlink" href="#tritondse.seed.SeedStatus.HANG" title="Permalink to this definition"></a></dt>
+<dd><p>The input seed made the program to hang</p>
+</dd></dl>
+
+<p>The <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a> and its members also have the following methods:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.seed.SeedStatus.__module__">
+<span class="sig-name descname"><span class="pre">__module__</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tritondse.seed'</span></em><a class="headerlink" href="#tritondse.seed.SeedStatus.__module__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sanitizers.html" class="btn btn-neutral float-left" title="Sanitizers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tracing.html" class="btn btn-neutral float-right" title="Trace" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
