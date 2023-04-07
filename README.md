@@ -67,7 +67,7 @@ The pip package will install all dependencies.
 ## Documentation
 
 A complete documentation on how to use TritonDSE is available on
-[Github pages](https://quarkslab.github.io/qsynthesis).
+[Github pages](https://quarkslab.github.io/tritondse).
 
 
 ---
