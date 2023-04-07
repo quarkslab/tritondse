@@ -20,6 +20,11 @@ jobs:
         with:
           python-version: 3.11.2
 
+      - name: "Install Pandoc"
+        run: |
+          sudo apt update -y
+          sudo apt install pandoc -y
+
       - name: "Install Python dependencies"
         run: |
           cd doc/
