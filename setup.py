@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="tritondse",
-    version="0.1",
+    version="0.1.0",
     description="A library of Dynamic Symbolic Exploration based the Triton library",
     packages=find_packages(),
     setup_requires=[],
