@@ -1,11 +1,11 @@
 from __future__ import annotations
 import logging
 
-from triton              import MemoryAccess, CPUSIZE, Instruction
+from triton import MemoryAccess, CPUSIZE, Instruction
 from tritondse.callbacks import CbType, ProbeInterface
-from tritondse.seed      import Seed, SeedStatus
-from tritondse.types     import Architecture, Addr, Tuple, SolverStatus
-from tritondse           import SymbolicExecutor, ProcessState
+from tritondse.seed import Seed, SeedStatus
+from tritondse.types import Architecture, Addr, Tuple, SolverStatus
+from tritondse import SymbolicExecutor, ProcessState
 
 
 def mk_new_crashing_seed(se, model) -> Seed:
@@ -24,7 +24,6 @@ def mk_new_crashing_seed(se, model) -> Seed:
     return Seed(bytes(new_input))
 
 
-
 class UAFSanitizer(ProbeInterface):
     """
     Use-After-Free Sanitizer.
@@ -38,7 +37,6 @@ class UAFSanitizer(ProbeInterface):
         self._add_callback(CbType.MEMORY_READ, self._memory_read)
         self._add_callback(CbType.MEMORY_WRITE, self._memory_write)
         self._add_callback(CbType.PRE_RTN, self._free_routine, 'free')
-
 
     @staticmethod
     def check(se: SymbolicExecutor, pstate: ProcessState, ptr: Addr, description: str = None) -> bool:
@@ -63,16 +61,13 @@ class UAFSanitizer(ProbeInterface):
             return True
         return False
 
-
     @staticmethod
     def _memory_read(se, pstate, mem):
         return UAFSanitizer.check(se, pstate, mem.getAddress(), f'UAF detected at {mem}')
 
-
     @staticmethod
     def _memory_write(se, pstate, mem, value):
         return UAFSanitizer.check(se, pstate, mem.getAddress(), f'UAF detected at {mem}')
-
 
     @staticmethod
     def _free_routine(se, pstate, name, addr):
@@ -90,7 +85,6 @@ class NullDerefSanitizer(ProbeInterface):
         super(NullDerefSanitizer, self).__init__()
         self._add_callback(CbType.MEMORY_READ, self._memory_read)
         self._add_callback(CbType.MEMORY_WRITE, self._memory_write)
-
 
     @staticmethod
     def check(se: SymbolicExecutor, pstate: ProcessState, ptr: Addr, description: str = None) -> bool:
@@ -137,16 +131,13 @@ class NullDerefSanitizer(ProbeInterface):
 
         return False
 
-
     @staticmethod
     def _memory_read(se, pstate, mem):
         return NullDerefSanitizer.check(se, pstate, mem.getAddress(), f'Invalid memory access when reading at {mem} from {pstate.current_instruction}')
 
-
     @staticmethod
     def _memory_write(se, pstate, mem, value):
         return NullDerefSanitizer.check(se, pstate, mem.getAddress(), f'Invalid memory access when writting at {mem} from {pstate.current_instruction}')
-
 
 
 class FormatStringSanitizer(ProbeInterface):
@@ -167,7 +158,6 @@ class FormatStringSanitizer(ProbeInterface):
         self._add_callback(CbType.PRE_RTN, self._xprintf_arg1_routine, 'sprintf')
         self._add_callback(CbType.PRE_RTN, self._xprintf_arg1_routine, 'dprintf')
         self._add_callback(CbType.PRE_RTN, self._xprintf_arg1_routine, 'snprintf')
-
 
     @staticmethod
     def check(se, pstate, fmt_ptr, extra_data: Tuple[str, Addr] = None):
@@ -232,18 +222,15 @@ class FormatStringSanitizer(ProbeInterface):
             return True
         return False
 
-
     @staticmethod
     def _xprintf_arg0_routine(se, pstate, name, addr):
         string_ptr = se.pstate.get_argument_value(0)
         FormatStringSanitizer.check(se, pstate, string_ptr, (name, addr))
 
-
     @staticmethod
     def _xprintf_arg1_routine(se, pstate, name, addr):
         string_ptr = se.pstate.get_argument_value(1)
         FormatStringSanitizer.check(se, pstate, string_ptr, (name, addr))
-
 
 
 class IntegerOverflowSanitizer(ProbeInterface):
@@ -258,7 +245,6 @@ class IntegerOverflowSanitizer(ProbeInterface):
     def __init__(self):
         super(IntegerOverflowSanitizer, self).__init__()
         self._add_callback(CbType.POST_INST, self.check)
-
 
     @staticmethod
     def check(se: SymbolicExecutor, pstate: ProcessState, instruction: Instruction) -> bool:

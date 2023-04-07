@@ -11,7 +11,6 @@ from tritondse.types import SmtSolver
 from tritondse.seed import SeedFormat
 
 
-
 class Config(object):
     """
     Data class holding tritondse configuration
@@ -135,7 +134,6 @@ class Config(object):
     def __str__(self):
         return "\n".join(f"{k.ljust(23)}= {v}" for k, v in self.__dict__.items())
 
-
     def to_file(self, file: str) -> None:
         """
         Save the current configuration to a file
@@ -144,7 +142,6 @@ class Config(object):
         """
         with open(file, "w") as f:
             f.write(self.to_json())
-
 
     @staticmethod
     def from_file(file: str) -> 'Config':
@@ -156,7 +153,6 @@ class Config(object):
         """
         raw = Path(file).read_text()
         return Config.from_json(raw)
-
 
     @staticmethod
     def from_json(s: str) -> 'Config':
@@ -181,7 +177,6 @@ class Config(object):
                 logging.warning(f"config unknown parameter: {k}")
         return c
 
-
     def to_json(self) -> str:
         """
         Convert the current configuration to a json output
@@ -189,7 +184,7 @@ class Config(object):
         :return: JSON text
         """
         def to_str_list(value):
-            return [x.name for x in BranchSolvingStrategy if x in value]
+            return [x.name for x in list(BranchSolvingStrategy) if x in value]
         d = {}
         for k, v in self.__dict__.items():
             if isinstance(v, IntFlag):

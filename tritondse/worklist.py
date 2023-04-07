@@ -25,7 +25,6 @@ class SeedScheduler:
         """
         raise NotImplementedError()
 
-
     def add(self, seed: Seed) -> None:
         """
         Add a new seed in the scheduler
@@ -34,7 +33,6 @@ class SeedScheduler:
         :type seed: Seed
         """
         raise NotImplementedError()
-
 
     def update_worklist(self, coverage: GlobalCoverage) -> None:
         """
@@ -48,7 +46,6 @@ class SeedScheduler:
         """
         raise NotImplementedError()
 
-
     def can_solve_models(self) -> bool:
         """
         Function called by the seed manager to know if it can
@@ -60,7 +57,6 @@ class SeedScheduler:
         """
         raise NotImplementedError()
 
-
     def pick(self) -> Optional[Seed]:
         """
         Return the next seed to execute.
@@ -70,7 +66,6 @@ class SeedScheduler:
         """
         raise NotImplementedError()
 
-
     def post_execution(self) -> None:
         """
         Called at the end of each execution after the generation of new seeds through SMT.
@@ -78,14 +73,12 @@ class SeedScheduler:
         """
         pass
 
-
     def post_exploration(self, workspace: Workspace) -> None:
         """
         Called at the end of the exploration to perform
         some clean-up or anything else.
         """
         pass
-
 
 
 class WorklistAddressToSet(SeedScheduler):
@@ -100,7 +93,6 @@ class WorklistAddressToSet(SeedScheduler):
         self.cov = None
         self.worklist = dict() # {CovItem: set(Seed)}
 
-
     def __len__(self) -> int:
         """ Number of pending seeds to execute """
         count = 0
@@ -109,11 +101,9 @@ class WorklistAddressToSet(SeedScheduler):
             count += len(v)
         return count
 
-
     def has_seed_remaining(self) -> bool:
         """ Returns true if there are still seeds in the worklist """
         return len(self) != 0
-
 
     def add(self, seed: Seed) -> None:
         """ Add a seed to the worklist """
@@ -123,11 +113,9 @@ class WorklistAddressToSet(SeedScheduler):
             else:
                 self.worklist[obj] = {seed}
 
-
     def update_worklist(self, coverage: GlobalCoverage) -> None:
         """ Update the coverage state of the woklist with the global one """
         self.cov = coverage
-
 
     def can_solve_models(self) -> bool:
         """
@@ -139,7 +127,6 @@ class WorklistAddressToSet(SeedScheduler):
         :returns: True
         """
         return True
-
 
     def pick(self) -> Optional[Seed]:
         """ Return the next seed to execute
@@ -202,16 +189,13 @@ class WorklistRand(SeedScheduler):
     def __init__(self, manager: 'SeedManager'):
         self.worklist = set() # set(Seed)
 
-
     def __len__(self) -> int:
         """ Number of pending seeds to execute """
         return len(self.worklist)
 
-
     def has_seed_remaining(self) -> bool:
         """ Returns true if there are still seeds in the worklist """
         return len(self) != 0
-
 
     def add(self, seed: Seed) -> None:
         """ Add a seed to the worklist
@@ -221,16 +205,13 @@ class WorklistRand(SeedScheduler):
         """
         self.worklist.add(seed)
 
-
     def update_worklist(self, coverage: GlobalCoverage) -> None:
         """ Update the coverage state of the worklist with the global one """
         self.cov = coverage
 
-
     def can_solve_models(self) -> bool:
         """ Always true """
         return True
-
 
     def pick(self) -> Optional[Seed]:
         """
@@ -260,7 +241,6 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
         self.fresh = []       # Seed never processed (list to make sure we can pop first one received)
         self.worklist = dict() # CovItem -> set(Seed)
 
-
     def __len__(self) -> int:
         """ Number of pending seeds to execute """
         s = set()
@@ -268,11 +248,9 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
             s.update(seeds)
         return len(self.fresh) + len(s)
 
-
     def has_seed_remaining(self) -> bool:
         """ Returns true if there are still seeds in the worklist """
         return len(self) != 0
-
 
     def add(self, seed: Seed) -> None:
         """ Add a seed to the worklist
@@ -290,7 +268,6 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
         else:  # Otherwise it is fresh
             self.fresh.append(seed)
 
-
     def update_worklist(self, coverage: GlobalCoverage) -> None:
         """ Update the coverage state of the worklist with the global one """
         # Iterate the worklist to see if some items have now been covered
@@ -303,7 +280,6 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
                 if not seed.coverage_objectives:  # The seed cannot improve the coverage of anything
                     self.manager.drop_seed(seed)
 
-
     def can_solve_models(self) -> bool:
         """
         Returns True if there are no "fresh" seeds to execute.
@@ -311,7 +287,6 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
         :returns: True if all fresh seeds have been executed.
         """
         return not self.fresh
-
 
     def pick(self) -> Optional[Seed]:
         """ Return the next seed to execute """

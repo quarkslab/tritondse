@@ -51,11 +51,22 @@ class CompositeData:
         }
         return json.dumps(data, indent=2)
 
-    def __bytes__(self):
+    def __bytes__(self) -> str:
+        """
+        Serialize data into a json string.
+
+        :return: JSON serialized data
+        """
         return self._to_json().encode()
 
     @staticmethod
     def from_dict(json_data: dict) -> 'CompositeData':
+        """
+        Convert dict data into a :py:obj:`CompositeData` object.
+
+        :param json_data: json data
+        :return: new object instance
+        """
         argv = [base64.b64decode(v) for v in json_data['argv']]
         files = {k: (base64.b64decode(v) if isinstance(v, str) else v) for k, v in json_data['files'].items()}
         variables = {k: (base64.b64decode(v) if isinstance(v, str) else v) for k, v in json_data['variables'].items()}
@@ -99,7 +110,7 @@ class Seed(object):
         specific processing in the engine as its size will be automatically
         adapted to the size read (in stdin for instance)
 
-        :returns: true if the seed is a bootstrap seed
+        :return: true if the seed is a bootstrap seed
         """
         return self.content == b""
 
@@ -108,10 +119,9 @@ class Seed(object):
         A fresh seed is never been executed. Its is recognizable
         as it does not contain any coverage objectives.
 
-        :returns: True if the seed has never been executed
+        :return: True if the seed has never been executed
         """
         return not self.coverage_objectives
-
 
     @property
     def status(self) -> SeedStatus:
@@ -122,7 +132,6 @@ class Seed(object):
         """
         return self._status
 
-
     @property
     def format(self) -> SeedFormat:
         """
@@ -131,7 +140,6 @@ class Seed(object):
         :rtype: SeedFormat
         """
         return self._type
-
 
     @status.setter
     def status(self, value: SeedStatus) -> None:

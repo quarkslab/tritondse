@@ -39,18 +39,18 @@ class SymbolicExplorator(object):
     and generated along the way.
     """
     def __init__(self, config: Config, loader: Loader = None, workspace: Workspace = None, executor_stop_at: Addr = None, seed_scheduler_class: Type[SeedScheduler] = None):
-        self.loader: Loader     = loader  #: Program being analyzed
-        self.config: Config       = config   #: Configuration file
-        self.cbm: CallbackManager = CallbackManager()
-        self._stop          = False
-        self.ts            = time.time()
-        self.uid_counter   = 0
+        self.loader: Loader = loader  #: Program being analyzed
+        self.config: Config = config  #: Configuration file
+        self.cbm: CallbackManager = CallbackManager()  #: CallbackManager to register callbacks
+        self._stop = False
+        self.ts: int = time.time()  #: Timestamp (object instanciation)
+        self.uid_counter: int = 0
         self.status: ExplorationStatus = ExplorationStatus.NOT_RUNNING  #: status of the execution
         self._executor_stop_at = executor_stop_at
 
         # Initialize the workspace
         if workspace:
-            self.workspace = workspace  # workspace already instanciated
+            self.workspace: Workspace = workspace  #: exploration workspace
         else:
             self.workspace: Workspace = Workspace(self.config.workspace)  #: workspace object
             self.workspace.initialize(flush=False)
@@ -119,7 +119,6 @@ class SymbolicExplorator(object):
     def __time_delta(self):
         return time.time() - self.ts
 
-
     def _worker(self, seed, uid):
         """ Worker thread """
         logging.info(f'Pick-up seed: {seed.filename} (fresh: {seed.is_fresh()})')
@@ -150,7 +149,6 @@ class SymbolicExplorator(object):
             expl_ts = time.time() - ts
             logging.info("Exploration interrupted (coverage not integrated)")
             self.stop_exploration()
-
 
         if self.config.exploration_limit and (uid+1) >= self.config.exploration_limit:
             logging.info('Exploration limit reached')
@@ -230,7 +228,6 @@ class SymbolicExplorator(object):
 
         return self.status
 
-
     def add_input_seed(self, seed: Union[bytes, Seed]) -> None:
         """
         Add the given bytes or Seed object as input for the exploration.
@@ -240,7 +237,6 @@ class SymbolicExplorator(object):
         """
         seed = seed if isinstance(seed, Seed) else Seed(seed)
         self.seeds_manager.add_new_seed(seed)
-
 
     def stop_exploration(self) -> None:
         """ Interrupt the exploration """
@@ -252,7 +248,8 @@ class SymbolicExplorator(object):
         self.status = ExplorationStatus.TERMINATED
         self._stop = True
 
-    def _fmt_secs(self, seconds) -> str:
+    @staticmethod
+    def _fmt_secs(seconds) -> str:
         m, s = divmod(seconds, 60)
         h, m = divmod(m, 60)
         return (f"{int(h)}h" if h else '')+f"{int(m)}m{int(s)}s"
