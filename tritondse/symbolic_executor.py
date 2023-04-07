@@ -15,7 +15,7 @@ from tritondse.coverage import CoverageSingleRun, BranchSolvingStrategy
 from tritondse.process_state import ProcessState
 from tritondse.loaders import Loader
 from tritondse.seed import Seed, SeedStatus, SeedFormat, CompositeData
-from tritondse.types import Expression, Architecture, Addr, Model, SymbolicVariable
+from tritondse.types import Expression, Architecture, Addr, Model, SymbolicVariable, Register
 from tritondse.routines import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks import CallbackManager
 from tritondse.workspace import Workspace
