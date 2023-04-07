@@ -87,7 +87,6 @@ class Program(Loader):
         """
         return self._binary.entrypoint
 
-
     @property
     def architecture(self) -> Architecture:
         """
@@ -116,7 +115,6 @@ class Program(Loader):
         """
         return self._binary.abstract.header.endianness
 
-
     @property
     def format(self) -> lief.EXE_FORMATS:
         """
@@ -125,7 +123,6 @@ class Program(Loader):
         :rtype: lief.EXE_FORMATS
         """
         return self._binary.format
-
 
     def _load_arch(self) -> Optional[Architecture]:
         """
@@ -141,7 +138,6 @@ class Program(Loader):
             return arch
         else:
             return None
-
 
     @property
     def relocation_enum(self):
@@ -167,7 +163,6 @@ class Program(Loader):
         }
         return rel_map[self._binary.concrete.header.machine_type]
 
-
     def _is_glob_dat(self, rel: lief.ELF.Relocation) -> bool:
         """ Get whether the given relocation is of type GLOB_DAT.
         Used locally to find mandatory relocations
@@ -177,7 +172,6 @@ class Program(Loader):
             return rel_enum(rel.type) == getattr(rel_enum, "GLOB_DAT")
         else:
             return False  # Not GLOB_DAT relocation for this architecture
-
 
     def memory_segments(self) -> Generator[LoadableSegment, None, None]:
         """
@@ -224,7 +218,6 @@ class Program(Loader):
         else:
             raise NotImplementedError(f"Imported functions relocations not implemented for: {self.format.name}")
 
-
     def imported_variable_symbols_relocations(self) -> Generator[Tuple[str, Addr], None, None]:
         """
         Iterate over all imported variable symbols. Yield for each of them the name and
@@ -243,7 +236,6 @@ class Program(Loader):
         else:
             raise NotImplementedError(f"Imported symbols relocations not implemented for: {self.format.name}")
 
-
     def find_function_addr(self, name: str) -> Optional[Addr]:
         """
         Search for the function name in fonctions of the binary.
@@ -255,7 +247,6 @@ class Program(Loader):
         """
         f = self._funs.get(name)
         return f.address if f else None
-
 
     @property
     def arch_mode(self) -> ArchMode:

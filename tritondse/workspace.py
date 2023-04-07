@@ -41,7 +41,7 @@ class Workspace(object):
             if not self.root_dir.exists():  # Create the directory in case it was not existing
                 self.root_dir.mkdir(parents=True)
                 self.initialize()
-        self.root_dir = self.root_dir.resolve()
+        self.root_dir: Path = self.root_dir.resolve()  #: root directory of the Workspace
 
     def initialize(self, flush: bool = False) -> None:
         """
@@ -61,7 +61,6 @@ class Workspace(object):
                     shutil.rmtree(dir)
                     dir.mkdir()
 
-
     def get_metadata_file(self, name: str) -> Optional[str]:
         """
         Read a metadata file from the workspace on disk.
@@ -78,7 +77,6 @@ class Workspace(object):
             return p.read_text()
         else:
             return None
-
 
     def get_metadata_file_path(self, name: str) -> Path:
         """
@@ -103,7 +101,6 @@ class Workspace(object):
         """
         return self.root_dir / self.BIN_DIR
 
-
     def save_metadata_file(self, name: str, content: Union[str, bytes]) -> None:
         """
         Save ``content`` in a file ``name`` in the metadata directory.
@@ -120,12 +117,10 @@ class Workspace(object):
         else:
             p.write_bytes(content)
 
-
     def _iter_seeds(self, directory: str, st: SeedStatus) -> Generator[Seed, None, None]:
         """ Iterate over seeds """
         for file in (self.root_dir/directory).glob("*.cov"):
             yield Seed.from_file(file, st)
-
 
     def iter_corpus(self) -> Generator[Seed, None, None]:
         """
@@ -136,7 +131,6 @@ class Workspace(object):
         """
         yield from self._iter_seeds(self.CORPUS_DIR, SeedStatus.OK_DONE)
 
-
     def iter_crashes(self) -> Generator[Seed, None, None]:
         """
         Iterate over the crashes files as Seed object.
@@ -145,7 +139,6 @@ class Workspace(object):
         :rtype: Generator[Seed, None, None]
         """
         yield from self._iter_seeds(self.CRASH_DIR, SeedStatus.CRASH)
-
 
     def iter_hangs(self) -> Generator[Seed, None, None]:
         """
@@ -156,7 +149,6 @@ class Workspace(object):
         """
         yield from self._iter_seeds(self.HANG_DIR, SeedStatus.HANG)
 
-
     def iter_worklist(self) -> Generator[Seed, None, None]:
         """
         Iterate over the worklist files as Seed object.
@@ -166,7 +158,6 @@ class Workspace(object):
         :rtype: Generator[Seed, None, None]
         """
         yield from self._iter_seeds(self.WORKLIST_DIR, SeedStatus.NEW)
-
 
     def save_seed(self, seed: Seed) -> None:
         """
@@ -181,7 +172,6 @@ class Workspace(object):
                   SeedStatus.CRASH: self.CRASH_DIR}
         p = (self.root_dir / mapper[seed.status]) / seed.filename
         p.write_bytes(bytes(seed))
-
 
     def update_seed_location(self, seed: Seed) -> None:
         """
@@ -199,7 +189,6 @@ class Workspace(object):
             logging.warning(f"seed {seed} unlink failed")
             pass  # FIXME: Not meant to get here
         self.save_seed(seed)
-
 
     def save_file(self, rel_path: PathLike, content: Union[str, bytes], override: bool = False):
         """

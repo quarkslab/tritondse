@@ -11,7 +11,12 @@ MemMap = namedtuple('Map', "start size perm name")
 
 
 class MapOverlapException(Exception):
+    """
+    Exception raised when trying to map a memory area where some of
+    the addresses overlap with an already mapped area.
+    """
     pass
+
 
 class MemoryAccessViolation(Exception):
     """
@@ -19,20 +24,35 @@ class MemoryAccessViolation(Exception):
     the wrong permissions.
     """
     def __init__(self, addr: Addr, access: Perm, map_perm: Perm = None, memory_not_mapped: bool = False, perm_error: bool = False):
+        """
+        :param addr: address where the violation occured
+        :param access: type of access performed
+        :param map_perm: permission of the memory page of `address`
+        :param memory_not_mapped: whether the address was mapped or not
+        :param perm_error: whether it is a permission error
+        """
         super(MemoryAccessViolation, self).__init__()
-        self.address = addr
+        self.address: Addr = addr
+        """ address where the violation occurred"""
         self._is_mem_unmapped = memory_not_mapped
         self._is_perm_error = perm_error
-        self.access = access
-        self.map_perm = map_perm
+        self.access: Perm = access
+        """Access type that was performed"""
+        self.map_perm: Optional[Perm] = map_perm
+        """Permissions of the memory map associated to the address"""
 
-    def is_permission_error(self):
+    def is_permission_error(self) -> bool:
+        """True if the exception was caused by a permission issue"""
         return self._is_perm_error
 
-    def is_memory_unmapped_error(self):
+    def is_memory_unmapped_error(self) -> bool:
+        """
+        Return true if the exception was raised due to an access
+        to an area not mapped
+        """
         return self._is_mem_unmapped
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.is_permission_error():
             return f"(addr:{self.address:#08x}, access:{str(self.access)} on map:{str(self.map_perm)})"
         else:
@@ -60,9 +80,20 @@ ENDIAN_MAP = {
 
 
 class Memory(object):
+    """
+    Memory representation of the current :py:class:`ProcessState` object.
+    It wraps all interaction with Triton's memory context to provide high-level
+    function. It adds a segmentation and memory permission model at the top
+    of Triton. It also overrides __getitem__ and the slice mechanism to be able
+    read and write concrete memory values in a Pythonic manner.
+    """
 
     def __init__(self, ctx: TritonContext):
-        self.ctx = ctx
+        """
+        :param ctx: TritonContext to interface with
+        """
+        self.ctx: TritonContext = ctx
+        """Underlying Triton context"""
         self._linear_map_addr = []  # List of [map_start, map_end, map_start, map_end ...]
         self._linear_map_map = []   # List of [MemMap,    None,    MemMap,    None    ...]
         self._segment_enabled = True
@@ -73,7 +104,7 @@ class Memory(object):
 
     def set_endianess(self, en: Endian) -> None:
         """
-        Set the endianness of memory accesses. By default
+        Set the endianness of memory accesses. By default,
         endianess is little.
 
         :param en: Endian: Endianess to use.
@@ -89,7 +120,8 @@ class Memory(object):
     @property
     def segmentation_enabled(self) -> bool:
         """
-        returns wether segmentation enforcing is enabled
+        returns whether segmentation enforcing is enabled
+
         :return: True if segmentation is enabled
         """
         return self._segment_enabled
@@ -97,26 +129,30 @@ class Memory(object):
     def disable_segmentation(self) -> None:
         """
         Turn-off segmentation enforcing.
-        :return: None
         """
         self._segment_enabled = False
 
     def enable_segmentation(self) -> None:
         """
         Turn-off segmentation enforcing.
-        :return: None
         """
         self._segment_enabled = True
 
     def set_segmentation(self, enabled: bool) -> None:
         """
         Set the segmentation enforcing with the given boolean.
-        :return: None
         """
         self._segment_enabled = enabled
 
     @contextmanager
-    def without_segmentation(self, disable_callbacks=False):
+    def without_segmentation(self, disable_callbacks=False) -> Generator['Memory', None, None]:
+        """
+        Context manager enabling manipulating temporarily the memory
+        without considering the memory permissions.
+        E.g: It enables writing data in a memory mapped in RX
+        :param disable_callbacks: Whether to disable memory callbacks that could have been set
+        :return:
+        """
         self.disable_segmentation()
         cbs = self._mem_cbs_enabled
         self._mem_cbs_enabled = not disable_callbacks
@@ -126,13 +162,19 @@ class Memory(object):
 
     def callbacks_enabled(self) -> bool:
         """
-        Return whether or not memory callbacks are enabled.
+        Return whether memory callbacks are enabled.
 
         :return: True if callbacks are enabled
         """
         return self._mem_cbs_enabled
 
     def get_maps(self) -> Generator[MemMap, None, None]:
+        """
+        Iterate all the memory maps defined, including all memory
+        areas allocated on the heap.
+
+        :return: generator of all :py:class:`MemMap` objects
+        """
         yield from (x for x in self._linear_map_map if x)
 
     def map(self, start, size, perm: Perm = Perm.R | Perm.W | Perm.X, name="") -> MemMap:
@@ -173,6 +215,14 @@ class Memory(object):
             raise MapOverlapException(f"0x{start:08x}:{size} overlap with map: 0x{prev:08x} (odd)")
 
     def unmap(self, addr: Addr) -> None:
+        """
+        Unmap the :py:class:`MemMap` object mapped at the address.
+        The address can be within the map and not requires pointing
+        at the head.
+
+        :param addr: address to unmap
+        :return: None
+        """
         def _unmap_idx(idx):
             self._linear_map_addr.pop(idx) # Pop the start
             self._linear_map_addr.pop(idx) # Pop the end
@@ -211,19 +261,44 @@ class Memory(object):
         except IndexError:
             raise MemoryAccessViolation(addr, Perm(0), memory_not_mapped=True)
 
-    def __setitem__(self, key: Addr, value: bytes):
+    def __setitem__(self, key: Addr, value: bytes) -> None:
+        """
+        Assign the given value at the address given by the key.
+        The value must be bytes but can be multiple bytes.
+        Warning: You cannot use the slice API on this function.
+
+        :param key: address to write to
+        :param value: content to write
+        :raise MemoryAccessViolation: in case of invalid access
+        """
         if isinstance(key, slice):
             raise TypeError("slice unsupported for __setitem__")
         else:
             self.write(key, value)
 
-    def __getitem__(self, item: Union[Addr, slice]):
+    def __getitem__(self, item: Union[Addr, slice]) -> bytes:
+        """
+        Read the memory at the given address. If the key
+        is an integer reads a single byte. If the key is
+        a slice: read addr+size bytes in memory.
+
+        :param item: address, or address:size to read
+        :return: memory content
+        :raise MemoryAccessViolation: if the access is invalid
+        """
         if isinstance(item, slice):
             return self.read(item.start, item.stop)
         elif isinstance(item, int):
             return self.read(item, 1)
 
     def write(self, addr: Addr, data: bytes) -> None:
+        """
+        Write the given `data` bytes at `addr` address.
+
+        :param addr: address where to write
+        :param data: data to write
+        :return: None
+        """
         if self._segment_enabled:
             map = self._get_map(addr, len(data))
             if map is None:
@@ -233,6 +308,13 @@ class Memory(object):
         return self.ctx.setConcreteMemoryAreaValue(addr, data)
 
     def read(self, addr: Addr, size: ByteSize) -> bytes:
+        """
+        Read `size` bytes at `addr` address.
+
+        :param addr: address to read
+        :param size: size of content to read
+        :return: bytes read
+        """
         if self._segment_enabled:
             map = self._get_map(addr, size)
             if map is None:
@@ -336,6 +418,7 @@ class Memory(object):
         :param size: Number of bytes to read
         :type size: Union[str, :py:obj:`tritondse.types.ByteSize`]
         :return: Integer value read
+        :raise struct.error: If value can't fit in `size`
         """
         data = self.read(addr, size)
         return struct.unpack(self._endian_key+STRUCT_MAP[(True, size)], data)[0]
@@ -349,6 +432,7 @@ class Memory(object):
         :param size: Number of bytes to read
         :type size: Union[str, :py:obj:`tritondse.types.ByteSize`]
         :return: Integer value read
+        :raise struct.error: If value can't fit in `size`
         """
         data = self.read(addr, size)
         return struct.unpack(self._endian_key+STRUCT_MAP[(False, size)], data)[0]
@@ -363,34 +447,94 @@ class Memory(object):
         """
         return self.read_uint(addr, self._ptr_size)
 
-    def read_char(self, addr: Addr):
+    def read_char(self, addr: Addr) -> int:
+        """
+        Read a char in memory (1-byte) following endianess.
+
+        :param addr: address to read
+        :return: char value as int
+        """
         return self.read_sint(addr, 1)
 
-    def read_uchar(self, addr: Addr):
+    def read_uchar(self, addr: Addr) -> int:
+        """
+        Read an unsigned char in memory (1-byte) following endianness.
+
+        :param addr: address to read
+        :return: unsigned char value as int
+        """
         return self.read_uint(addr, 1)
 
-    def read_int(self, addr: Addr):
+    def read_int(self, addr: Addr) -> int:
+        """
+        Read a signed integer in memory (4-byte) following endianness.
+
+        :param addr: address to read
+        :return: signed integer value as int
+        """
         return self.read_sint(addr, 4)
 
-    def read_word(self, addr: Addr):
+    def read_word(self, addr: Addr) -> int:
+        """
+        Read signed word in memory (2-byte) following endianness.
+
+        :param addr: address to read
+        :return: signed word value as int
+        """
         return self.read_uint(addr, 2)
 
-    def read_dword(self, addr: Addr):
+    def read_dword(self, addr: Addr) -> int:
+        """
+        Read signed double word in memory (4-byte) following endianness.
+
+        :param addr: address to read
+        :return: dword value as int
+        """
         return self.read_uint(addr, 4)
 
-    def read_qword(self, addr: Addr):
+    def read_qword(self, addr: Addr) -> int:
+        """
+        Read signed qword in memory (8-byte) following endianness.
+
+        :param addr: address to read
+        :return: qword value as int
+        """
         return self.read_uint(addr, 8)
 
-    def read_long(self, addr: Addr):
+    def read_long(self, addr: Addr) -> int:
+        """
+        Read 'C style' long in memory (4-byte) following endianness.
+
+        :param addr: address to read
+        :return: value as int
+        """
         return self.read_sint(addr, 4)
 
-    def read_ulong(self, addr: Addr):
+    def read_ulong(self, addr: Addr) -> int:
+        """
+        Read unsigned long in memory (4-byte) following endianness.
+
+        :param addr: address to read
+        :return: unsigned long value as int
+        """
         return self.read_uint(addr, 4)
 
-    def read_long_long(self, addr: Addr):
+    def read_long_long(self, addr: Addr) -> int:
+        """
+        Read long long in memory (8-byte) following endianness.
+
+        :param addr: address to read
+        :return: long long value as int
+        """
         return self.read_sint(addr, 8)
 
-    def read_ulong_long(self, addr: Addr):
+    def read_ulong_long(self, addr: Addr) -> int:
+        """
+        Read unsigned long long in memory (8-byte) following endianness.
+
+        :param addr: address to read
+        :return: unsigned long long value as int
+        """
         return self.read_uint(addr, 8)
 
     def read_string(self, addr: Addr) -> str:
@@ -417,14 +561,11 @@ class Memory(object):
         a specific address.
 
         :param addr: Address at which to read data
-        :type addr: :py:obj:`tritondse.types.Addr`
         :param value: data to write represented as an integer
-        :type value: int
         :param size: Number of bytes to read
-        :type size: :py:obj:`tritondse.types.ByteSize`
+        :raise struct.error: If integer value cannot fit in `size`
         """
         self.write(addr, struct.pack(self._endian_key+STRUCT_MAP[(value >= 0, size)], value))
-
 
     def write_ptr(self, addr: Addr, value: int) -> None:
         """
@@ -435,23 +576,66 @@ class Memory(object):
         :type addr: :py:obj:`tritondse.types.Addr`
         :param value: pointer value to write
         :type value: int
+        :raise struct.error: If integer value cannot fit in a pointer size
         """
         self.write_int(addr, value, self._ptr_size)
 
-    def write_char(self, addr: Addr, value: int):
+    def write_char(self, addr: Addr, value: int) -> None:
+        """
+        Write the integer value as a single byte in memory.
+
+        :param addr: address to write
+        :param value: integer value
+        :raise struct.error: If integer value do not fit in a byte (>255)
+        """
         self.write_int(addr, value, 1)
 
-    def write_word(self, addr: Addr, value: int):
+    def write_word(self, addr: Addr, value: int) -> None:
+        """
+        Write the word (2-byte) in memory following endianess.
+
+        :param addr: address to write
+        :param value: integer value
+        :raise struct.error: If integer value do not fit in a word
+        """
         self.write_int(addr, value, 2)
 
-    def write_dword(self, addr: Addr, value: int):
+    def write_dword(self, addr: Addr, value: int) -> None:
+        """
+        Write the word (4-byte) in memory following endianess.
+
+        :param addr: address to write
+        :param value: integer value
+        :raise struct.error: If integer value do not fit in a dword
+        """
         self.write_int(addr, value, 4)
 
-    def write_qword(self, addr: Addr, value: int):
+    def write_qword(self, addr: Addr, value: int) -> None:
+        """
+        Write the qword (8-byte) in memory following endianess.
+
+        :param addr: address to write
+        :param value: integer value
+        :raise struct.error: If integer value do not fit in a qword
+        """
         self.write_int(addr, value, 8)
 
-    def write_long(self, addr: Addr, value: int):
+    def write_long(self, addr: Addr, value: int) -> None:
+        """
+        Write a "C style" long (4-byte) in memory following endianess.
+
+        :param addr: address to write
+        :param value: integer value
+        :raise struct.error: If integer value do not fit in a long
+        """
         return self.write_int(addr, value, 4)
 
-    def write_long_long(self, addr: Addr, value: int):
+    def write_long_long(self, addr: Addr, value: int) -> None:
+        """
+        Write the "C style" long long (8-byte) in memory following endianess.
+
+        :param addr: address to write
+        :param value: integer value
+        :raise struct.error: If integer value do not fit in a long long
+        """
         return self.write_int(addr, value, 8)

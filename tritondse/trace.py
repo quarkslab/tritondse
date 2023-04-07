@@ -15,7 +15,6 @@ import tritondse # NOTE We need this import so we can use it to determine the pa
 from tritondse import Config, Program, SymbolicExecutor, CoverageStrategy, CoverageSingleRun
 
 
-
 class TraceException(Exception):
     pass
 
@@ -111,7 +110,6 @@ class TritonTrace(Trace):
         return self._coverage
 
 
-
 class QBDITrace(Trace):
 
     QBDI_SCRIPT_FILEPATH = Path(tritondse.__file__).parent / 'qbdi_trace.py'
@@ -196,6 +194,11 @@ class QBDITrace(Trace):
 
     @property
     def coverage(self) -> CoverageSingleRun:
+        """
+        CoverageSingleRun associated with the trace.
+
+        :return: coverage object
+        """
         if not self._coverage:
             logging.warning("Please .run() the trace before querying coverage")
 
@@ -203,6 +206,11 @@ class QBDITrace(Trace):
 
     @property
     def trace(self) -> List[int]:
+        """
+        List of addresses executed.
+
+        :return: list of addresses
+        """
         return self._trace
 
 

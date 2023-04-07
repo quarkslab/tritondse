@@ -15,7 +15,6 @@ from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.types             import SolverStatus, SymExType
 
 
-
 class SeedManager:
     """
     Seed Manager.
@@ -43,7 +42,7 @@ class SeedManager:
         """
         self.smt_queries_limit = smt_queries_limit
         self.workspace = workspace
-        self.coverage  = coverage
+        self.coverage = coverage
         if seed_scheduler_class is None:
             self.worklist = FreshSeedPrioritizerWorklist(self)
         else:
@@ -51,8 +50,8 @@ class SeedManager:
         self.cbm = callback_manager
 
         self.corpus = set()
-        self.crash  = set()
-        self.hangs  = set()
+        self.crash = set()
+        self.hangs = set()
 
         self.__load_seed_workspace()
 
@@ -82,7 +81,6 @@ class SeedManager:
         for seed in self.workspace.iter_worklist():
             self.worklist.add(seed)
 
-
     def is_new_seed(self, seed: Seed) -> bool:
         """
         Check if a seed is a new one (not into corpus, crash and hangs)
@@ -95,7 +93,6 @@ class SeedManager:
                      is not in the pending seeds queue
         """
         return sum(seed in x for x in [self.corpus, self.crash, self.hangs]) == 0
-
 
     def add_seed_queue(self, seed: Seed) -> None:
         """
@@ -118,7 +115,6 @@ class SeedManager:
             self.crash.add(seed)
         else:
             assert False
-
 
     def post_execution(self, execution: SymbolicExecutor, seed: Seed, solve_new_path: int = True) -> float:
         """
@@ -146,7 +142,6 @@ class SeedManager:
 
         # reset the current solving time
         self._current_solv_time = 0
-
 
         # Iterate all pending seeds to be added in the right location
         for s in execution.pending_seeds:
@@ -201,7 +196,6 @@ class SeedManager:
                 logging.info(f'New seed model {new_input.filename} dumped [{new_input.status.name}]')
             else:
                 logging.info(f"New seed {new_input.filename} has already been generated")
-
 
     def __iter_new_inputs(self, execution: SymbolicExecutor) -> Generator[Seed, None, None]:
         # Get the astContext
@@ -310,7 +304,6 @@ class SeedManager:
             elif status == SolverStatus.UNSAT:
                 self._stat_branch_fail[covitem] += count
 
-
     def pick_seed(self) -> Optional[Seed]:
         """
         Get the next seed to be executed by querying it
@@ -321,7 +314,6 @@ class SeedManager:
         """
         return self.worklist.pick()
 
-
     def seeds_available(self) -> bool:
         """
         Checks whether or not there is still pending seeds to process.
@@ -329,7 +321,6 @@ class SeedManager:
         :returns: True if seeds are still pending
         """
         return self.worklist.has_seed_remaining()
-
 
     def add_new_seed(self, seed: Seed) -> None:
         """
@@ -344,7 +335,6 @@ class SeedManager:
             logging.debug(f'Seed {seed.filename} dumped [{seed.status.name}]')
         else:
             logging.debug(f"seed {seed} is already known (not adding it)")
-
 
     def _add_seed(self, seed: Seed) -> None:
         """ Add the seed in both internal queues but also workspace """
@@ -400,13 +390,14 @@ class SeedManager:
         logging.info(f"Branches reverted: {len(self._stat_branch_reverted)}  Branches still fail: {len(self._stat_branch_fail)}")
         self.worklist.post_exploration(self.workspace)
 
-
-    def _pp_smt_status(self, status: SolverStatus):
+    @staticmethod
+    def _pp_smt_status(status: SolverStatus) -> str:
         """ The pretty print function of the solver status """
         mapper = {SolverStatus.SAT: 92, SolverStatus.UNSAT: 91, SolverStatus.TIMEOUT: 93, SolverStatus.UNKNOWN: 95}
         return f"\033[{mapper[status]}m{status.name}\033[0m"
 
     def pp_meta_filename(self, covitem: CovItem, typ: SymExType) -> str:
+        """pretty-print a covitem"""
         if typ == SymExType.CONDITIONAL_JMP:
             pp_item = self.coverage.pp_item(covitem)
         else:

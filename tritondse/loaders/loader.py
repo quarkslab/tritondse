@@ -30,7 +30,6 @@ class LoadableSegment:
     """ Name to give to the segment """
 
 
-
 class Loader(object):
     """
     This class describes how to load the target program in memory.
@@ -93,7 +92,6 @@ class Loader(object):
         """
         raise NotImplementedError()
 
-
     @property
     def cpustate(self) -> Dict[str, int]:
         """
@@ -101,7 +99,6 @@ class Loader(object):
         {"register_name" : register_value}
         """
         return {}
-
 
     def imported_functions_relocations(self) -> Generator[Tuple[str, Addr], None, None]:
         """
@@ -175,7 +172,6 @@ class MonolithicLoader(Loader):
         """
         return self._architecture
 
-
     @property
     def arch_mode(self) -> ArchMode:
         """
@@ -185,7 +181,6 @@ class MonolithicLoader(Loader):
         """
         return self._arch_mode
 
-
     @property
     def entry_point(self) -> Addr:
         """
@@ -194,7 +189,6 @@ class MonolithicLoader(Loader):
         :rtype: :py:obj:`tritondse.types.Addr`
         """
         return self.cpustate[self._archinfo.pc_reg]
-
 
     def memory_segments(self) -> Generator[LoadableSegment, None, None]:
         """

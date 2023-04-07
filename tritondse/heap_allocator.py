@@ -5,8 +5,6 @@ from tritondse.memory import Memory
 from tritondse.exception import AllocatorException
 
 
-
-
 class HeapAllocator(object):
     """
     Custom tiny heap allocator. Used by built-ins routines like malloc/free.
@@ -29,8 +27,12 @@ class HeapAllocator(object):
         :param memory: Memory: Memory object on which to perform allocations
         """
         # Range of the memory mapping
-        self.start: Addr = start   #: Starting address of the heap
-        self.end: Addr = end       #: Ending address of the heap
+        self.start: Addr = start
+        #: Starting address of the heap
+
+        self.end: Addr = end
+        #: Ending address of the heap
+
         self._curr_offset: Addr = self.start  #: Heap current offset address
         self._memory = memory
 
@@ -40,7 +42,6 @@ class HeapAllocator(object):
 
         # TODO: For a to-the-moon allocator, we could merge freed chunks. Like 4 chunks of 1 byte into one chunk of 4 bytes.
         # TODO: For a to-the-moon allocator, we could split a big chunk into two chunks when asking an allocation.
-
 
     def alloc(self, size: ByteSize) -> Addr:
         """
@@ -77,7 +78,6 @@ class HeapAllocator(object):
 
         return ptr
 
-
     def free(self, ptr: Addr) -> None:
         """
         Free the given memory chunk.
@@ -102,7 +102,6 @@ class HeapAllocator(object):
         # Remove the chunk from our alloc_pool
         self._memory.unmap(ptr)
         del self.alloc_pool[ptr]
-
 
     def is_ptr_allocated(self, ptr: Addr) -> bool:
         """

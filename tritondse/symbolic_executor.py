@@ -45,16 +45,16 @@ class SymbolicExecutor(object):
         :param callbacks: callbacks to bind on this execution before running *(instanciated if empty !)*
         :type callbacks: CallbackManager
         """
-        self.config = config    # The config
-        self.loader = None      # The program to execute
+        self.config: Config = config      #: Configuration file used
+        self.loader: Type[Loader] = None  #: Loader used to run the code
 
-        self.pstate = None  # else should be loaded through the load function
+        self.pstate: ProcessState = None  #: ProcessState
 
-        self.workspace = workspace                             # The current workspace
+        self.workspace: Workspace = workspace  #: Current workspace
         if self.workspace is None:
             self.workspace = Workspace(config.workspace)
 
-        self.seed = seed              # The current seed used to the execution
+        self.seed: Seed = seed  #: The current seed used for the execution
 
         # Override config if there is a mismatch between seed format and config file
         if seed.format != self.config.seed_format:
@@ -63,25 +63,24 @@ class SymbolicExecutor(object):
 
         self._symbolic_seed = self._init_symbolic_seed(seed)
 
-        self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy) #: Coverage of the execution
-        self.rtn_table = dict()            # Addr -> Tuple[fname, routine]
-        self.uid = uid               # Unique identifier meant to unique accross Exploration instances
-        self.start_time = 0
-        self.end_time = 0
-        # NOTE: Temporary datastructure to set hooks on addresses (might be replace later on by a nice visitor)
+        self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy)  #: Coverage of the execution
+        self.rtn_table = dict()   # Addr -> Tuple[fname, routine]
+        self.uid: int = uid       #: Unique identifier meant to unique accross Exploration instances
+        self.start_time: int = 0  #: start time of the process
+        self.end_time: int = 0    #: end time of the process
 
         # create callback object if not provided as argument, and bind callbacks to the current process state
-        self.cbm = callbacks if callbacks is not None else CallbackManager()
+        self.cbm: CallbackManager = callbacks if callbacks is not None else CallbackManager()
+        """callback manager"""
 
         # List of new seeds filled during the execution and flushed by explorator
         self._pending_seeds = []
         self._run_to_target = None
 
-        self.trace_offset = 0  # counter of instruction executed
+        self.trace_offset: int = 0  #: counter of instructions executed
 
-        # shortcuts handling the previous and current instruction pointer
-        self.previous_pc = 0
-        self.current_pc = 0
+        self.previous_pc: int = 0  #: previous program counter executed
+        self.current_pc = 0        #: current program counter
 
         self.debug_pp = False
 
@@ -116,14 +115,12 @@ class SymbolicExecutor(object):
         self._map_dynamic_symbols()
         self._load_seed_process_state(self.pstate, self.seed)
 
-
     def load_process(self, pstate: ProcessState) -> None:
         """
         Load the given process state. Do nothing but
         setting the internal ProcessState.
 
         :param pstate: PrcoessState to set
-        :return: None
         """
         self.pstate = pstate
         self._load_seed_process_state(self.pstate, self.seed)
@@ -132,7 +129,7 @@ class SymbolicExecutor(object):
     def _load_seed_process_state(pstate: ProcessState, seed: Seed) -> None:
         if seed.is_raw():
             data = seed.content
-        else: # is composite
+        else:  # is composite
             if seed.is_file_defined("stdin"):
                 data = seed.get_file_input("stdin")
             else:
@@ -204,7 +201,6 @@ class SymbolicExecutor(object):
         self.pstate.set_solver_timeout(self.config.smt_timeout)
         self.pstate.set_solver(self.config.smt_solver)
 
-
     def _fetch_next_thread(self, threads: List[ThreadContext]) -> Optional[ThreadContext]:
         """
         Given a list of threads, returns the next to execute. Iterating
@@ -220,7 +216,6 @@ class SymbolicExecutor(object):
             if th.is_running():
                 return th  # Return the first thread that is properly running
         return None
-
 
     def __schedule_thread(self) -> None:
         threads_list = self.pstate.threads
@@ -394,7 +389,6 @@ class SymbolicExecutor(object):
             self.seed.status = SeedStatus.OK_DONE
         return
 
-
     def __handle_external_return(self, routine_name: str, ret_val: Optional[Union[int, Expression]]) -> None:
         """ Symbolize or concretize return values of external functions """
         if ret_val is not None:
@@ -403,7 +397,6 @@ class SymbolicExecutor(object):
                 self.pstate.write_register(reg, ret_val)
             else:  # It should be a logic expression
                 self.pstate.write_symbolic_register(reg, ret_val, f"(routine {routine_name}")
-
 
     def _routines_handler(self, instruction: Instruction):
         """
@@ -467,7 +460,6 @@ class SymbolicExecutor(object):
             # Hijack RIP to skip the call
             self.pstate.cpu.program_counter = ret_addr
 
-
     def _map_dynamic_symbols(self) -> None:
         """
         Apply dynamic relocations of imported functions and imported symbols
@@ -497,7 +489,6 @@ class SymbolicExecutor(object):
                 else:
                     pass # do nothing on unsupported symbols
 
-
     def __default_stub(self, se: 'SymbolicExecutor', pstate: ProcessState):
         rtn_name, _ = self.rtn_table[pstate.cpu.program_counter]
         logging.warning(f"calling {rtn_name} which is unsupported")
@@ -505,7 +496,6 @@ class SymbolicExecutor(object):
             return None  # Like if function did nothing
         else:
             self.abort()
-
 
     def abort(self) -> NoReturn:
         """
@@ -665,7 +655,7 @@ class SymbolicExecutor(object):
 
     def mk_new_seed_from_model(self, model: Model) -> Seed:
         """
-        Given a SMT Model creates a new Seed.
+        Creates a new seed from the given SMT model.
 
         :param model: SMT model
         :return: new seed object
@@ -712,13 +702,28 @@ class SymbolicExecutor(object):
         # Return the
         return new_seed
 
-
     def inject_symbolic_argv_memory(self, addr: Addr, index: int, value: bytes) -> None:
+        """
+        Inject the ith item of argv in memory.
+        To be used only with composite seeds and only if seed have a symbolic argv
+
+        :param addr: address where to inject the argv[ith]
+        :param index: ith argv item
+        :param value: value of the item
+        """
         self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
         sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), f"argv[{index}]") # Symbolize bytes
         self._symbolic_seed.argv[index] = sym_vars # Add symbolic variables to symbolic seed
 
     def inject_symbolic_file_memory(self, addr: Addr, name: str, value: bytes, offset: int = 0) -> None:
+        """
+        Inject a symbolic file (or part of it) in memory.
+
+        :param addr: address where to inject the file bytes
+        :param name: name of the file in the composite seed
+        :param value: bytes content of the file
+        :param offset: offset within the file (for partial file injection)
+        """
         self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
         sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset) # Symbolize bytes
         sym_seed = self._symbolic_seed.files[name] if self.seed.is_composite() else self._symbolic_seed
@@ -726,28 +731,62 @@ class SymbolicExecutor(object):
         # FIXME: Handle if reading twice same input bytes !
 
     def inject_symbolic_variable_memory(self, addr: Addr, name: str, value: bytes, offset: int = 0) -> None:
+        """
+        Inject a symbolic variable in memory.
+
+        :param addr: address where to inject the variable
+        :param name: name of the variable in the composite seed
+        :param value: value of the variable
+        :param offset: offset within the variable (for partial variable injection)
+        :return:
+        """
         self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
-        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset) # Symbolize bytes
+        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset)  # Symbolize bytes
         self._symbolic_seed.variables[name][offset:offset+len(value)-1] = sym_vars # Add symbolic variables to symbolic seed
         # FIXME: Handle if reading twice same input bytes !
 
-    def inject_symbolic_file_register(self, reg, name: str, value: int, offset: int = 0) -> None:
+    def inject_symbolic_file_register(self, reg: Union[str, Register], name: str, value: int, offset: int = 0) -> None:
+        """
+        Inject a symbolic file (or part of it) into a register.
+        The value has to be an integer.
+
+        :param reg: register identifier
+        :param name: name of the file in the composite seed
+        :param value: integer value
+        :param offset: offset within the file
+        """
         if reg.getSize != 1:
             logging.error("can't call inject_symbolic_file_register with regsiter larger than 1!")
             return
         self.pstate.write_register(reg, value)  # Write concrete value in register
-        sym_vars = self.pstate.symbolize_register(reg, f"{name}[{offset}]") # Symbolize bytes
+        sym_vars = self.pstate.symbolize_register(reg, f"{name}[{offset}]")  # Symbolize bytes
         sym_seed = self._symbolic_seed.files[name] if self.seed.is_composite() else self._symbolic_seed
-        sym_seed[offset] = sym_vars # Add symbolic variables to symbolic seed
+        sym_seed[offset] = sym_vars  # Add symbolic variables to symbolic seed
 
-    def inject_symbolic_variable_register(self, reg, name: str, value: int, offset: int = 0) -> None:
+    def inject_symbolic_variable_register(self, reg: Union[str, Register], name: str, value: int, offset: int = 0) -> None:
+        """
+        Inject a symbolic variable (or part of it) in a register.
+        The value has to be an integer.
+
+        :param reg: register identifier
+        :param name: name of the variable
+        :param value: integer value
+        :param offset: offset within the variable
+        """
         self.pstate.write_register(reg, value)  # Write concrete value in register
         sym_vars = [self.pstate.symbolize_register(reg, f"{name}[{offset}]")] # Symbolize bytes
         sym_seed = self._symbolic_seed.variables[name] if self.seed.is_composite() else self._symbolic_seed
         sym_seed[offset] = sym_vars # Add symbolic variables to symbolic seed
 
-
     def inject_symbolic_raw_input(self, addr: Addr, data: bytes, offset: int = 0) -> None:
+        """
+        Inject the input in memory. This injection method should
+        be used for RAW seed type.
+
+        :param addr: address where to inject input.
+        :param data: content of the seed
+        :param offset: offset within the content of the seed.
+        """
         if self.seed.is_composite():
             logging.warning("inject_symbolic_memory must not be used with composite seeds !")
         else:

@@ -57,7 +57,6 @@ class CpuState(dict):
         for r in ctx.getAllRegisters():
             self[r.getName()] = r
 
-
     def __getattr__(self, name: str):
         """
         Return the concrete value of a given register name
@@ -69,7 +68,6 @@ class CpuState(dict):
             return self.__ctx.getConcreteRegisterValue(self[name])
         else:
             super().__getattr__(name)
-
 
     def __setattr__(self, name: str, value: int):
         """
@@ -83,7 +81,6 @@ class CpuState(dict):
         else:
             super().__setattr__(name, value)
 
-
     @property
     def program_counter(self) -> int:
         """
@@ -91,7 +88,6 @@ class CpuState(dict):
         :rtype: int
         """
         return getattr(self, self.__archinfo.pc_reg)
-
 
     @program_counter.setter
     def program_counter(self, value: int) -> None:
@@ -103,14 +99,12 @@ class CpuState(dict):
         """
         setattr(self, self.__archinfo.pc_reg, value)
 
-
     @property
     def base_pointer(self) -> int:
         """
         :return: The value of the base pointer register
         """
         return getattr(self, self.__archinfo.bp_reg)
-
 
     @base_pointer.setter
     def base_pointer(self, value: int) -> None:
@@ -122,14 +116,12 @@ class CpuState(dict):
         """
         setattr(self, self.__archinfo.bp_reg, value)
 
-
     @property
     def stack_pointer(self) -> int:
         """
         :return: The value of the stack pointer register
         """
         return getattr(self, self.__archinfo.sp_reg)
-
 
     @stack_pointer.setter
     def stack_pointer(self, value: int) -> None:
@@ -140,7 +132,6 @@ class CpuState(dict):
         :type value: int
         """
         setattr(self, self.__archinfo.sp_reg, value)
-
 
 
 def local_architecture() -> Architecture:

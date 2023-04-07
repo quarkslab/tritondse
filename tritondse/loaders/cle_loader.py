@@ -22,12 +22,13 @@ _plfm_mapper = {
     "macos": Platform.MACOS
 }
 
+
 class CleLoader(Loader):
     EXTERN_SYM_BASE = 0x0f001000
     EXTERN_SYM_SIZE = 0x1000
 
     BASE_STACK = 0xf0000000
-    END_STACK = 0x70000000 # This is inclusive
+    END_STACK = 0x70000000  # This is inclusive
 
     def __init__(self, path: PathLike, ld_path: Optional[PathLike] = None):
         super(CleLoader, self).__init__(path)
@@ -60,7 +61,6 @@ class CleLoader(Loader):
         """
         return _arch_mapper[self.ld.main_object.arch.name]
 
-
     @property
     def entry_point(self) -> Addr:
         """
@@ -69,7 +69,6 @@ class CleLoader(Loader):
         :rtype: :py:obj:`tritondse.types.Addr`
         """
         return self.ld.main_object.entry
-
 
     @property
     def longjmp_addr(self) -> Addr:
@@ -91,7 +90,6 @@ class CleLoader(Loader):
                 self.longjmp_addr_cache = 0
 
         return self.longjmp_addr_cache
-
 
     def memory_segments(self) -> Generator[LoadableSegment, None, None]:
         """
@@ -164,7 +162,6 @@ class CleLoader(Loader):
                     continue
                 fun = sym.name
                 yield fun, got_slot
-
 
     def imported_variable_symbols_relocations(self) -> Generator[Tuple[str, Addr], None, None]:
         """

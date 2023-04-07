@@ -20,16 +20,14 @@ class ThreadContext(object):
 
     def __init__(self, tid: int):
         """
-
         :param tid: thread id
-        :type tid: int
         """
-        self.cregs  = dict()                    # context of concrete registers
-        self.sregs  = dict()                    # context of symbolic registers
-        self._join_th_id = None                 # joined thread id
-        self.tid    = tid                       # the thread id
-        self.count  = 0                         # Number of instructions executed until scheduling
-        self.state  = ThreadState.RUNNING
+        self.cregs = dict()          # context of concrete registers
+        self.sregs = dict()          # context of symbolic registers
+        self._join_th_id = None      # joined thread id
+        self.tid = tid               # the thread id
+        self.count = 0               # Number of instructions executed until scheduling
+        self.state = ThreadState.RUNNING
         # FIXME: Keep the thread_scheduling and automated the reset on restore
 
     def save(self, tt_ctx: TritonContext) -> None:
@@ -47,7 +45,6 @@ class ThreadContext(object):
         for r in tt_ctx.getParentRegisters():
             self.cregs.update({r.getId(): tt_ctx.getConcreteRegisterValue(r)})
 
-
     def restore(self, tt_ctx: TritonContext) -> None:
         """
         Restore a thread state in the given TritonContext
@@ -61,7 +58,6 @@ class ThreadContext(object):
         # Restore symbolic registers
         for rid, e in self.sregs.items():
             tt_ctx.assignSymbolicExpressionToRegister(e, tt_ctx.getRegister(rid))
-
 
     def kill(self) -> None:
         """
