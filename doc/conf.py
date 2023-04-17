@@ -35,6 +35,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'breathe',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.githubpages',
     "nbsphinx",
     "enum_tools.autoenum"
 ]
