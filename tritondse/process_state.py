@@ -464,7 +464,13 @@ class ProcessState(object):
             return True
         return False
 
-    def fetch_instruction(self, address: Addr = None) -> Instruction:
+    def is_syscall(self) -> bool:
+        """
+        Check whether the current instrution fetched is a syscall or not.
+        """
+        return bool(self.current_instruction.getType() in self._archinfo.syscall_inst)
+
+    def fetch_instruction(self, address: Addr = None, set_as_current: bool = True) -> Instruction:
         """
         Fetch the instruction at the given address. If no address
         is specified the current program counter one is used.
@@ -472,6 +478,7 @@ class ProcessState(object):
         :raise MemoryAccessViolation: If the instruction cannot be fetched in the memory.
 
         :param address: address where to get the instruction from
+        :param set_as_current: set as the current instruction in the process state
         :return: instruction disassembled
         """
         if address is None:
@@ -487,6 +494,8 @@ class ProcessState(object):
             raise MemoryAccessViolation(address, Perm.X, memory_not_mapped=True)
         if Perm.X not in map.perm:  # Note: in this model we can execute code in non-readable pages
             raise MemoryAccessViolation(address, Perm.X, map_perm=map.perm, perm_error=True)
+        if set_as_current:
+            self.__current_inst = i
         return i
 
     def process_instruction(self, instruction: Instruction) -> bool:

@@ -185,8 +185,10 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     if se.config.is_format_composite() and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
         argvs = se.seed.content.argv
+        src = 'seed'
     else:  # use the config argv
         argvs = [x.encode("latin-1") for x in se.config.program_argv]  # Convert it from str to bytes
+        src = 'config'
 
     # Compute the allocation size: size of strings, + all \x00 + all pointers
     size = sum(len(x) for x in argvs)+len(argvs)+len(argvs)*pstate.ptr_size
@@ -205,7 +207,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             se.inject_symbolic_argv_memory(base, i, arg)
             # FIXME: Shall add a constraint on every char to be != \x00
 
-        logging.debug(f"argv[{i}] = {repr(pstate.memory.read(base, len(arg)))}")
+        logging.debug(f"({src}) argv[{i}] = {repr(pstate.memory.read(base, len(arg)))}")
         base += len(arg) + 1
 
 
@@ -577,6 +579,7 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.concretize_argument(1)
 
     if se.seed.is_file_defined(arg0s):
+        logging.info(f"opening an input file: {arg0s}")
         # Program is opening an input
         data = se.seed.get_file_input(arg0s)
         filedesc = pstate.create_file_descriptor(arg0s, io.BytesIO(data))
@@ -1289,7 +1292,7 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                 pstate.push_constraint(size_ast.getAst() == size)
 
             se.inject_symbolic_file_memory(buff, filedesc.name, data, offset)
-            logging.debug(f"read in {filedesc.name} = {repr(data)}")
+            logging.debug(f"read in (input) {filedesc.name} = {repr(data)}")
         else:
             pstate.concretize_argument(2)
             pstate.memory.write(buff, data)

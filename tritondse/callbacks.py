@@ -245,7 +245,7 @@ class CallbackManager(object):
                         for cb in cbs:
                             self.register_pre_addr_callback(addr, cb)
                     else:
-                        logging.warning(f"can't find function {fname} in {se.loader}")
+                        logging.warning(f"can't find function '{fname}' in {se.loader}")
             else:
                 logging.warning(f"function callback to resolve but no program provided")
 

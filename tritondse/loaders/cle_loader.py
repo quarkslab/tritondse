@@ -161,7 +161,8 @@ class CleLoader(Loader):
                 if sym is None:
                     continue
                 fun = sym.name
-                yield fun, got_slot
+                if fun in SUPPORTED_ROUTINES:
+                    yield fun, got_slot
 
     def imported_variable_symbols_relocations(self) -> Generator[Tuple[str, Addr], None, None]:
         """
@@ -176,3 +177,15 @@ class CleLoader(Loader):
                 logging.debug(f"CleLoader: hooking symbol {s.name} @ {s.relative_addr:#x} {s.resolved} {s.resolvedby} {s._type}")
                 s_addr = s.relative_addr + self.ld.main_object.mapped_base
                 yield s.name, s_addr
+
+    def find_function_addr(self, name: str) -> Optional[Addr]:
+        """
+        Search for the function name in fonctions of the binary.
+
+        :param name: Function name
+        :type name: str
+        :return: Address of function if found
+        :rtype: Addr
+        """
+        res = [x for x in self.ld.find_all_symbols(name) if x.is_function]
+        return res[0].rebased_addr if res else None  # if multiple elements return the first

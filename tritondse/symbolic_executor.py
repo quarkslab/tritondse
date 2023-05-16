@@ -304,6 +304,9 @@ class SymbolicExecutor(object):
             except SkipInstructionException as _:
                 continue
 
+            if self.pstate.is_syscall():
+                logging.warning(f"execute syscall instruction {self.pstate.read_register(self.pstate._syscall_register)}")
+
             # Process
             prev_pc = self.current_pc
             self._in_processing = True
