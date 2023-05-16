@@ -896,6 +896,54 @@ def rtn_malloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return ptr
 
 
+def rtn_open(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+    """
+    The open behavior.
+    """
+    logging.debug('open hooked')
+
+    # Get arguments
+    arg0 = pstate.get_argument_value(0)  # const char *pathname
+    flags = pstate.get_argument_value(1)  # int flags
+    mode = pstate.get_argument_value(2)  # we ignore it
+    arg0s = pstate.memory.read_string(arg0)
+
+    # Concretize the whole path name
+    pstate.concretize_memory_bytes(arg0, len(arg0s)+1)  # Concretize the whole string + \0
+
+    # We use flags as concrete value
+    pstate.concretize_argument(1)
+
+    # Use the flags to open the file in the write mode.
+    mode = ""
+    if (flags & 0xFF) == 0x00:   # O_RDONLY
+        mode = "r"
+    elif (flags & 0xFF) == 0x01: # O_WRONLY
+        mode = "w"
+    elif (flags & 0xFF) == 0x02: # O_RDWR
+        mode = "r+"
+
+    if flags & 0x0100: # O_CREAT
+        mode += "x"
+    if flags & 0x0200: # O_APPEND
+        mode = "a"  # replace completely value
+
+    if se.seed.is_file_defined(arg0s) and "r" in mode:  # input file and opened in reading
+        logging.info(f"opening an input file: {arg0s}")
+        # Program is opening an input
+        data = se.seed.get_file_input(arg0s)
+        filedesc = pstate.create_file_descriptor(arg0s, io.BytesIO(data))
+        return filedesc.id
+    else:
+        # Try to open it as a regular file
+        try:
+            fd = open(arg0s, mode)  # use the mode here
+            filedesc = pstate.create_file_descriptor(arg0s, fd)
+            return filedesc.id
+        except Exception as e:
+            logging.debug(f"Failed to open {arg0s} {e}")
+            return pstate.minus_one
+
 def rtn_realloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The realloc behavior.
@@ -2171,6 +2219,7 @@ SUPPORTED_ROUTINES = {
     'memmem':                  rtn_memmem,
     'memmove':                 rtn_memmove,
     'memset':                  rtn_memset,
+    'open':                    rtn_open,
     'printf':                  rtn_printf,
     'pthread_create':          rtn_pthread_create,
     'pthread_exit':            rtn_pthread_exit,
