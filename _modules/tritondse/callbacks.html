@@ -10,6 +10,8 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
@@ -346,7 +348,7 @@
                         <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">cbs</span><span class="p">:</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">register_pre_addr_callback</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">cb</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;can&#39;t find function </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">se</span><span class="o">.</span><span class="n">loader</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;can&#39;t find function &#39;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">&#39; in </span><span class="si">{</span><span class="n">se</span><span class="o">.</span><span class="n">loader</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;function callback to resolve but no program provided&quot;</span><span class="p">)</span></div>
 

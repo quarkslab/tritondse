@@ -10,6 +10,8 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
@@ -565,7 +567,13 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="ProcessState.fetch_instruction"><a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.fetch_instruction">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
+<div class="viewcode-block" id="ProcessState.is_syscall"><a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.is_syscall">[docs]</a>    <span class="k">def</span> <span class="nf">is_syscall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check whether the current instrution fetched is a syscall or not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_instruction</span><span class="o">.</span><span class="n">getType</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archinfo</span><span class="o">.</span><span class="n">syscall_inst</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessState.fetch_instruction"><a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.fetch_instruction">[docs]</a>    <span class="k">def</span> <span class="nf">fetch_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">set_as_current</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch the instruction at the given address. If no address</span>
 <span class="sd">        is specified the current program counter one is used.</span>
@@ -573,6 +581,7 @@
 <span class="sd">        :raise MemoryAccessViolation: If the instruction cannot be fetched in the memory.</span>
 
 <span class="sd">        :param address: address where to get the instruction from</span>
+<span class="sd">        :param set_as_current: set as the current instruction in the process state</span>
 <span class="sd">        :return: instruction disassembled</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">address</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -588,6 +597,8 @@
             <span class="k">raise</span> <span class="n">MemoryAccessViolation</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">memory_not_mapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">Perm</span><span class="o">.</span><span class="n">X</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">map</span><span class="o">.</span><span class="n">perm</span><span class="p">:</span>  <span class="c1"># Note: in this model we can execute code in non-readable pages</span>
             <span class="k">raise</span> <span class="n">MemoryAccessViolation</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">map_perm</span><span class="o">=</span><span class="nb">map</span><span class="o">.</span><span class="n">perm</span><span class="p">,</span> <span class="n">perm_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">set_as_current</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__current_inst</span> <span class="o">=</span> <span class="n">i</span>
         <span class="k">return</span> <span class="n">i</span></div>
 
 <div class="viewcode-block" id="ProcessState.process_instruction"><a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.process_instruction">[docs]</a>    <span class="k">def</span> <span class="nf">process_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instruction</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

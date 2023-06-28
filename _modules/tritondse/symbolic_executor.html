@@ -10,6 +10,8 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
@@ -404,6 +406,9 @@
                     <span class="n">cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="p">,</span> <span class="n">instruction</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">SkipInstructionException</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
                 <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">is_syscall</span><span class="p">():</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;execute syscall instruction </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">_syscall_register</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="c1"># Process</span>
             <span class="n">prev_pc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pc</span>

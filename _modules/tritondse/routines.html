@@ -10,6 +10,8 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/sphinx_highlight.js"></script>
@@ -286,8 +288,10 @@
 
     <span class="k">if</span> <span class="n">se</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">is_format_composite</span><span class="p">()</span> <span class="ow">and</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span> <span class="c1"># Use the seed provided (and ignore config.program_argv !!)</span>
         <span class="n">argvs</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">argv</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="s1">&#39;seed&#39;</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># use the config argv</span>
         <span class="n">argvs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;latin-1&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">se</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">program_argv</span><span class="p">]</span>  <span class="c1"># Convert it from str to bytes</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="s1">&#39;config&#39;</span>
 
     <span class="c1"># Compute the allocation size: size of strings, + all \x00 + all pointers</span>
     <span class="n">size</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">argvs</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">argvs</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">argvs</span><span class="p">)</span><span class="o">*</span><span class="n">pstate</span><span class="o">.</span><span class="n">ptr_size</span>
@@ -306,7 +310,7 @@
             <span class="n">se</span><span class="o">.</span><span class="n">inject_symbolic_argv_memory</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
             <span class="c1"># FIXME: Shall add a constraint on every char to be != \x00</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;argv[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">) argv[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">base</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
 
@@ -678,6 +682,7 @@
     <span class="n">pstate</span><span class="o">.</span><span class="n">concretize_argument</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_file_defined</span><span class="p">(</span><span class="n">arg0s</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;opening an input file: </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="c1"># Program is opening an input</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">get_file_input</span><span class="p">(</span><span class="n">arg0s</span><span class="p">)</span>
         <span class="n">filedesc</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">create_file_descriptor</span><span class="p">(</span><span class="n">arg0s</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
@@ -993,6 +998,54 @@
     <span class="c1"># Return value</span>
     <span class="k">return</span> <span class="n">ptr</span></div>
 
+
+<div class="viewcode-block" id="rtn_open"><a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_open">[docs]</a><span class="k">def</span> <span class="nf">rtn_open</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The open behavior.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;open hooked&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Get arguments</span>
+    <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># const char *pathname</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># int flags</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># we ignore it</span>
+    <span class="n">arg0s</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span><span class="n">arg0</span><span class="p">)</span>
+
+    <span class="c1"># Concretize the whole path name</span>
+    <span class="n">pstate</span><span class="o">.</span><span class="n">concretize_memory_bytes</span><span class="p">(</span><span class="n">arg0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg0s</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Concretize the whole string + \0</span>
+
+    <span class="c1"># We use flags as concrete value</span>
+    <span class="n">pstate</span><span class="o">.</span><span class="n">concretize_argument</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Use the flags to open the file in the write mode.</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x00</span><span class="p">:</span>   <span class="c1"># O_RDONLY</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;r&quot;</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x01</span><span class="p">:</span> <span class="c1"># O_WRONLY</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;w&quot;</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="p">)</span> <span class="o">==</span> <span class="mh">0x02</span><span class="p">:</span> <span class="c1"># O_RDWR</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;r+&quot;</span>
+
+    <span class="k">if</span> <span class="n">flags</span> <span class="o">&amp;</span> <span class="mh">0x0100</span><span class="p">:</span> <span class="c1"># O_CREAT</span>
+        <span class="n">mode</span> <span class="o">+=</span> <span class="s2">&quot;x&quot;</span>
+    <span class="k">if</span> <span class="n">flags</span> <span class="o">&amp;</span> <span class="mh">0x0200</span><span class="p">:</span> <span class="c1"># O_APPEND</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span>  <span class="c1"># replace completely value</span>
+
+    <span class="k">if</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_file_defined</span><span class="p">(</span><span class="n">arg0s</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">:</span>  <span class="c1"># input file and opened in reading</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;opening an input file: </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># Program is opening an input</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">get_file_input</span><span class="p">(</span><span class="n">arg0s</span><span class="p">)</span>
+        <span class="n">filedesc</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">create_file_descriptor</span><span class="p">(</span><span class="n">arg0s</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">id</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Try to open it as a regular file</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">fd</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">arg0s</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>  <span class="c1"># use the mode here</span>
+            <span class="n">filedesc</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">create_file_descriptor</span><span class="p">(</span><span class="n">arg0s</span><span class="p">,</span> <span class="n">fd</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to open </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pstate</span><span class="o">.</span><span class="n">minus_one</span></div>
 
 <div class="viewcode-block" id="rtn_realloc"><a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_realloc">[docs]</a><span class="k">def</span> <span class="nf">rtn_realloc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1390,7 +1443,7 @@
                 <span class="n">pstate</span><span class="o">.</span><span class="n">push_constraint</span><span class="p">(</span><span class="n">size_ast</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="o">==</span> <span class="n">size</span><span class="p">)</span>
 
             <span class="n">se</span><span class="o">.</span><span class="n">inject_symbolic_file_memory</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;read in </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;read in (input) </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">concretize_argument</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
@@ -2269,6 +2322,7 @@
     <span class="s1">&#39;memmem&#39;</span><span class="p">:</span>                  <span class="n">rtn_memmem</span><span class="p">,</span>
     <span class="s1">&#39;memmove&#39;</span><span class="p">:</span>                 <span class="n">rtn_memmove</span><span class="p">,</span>
     <span class="s1">&#39;memset&#39;</span><span class="p">:</span>                  <span class="n">rtn_memset</span><span class="p">,</span>
+    <span class="s1">&#39;open&#39;</span><span class="p">:</span>                    <span class="n">rtn_open</span><span class="p">,</span>
     <span class="s1">&#39;printf&#39;</span><span class="p">:</span>                  <span class="n">rtn_printf</span><span class="p">,</span>
     <span class="s1">&#39;pthread_create&#39;</span><span class="p">:</span>          <span class="n">rtn_pthread_create</span><span class="p">,</span>
     <span class="s1">&#39;pthread_exit&#39;</span><span class="p">:</span>            <span class="n">rtn_pthread_exit</span><span class="p">,</span>
