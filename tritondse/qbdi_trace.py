@@ -5,19 +5,85 @@
 # built-in modules
 import atexit
 import bisect
-import os
-import json
-import time
 import ctypes
-from pathlib import Path
-from typing import List, Optional, Tuple, Dict
+import ctypes.util
+import json
+import lief
+import os
+import sys
+import time
+
 from collections import Counter
 from dataclasses import dataclass
-import lief
-import sys
+from typing import List, Optional, Tuple, Dict
 
 # Third-party modules
 import pyqbdi
+
+
+setjmp_data = {}
+libdl = None
+
+
+class Dl_info(ctypes.Structure):
+    _fields_ = [
+        ('dli_fname', ctypes.c_char_p),
+        ('dli_fbase', ctypes.c_void_p),
+        ('dli_sname', ctypes.c_char_p),
+        ('dli_saddr', ctypes.c_void_p)
+    ]
+
+
+def dladdr(addr):
+    res = Dl_info()
+    libdl.dladdr(ctypes.cast(addr, ctypes.c_void_p), ctypes.byref(res))
+
+    return res.dli_sname
+
+
+def is_symbol(name, addr):
+    sname = dladdr(addr)
+    sname = sname.decode() if sname else ""
+
+    return sname == name
+
+
+def hook_post_setjmp(vm, state, gpr, fpr, data):
+    setjmp_data[data]['rip'] = gpr.rip
+
+    if setjmp_data[data]['setjmp_cbk_id'] is not None:
+        vm.deleteInstrumentation(setjmp_data[data]['setjmp_cbk_id'])
+        setjmp_data[data]['setjmp_cbk_id'] = None
+
+    return pyqbdi.CONTINUE
+
+
+def hook_post_longjmp(vm, state, gpr, fpr, data):
+    if data in setjmp_data:
+        gpr.rip = setjmp_data[data]['rip']
+    else:
+        print(f'[FATAL] longjmp arg ({data:x}) not found!')
+        sys.exit(-1)
+
+    if setjmp_data[data]['longjmp_cbk_id'] is not None:
+        vm.deleteInstrumentation(setjmp_data[data]['longjmp_cbk_id'])
+        setjmp_data[data]['longjmp_cbk_id'] = None
+
+    return pyqbdi.CONTINUE
+
+
+def handle_exec_transfer_call(vm, state, gpr, fpr, data):
+    if is_symbol("_setjmp", gpr.rip):
+        arg1 = gpr.rdi      # get env argument.
+
+        setjmp_data[arg1] = {}
+        setjmp_data[arg1]['setjmp_cbk_id'] = vm.addVMEventCB(pyqbdi.EXEC_TRANSFER_RETURN, hook_post_setjmp, arg1)
+    elif is_symbol("longjmp", gpr.rip):
+        arg1 = gpr.rdi      # get env argument.
+
+        setjmp_data[arg1]['longjmp_cbk_id'] = vm.addVMEventCB(pyqbdi.EXEC_TRANSFER_RETURN, hook_post_longjmp, arg1)
+
+    return pyqbdi.CONTINUE
 
 
 @dataclass
@@ -27,6 +93,7 @@ class CoverageTrace:
     covered_items: List[Tuple[int, int, Optional[int]]]
     modules: Dict[str, int]
     trace: List[int]
+
 
 @dataclass
 class CoverageData:
@@ -44,7 +111,6 @@ class CoverageData:
             return addr
 
 
-
 def get_modules() -> Dict[str, int]:
     """ Retrieve modules base address to remove ASLR. """
     modules = {}
@@ -55,6 +121,7 @@ def get_modules() -> Dict[str, int]:
             modules[m.name] = m.range[0]
         # print(f"{m.name}: {m.range}, {m.permission}")
     return modules
+
 
 def get_module_bases() -> List[int]:
     """ Retrieve modules base address to remove ASLR. """
@@ -136,9 +203,18 @@ def register_branch_coverage(vm, gpr, fpr, data):
     return pyqbdi.CONTINUE
 
 
-
 def pyqbdipreload_on_run(vm, start, stop):
+    global libdl
+
     s = time.time()
+
+    # Load dl library.
+    libdl_path = ctypes.util.find_library('dl')
+    if libdl_path is None:
+        raise Exception('Unable to found dl library')
+    libdl = ctypes.cdll.LoadLibrary(libdl_path)
+    libdl.dladdr.argtypes = (ctypes.c_void_p, ctypes.POINTER(Dl_info))
+
     # Read parameters.
     strat = os.getenv('PYQBDIPRELOAD_COVERAGE_STRATEGY', 'BLOCK')
     output = os.getenv('PYQBDIPRELOAD_OUTPUT_FILEPATH', 'a.cov')
@@ -172,22 +248,8 @@ def pyqbdipreload_on_run(vm, start, stop):
     # TODO This does not work with bins that crash.
     atexit.register(write_coverage, coverage_data, output)
 
-    # TODO Find a better way
-    # There is no generic way to do that with LIEF https://github.com/lief-project/LIEF/issues/762
-    longjmp_plt = int(os.getenv("PYQBDIPRELOAD_LONGJMP_ADDR", default="0"))
-
-    print(f"in qbdi_trace [longjmp:{longjmp_plt}]")
-    if longjmp_plt != 0:
-        def longjmp_callback(vm, gpr, fpr, data):
-            print("in longjmp callback")
-            return pyqbdi.STOP
-        vm.addCodeAddrCB(longjmp_plt, pyqbdi.PREINST, longjmp_callback, None)
-
-#    def showInstruction(vm, gpr, fpr, data):
-#        instAnalysis = vm.getInstAnalysis()
-#        print("0x{:x}: {}".format(instAnalysis.address, instAnalysis.disassembly))
-#        return pyqbdi.CONTINUE    
-#    vm.addCodeCB(pyqbdi.PREINST, showInstruction, None)
+    # Add callback for handling calls to functions setjmp and longjmp.
+    vm.addVMEventCB(pyqbdi.EXEC_TRANSFER_CALL, handle_exec_transfer_call, None)
 
     # Run program.
     print("Run start")

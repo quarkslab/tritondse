@@ -138,8 +138,8 @@ class QBDITrace(Trace):
         environ = {
             'PYQBDIPRELOAD_COVERAGE_STRATEGY': strategy.name,
             'PYQBDIPRELOAD_OUTPUT_FILEPATH': output_path,
-            'PYQBDIPRELOAD_LONGJMP_ADDR': os.getenv("TT_LONGJMP_ADDR", default="0"),
-            'PYQBDIPRELOAD_DUMP_TRACE': str(dump_trace)
+            'PYQBDIPRELOAD_DUMP_TRACE': str(dump_trace),
+            'LD_BIND_NOW': '1',
         }
         environ.update(os.environ)
 
