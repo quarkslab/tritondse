@@ -241,8 +241,8 @@
         <span class="n">environ</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s1">&#39;PYQBDIPRELOAD_COVERAGE_STRATEGY&#39;</span><span class="p">:</span> <span class="n">strategy</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s1">&#39;PYQBDIPRELOAD_OUTPUT_FILEPATH&#39;</span><span class="p">:</span> <span class="n">output_path</span><span class="p">,</span>
-            <span class="s1">&#39;PYQBDIPRELOAD_LONGJMP_ADDR&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TT_LONGJMP_ADDR&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">),</span>
-            <span class="s1">&#39;PYQBDIPRELOAD_DUMP_TRACE&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">dump_trace</span><span class="p">)</span>
+            <span class="s1">&#39;PYQBDIPRELOAD_DUMP_TRACE&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">dump_trace</span><span class="p">),</span>
+            <span class="s1">&#39;LD_BIND_NOW&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
 
