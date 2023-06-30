@@ -928,6 +928,9 @@ def rtn_open(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     if flags & 0x0200: # O_APPEND
         mode = "a"  # replace completely value
 
+    # enforce using binary mode for open
+    mode += "b"
+
     if se.seed.is_file_defined(arg0s) and "r" in mode:  # input file and opened in reading
         logging.info(f"opening an input file: {arg0s}")
         # Program is opening an input
