@@ -46,7 +46,6 @@ def enable(level: int = logging.INFO, name: str = "") -> None:
     if log.name != "tritondse":
         logger.propagate = True
     else:
-        print("logger enabled !!!")
         for sub_logger in _loggers.values():
             sub_logger.propagate = True
 
