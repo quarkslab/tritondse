@@ -2,12 +2,16 @@ from typing import Generator, Optional, Tuple
 from pathlib import Path
 import logging
 
+# Third-party imports
+import cle
+
+# Local imports
 from tritondse.loaders import Loader, LoadableSegment
 from tritondse.types import Addr, Architecture, PathLike, Platform, Perm
-
 from tritondse.routines import SUPPORTED_ROUTINES
+import tritondse.logging
 
-import cle
+logger = tritondse.logging.get("loader")
 
 _arch_mapper = {
     "ARMEL":   Architecture.ARM32,
@@ -96,14 +100,14 @@ class CleLoader(Loader):
         :return: Generator of tuples addrs and content
         """
         for obj in self.ld.all_objects:
-            logging.debug(obj)
+            logger.debug(obj)
             for seg in obj.segments:
                 segdata = self.ld.memory.load(seg.vaddr, seg.memsize)
                 assert len(segdata) == seg.memsize
                 perms = (Perm.R if seg.is_readable else 0) | (Perm.W if seg.is_writable else 0) | (Perm.X if seg.is_executable else 0) 
                 if seg.__class__.__name__ != "ExternSegment":
                     # The format string in CLE is broken if the filesize is 0. This is a workaround.
-                    logging.debug(f"Loading segment {seg} - perms:{perms}")
+                    logger.debug(f"Loading segment {seg} - perms:{perms}")
                 yield LoadableSegment(seg.vaddr, perms, content=segdata, name=f"seg-{obj.binary_basename}")
         # Also return a specific map to put external symbols
         yield LoadableSegment(self.EXTERN_SYM_BASE, self.EXTERN_SYM_SIZE, Perm.R | Perm.W, name="[extern]")
@@ -174,7 +178,7 @@ class CleLoader(Loader):
         # TODO I think there's a problem here. We only deal with imports from the main binary
         for s in self.ld.main_object.symbols:
             if s.resolved and s._type == cle.SymbolType.TYPE_OBJECT:
-                logging.debug(f"CleLoader: hooking symbol {s.name} @ {s.relative_addr:#x} {s.resolved} {s.resolvedby} {s._type}")
+                logger.debug(f"CleLoader: hooking symbol {s.name} @ {s.relative_addr:#x} {s.resolved} {s.resolvedby} {s._type}")
                 s_addr = s.relative_addr + self.ld.main_object.mapped_base
                 yield s.name, s_addr
 

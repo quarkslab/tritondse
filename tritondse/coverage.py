@@ -1,9 +1,7 @@
 # built-in imports
 from __future__ import annotations
-import json
 import hashlib
 import struct
-import logging
 from pathlib import Path
 from typing import List, Generator, Tuple, Set, Union, Dict, Optional
 from collections import Counter
@@ -16,7 +14,9 @@ from triton import AST_NODE
 
 # local imports
 from tritondse.types import Addr, PathConstraint, PathBranch, SolverStatus, PathHash, Edge, SymExType
+import tritondse.logging
 
+logger = tritondse.logging.get()
 
 CovItem = Union[Addr, Edge, PathHash, Tuple[PathHash, Edge]]
 """
@@ -268,7 +268,7 @@ class CoverageSingleRun(object):
         if self.strategy == other.strategy:
             return self.covered_items.keys() - other.covered_items.keys()
         else:
-            logging.error("Trying to make difference of coverage with different strategies")
+            logger.error("Trying to make difference of coverage with different strategies")
             return set()
 
     def __sub__(self, other) -> Set[CovItem]:
@@ -322,7 +322,7 @@ class GlobalCoverage(CoverageSingleRun):
                  is the branch to solve (but not to keep in path predicate)
         """
         if BranchSolvingStrategy.MANUAL in self.branch_strategy:
-            logging.info(f'Branch solving strategy set to MANUAL.')
+            logger.info(f'Branch solving strategy set to MANUAL.')
             return
 
         pending_csts = []
@@ -371,7 +371,7 @@ class GlobalCoverage(CoverageSingleRun):
                                 pass
 
                             else: # status == None
-                                logging.debug(f'Branch skipped!')
+                                logger.debug(f'Branch skipped!')
 
                             pending_csts = []  # reset pending constraint added
 
@@ -396,13 +396,13 @@ class GlobalCoverage(CoverageSingleRun):
                         if pred.getType() == AST_NODE.EQUAL:
                             p1, p2 = pred.getChildren()
                             if p2.getType() == AST_NODE.BV:
-                                logging.info(f"Try to enumerate value {offset}:0x{addr:02x}: {p1}")
+                                logger.info(f"Try to enumerate value {offset}:0x{addr:02x}: {p1}")
                                 res = yield typ, pending_csts, p1, (addr, p2.evaluate()), i
                                 self.covered_symbolic_pointers.add(addr)  # add the pointer in covered regardless of result
                             else:
-                                logging.warning(f"memory constraint unexpected pattern: {pred}")
+                                logger.warning(f"memory constraint unexpected pattern: {pred}")
                         else:
-                            logging.warning(f"memory constraint unexpected pattern: {pred}")
+                            logger.warning(f"memory constraint unexpected pattern: {pred}")
 
                 if BranchSolvingStrategy.SOUND_MEM_ACCESS in self.branch_strategy:
                     pending_csts.append(pc)  # if sound add the mem dereference as a constraint in path predicate

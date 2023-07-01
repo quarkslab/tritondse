@@ -1,10 +1,9 @@
 # built-in imports
 import io
-import logging
 import time
 import os
 import resource
-from typing import Optional, Union, List, NoReturn, Dict
+from typing import Optional, Union, List, NoReturn, Dict, Type
 
 # third party imports
 from triton import MODE, Instruction, CPUSIZE, MemoryAccess, CALLBACK
@@ -23,6 +22,9 @@ from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
 from tritondse.exception import AbortExecutionException, SkipInstructionException, StopExplorationException
 from tritondse.memory import MemoryAccessViolation, Perm
+import tritondse.logging
+
+logger = tritondse.logging.get("executor")
 
 
 class SymbolicExecutor(object):
@@ -58,7 +60,7 @@ class SymbolicExecutor(object):
 
         # Override config if there is a mismatch between seed format and config file
         if seed.format != self.config.seed_format:
-            logging.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
+            logger.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
             self.config.seed_format = seed.format
 
         self._symbolic_seed = self._init_symbolic_seed(seed)
@@ -110,7 +112,7 @@ class SymbolicExecutor(object):
 
         # Initialize the process_state architecture (at this point arch is sure to be supported)
         self.loader = loader
-        logging.debug(f"Loading program {self.loader.name} [{self.loader.architecture}]")
+        logger.debug(f"Loading program {self.loader.name} [{self.loader.architecture}]")
         self.pstate = ProcessState.from_loader(loader)
         self._map_dynamic_symbols()
         self._load_seed_process_state(self.pstate, self.seed)
@@ -196,7 +198,7 @@ class SymbolicExecutor(object):
         #for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:
         for mode in [MODE.ONLY_ON_SYMBOLIZED]:
             self.pstate.set_triton_mode(mode, True)
-        logging.info(f"configure pstate: time_inc:{self.config.time_inc_coefficient}  solver:{self.config.smt_solver.name}  timeout:{self.config.smt_timeout}")
+        logger.info(f"configure pstate: time_inc:{self.config.time_inc_coefficient}  solver:{self.config.smt_solver.name}  timeout:{self.config.smt_timeout}")
         self.pstate.time_inc_coefficient = self.config.time_inc_coefficient
         self.pstate.set_solver_timeout(self.config.smt_timeout)
         self.pstate.set_solver(self.config.smt_solver)
@@ -251,7 +253,7 @@ class SymbolicExecutor(object):
         if lea_ast.isSymbolized():
             s = "write" if bool(args) else "read"
             pc = self.pstate.cpu.program_counter
-            logging.debug(f"symbolic {s} at 0x{pc:x}: target: 0x{tgt_addr:x} [{lea_ast}]")
+            logger.debug(f"symbolic {s} at 0x{pc:x}: target: 0x{tgt_addr:x} [{lea_ast}]")
             self.pstate.push_constraint(lea_ast == tgt_addr, f"sym-{s}:{self.trace_offset}:{pc}")
 
     def __emulate(self):
@@ -260,7 +262,7 @@ class SymbolicExecutor(object):
             self.__schedule_thread()
 
             if not self.pstate.current_thread.is_running():
-                logging.warning(f"After scheduling current thread is not running (probably in a deadlock state)")
+                logger.warning(f"After scheduling current thread is not running (probably in a deadlock state)")
                 break  # Were not able to find a suitable thread thus exit emulation
 
             # Fetch program counter (of the thread selected), at this point the current thread should be running!
@@ -270,11 +272,11 @@ class SymbolicExecutor(object):
                 break
 
             if self.current_pc == 0:
-                logging.error(f"PC=0, is it normal ? (stop)")
+                logger.error(f"PC=0, is it normal ? (stop)")
                 break
 
             if not self.pstate.memory.has_ever_been_written(self.current_pc, CPUSIZE.BYTE):
-                logging.error(f"Instruction not mapped: 0x{self.current_pc:x}")
+                logger.error(f"Instruction not mapped: 0x{self.current_pc:x}")
                 break
 
             instruction = self.pstate.fetch_instruction()
@@ -305,16 +307,16 @@ class SymbolicExecutor(object):
                 continue
 
             if self.pstate.is_syscall():
-                logging.warning(f"execute syscall instruction {self.pstate.read_register(self.pstate._syscall_register)}")
+                logger.warning(f"execute syscall instruction {self.pstate.read_register(self.pstate._syscall_register)}")
 
             # Process
             prev_pc = self.current_pc
             self._in_processing = True
             if not self.pstate.process_instruction(instruction):
                 if self.pstate.is_halt_instruction():
-                    logging.info(f"hit {str(instruction)} instruction stop.")
+                    logger.info(f"hit {str(instruction)} instruction stop.")
                 else:
-                    logging.error('Instruction not supported: %s' % (str(instruction)))
+                    logger.error('Instruction not supported: %s' % (str(instruction)))
 
                 if self.config.skip_unsupported_instruction:
                     self.pstate.cpu.program_counter += instruction.getSize() # try to jump over the instruction
@@ -338,7 +340,7 @@ class SymbolicExecutor(object):
                 if path_constraint.isMultipleBranches():
                     branches = path_constraint.getBranchConstraints()
                     if len(branches) != 2:
-                        logging.error("Branching condition has more than two branches")
+                        logger.error("Branching condition has more than two branches")
                     taken, not_taken = branches if branches[0]['isTaken'] else branches[::-1]
                     taken_addr, not_taken_addr = taken['dstAddr'], not_taken['dstAddr']
 
@@ -354,7 +356,7 @@ class SymbolicExecutor(object):
                         # NOTE: At the moment it does not seems suitable to count r/w pointers
                         # as part of the coverage. So does not have an influence on covered/not_covered.
                     else:
-                        logging.warning(f"New dynamic jump covered at: {self.previous_pc:08x}")
+                        logger.warning(f"New dynamic jump covered at: {self.previous_pc:08x}")
                         path_constraint.setComment(f"dyn-jmp:{self.trace_offset}:{self.previous_pc}")
                         self.coverage.add_covered_dynamic_branch(self.previous_pc, self.current_pc)
 
@@ -378,13 +380,13 @@ class SymbolicExecutor(object):
             try:
                 self._routines_handler(instruction)
             except AllocatorException as e:
-                logging.info(f'An exception has been raised: {e}')
+                logger.info(f'An exception has been raised: {e}')
                 self.seed.status = SeedStatus.CRASH
                 return
 
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.start_time) >= self.config.execution_timeout:
-                logging.info('Timeout of an execution reached')
+                logger.info('Timeout of an execution reached')
                 self.seed.status = SeedStatus.HANG
                 return
 
@@ -413,7 +415,7 @@ class SymbolicExecutor(object):
         pc = self.pstate.cpu.program_counter
         if pc in self.rtn_table:
             routine_name, routine = self.rtn_table[pc]
-            logging.debug(f"Enter external routine: {routine_name}")
+            logger.debug(f"Enter external routine: {routine_name}")
 
             # Trigger pre-address callback
             pre_cbs, post_cbs = self.cbm.get_imported_routine_callbacks(routine_name)
@@ -485,7 +487,7 @@ class SymbolicExecutor(object):
 
             else:  # the symbol is not supported
                 if self.uid == 0:  # print warning if first uid (so that it get printed once)
-                    logging.warning(f"symbol {symbol} imported but unsupported")
+                    logger.warning(f"symbol {symbol} imported but unsupported")
                 if is_func:
                     # Add link to a default stub function
                     self.rtn_table[addr] = (symbol, self.__default_stub)
@@ -494,7 +496,7 @@ class SymbolicExecutor(object):
 
     def __default_stub(self, se: 'SymbolicExecutor', pstate: ProcessState):
         rtn_name, _ = self.rtn_table[pstate.cpu.program_counter]
-        logging.warning(f"calling {rtn_name} which is unsupported")
+        logger.warning(f"calling {rtn_name} which is unsupported")
         if self.config.skip_unsupported_import:
             return None  # Like if function did nothing
         else:
@@ -542,7 +544,7 @@ class SymbolicExecutor(object):
             self._run_to_target = stop_at
 
         if self.pstate is None:
-            logging.error(f"ProcessState is None (have you called \"load\"?")
+            logger.error(f"ProcessState is None (have you called \"load\"?")
             return
 
         self.start_time = time.time()
@@ -563,7 +565,7 @@ class SymbolicExecutor(object):
         self.cbm.bind_to(self)  # bind call
 
         # Let's emulate the binary from the entry point
-        logging.info('Starting emulation')
+        logger.info('Starting emulation')
 
         # Get pre/post callbacks on execution
         pre_cb, post_cb = self.cbm.get_execution_callbacks()
@@ -579,7 +581,7 @@ class SymbolicExecutor(object):
         except AbortExecutionException as e:
             pass
         except MemoryAccessViolation as e:
-            logging.warning(f"Memory violation: {str(e)}")
+            logger.warning(f"Memory violation: {str(e)}")
 
             # Call all the callbacks on the memory violations
             for cb in self.callback_manager.get_memory_violation_callbacks():
@@ -614,9 +616,9 @@ class SymbolicExecutor(object):
         if BranchSolvingStrategy.COVER_SYM_WRITE in self.config.branch_solving_strategy:
             self.cbm.unregister_callback(self._symbolic_mem_callback)
 
-        logging.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time:.02f}s)")
-        logging.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.path_predicate_size}")
-        logging.info(f"Memory usage: {self.mem_usage_str()}")
+        logger.info(f"Emulation done [ret:{self.pstate.read_register(self.pstate.return_register):x}]  (time:{self.execution_time:.02f}s)")
+        logger.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.path_predicate_size}")
+        logger.info(f"Memory usage: {self.mem_usage_str()}")
 
     def _mem_accesses_callback(self, se: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
         """
@@ -759,7 +761,7 @@ class SymbolicExecutor(object):
         :param offset: offset within the file
         """
         if reg.getSize != 1:
-            logging.error("can't call inject_symbolic_file_register with regsiter larger than 1!")
+            logger.error("can't call inject_symbolic_file_register with regsiter larger than 1!")
             return
         self.pstate.write_register(reg, value)  # Write concrete value in register
         sym_vars = self.pstate.symbolize_register(reg, f"{name}[{offset}]")  # Symbolize bytes
@@ -791,6 +793,6 @@ class SymbolicExecutor(object):
         :param offset: offset within the content of the seed.
         """
         if self.seed.is_composite():
-            logging.warning("inject_symbolic_memory must not be used with composite seeds !")
+            logger.warning("inject_symbolic_memory must not be used with composite seeds !")
         else:
             self.inject_symbolic_file_memory(addr, "input", data, offset)

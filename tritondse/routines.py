@@ -6,12 +6,11 @@ import re
 import sys
 import time
 
-from typing import Union
+from tritondse.types import Architecture, FileDesc
+from tritondse.seed import SeedFormat, SeedStatus, Seed
+import tritondse.logging
 
-from triton                   import CPUSIZE, MemoryAccess
-from tritondse.thread_context import ThreadContext
-from tritondse.types          import Architecture, FileDesc
-from tritondse.seed           import SeedFormat, SeedStatus, Seed
+logger = tritondse.logging.get("routines")
 
 NULL_PTR = 0
 
@@ -21,7 +20,7 @@ def rtn_ctype_b_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __ctype_b_loc behavior.
     """
-    logging.debug('__ctype_b_loc hooked')
+    logger.debug('__ctype_b_loc hooked')
 
     ctype  = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
     ctype += b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -83,7 +82,7 @@ def rtn_ctype_toupper_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __ctype_toupper_loc behavior.
     """
-    logging.debug('__ctype_toupper_loc hooked')
+    logger.debug('__ctype_toupper_loc hooked')
 
     ctype  = b"\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f"
     ctype += b"\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f"
@@ -130,7 +129,7 @@ def rtn_errno_location(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __errno_location behavior.
     """
-    logging.debug('__errno_location hooked')
+    logger.debug('__errno_location hooked')
 
     # Errno is a int* ptr, initialize it to zero
     # We consider it is located in the [extern] segment
@@ -150,7 +149,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __libc_start_main behavior.
     """
-    logging.debug('__libc_start_main hooked')
+    logger.debug('__libc_start_main hooked')
 
     # Get arguments
     main = pstate.get_argument_value(0)
@@ -178,7 +177,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         pstate.write_argument_value(0 + 1, argc)
     else:
         pstate.write_argument_value(0, argc)
-    logging.debug(f"argc = {argc}")
+    logger.debug(f"argc = {argc}")
 
     # Define argv
     addrs = list()
@@ -207,7 +206,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             se.inject_symbolic_argv_memory(base, i, arg)
             # FIXME: Shall add a constraint on every char to be != \x00
 
-        logging.debug(f"({src}) argv[{i}] = {repr(pstate.memory.read(base, len(arg)))}")
+        logger.debug(f"({src}) argv[{i}] = {repr(pstate.memory.read(base, len(arg)))}")
         base += len(arg) + 1
 
 
@@ -231,8 +230,8 @@ def rtn_stack_chk_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __stack_chk_fail behavior.
     """
-    logging.debug('__stack_chk_fail hooked')
-    logging.critical('*** stack smashing detected ***: terminated')
+    logger.debug('__stack_chk_fail hooked')
+    logger.critical('*** stack smashing detected ***: terminated')
     se.seed.status = SeedStatus.CRASH
     pstate.stop = True
 
@@ -242,7 +241,7 @@ def rtn_xstat(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __xstat behavior.
     """
-    logging.debug('__xstat hooked')
+    logger.debug('__xstat hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # int ver
@@ -285,7 +284,7 @@ def rtn_abort(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     [`Man Page <https://man7.org/linux/man-pages/man3/abort.3.html>`_]
     """
-    logging.debug('abort hooked')
+    logger.debug('abort hooked')
     se.seed.status = SeedStatus.OK_DONE
     pstate.stop = True
 
@@ -312,7 +311,7 @@ def rtn_atoi(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     :return: Symbolic value of the integer base on the symbolic string ``nptr``
     """
-    logging.debug('atoi hooked')
+    logger.debug('atoi hooked')
 
     ast = pstate.actx
     arg = pstate.get_argument_value(0)
@@ -384,7 +383,7 @@ def rtn_calloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The calloc behavior.
     """
-    logging.debug('calloc hooked')
+    logger.debug('calloc hooked')
 
     # Get arguments
     nmemb = pstate.get_argument_value(0)
@@ -411,7 +410,7 @@ def rtn_clock_gettime(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The clock_gettime behavior.
     """
-    logging.debug('clock_gettime hooked')
+    logger.debug('clock_gettime hooked')
 
     # Get arguments
     clockid = pstate.get_argument_value(0)
@@ -440,7 +439,7 @@ def rtn_exit(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The exit behavior.
     """
-    logging.debug('exit hooked')
+    logger.debug('exit hooked')
     arg = pstate.get_argument_value(0)
     pstate.stop = True
     return arg
@@ -450,7 +449,7 @@ def rtn_fclose(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fclose behavior.
     """
-    logging.debug('fclose hooked')
+    logger.debug('fclose hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0) # fd
@@ -475,7 +474,7 @@ def rtn_fseek(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     #define SEEK_SET    0   /* set file offset to offset */
     #define SEEK_CUR    1   /* set file offset to current plus offset */
     #define SEEK_END    2   /* set file offset to EOF plus offset */
-    logging.debug('fseek hooked')
+    logger.debug('fseek hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
@@ -504,7 +503,7 @@ def rtn_ftell(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     The ftell behavior.
     """
 
-    logging.debug('ftell hooked')
+    logger.debug('ftell hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
@@ -524,7 +523,7 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fgets behavior.
     """
-    logging.debug('fgets hooked')
+    logger.debug('fgets hooked')
 
     # Get arguments
     buff, buff_ast = pstate.get_full_argument(0)
@@ -548,14 +547,14 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                 pstate.push_constraint(size_ast.getAst() == size)
 
             se.inject_symbolic_file_memory(buff, filedesc.name, data, offset)
-            logging.debug(f"fgets() in {filedesc.name} = {repr(data)}")
+            logger.debug(f"fgets() in {filedesc.name} = {repr(data)}")
         else:
             pstate.concretize_argument(1)
             pstate.memory.write(buff, data)
 
         return buff_ast if data_no_trail else NULL_PTR
     else:
-        logging.warning(f'File descriptor ({fd}) not found')
+        logger.warning(f'File descriptor ({fd}) not found')
         return NULL_PTR
 
 
@@ -564,7 +563,7 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fopen behavior.
     """
-    logging.debug('fopen hooked')
+    logger.debug('fopen hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # const char *pathname
@@ -579,7 +578,7 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.concretize_argument(1)
 
     if se.seed.is_file_defined(arg0s):
-        logging.info(f"opening an input file: {arg0s}")
+        logger.info(f"opening an input file: {arg0s}")
         # Program is opening an input
         data = se.seed.get_file_input(arg0s)
         filedesc = pstate.create_file_descriptor(arg0s, io.BytesIO(data))
@@ -591,7 +590,7 @@ def rtn_fopen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             filedesc = pstate.create_file_descriptor(arg0s, fd)
             return filedesc.id
         except Exception as e:
-            logging.debug(f"Failed to open {arg0s} {e}")
+            logger.debug(f"Failed to open {arg0s} {e}")
             return NULL_PTR
 
 
@@ -599,7 +598,7 @@ def rtn_fprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fprintf behavior.
     """
-    logging.debug('fprintf hooked')
+    logger.debug('fprintf hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
@@ -615,7 +614,7 @@ def rtn_fprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         s = arg1f.format(*args)
     except:
         # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
-        logging.warning('Something wrong, probably UTF-8 string')
+        logger.warning('Something wrong, probably UTF-8 string')
         s = ""
 
     if pstate.file_descriptor_exists(arg0):
@@ -634,7 +633,7 @@ def rtn___fprintf_chk(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The __fprintf_chk behavior.
     """
-    logging.debug('__fprintf_chk hooked')
+    logger.debug('__fprintf_chk hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
@@ -651,7 +650,7 @@ def rtn___fprintf_chk(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         s = arg1f.format(*args)
     except:
         # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
-        logging.warning('Something wrong, probably UTF-8 string')
+        logger.warning('Something wrong, probably UTF-8 string')
         s = ""
 
     if pstate.file_descriptor_exists(arg0):
@@ -671,7 +670,7 @@ def rtn_fputc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fputc behavior.
     """
-    logging.debug('fputc hooked')
+    logger.debug('fputc hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
@@ -699,7 +698,7 @@ def rtn_fputs(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fputs behavior.
     """
-    logging.debug('fputs hooked')
+    logger.debug('fputs hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
@@ -737,7 +736,7 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fread behavior.
     """
-    logging.debug('fread hooked')
+    logger.debug('fread hooked')
 
     # Get arguments
     ptr = pstate.get_argument_value(0) # ptr
@@ -762,14 +761,14 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                 pstate.push_constraint(size_ast.getAst() == size)
 
             se.inject_symbolic_file_memory(ptr, filedesc.name, data, offset)
-            logging.debug(f"read in {filedesc.name} = {repr(data)}")
+            logger.debug(f"read in {filedesc.name} = {repr(data)}")
         else:
             pstate.concretize_argument(2)
             pstate.memory.write(ptr, data)
 
         return int(len(data)/size_t) if size_t else 0  # number of items read
     else:
-        logging.warning(f'File descriptor ({fd}) not found')
+        logger.warning(f'File descriptor ({fd}) not found')
         return 0
 
 
@@ -777,7 +776,7 @@ def rtn_free(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The free behavior.
     """
-    logging.debug('free hooked')
+    logger.debug('free hooked')
 
     # Get arguments
     ptr = pstate.get_argument_value(0)
@@ -792,7 +791,7 @@ def rtn_fwrite(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fwrite behavior.
     """
-    logging.debug('fwrite hooked')
+    logger.debug('fwrite hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
@@ -827,7 +826,7 @@ def rtn_write(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The write behavior.
     """
-    logging.debug('write hooked')
+    logger.debug('write hooked')
 
     # Get arguments
     fd = pstate.get_argument_value(0)
@@ -860,7 +859,7 @@ def rtn_gettimeofday(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The gettimeofday behavior.
     """
-    logging.debug('gettimeofday hooked')
+    logger.debug('gettimeofday hooked')
 
     # Get arguments
     tv = pstate.get_argument_value(0)
@@ -886,7 +885,7 @@ def rtn_malloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The malloc behavior.
     """
-    logging.debug('malloc hooked')
+    logger.debug('malloc hooked')
 
     # Get arguments
     size = pstate.get_argument_value(0)
@@ -900,7 +899,7 @@ def rtn_open(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The open behavior.
     """
-    logging.debug('open hooked')
+    logger.debug('open hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # const char *pathname
@@ -932,7 +931,7 @@ def rtn_open(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     mode += "b"
 
     if se.seed.is_file_defined(arg0s) and "r" in mode:  # input file and opened in reading
-        logging.info(f"opening an input file: {arg0s}")
+        logger.info(f"opening an input file: {arg0s}")
         # Program is opening an input
         data = se.seed.get_file_input(arg0s)
         filedesc = pstate.create_file_descriptor(arg0s, io.BytesIO(data))
@@ -944,14 +943,14 @@ def rtn_open(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             filedesc = pstate.create_file_descriptor(arg0s, fd)
             return filedesc.id
         except Exception as e:
-            logging.debug(f"Failed to open {arg0s} {e}")
+            logger.debug(f"Failed to open {arg0s} {e}")
             return pstate.minus_one
 
 def rtn_realloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The realloc behavior.
     """
-    logging.debug('realloc hooked')
+    logger.debug('realloc hooked')
 
     # Get arguments
     oldptr = pstate.get_argument_value(0)
@@ -966,7 +965,7 @@ def rtn_realloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     if ptr == 0: return ptr
 
     if ptr not in pstate.heap_allocator.alloc_pool:
-        logging.warning("Invalid ptr passed to realloc")
+        logger.warning("Invalid ptr passed to realloc")
         pstate.heap_allocator.free(ptr) # This will raise an error
 
     old_memmap = pstate.heap_allocator.alloc_pool[oldptr]
@@ -990,7 +989,7 @@ def rtn_memcmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memcmp behavior.
     """
-    logging.debug('memcmp hooked')
+    logger.debug('memcmp hooked')
 
     s1 = pstate.get_argument_value(0)
     s2 = pstate.get_argument_value(1)
@@ -1020,7 +1019,7 @@ def rtn_memcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memcpy behavior.
     """
-    logging.debug('memcpy hooked')
+    logger.debug('memcpy hooked')
 
     dst, dst_ast = pstate.get_full_argument(0)
     src = pstate.get_argument_value(1)
@@ -1041,7 +1040,7 @@ def rtn_mempcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The mempcpy behavior.
     """
-    logging.debug('mempcpy hooked')
+    logger.debug('mempcpy hooked')
 
     dst, dst_ast = pstate.get_full_argument(0)
     src = pstate.get_argument_value(1)
@@ -1062,7 +1061,7 @@ def rtn_memmem(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memmem behavior.
     """
-    logging.debug('memmem hooked')
+    logger.debug('memmem hooked')
 
     haystack    = pstate.get_argument_value(0)  # const void*
     haystacklen = pstate.get_argument_value(1)  # size_t
@@ -1092,7 +1091,7 @@ def rtn_memmove(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memmove behavior.
     """
-    logging.debug('memmove hooked')
+    logger.debug('memmove hooked')
 
     dst, dst_ast = pstate.get_full_argument(0)
     src = pstate.get_argument_value(1)
@@ -1114,7 +1113,7 @@ def rtn_memset(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The memset behavior.
     """
-    logging.debug('memset hooked')
+    logger.debug('memset hooked')
 
     dst, dst_ast = pstate.get_full_argument(0)
     src, src_ast = pstate.get_full_argument(1)
@@ -1136,7 +1135,7 @@ def rtn_printf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The printf behavior.
     """
-    logging.debug('printf hooked')
+    logger.debug('printf hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
@@ -1148,7 +1147,7 @@ def rtn_printf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         s = arg0f.format(*args)
     except:
         # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
-        logging.warning('Something wrong, probably UTF-8 string')
+        logger.warning('Something wrong, probably UTF-8 string')
         s = ""
 
     if se.config.pipe_stdout:
@@ -1164,7 +1163,7 @@ def rtn_pthread_create(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_create behavior.
     """
-    logging.debug('pthread_create hooked')
+    logger.debug('pthread_create hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0) # pthread_t *thread
@@ -1185,7 +1184,7 @@ def rtn_pthread_exit(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_exit behavior.
     """
-    logging.debug('pthread_exit hooked')
+    logger.debug('pthread_exit hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
@@ -1204,7 +1203,7 @@ def rtn_pthread_join(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_join behavior.
     """
-    logging.debug('pthread_join hooked')
+    logger.debug('pthread_join hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)
@@ -1212,10 +1211,10 @@ def rtn_pthread_join(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     if arg0 in pstate.threads:
         pstate.current_thread.join_thread(arg0)
-        logging.info(f"Thread id {pstate.current_thread.tid} joined thread id {arg0}")
+        logger.info(f"Thread id {pstate.current_thread.tid} joined thread id {arg0}")
     else:
         pstate.current_thread.cancel_join()
-        logging.debug(f"Thread id {arg0} already destroyed")
+        logger.debug(f"Thread id {arg0} already destroyed")
 
     # Return value
     return 0
@@ -1225,7 +1224,7 @@ def rtn_pthread_mutex_destroy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_mutex_destroy behavior.
     """
-    logging.debug('pthread_mutex_destroy hooked')
+    logger.debug('pthread_mutex_destroy hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *restrict mutex
@@ -1238,7 +1237,7 @@ def rtn_pthread_mutex_init(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_mutex_init behavior.
     """
-    logging.debug('pthread_mutex_init hooked')
+    logger.debug('pthread_mutex_init hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *restrict mutex
@@ -1253,7 +1252,7 @@ def rtn_pthread_mutex_lock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_mutex_lock behavior.
     """
-    logging.debug('pthread_mutex_lock hooked')
+    logger.debug('pthread_mutex_lock hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *mutex
@@ -1261,12 +1260,12 @@ def rtn_pthread_mutex_lock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # If the thread has been initialized and unused, define the tid has lock
     if mutex == pstate.PTHREAD_MUTEX_INIT_MAGIC:
-        logging.debug('mutex unlocked')
+        logger.debug('mutex unlocked')
         pstate.memory.write_ptr(arg0, pstate.current_thread.tid)
 
     # The mutex is locked and we are not allowed to continue the execution
     elif mutex != pstate.current_thread.tid:
-        logging.debug('mutex locked')
+        logger.debug('mutex locked')
         pstate.mutex_locked = True
 
     # Return value
@@ -1277,7 +1276,7 @@ def rtn_pthread_mutex_unlock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The pthread_mutex_unlock behavior.
     """
-    logging.debug('pthread_mutex_unlock hooked')
+    logger.debug('pthread_mutex_unlock hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *mutex
@@ -1292,7 +1291,7 @@ def rtn_puts(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The puts behavior.
     """
-    logging.debug('puts hooked')
+    logger.debug('puts hooked')
 
     arg0 = pstate.get_string_argument(0)
 
@@ -1309,7 +1308,7 @@ def rtn_rand(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The rand behavior.
     """
-    logging.debug('rand hooked')
+    logger.debug('rand hooked')
     return random.randrange(0, 0xffffffff)
 
 
@@ -1317,7 +1316,7 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The read behavior.
     """
-    logging.debug('read hooked')
+    logger.debug('read hooked')
 
     # Get arguments
     fd   = pstate.get_argument_value(0)
@@ -1325,7 +1324,7 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     size, size_ast = pstate.get_full_argument(2)
 
     if size_ast.isSymbolized():
-        logging.warning(f'Reading from the file descriptor ({fd}) with a symbolic size')
+        logger.warning(f'Reading from the file descriptor ({fd}) with a symbolic size')
 
     pstate.concretize_argument(0)
 
@@ -1343,14 +1342,14 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                 pstate.push_constraint(size_ast.getAst() == size)
 
             se.inject_symbolic_file_memory(buff, filedesc.name, data, offset)
-            logging.debug(f"read in (input) {filedesc.name} = {repr(data)}")
+            logger.debug(f"read in (input) {filedesc.name} = {repr(data)}")
         else:
             pstate.concretize_argument(2)
             pstate.memory.write(buff, data)
 
         return len(data)
     else:
-        logging.warning(f'File descriptor ({fd}) not found')
+        logger.warning(f'File descriptor ({fd}) not found')
         return pstate.minus_one  # todo: set errno
 
 
@@ -1358,7 +1357,7 @@ def rtn_getchar(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The getchar behavior.
     """
-    logging.debug('getchar hooked')
+    logger.debug('getchar hooked')
 
     # Get arguments
     filedesc = pstate.get_file_descriptor(0) # stdin
@@ -1369,7 +1368,7 @@ def rtn_getchar(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         if filedesc.is_input_fd():  # Reading into input
             data = ord(data) # convert to integer
             se.inject_symbolic_file_register(pstate.return_register, filedesc.name, data, offset)
-            logging.debug(f"read in {filedesc.name} = {repr(data)}")
+            logger.debug(f"read in {filedesc.name} = {repr(data)}")
         return data
     else:
         return pstate.minus_one
@@ -1379,7 +1378,7 @@ def rtn_sem_destroy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_destroy behavior.
     """
-    logging.debug('sem_destroy hooked')
+    logger.debug('sem_destroy hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
@@ -1395,7 +1394,7 @@ def rtn_sem_getvalue(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_getvalue behavior.
     """
-    logging.debug('sem_getvalue hooked')
+    logger.debug('sem_getvalue hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
@@ -1414,7 +1413,7 @@ def rtn_sem_init(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_init behavior.
     """
-    logging.debug('sem_init hooked')
+    logger.debug('sem_init hooked')
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
@@ -1432,7 +1431,7 @@ def rtn_sem_post(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_post behavior.
     """
-    logging.debug('sem_post hooked')
+    logger.debug('sem_post hooked')
 
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
 
@@ -1448,7 +1447,7 @@ def rtn_sem_timedwait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_timedwait behavior.
     """
-    logging.debug('sem_timedwait hooked')
+    logger.debug('sem_timedwait hooked')
 
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
     arg1 = pstate.get_argument_value(1)  # const struct timespec *abs_timeout
@@ -1474,11 +1473,11 @@ def rtn_sem_timedwait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # TODO: Take into account the abs_timeout argument
     value = pstate.memory.read_ptr(arg0)
     if value > 0:
-        logging.debug('semaphore still not locked')
+        logger.debug('semaphore still not locked')
         pstate.memory.write_ptr(arg0, value - 1)
         pstate.semaphore_locked = False
     else:
-        logging.debug('semaphore locked')
+        logger.debug('semaphore locked')
         pstate.semaphore_locked = True
 
     # Return success
@@ -1489,7 +1488,7 @@ def rtn_sem_trywait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_trywait behavior.
     """
-    logging.debug('sem_trywait hooked')
+    logger.debug('sem_trywait hooked')
 
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
 
@@ -1498,11 +1497,11 @@ def rtn_sem_trywait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # EAGAIN) instead of blocking.
     value = pstate.memory.read_ptr(arg0)
     if value > 0:
-        logging.debug('semaphore still not locked')
+        logger.debug('semaphore still not locked')
         pstate.memory.write_ptr(arg0, value - 1)
         pstate.semaphore_locked = False
     else:
-        logging.debug('semaphore locked but continue')
+        logger.debug('semaphore locked but continue')
         pstate.semaphore_locked = False
 
         # Setting errno to EAGAIN (3406)
@@ -1525,7 +1524,7 @@ def rtn_sem_wait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sem_wait behavior.
     """
-    logging.debug('sem_wait hooked')
+    logger.debug('sem_wait hooked')
 
     arg0 = pstate.get_argument_value(0)  # sem_t *sem
 
@@ -1536,11 +1535,11 @@ def rtn_sem_wait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # value rises above zero).
     value = pstate.memory.read_ptr(arg0)
     if value > 0:
-        logging.debug('semaphore still not locked')
+        logger.debug('semaphore still not locked')
         pstate.memory.write_ptr(arg0, value - 1)
         pstate.semaphore_locked = False
     else:
-        logging.debug('semaphore locked')
+        logger.debug('semaphore locked')
         pstate.semaphore_locked = True
 
     # Return success
@@ -1551,7 +1550,7 @@ def rtn_sleep(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sleep behavior.
     """
-    logging.debug('sleep hooked')
+    logger.debug('sleep hooked')
 
     # Get arguments
     if not se.config.skip_sleep_routine:
@@ -1566,7 +1565,7 @@ def rtn_sprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The sprintf behavior.
     """
-    logging.debug('sprintf hooked')
+    logger.debug('sprintf hooked')
 
     # Get arguments
     buff = pstate.get_argument_value(0)
@@ -1579,7 +1578,7 @@ def rtn_sprintf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         s = arg0f.format(*args)
     except:
         # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
-        logging.warning('Something wrong, probably UTF-8 string')
+        logger.warning('Something wrong, probably UTF-8 string')
         s = ""
 
     # FIXME: todo
@@ -1601,7 +1600,7 @@ def rtn_strcasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strcasecmp behavior.
     """
-    logging.debug('strcasecmp hooked')
+    logger.debug('strcasecmp hooked')
 
     s1 = pstate.get_argument_value(0)
     s2 = pstate.get_argument_value(1)
@@ -1634,7 +1633,7 @@ def rtn_strchr(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strchr behavior.
     """
-    logging.debug('strchr hooked')
+    logger.debug('strchr hooked')
 
     string = pstate.get_argument_value(0)
     char   = pstate.get_argument_value(1)
@@ -1662,7 +1661,7 @@ def rtn_strcmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strcmp behavior.
     """
-    logging.debug('strcmp hooked')
+    logger.debug('strcmp hooked')
 
     s1 = pstate.get_argument_value(0)
     s2 = pstate.get_argument_value(1)
@@ -1693,7 +1692,7 @@ def rtn_strcpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strcpy behavior.
     """
-    logging.debug('strcpy hooked')
+    logger.debug('strcpy hooked')
 
     dst  = pstate.get_argument_value(0)
     src  = pstate.get_argument_value(1)
@@ -1717,7 +1716,7 @@ def rtn_strdup(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strdup behavior.
     """
-    logging.debug('strdup hooked')
+    logger.debug('strdup hooked')
 
     s  = pstate.get_argument_value(0)
     s_str = pstate.memory.read_string(s)
@@ -1750,7 +1749,7 @@ def rtn_strerror(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     :param pstate: The current process state
     :return: a concrete value
     """
-    logging.debug('strerror hooked')
+    logger.debug('strerror hooked')
 
     sys_errlist = [
         b"Success",
@@ -1908,7 +1907,7 @@ def rtn_strlen(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strlen behavior.
     """
-    logging.debug('strlen hooked')
+    logger.debug('strlen hooked')
 
     ptr_bit_size = pstate.ptr_bit_size
 
@@ -1942,7 +1941,7 @@ def rtn_strncasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strncasecmp behavior.
     """
-    logging.debug('strncasecmp hooked')
+    logger.debug('strncasecmp hooked')
 
     s1 = pstate.get_argument_value(0)
     s2 = pstate.get_argument_value(1)
@@ -1967,7 +1966,7 @@ def rtn_strncmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strncmp behavior.
     """
-    logging.debug('strncmp hooked')
+    logger.debug('strncmp hooked')
 
     s1 = pstate.get_argument_value(0)
     s2 = pstate.get_argument_value(1)
@@ -1990,7 +1989,7 @@ def rtn_strncpy(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strncpy behavior.
     """
-    logging.debug('strncpy hooked')
+    logger.debug('strncpy hooked')
 
     dst = pstate.get_argument_value(0)
     src = pstate.get_argument_value(1)
@@ -2015,7 +2014,7 @@ def rtn_strtok_r(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strtok_r behavior.
     """
-    logging.debug('strtok_r hooked')
+    logger.debug('strtok_r hooked')
 
     string  = pstate.get_argument_value(0)
     delim   = pstate.get_argument_value(1)
@@ -2060,7 +2059,7 @@ def rtn_strtoul(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The strtoul behavior.
     """
-    logging.debug('strtoul hooked')
+    logger.debug('strtoul hooked')
 
     nptr   = pstate.get_argument_value(0)
     nptrs  = pstate.get_string_argument(0)
@@ -2089,7 +2088,7 @@ def rtn_getenv(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         return NULL_PTR
 
     environ_name = pstate.memory.read_string(name)
-    logging.warning(f"Target called getenv({environ_name})")
+    logger.warning(f"Target called getenv({environ_name})")
     host_env_val = os.getenv(environ_name)
     return host_env_val if host_env_val is not None else 0
 
@@ -2128,7 +2127,7 @@ def rtn_assert_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     msg = pstate.get_argument_value(0)
 
     msg = pstate.memory.read_string(msg)
-    logging.warning(f"__assert_fail called : {msg}")
+    logger.warning(f"__assert_fail called : {msg}")
 
     # Write 1 as return value of the program
     pstate.write_register(pstate.return_register, 1)
@@ -2138,13 +2137,13 @@ def rtn_setlocale(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The setlocale behavior.
     """
-    logging.debug('setlocale hooked')
+    logger.debug('setlocale hooked')
 
     category = pstate.get_argument_value(0)
     locale   = pstate.get_argument_value(1)
 
     if locale != 0:
-        logging.warning(f"Attempt to modify Locale. Currently not supported.")
+        logger.warning(f"Attempt to modify Locale. Currently not supported.")
         return 0
 
     # This is a bit hacky but we just store the LOCALEs in the [extern] segment
@@ -2159,7 +2158,7 @@ def rtn_setlocale(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     if category == 0:
         pstate.memory.write(LC_ALL, b"en_US.UTF-8\x00")
     else:
-        logging.warning(f"setlocale called with unsupported category={category}.")
+        logger.warning(f"setlocale called with unsupported category={category}.")
 
     return LC_ALL
 
@@ -2169,7 +2168,7 @@ def rtn__setjmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     The _setjmp behavior. 
     """
     # TODO
-    logging.warning("hooked _setjmp")
+    logger.warning("hooked _setjmp")
     return 0
 
 
@@ -2180,7 +2179,7 @@ def rtn_longjmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # NOTE All the programs tested so far used `longjmp` as an error handling mechanism, right
     # before exiting. This is why, `longjmp` is currently considered an exit condition. 
     # TODO Real implementation
-    logging.debug('longjmp hooked')
+    logger.debug('longjmp hooked')
     pstate.stop = True
 
 def rtn_atexit(se: 'SymbolicExecutor', pstate: 'ProcessState'):

@@ -1,11 +1,14 @@
 from __future__ import annotations
-import logging
 
-from triton import MemoryAccess, CPUSIZE, Instruction
+from triton import Instruction
 from tritondse.callbacks import CbType, ProbeInterface
 from tritondse.seed import Seed, SeedStatus
 from tritondse.types import Architecture, Addr, Tuple, SolverStatus
 from tritondse import SymbolicExecutor, ProcessState
+import tritondse.logging
+
+logger = tritondse.logging.get("sanitizers")
+
 
 
 def mk_new_crashing_seed(se, model) -> Seed:
@@ -55,7 +58,7 @@ class UAFSanitizer(ProbeInterface):
         """
         if pstate.is_heap_ptr(ptr) and pstate.heap_allocator.is_ptr_freed(ptr):
             if description:
-                logging.critical(description)
+                logger.critical(description)
             se.seed.status = SeedStatus.CRASH
             pstate.stop = True
             return True
@@ -124,7 +127,7 @@ class NullDerefSanitizer(ProbeInterface):
         # FIXME: Why do we call is_valid_memory_mapping ? It is not a "Null Deref vulnerability", it is more a segmentation error
         if ptr == 0 or (pstate.memory.segmentation_enabled and not pstate.memory.is_mapped(ptr)):
             if description:
-                logging.critical(description)
+                logger.critical(description)
             se.seed.status = SeedStatus.CRASH
             pstate.stop = True
             return True
@@ -187,7 +190,7 @@ class FormatStringSanitizer(ProbeInterface):
 
         if symbolic_cells:
             extra = f"(function {extra_data[0]}@{extra_data[1]:#x})" if extra_data else ""
-            logging.warning(f'Potential format string of length {len(symbolic_cells)} on {fmt_ptr:x} {extra}')
+            logger.warning(f'Potential format string of length {len(symbolic_cells)} on {fmt_ptr:x} {extra}')
             se.seed.status = SeedStatus.OK_DONE
             pp_seeds = []
             nopp_seeds = []
@@ -211,11 +214,11 @@ class FormatStringSanitizer(ProbeInterface):
             if pp_seeds:
                 s = pp_seeds[-1]
                 se.enqueue_seed(s)  # Only keep last seed
-                logging.warning(f'Found model that might lead to a crash: {s.hash} (with path predicate)')
+                logger.warning(f'Found model that might lead to a crash: {s.hash} (with path predicate)')
             if nopp_seeds:
                 s = nopp_seeds[-1]
                 se.enqueue_seed(s)  # Only keep last seed
-                logging.warning(f'Found model that might lead to a crash: {s.hash} (without path predicate)')
+                logger.warning(f'Found model that might lead to a crash: {s.hash} (without path predicate)')
 
             # Do not stop the execution, just continue the execution
             pstate.stop = False
@@ -265,7 +268,7 @@ class IntegerOverflowSanitizer(ProbeInterface):
         rf = (pstate.registers.of if pstate.architecture == Architecture.X86_64 else pstate.registers.v)
 
         if pstate.read_register(rf):
-            logging.warning(f'Integer overflow at {instruction}')
+            logger.warning(f'Integer overflow at {instruction}')
             # FIXME: What if it's normal behavior?
             se.seed.status = SeedStatus.CRASH
             return True
@@ -275,7 +278,7 @@ class IntegerOverflowSanitizer(ProbeInterface):
                 sym_flag = pstate.read_symbolic_register(rf)
                 _, model = pstate.solve_no_pp(sym_flag.getAst() == 1)
                 if model:
-                    logging.warning(f'Potential integer overflow at {instruction}')
+                    logger.warning(f'Potential integer overflow at {instruction}')
                     crash_seed = mk_new_crashing_seed(se, model)
                     se.enqueue_seed(crash_seed)
                     return True

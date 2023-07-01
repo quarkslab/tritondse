@@ -1,4 +1,3 @@
-import logging
 import time
 import threading
 import gc
@@ -12,14 +11,18 @@ from tritondse.config            import Config
 from tritondse.process_state     import ProcessState
 from tritondse.loaders           import Loader
 from tritondse.seed              import Seed
-from tritondse.seeds_manager     import SeedManager
-from tritondse.worklist          import SeedScheduler
 from tritondse.symbolic_executor import SymbolicExecutor
-from tritondse.callbacks         import CallbackManager
 from tritondse.workspace         import Workspace
 from tritondse.coverage          import GlobalCoverage
 from tritondse.types             import Addr
 from tritondse.exception         import StopExplorationException
+from tritondse.seeds_manager import SeedManager
+from tritondse.worklist import SeedScheduler
+from tritondse.callbacks import CallbackManager
+import tritondse.logging
+
+
+logger = tritondse.logging.get("explorator")
 
 
 @enum_tools.documentation.document_enum
@@ -66,8 +69,8 @@ class SymbolicExplorator(object):
                 self.loader.bin_path = bin_path  # Patch its official new location
                 bin_path.chmod(stat.S_IRWXU)  # Make it executable
 
-        # Configure logfile
-        self._configure_file_logger()
+        # Configure logfile in workspace
+        tritondse.logging.enable_to_file(logger.level, self.workspace.logfile_path)
 
         # Initialize coverage
         self.coverage: GlobalCoverage = GlobalCoverage(self.config.coverage_strategy, self.config.branch_solving_strategy)
@@ -121,16 +124,16 @@ class SymbolicExplorator(object):
 
     def _worker(self, seed, uid):
         """ Worker thread """
-        logging.info(f'Pick-up seed: {seed.filename} (fresh: {seed.is_fresh()})')
+        logger.info(f'Pick-up seed: {seed.filename} (fresh: {seed.is_fresh()})')
 
         if self.config.exploration_timeout and self.__time_delta() >= self.config.exploration_timeout:
-            logging.info('Exploration timeout')
+            logger.info('Exploration timeout')
             self.stop_exploration()
             return
 
         # Execute the binary with seeds
         cbs = None if self.cbm.is_empty() else self.cbm.fork()
-        logging.info(f"Initialize ProcessState with thread scheduling: {self.config.thread_scheduling}")
+        logger.info(f"Initialize ProcessState with thread scheduling: {self.config.thread_scheduling}")
         execution = SymbolicExecutor(self.config, seed=seed, workspace=self.workspace, uid=uid, callbacks=cbs)
         if self.loader:  # If doing the exploration from a program
             execution.load(self.loader)
@@ -147,18 +150,18 @@ class SymbolicExplorator(object):
             expl_ts = time.time() - ts
         except StopExplorationException:
             expl_ts = time.time() - ts
-            logging.info("Exploration interrupted (coverage not integrated)")
+            logger.info("Exploration interrupted (coverage not integrated)")
             self.stop_exploration()
 
         if self.config.exploration_limit and (uid+1) >= self.config.exploration_limit:
-            logging.info('Exploration limit reached')
+            logger.info('Exploration limit reached')
             self.stop_exploration()
 
         # Some analysis in post execution
         solve_time = self.seeds_manager.post_execution(execution, seed, not self._stop)
         self._total_emulation_time += expl_ts
 
-        logging.info(f"Emulation: {self._fmt_secs(expl_ts)} | Solving: {self._fmt_secs(solve_time)} | Elapsed: {self._fmt_secs(self.__time_delta())}\n")
+        logger.info(f"Emulation: {self._fmt_secs(expl_ts)} | Solving: {self._fmt_secs(solve_time)} | Elapsed: {self._fmt_secs(self.__time_delta())}\n")
 
     def step(self) -> None:
         """
@@ -171,7 +174,7 @@ class SymbolicExplorator(object):
 
         # If we don't have any new seed to process just switch exploration to idle
         if seed is None:
-            logging.info("worklist of seed to process is empty")
+            logger.info("worklist of seed to process is empty")
             self.status = ExplorationStatus.IDLE
             return
 
@@ -211,20 +214,20 @@ class SymbolicExplorator(object):
 
             if self.status == ExplorationStatus.RUNNING:
                 if not self.seeds_manager.seeds_available():
-                    logging.info("exploration step done (no new seed available)")
+                    logger.info("exploration step done (no new seed available)")
                     self.status = ExplorationStatus.IDLE
                 else:
-                    logging.warning(f'should not exit step() in RUNNING state (stop? {self._stop}, seeds available? {self.seeds_manager.seeds_available()})')
+                    logger.warning(f'should not exit step() in RUNNING state (stop? {self._stop}, seeds available? {self.seeds_manager.seeds_available()})')
 
         except KeyboardInterrupt:
-            logging.warning("keyboard interrupt, stop symbolic exploration")
+            logger.warning("keyboard interrupt, stop symbolic exploration")
             self.stop_exploration()
 
         self.post_exploration()
-        logging.info(f"Total time of the exploration: {self._fmt_secs(self.__time_delta())}")
+        logger.info(f"Total time of the exploration: {self._fmt_secs(self.__time_delta())}")
 
         if self.status == ExplorationStatus.IDLE:
-            logging.info("Execution IDLE no seeds to execute")
+            logger.info("Execution IDLE no seeds to execute")
 
         return self.status
 
@@ -258,10 +261,3 @@ class SymbolicExplorator(object):
         """ Perform  all calls to post exploration functions"""
         self.seeds_manager.post_exploration()
         self.coverage.post_exploration(self.workspace)
-
-    def _configure_file_logger(self) -> None:
-        """ Configure the filehandler to log to file """
-        hldr = logging.FileHandler(self.workspace.logfile_path)
-        hldr.setLevel(logging.DEBUG)
-        hldr.setFormatter(logging.Formatter("%(asctime)s %(threadName)s [%(levelname)s] %(message)s"))
-        logging.root.addHandler(hldr)

@@ -1,5 +1,7 @@
-import logging
 from tritondse import ProbeInterface, CbType, SymbolicExecutor, ProcessState, SymbolicExplorator
+import tritondse.logging
+
+logger = tritondse.logging.get("probe.basictrace")
 
 
 class BasicDebugTrace(ProbeInterface):
@@ -14,7 +16,7 @@ class BasicDebugTrace(ProbeInterface):
         self._add_callback(CbType.PRE_INST, self.trace_debug)
 
     def trace_debug(self, exec: SymbolicExecutor, __: ProcessState, ins: 'Instruction'):
-        logging.debug(f"[tid:{ins.getThreadId()}] {exec.trace_offset} [0x{ins.getAddress():x}]: {ins.getDisassembly()}")
+        logger.debug(f"[tid:{ins.getThreadId()}] {exec.trace_offset} [0x{ins.getAddress():x}]: {ins.getDisassembly()}")
 
 
 
@@ -37,7 +39,6 @@ class BasicTextTrace(ProbeInterface):
     def pre_execution(self, executor: SymbolicExecutor, _: ProcessState):
         # Triggered before each execution
         name = f"{executor.uid}-{executor.seed.hash}.txt"
-        print(f"Open file: {name}")
         file = executor.workspace.get_metadata_file_path(f"{self.NAME}/{name}")
         self._file = open(file, "w")
 

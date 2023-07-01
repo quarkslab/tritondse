@@ -4,8 +4,6 @@ from __future__ import annotations
 import io
 import sys
 import time
-import logging
-import re
 from typing import Union, Callable, Tuple, Optional, List, Dict
 
 
@@ -21,6 +19,9 @@ from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstrain
 from tritondse.arch import ARCHS, CpuState
 from tritondse.loaders import Loader
 from tritondse.memory import Memory, MemoryAccessViolation
+import tritondse.logging
+
+logger = tritondse.logging.get()
 
 
 class ProcessState(object):
@@ -170,7 +171,7 @@ class ProcessState(object):
             return True
 
         except Exception as e:
-            logging.error(f"Error while doing context switch: {e}")
+            logger.error(f"Error while doing context switch: {e}")
             return False
 
     def spawn_new_thread(self, new_pc: Addr, args: Addr) -> ThreadContext:
@@ -1149,10 +1150,10 @@ class ProcessState(object):
             # Load memory areas in memory
             for i, seg in enumerate(loader.memory_segments()):
                 if not seg.size and not seg.content:
-                    logging.warning(f"A segment have to provide either a size or a content {seg.name} (skipped)")
+                    logger.warning(f"A segment have to provide either a size or a content {seg.name} (skipped)")
                     continue
                 size = len(seg.content) if seg.content else seg.size
-                logging.debug(f"Loading 0x{seg.address:#08x} - {seg.address+size:#08x} size={size:#x}")
+                logger.debug(f"Loading 0x{seg.address:#08x} - {seg.address+size:#08x} size={size:#x}")
                 pstate.memory.map(seg.address, size, seg.perms, seg.name)
                 if seg.content:
                     pstate.memory.write(seg.address, seg.content)
@@ -1164,13 +1165,13 @@ class ProcessState(object):
         with pstate.memory.without_segmentation():
             # Link imported functions in EXTERN_FUNC_BASE
             for fname, rel_addr in loader.imported_functions_relocations():
-                logging.debug(f"Hooking {fname} at {rel_addr:#x}")
+                logger.debug(f"Hooking {fname} at {rel_addr:#x}")
 
                 # If we already linked this function (because another library uses it) we reuse the same
                 # linkage address.
                 if fname in pstate.dynamic_symbol_table:
                     (linkage_address, _) = pstate.dynamic_symbol_table[fname] 
-                    logging.debug(f"Already added. {fname} at {rel_addr:#x} linkage_addr={linkage_address:#x}")
+                    logger.debug(f"Already added. {fname} at {rel_addr:#x} linkage_addr={linkage_address:#x}")
                     pstate.memory.write_ptr(rel_addr, linkage_address)
 
                 else:
@@ -1191,7 +1192,7 @@ class ProcessState(object):
             pstate.write_register(pstate.base_pointer_register, stack.start+stack.size-alloc) # Pointing right-out of the stack
             pstate.write_register(pstate.stack_pointer_register, stack.start+stack.size-alloc)
         except AssertionError:
-            logging.warning("no stack segment has been created by the loader")
+            logger.warning("no stack segment has been created by the loader")
 
         # Search for a map to settle foreign symbols
         segs = pstate.memory.find_map(pstate.EXTERN_SEG)
@@ -1200,7 +1201,7 @@ class ProcessState(object):
 
             # Link imported symbols
             for sname, rel_addr in loader.imported_variable_symbols_relocations():
-                logging.debug(f"Hooking {sname} at {rel_addr:#x}")
+                logger.debug(f"Hooking {sname} at {rel_addr:#x}")
 
                 if pstate.architecture == Architecture.X86_64:  # HACK: Keep rel_addr to directly write symbol on it
                     # Add symbol in dynamic_symbol_table

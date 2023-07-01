@@ -1,12 +1,14 @@
 # built-in imports
 import json
-import logging
 from typing import Optional
 
 # Local imports
 from tritondse.seed import Seed
 from tritondse.coverage import GlobalCoverage
 from tritondse.workspace import Workspace
+import tritondse.logging
+
+logger = tritondse.logging.get("seedmanager")
 
 
 class SeedScheduler:
@@ -318,7 +320,7 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
         """
         Solely used to show intermediate statistics
         """
-        logging.info(f"Seed Scheduler: worklist:{len(self)} Coverage objectives:{len(self.worklist)}  (fresh:{len(self.fresh)})")
+        logger.info(f"Seed Scheduler: worklist:{len(self)} Coverage objectives:{len(self.worklist)}  (fresh:{len(self.fresh)})")
 
     def post_exploration(self, workspace: Workspace) -> None:
         """
