@@ -1,8 +1,9 @@
-import logging
-
 from tritondse.types import Addr, ByteSize, Perm
 from tritondse.memory import Memory
 from tritondse.exception import AllocatorException
+import tritondse.logging
+
+logger = tritondse.logging.get()
 
 
 class HeapAllocator(object):
@@ -55,7 +56,7 @@ class HeapAllocator(object):
         """
 
         if size <= 0:
-            logging.error(f"Heap: invalid allocation size {size}")
+            logger.error(f"Heap: invalid allocation size {size}")
             return 0
 
         ptr = None

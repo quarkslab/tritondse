@@ -32,17 +32,12 @@ class Config(object):
                  smt_enumeration_limit: int = 40,
                  coverage_strategy: CoverageStrategy = CoverageStrategy.BLOCK,
                  branch_solving_strategy: BranchSolvingStrategy = BranchSolvingStrategy.FIRST_LAST_NOT_COVERED,
-                 debug: bool = False,
                  workspace: str = "",
                  program_argv: List[str] = None,
                  time_inc_coefficient: float = 0.00001,
                  skip_unsupported_import: bool = False,
                  skip_unsupported_instruction: bool = False,
                  memory_segmentation: bool = True):
-        """
-        :param debug: Enable debugging logging
-        :type debug: bool
-        """
 
         self.seed_format: SeedFormat = seed_format
         """ Seed type is either Raw (raw bytes) or Composite (more expressive).
@@ -91,11 +86,6 @@ class Config(object):
         """ Branch solving strategy to apply for a single execution. For a given non-covered
         branch allows changing whether we try to solve it at all occurences or more seldomly.
         default: :py:obj:`BranchSolvingStrategy.FIRST_LAST_NOT_COVERED`
-        """
-
-        self.debug: bool = debug
-        """ Enable debug logging or not. Value taken from constructor.
-        FIXME: What if the value is changed during execution ?
         """
 
         self.workspace: str = workspace

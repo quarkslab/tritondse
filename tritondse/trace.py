@@ -1,10 +1,7 @@
 # built-in imports
 import json
-import logging
 import os
 import subprocess
-import tempfile
-from abc import ABC
 from pathlib import Path
 from typing import List, Optional, Union
 from collections import Counter
@@ -13,6 +10,9 @@ from collections import Counter
 # local imports
 import tritondse # NOTE We need this import so we can use it to determine the path of this file.
 from tritondse import Config, Program, SymbolicExecutor, CoverageStrategy, CoverageSingleRun
+import tritondse.logging
+
+logger = tritondse.logging.get("tracer")
 
 
 class TraceException(Exception):
@@ -132,7 +132,7 @@ class QBDITrace(Trace):
 
         cmdlne = f'python -m pyqbdipreload {QBDITrace.QBDI_SCRIPT_FILEPATH}'.split(' ') + [binary_path] + args
 
-        logging.debug(f'Command line: {" ".join(cmdlne)}')
+        logger.debug(f'Command line: {" ".join(cmdlne)}')
 
         # Set environment variables.
         environ = {
@@ -151,12 +151,12 @@ class QBDITrace(Trace):
         try:
             stdout, stderr = process.communicate(timeout=timeout)
             for line in stdout.split(b"\n"):
-                logging.debug(f"stdout: {line}")
+                logger.debug(f"stdout: {line}")
             for line in stderr.split(b"\n"):
-                logging.debug(f"stdout: {line}")
+                logger.debug(f"stdout: {line}")
         except subprocess.TimeoutExpired:
             process.wait()
-            logging.error('QBDI tracer timeout expired!')
+            logger.error('QBDI tracer timeout expired!')
             raise TraceException('QBDI tracer timeout expired')
 
         if stdin_fp:
@@ -173,7 +173,7 @@ class QBDITrace(Trace):
         """
         trace = QBDITrace()
 
-        logging.debug(f'Loading coverage file: {coverage_path}')
+        logger.debug(f'Loading coverage file: {coverage_path}')
         with open(coverage_path, 'rb') as fd:
             data = json.load(fd)
 
@@ -200,7 +200,7 @@ class QBDITrace(Trace):
         :return: coverage object
         """
         if not self._coverage:
-            logging.warning("Please .run() the trace before querying coverage")
+            logger.warning("Please .run() the trace before querying coverage")
 
         return self._coverage
 
@@ -220,7 +220,7 @@ if __name__ == "__main__":
         print("Usage: trace.py program [args]")
         sys.exit(1)
 
-    logging.basicConfig(level=logging.DEBUG)
+    tritondse.logging.enable()
 
     if QBDITrace.run(CoverageStrategy.EDGE, sys.argv[1], sys.argv[2:], "/tmp/test.cov", dump_trace=False):
         coverage = QBDITrace.from_file("/tmp/test.cov")

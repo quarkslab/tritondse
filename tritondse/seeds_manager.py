@@ -1,5 +1,4 @@
 # built-in imports
-import logging
 import time
 import json
 from typing import Generator, Optional, Type
@@ -13,6 +12,9 @@ from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritiz
 from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.types             import SolverStatus, SymExType
+import tritondse.logging
+
+logger = tritondse.logging.get("seedmanager")
 
 
 class SeedManager:
@@ -138,7 +140,7 @@ class SeedManager:
         # if the seed have target checks that we covered it
         if seed.target:
             color = ("YES", 92) if execution.coverage.is_covered(seed.target) else ("NO", 91)
-            logging.info(f"Seed covered its target: \033[{color[1]}m{color[0]}\033[0m")
+            logger.info(f"Seed covered its target: \033[{color[1]}m{color[0]}\033[0m")
 
         # reset the current solving time
         self._current_solv_time = 0
@@ -150,11 +152,11 @@ class SeedManager:
                     s.coverage_objectives.add(...)
                 self._add_seed(s)  # will add the seed in both internal queues & workspace
             else:
-                logging.warning(f"dropping enqueued seed: {s.hash} (already seen)")
+                logger.warning(f"dropping enqueued seed: {s.hash} (already seen)")
 
         # Update the current seed queue
         if seed.status == SeedStatus.NEW:
-            logging.error(f"seed not meant to be NEW at the end of execution ({seed.hash}) (dropped)")
+            logger.error(f"seed not meant to be NEW at the end of execution ({seed.hash}) (dropped)")
             self.drop_seed(seed)
 
         elif seed.status in [SeedStatus.HANG, SeedStatus.CRASH]:
@@ -167,23 +169,23 @@ class SeedManager:
                 seed.coverage_objectives = items  # Set its new objectives
 
                 if self.worklist.can_solve_models() and solve_new_path:     # No fresh seeds pending thus can solve model
-                    logging.info(f'Seed {seed.hash} generate new coverage')
+                    logger.info(f'Seed {seed.hash} generate new coverage')
                     self._generate_new_inputs(execution)
                     self.archive_seed(seed)
                 else:
-                    logging.info(f"Seed {seed.hash} push back in worklist (to unstack fresh)")
+                    logger.info(f"Seed {seed.hash} push back in worklist (to unstack fresh)")
                     seed.status = SeedStatus.NEW  # Reset its status for later run
                     self.add_seed_queue(seed)  # will be pushed back in worklist
             else:
                 self.archive_seed(seed)
-                logging.info(f'Seed {seed.hash} archived cannot generate new coverage [{seed.status.name}]')
+                logger.info(f'Seed {seed.hash} archived cannot generate new coverage [{seed.status.name}]')
 
         else:
             assert False
 
-        logging.info(f"Corpus:{len(self.corpus)} Crash:{len(self.crash)}")
+        logger.info(f"Corpus:{len(self.corpus)} Crash:{len(self.crash)}")
         self.worklist.post_execution()
-        logging.info(f"Coverage instruction:{self.coverage.unique_instruction_covered} covitem:{self.coverage.unique_covitem_covered}")
+        logger.info(f"Coverage instruction:{self.coverage.unique_instruction_covered} covitem:{self.coverage.unique_covitem_covered}")
         return self._current_solv_time
 
     def _generate_new_inputs(self, execution: SymbolicExecutor):
@@ -193,9 +195,9 @@ class SeedManager:
             if self.is_new_seed(new_input):
                 self.worklist.add(new_input)
                 self.workspace.save_seed(new_input)
-                logging.info(f'New seed model {new_input.filename} dumped [{new_input.status.name}]')
+                logger.info(f'New seed model {new_input.filename} dumped [{new_input.status.name}]')
             else:
-                logging.info(f"New seed {new_input.filename} has already been generated")
+                logger.info(f"New seed {new_input.filename} has already been generated")
 
     def __iter_new_inputs(self, execution: SymbolicExecutor) -> Generator[Seed, None, None]:
         # Get the astContext
@@ -218,7 +220,7 @@ class SeedManager:
                 # If smt_queries_limit is zero: unlimited queries
                 # If smt_queries_limit is negative: no query
                 if self.smt_queries_limit < 0:
-                    logging.info(f'The configuration is defined as: no query')
+                    logger.info(f'The configuration is defined as: no query')
                     break
 
                 typ, p_prefix, branch, covitem, ith = path_generator.send(status)
@@ -251,7 +253,7 @@ class SeedManager:
                     self._update_solve_stats(None, status, solve_time, count)
 
                     results = [(x[0], (addr, x[1])) for x in results]   # extract results
-                    logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}-{smt_queries+count}, enumerate:{expr} (time: {solve_time:.02f}s) values:[{count}:{self._pp_smt_status(status)}]')
+                    logger.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}-{smt_queries+count}, enumerate:{expr} (time: {solve_time:.02f}s) values:[{count}:{self._pp_smt_status(status)}]')
                     smt_queries += count+1  # for the unsat
 
                 elif typ == SymExType.CONDITIONAL_JMP:
@@ -266,7 +268,7 @@ class SeedManager:
                     self._update_solve_stats(covitem, status, solve_time)
                     results = [(model, covitem)]
                     smt_queries += 1
-                    logging.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {solve_time:.02f}s) [{self._pp_smt_status(status)}]')
+                    logger.info(f'pc:{ith}/{total_len} | Query n°{smt_queries}, solve:{self.coverage.pp_item(covitem)} (time: {solve_time:.02f}s) [{self._pp_smt_status(status)}]')
                 else:
                     assert False
 
@@ -283,7 +285,7 @@ class SeedManager:
 
                 # Check if we reached the limit of query
                 if self.smt_queries_limit and smt_queries >= self.smt_queries_limit:
-                    logging.info(f'Limit of query reached. Stop asking for models')
+                    logger.info(f'Limit of query reached. Stop asking for models')
                     break
 
         except StopIteration:  # We have iterated the whole path generator
@@ -294,7 +296,7 @@ class SeedManager:
         self._solv_time_sum += solving_time
         self._current_solv_time += solving_time
         self._solv_status[status] += count
-        logging.debug(f'Solve stats: solve_count={self._solv_count} solving_time={solving_time} solve_time_sum={self._solv_time_sum} current_solve_time={self._current_solv_time} solv_status={status} / {self._solv_status[status]}')
+        logger.debug(f'Solve stats: solve_count={self._solv_count} solving_time={solving_time} solve_time_sum={self._solv_time_sum} current_solve_time={self._current_solv_time} solv_status={status} / {self._solv_status[status]}')
 
         if covitem:
             if status == SolverStatus.SAT:
@@ -332,9 +334,9 @@ class SeedManager:
         """
         if self.is_new_seed(seed):
             self._add_seed(seed)
-            logging.debug(f'Seed {seed.filename} dumped [{seed.status.name}]')
+            logger.debug(f'Seed {seed.filename} dumped [{seed.status.name}]')
         else:
-            logging.debug(f"seed {seed} is already known (not adding it)")
+            logger.debug(f"seed {seed} is already known (not adding it)")
 
     def _add_seed(self, seed: Seed) -> None:
         """ Add the seed in both internal queues but also workspace """
@@ -387,7 +389,7 @@ class SeedManager:
             "TIMEOUT": self._solv_status[SolverStatus.TIMEOUT]
         }
         self.workspace.save_metadata_file("solving_stats.json", json.dumps(stats, indent=2))
-        logging.info(f"Branches reverted: {len(self._stat_branch_reverted)}  Branches still fail: {len(self._stat_branch_fail)}")
+        logger.info(f"Branches reverted: {len(self._stat_branch_reverted)}  Branches still fail: {len(self._stat_branch_fail)}")
         self.worklist.post_exploration(self.workspace)
 
     @staticmethod

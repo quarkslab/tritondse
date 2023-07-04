@@ -4,12 +4,14 @@ from __future__ import annotations
 from collections import namedtuple
 from pathlib import Path
 from typing import Optional, Generator, Tuple, Dict, Union, List
-import logging
 from dataclasses import dataclass
 
 # local imports
 from tritondse.types import Addr, Architecture, Platform, ArchMode, PathLike, Perm
 from tritondse.arch import ARCHS
+import tritondse.logging
+
+logger = tritondse.logging.get()
 
 
 @dataclass
@@ -155,7 +157,7 @@ class MonolithicLoader(Loader):
         elif self._architecture in ARCHS:
             self._archinfo = ARCHS[self._architecture]
         else: 
-            logging.error("Unknown architecture")
+            logger.error("Unknown architecture")
             assert False
 
     @property

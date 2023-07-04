@@ -1,6 +1,5 @@
 # built-in imports
 from __future__ import annotations
-import logging
 from enum import Enum, auto
 from typing import Callable, Tuple, List, Optional, Union, Any
 import enum_tools.documentation
@@ -13,6 +12,9 @@ from tritondse.types import Addr, Input, Register, Expression, Edge, SymExType
 from tritondse.thread_context import ThreadContext
 from tritondse.seed import Seed
 from tritondse.memory import MemoryAccessViolation
+import tritondse.logging
+
+logger = tritondse.logging.get()  # get root tritondse logger
 
 
 @enum_tools.documentation.document_enum
@@ -211,7 +213,7 @@ class CallbackManager(object):
         :type se: SymbolicExecutor
         """
         if self.is_binded() and self._se != se:
-            logging.warning("Callback_manager already binded (on a different executor instance)")
+            logger.warning("Callback_manager already binded (on a different executor instance)")
         # assert not self.is_binded()
 
         # NOTE This creates a circular dependency between the SymbolicExecutor
@@ -245,9 +247,9 @@ class CallbackManager(object):
                         for cb in cbs:
                             self.register_pre_addr_callback(addr, cb)
                     else:
-                        logging.warning(f"can't find function '{fname}' in {se.loader}")
+                        logger.warning(f"can't find function '{fname}' in {se.loader}")
             else:
-                logging.warning(f"function callback to resolve but no program provided")
+                logger.warning(f"function callback to resolve but no program provided")
 
 
     def register_addr_callback(self, pos: CbPos, addr: Addr, callback: AddrCallback) -> None:

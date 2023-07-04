@@ -2,13 +2,15 @@
 from __future__ import annotations
 import shutil
 from pathlib import Path
-import logging
 from typing import Generator, Optional, Union
 import time
 
 # local imports
 from tritondse.types import PathLike
 from tritondse.seed import Seed, SeedStatus
+import tritondse.logging
+
+logger = tritondse.logging.get()
 
 
 class Workspace(object):
@@ -54,7 +56,7 @@ class Workspace(object):
 
         for dir in (self.root_dir / x for x in [self.CORPUS_DIR, self.CRASH_DIR, self.HANG_DIR, self.WORKLIST_DIR, self.METADATA_DIR, self.BIN_DIR]):
             if not dir.exists():
-                logging.debug(f"Creating the {dir} directory")
+                logger.debug(f"Creating the {dir} directory")
                 dir.mkdir(parents=True)
             else:
                 if flush:
@@ -186,7 +188,7 @@ class Workspace(object):
         try:
             old_p.unlink()  # Remove the seed from the worklist
         except:
-            logging.warning(f"seed {seed} unlink failed")
+            logger.warning(f"seed {seed} unlink failed")
             pass  # FIXME: Not meant to get here
         self.save_seed(seed)
 

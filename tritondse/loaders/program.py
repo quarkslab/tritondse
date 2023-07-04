@@ -3,7 +3,6 @@ from __future__ import annotations
 # built-in imports
 from pathlib import Path
 from typing import Optional, Generator, Tuple
-import logging
 from collections import namedtuple
 
 # third party
@@ -12,7 +11,9 @@ import lief
 # local imports
 from tritondse.types import PathLike, Addr, Architecture, Platform, ArchMode, Perm, Endian
 from tritondse.loaders import Loader, LoadableSegment
+import tritondse.logging
 
+logger = tritondse.logging.get("loader")
 
 _arch_mapper = {
     lief.ARCHITECTURES.ARM:   Architecture.ARM32,
@@ -213,7 +214,7 @@ class Program(Loader):
                     if self._is_glob_dat(rel) and rel.has_symbol and not rel.symbol.is_variable:
                         yield rel.symbol.name, rel.address
             except Exception:
-                logging.error('Something wrong with the pltgot relocations')
+                logger.error('Something wrong with the pltgot relocations')
 
         else:
             raise NotImplementedError(f"Imported functions relocations not implemented for: {self.format.name}")
