@@ -560,7 +560,6 @@ pstate.push_constraint(constraint)
 <li><p>smt_queries_limit (int): Limit of SMT queries to perform for a single execution</p></li>
 <li><p>coverage_strategy (CoverageStrategy): Coverage strategy to apply for the whole exploration</p></li>
 <li><p>branch_solving_strategy (BranchCheckStrategy): Branch solving strategy to apply for a single execution</p></li>
-<li><p>debug (bool): Enable debug logging or not</p></li>
 <li><p>workspace (str): Workspace directory to use</p></li>
 <li><p>program_argv (List[str]): Concrete program argument as given on the command line</p></li>
 <li><p>time_inc_coefficient (float): Execution time of each instruction <em>(for rdtsc)</em></p></li>
@@ -584,14 +583,16 @@ c.seed_format=SeedFormat.COMPOSITE
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExplorator, SymbolicExecutor, ProcessState, Seed, Config, CoverageStrategy, Program, SeedFormat, CompositeData
+import tritondse.logging
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
+tritondse.logging.enable() # enable tritondse to print log info
 
 # Load the program
 p = Program(&quot;crackme_xor&quot;)
 
-dse = SymbolicExplorator(Config(debug=True, pipe_stdout=True, seed_format=SeedFormat.COMPOSITE), p)
+dse = SymbolicExplorator(Config(pipe_stdout=True, seed_format=SeedFormat.COMPOSITE), p)
 
 # create a dummy seed representing argv and add it to inputs
 seed = Seed(CompositeData(argv=[b&quot;./crackme&quot;, b&quot;AAAAAAAAAAAAAAA&quot;]))
