@@ -44,7 +44,6 @@ class CleLoader(Loader):
 
         self.ld_path = ld_path if ld_path is not None else ()
         self.ld = cle.Loader(str(path), ld_path=self.ld_path)
-        self.longjmp_addr_cache = None
 
     def _disable_vex_loggers(self):
         for name, logger in logging.root.manager.loggerDict.items():
@@ -73,27 +72,6 @@ class CleLoader(Loader):
         :rtype: :py:obj:`tritondse.types.Addr`
         """
         return self.ld.main_object.entry
-
-    @property
-    def longjmp_addr(self) -> Addr:
-        # TODO find a better way to do this
-        # There is no generic way but since the plt layout is known we could do 
-        # https://github.com/lief-project/LIEF/issues/762
-        if not self.longjmp_addr_cache:
-            import subprocess
-
-            try:
-                proc1 = subprocess.Popen(['objdump', '-D', f'{self.path}'], stdout=subprocess.PIPE)
-                proc2 = subprocess.Popen(['grep', '<longjmp@plt>:'], stdin=proc1.stdout,
-                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-                proc1.stdout.close() # Allow proc1 to receive a SIGPIPE if proc2 exits.
-                out, err = proc2.communicate()
-                self.longjmp_addr_cache = int(out.split()[0], 16)
-            except:
-                self.longjmp_addr_cache = 0
-
-        return self.longjmp_addr_cache
 
     def memory_segments(self) -> Generator[LoadableSegment, None, None]:
         """
