@@ -513,17 +513,6 @@ class GlobalCoverage(CoverageSingleRun):
             self.not_covered_items.update(other.not_covered_items - self.covered_items.keys())
 
 
-    def improves_coverage(self, other: CoverageSingleRun) -> bool:
-        """
-        Check if `other` improves coverage
-        Used to know if an input is relevant to keep or not
-
-        :param other: The CoverageSingleRun to check against our global coverage state
-        :return: bool
-        """
-        return bool(other.covered_items.keys() - self.covered_items.keys())
-
-
     def can_improve_coverage(self, other: CoverageSingleRun) -> bool:
         """
         Check if some of the non-covered are not already in the global coverage
