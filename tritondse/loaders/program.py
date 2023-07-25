@@ -75,9 +75,10 @@ class Program(Loader):
         """ Name of the loader"""
         return f"Program({self.path})"
 
-    def endianess(self) -> Endian:
-        # FIXME: Depending on architecture returning good endianess
-        return Endian.LITTLE
+    @property
+    def endianness(self) -> Endian:
+        return {lief.ENDIANNESS.LITTLE: Endian.LITTLE,
+                lief.ENDIANNESS.BIG: Endian.BIG}[self._binary.abstract.header.endianness]
 
     @property
     def entry_point(self) -> Addr:
@@ -106,15 +107,6 @@ class Program(Loader):
         :return: Platform
         """
         return self._plfm
-
-    @property
-    def endianness(self) -> lief.ENDIANNESS:
-        """
-        Endianness of the program as defined in binary headers.
-
-        :rtype: lief.ENDIANNESS
-        """
-        return self._binary.abstract.header.endianness
 
     @property
     def format(self) -> lief.EXE_FORMATS:

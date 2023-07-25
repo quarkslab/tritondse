@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 # built-in imports
-from collections import namedtuple
 from pathlib import Path
-from typing import Optional, Generator, Tuple, Dict, Union, List
+from typing import Optional, Generator, Tuple, Dict, List
 from dataclasses import dataclass
 
 # local imports
-from tritondse.types import Addr, Architecture, Platform, ArchMode, PathLike, Perm
+from tritondse.types import Addr, Architecture, Platform, ArchMode, Perm, Endian
 from tritondse.arch import ARCHS
 import tritondse.logging
 
@@ -85,6 +84,15 @@ class Loader(object):
         """
         return None
 
+    @property
+    def endianness(self) -> Endian:
+        """
+        Endianess of the loaded program
+
+        :return: Endianness
+        """
+        raise NotImplementedError()
+
     def memory_segments(self) -> Generator[LoadableSegment, None, None]:
         """
         Iterate over all memory segments of the program as loaded in memory.
@@ -144,7 +152,8 @@ class MonolithicLoader(Loader):
                  cpustate: Dict[str, int] = None,
                  maps: List[LoadableSegment] = None,
                  set_thumb: bool = False,
-                 platform: Platform = None):
+                 platform: Platform = None,
+                 endianess: Endian = Endian.LITTLE):
         super(MonolithicLoader, self).__init__("")
 
         self._architecture = architecture
@@ -152,6 +161,7 @@ class MonolithicLoader(Loader):
         self._cpustate = cpustate if cpustate else {}
         self.maps = maps
         self._arch_mode = ArchMode.THUMB if set_thumb else None
+        self._endian = endianess
         if self._platform and (self._architecture, self._platform) in ARCHS:
             self._archinfo = ARCHS[(self._architecture, self._platform)]
         elif self._architecture in ARCHS:
@@ -217,3 +227,11 @@ class MonolithicLoader(Loader):
         :return: Platform
         """
         return self._platform
+
+    @property
+    def endianness(self) -> Endian:
+        """
+        Endianess of the monolithic loader.
+        (default is LITTLE)
+        """
+        return self._endian

@@ -10,7 +10,7 @@ import lief
 # local imports
 from tritondse.loaders import Program, LoadableSegment
 from tritondse.coverage import CoverageSingleRun
-from tritondse.types import PathLike, Addr, Architecture, Platform
+from tritondse.types import PathLike, Addr, Architecture, Platform, Endian
 
 
 class QuokkaProgram(quokka.Program):
@@ -97,7 +97,7 @@ class QuokkaProgram(quokka.Program):
         return self.program.platform
 
     @property
-    def endianness(self) -> lief.ENDIANNESS:
+    def endianness(self) -> Endian:
         return self.program.endianness
 
     @property

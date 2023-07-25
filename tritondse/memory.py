@@ -88,7 +88,7 @@ class Memory(object):
     read and write concrete memory values in a Pythonic manner.
     """
 
-    def __init__(self, ctx: TritonContext):
+    def __init__(self, ctx: TritonContext, endianness: Endian = Endian.LITTLE):
         """
         :param ctx: TritonContext to interface with
         """
@@ -97,7 +97,7 @@ class Memory(object):
         self._linear_map_addr = []  # List of [map_start, map_end, map_start, map_end ...]
         self._linear_map_map = []   # List of [MemMap,    None,    MemMap,    None    ...]
         self._segment_enabled = True
-        self._endian = Endian.LITTLE
+        self._endian = endianness
         self._endian_key = ENDIAN_MAP[self._endian]
         self._mem_cbs_enabled = True
         # self._maps = {}  # Addr: -> Map

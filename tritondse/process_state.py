@@ -15,7 +15,7 @@ from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, 
 from tritondse.thread_context import ThreadContext
 from tritondse.heap_allocator import HeapAllocator
 from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
-                            AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode, Perm, FileDesc
+                            AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode, Perm, FileDesc, Endian
 from tritondse.arch import ARCHS, CpuState
 from tritondse.loaders import Loader
 from tritondse.memory import Memory, MemoryAccessViolation
@@ -36,9 +36,11 @@ class ProcessState(object):
     STACK_SEG = "[stack]"
     EXTERN_SEG = "[extern]"
 
-    def __init__(self, time_inc_coefficient: float = 0.0001):
+    def __init__(self, endianness: Endian = Endian.LITTLE, time_inc_coefficient: float = 0.0001):
         """
-        :param time_inc_coefficient: Time coefficient to represent execution time of an instruction see: :py:attr:`tritondse.Config.time_inc_coefficient`
+        :param endianness: Endianness to consider
+        :param time_inc_coefficient: Time coefficient to represent execution time of an
+                                     instruction see: :py:attr:`tritondse.Config.time_inc_coefficient`
         """
         # EXTERN_BASE is a "fake" memory area (not mapped) that will
         # which addresses will be used for external symbols
@@ -63,7 +65,7 @@ class ProcessState(object):
         self._archinfo = None
 
         # Memory object
-        self.memory: Memory = Memory(self.tt_ctx)
+        self.memory: Memory = Memory(self.tt_ctx, endianness)
         """Memory object associated with the ProcessState """
 
         # Used to define that the process must exist
@@ -113,6 +115,7 @@ class ProcessState(object):
         self.time = time.time()
 
         # Configuration values
+        self.endianness = endianness  #: Current endianness
         self.time_inc_coefficient = time_inc_coefficient
 
         # Runtime temporary variables
@@ -1137,7 +1140,7 @@ class ProcessState(object):
 
     @staticmethod
     def from_loader(loader: Loader) -> 'ProcessState':
-        pstate = ProcessState()
+        pstate = ProcessState(loader.endianness)
 
         # Initialize the architecture of the processstate
         pstate.initialize_context(loader.architecture)

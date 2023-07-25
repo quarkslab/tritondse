@@ -7,7 +7,7 @@ import cle
 
 # Local imports
 from tritondse.loaders import Loader, LoadableSegment
-from tritondse.types import Addr, Architecture, PathLike, Platform, Perm
+from tritondse.types import Addr, Architecture, PathLike, Platform, Perm, Endian
 from tritondse.routines import SUPPORTED_ROUTINES
 import tritondse.logging
 
@@ -63,6 +63,11 @@ class CleLoader(Loader):
         :rtype: Architecture
         """
         return _arch_mapper[self.ld.main_object.arch.name]
+
+    @property
+    def endianness(self) -> Endian:
+        # FIXME: Depending on architecture returning good endianess
+        return Endian.LITTLE
 
     @property
     def entry_point(self) -> Addr:
