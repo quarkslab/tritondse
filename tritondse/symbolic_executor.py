@@ -98,7 +98,7 @@ class SymbolicExecutor(object):
         else:  # is composite
             argv = [[None]*len(a) for a in seed.content.argv]
             files = {k: [None]*len(v) for k, v in seed.content.files.items()}
-            variables = {k: [None]*len(v) for k, v in seed.content.variables.items()}
+            variables = {k: [None]*(1 if isinstance(v, int) else len(v)) for k, v in seed.content.variables.items()}
             return CompositeData(argv=argv, files=files, variables=variables)
 
     def load(self, loader: Loader) -> None:
@@ -685,13 +685,23 @@ class SymbolicExecutor(object):
 
             # Handle stdin and files
             # If the seed provides the content of files (#NOTE stdin is treated as a file)
-            new_files = {k: bytes(repl_bytearray(bytearray(c), self._symbolic_seed.files[k])) for k, c in
-                         self.seed.content.files.items() if k in self._symbolic_seed.files}
+            new_files = {}
+            for k, c in self.seed.content.files.items():
+                if k in self._symbolic_seed.files:
+                    new_files[k] = bytes(repl_bytearray(bytearray(c), self._symbolic_seed.files[k]))
+                else:
+                    new_files[k] = c  # keep the current value in the seed
 
-            # Handle variables
-            # If the seed provides the content of variables
-            new_variables = {k: bytes(repl_bytearray(bytearray(c), self._symbolic_seed.variables[k])) for k, c in
-                             self.seed.content.variables.items() if k in self._symbolic_seed.variables}
+            # Handle variables, if the seed provides some
+            new_variables = {}
+            for k, c in self.seed.content.variables.items():
+                if k in self._symbolic_seed.variables:
+                    print(f"{k} conc:{c}, sym:{self._symbolic_seed.variables[k]}")
+                    conc = bytearray(c) if isinstance(c, bytes) else [c]
+                    new_vals = repl_bytearray(conc, self._symbolic_seed.variables[k])
+                    new_variables[k] = bytes(new_vals) if isinstance(c, bytes) else new_vals[0]  # new variables are either bytes or int
+                else:
+                    new_variables[k] = c  # If it has not been injected keep the current concrete value
 
             content = CompositeData(new_argv, new_files, new_variables)
         else:
@@ -768,7 +778,7 @@ class SymbolicExecutor(object):
         sym_seed = self._symbolic_seed.files[name] if self.seed.is_composite() else self._symbolic_seed
         sym_seed[offset] = sym_vars  # Add symbolic variables to symbolic seed
 
-    def inject_symbolic_variable_register(self, reg: Union[str, Register], name: str, value: int, offset: int = 0) -> None:
+    def inject_symbolic_variable_register(self, reg: Union[str, Register], name: str, value: int) -> None:
         """
         Inject a symbolic variable (or part of it) in a register.
         The value has to be an integer.
@@ -776,12 +786,17 @@ class SymbolicExecutor(object):
         :param reg: register identifier
         :param name: name of the variable
         :param value: integer value
-        :param offset: offset within the variable
         """
-        self.pstate.write_register(reg, value)  # Write concrete value in register
-        sym_vars = [self.pstate.symbolize_register(reg, f"{name}[{offset}]")] # Symbolize bytes
-        sym_seed = self._symbolic_seed.variables[name] if self.seed.is_composite() else self._symbolic_seed
-        sym_seed[offset] = sym_vars # Add symbolic variables to symbolic seed
+        if not self.seed.is_composite():
+            logger.warning("cannot use inject_symbolic_variable_register on raw seeds!")
+            return
+
+        if isinstance(value, int):
+            self.pstate.write_register(reg, value)                         # write concrete value in register
+            sym_var = self.pstate.symbolize_register(reg, f"{name}[{0}]")  # symbolize value
+            self._symbolic_seed.variables[name][0] = sym_var               # add the symbolic variables to symbolic seed
+        else:  # meant to be bytes
+            logger.warning("variable injected in registers have to be integer values")
 
     def inject_symbolic_raw_input(self, addr: Addr, data: bytes, offset: int = 0) -> None:
         """
