@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import struct
 import sys
 import time
 from typing import Union, Callable, Tuple, Optional, List, Dict
@@ -415,6 +416,34 @@ class ProcessState(object):
         self.architecture = arch
         self._archinfo = ARCHS[self.architecture]
         self.cpu = CpuState(self.tt_ctx, self._archinfo)
+
+    def unpack_integer(self, data: bytes, size: int) -> int:
+        """
+        Unpack the given bytes into into integer value respecting
+        size given and endianness.
+
+        :param data: bytes data to unpack
+        :param size: size in bits of data to unpack
+        :return: integer value unpacked
+        """
+        s = "<" if self.endianness == Endian.LITTLE else ">"
+        tab = {8: 'B', 16: 'H', 32: 'I', 64: 'Q'}
+        s += tab[size]
+        return struct.unpack(s, data)[0]
+
+    def pack_integer(self, value: int, size: int) -> bytes:
+        """
+        Unpack the given bytes into into integer value respecting
+        size given and endianness.
+
+        :param data: bytes data to unpack
+        :param size: size in bits of data to unpack
+        :return: integer value packed as bytes
+        """
+        s = "<" if self.endianness == Endian.LITTLE else ">"
+        tab = {8: 'B', 16: 'H', 32: 'I', 64: 'Q'}
+        s += tab[size]
+        return struct.pack(s, value)
 
     def read_register(self, register: Union[str, Register]) -> int:
         """
@@ -1183,7 +1212,6 @@ class ProcessState(object):
 
                     # Apply relocation to our custom address in process memory
                     pstate.memory.write_ptr(rel_addr, cur_linkage_address)
-
                     # Increment linkage address number
                     cur_linkage_address += pstate.ptr_size
 
