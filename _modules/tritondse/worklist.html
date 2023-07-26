@@ -103,13 +103,15 @@
   <h1>Source code for tritondse.worklist</h1><div class="highlight"><pre>
 <span></span><span class="c1"># built-in imports</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="c1"># Local imports</span>
 <span class="kn">from</span> <span class="nn">tritondse.seed</span> <span class="kn">import</span> <span class="n">Seed</span>
 <span class="kn">from</span> <span class="nn">tritondse.coverage</span> <span class="kn">import</span> <span class="n">GlobalCoverage</span>
 <span class="kn">from</span> <span class="nn">tritondse.workspace</span> <span class="kn">import</span> <span class="n">Workspace</span>
+<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;seedmanager&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="SeedScheduler"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler">[docs]</a><span class="k">class</span> <span class="nc">SeedScheduler</span><span class="p">:</span>
@@ -421,7 +423,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solely used to show intermediate statistics</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Seed Scheduler: worklist:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> Coverage objectives:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="p">)</span><span class="si">}</span><span class="s2">  (fresh:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fresh</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Seed Scheduler: worklist:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> Coverage objectives:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="p">)</span><span class="si">}</span><span class="s2">  (fresh:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fresh</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="FreshSeedPrioritizerWorklist.post_exploration"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.post_exploration">[docs]</a>    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="n">Workspace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

@@ -103,7 +103,6 @@
   <h1>Source code for tritondse.callbacks</h1><div class="highlight"><pre>
 <span></span><span class="c1"># built-in imports</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Any</span>
 <span class="kn">import</span> <span class="nn">enum_tools.documentation</span>
@@ -116,6 +115,9 @@
 <span class="kn">from</span> <span class="nn">tritondse.thread_context</span> <span class="kn">import</span> <span class="n">ThreadContext</span>
 <span class="kn">from</span> <span class="nn">tritondse.seed</span> <span class="kn">import</span> <span class="n">Seed</span>
 <span class="kn">from</span> <span class="nn">tritondse.memory</span> <span class="kn">import</span> <span class="n">MemoryAccessViolation</span>
+<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>  <span class="c1"># get root tritondse logger</span>
 
 
 <div class="viewcode-block" id="CbPos"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CbPos">[docs]</a><span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
@@ -314,7 +316,7 @@
 <span class="sd">        :type se: SymbolicExecutor</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_binded</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_se</span> <span class="o">!=</span> <span class="n">se</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Callback_manager already binded (on a different executor instance)&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Callback_manager already binded (on a different executor instance)&quot;</span><span class="p">)</span>
         <span class="c1"># assert not self.is_binded()</span>
 
         <span class="c1"># NOTE This creates a circular dependency between the SymbolicExecutor</span>
@@ -348,9 +350,9 @@
                         <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">cbs</span><span class="p">:</span>
                             <span class="bp">self</span><span class="o">.</span><span class="n">register_pre_addr_callback</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">cb</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;can&#39;t find function &#39;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">&#39; in </span><span class="si">{</span><span class="n">se</span><span class="o">.</span><span class="n">loader</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;can&#39;t find function &#39;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">&#39; in </span><span class="si">{</span><span class="n">se</span><span class="o">.</span><span class="n">loader</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;function callback to resolve but no program provided&quot;</span><span class="p">)</span></div>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;function callback to resolve but no program provided&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CallbackManager.register_addr_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_addr_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_addr_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">CbPos</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">AddrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

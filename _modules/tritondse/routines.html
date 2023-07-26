@@ -109,12 +109,11 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">FileDesc</span>
+<span class="kn">from</span> <span class="nn">tritondse.seed</span> <span class="kn">import</span> <span class="n">SeedFormat</span><span class="p">,</span> <span class="n">SeedStatus</span><span class="p">,</span> <span class="n">Seed</span>
+<span class="kn">import</span> <span class="nn">tritondse.logging</span>
 
-<span class="kn">from</span> <span class="nn">triton</span>                   <span class="kn">import</span> <span class="n">CPUSIZE</span><span class="p">,</span> <span class="n">MemoryAccess</span>
-<span class="kn">from</span> <span class="nn">tritondse.thread_context</span> <span class="kn">import</span> <span class="n">ThreadContext</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span>          <span class="kn">import</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">FileDesc</span>
-<span class="kn">from</span> <span class="nn">tritondse.seed</span>           <span class="kn">import</span> <span class="n">SeedFormat</span><span class="p">,</span> <span class="n">SeedStatus</span><span class="p">,</span> <span class="n">Seed</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;routines&quot;</span><span class="p">)</span>
 
 <span class="n">NULL_PTR</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -124,7 +123,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __ctype_b_loc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__ctype_b_loc hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__ctype_b_loc hooked&#39;</span><span class="p">)</span>
 
     <span class="n">ctype</span>  <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00</span><span class="s2">&quot;</span>
     <span class="n">ctype</span> <span class="o">+=</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00</span><span class="s2">&quot;</span>
@@ -186,7 +185,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __ctype_toupper_loc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__ctype_toupper_loc hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__ctype_toupper_loc hooked&#39;</span><span class="p">)</span>
 
     <span class="n">ctype</span>  <span class="o">=</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f</span><span class="s2">&quot;</span>
     <span class="n">ctype</span> <span class="o">+=</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f</span><span class="s2">&quot;</span>
@@ -233,7 +232,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __errno_location behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__errno_location hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__errno_location hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Errno is a int* ptr, initialize it to zero</span>
     <span class="c1"># We consider it is located in the [extern] segment</span>
@@ -253,7 +252,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __libc_start_main behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__libc_start_main hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__libc_start_main hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">main</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -281,7 +280,7 @@
         <span class="n">pstate</span><span class="o">.</span><span class="n">write_argument_value</span><span class="p">(</span><span class="mi">0</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">argc</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">write_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">argc</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;argc = </span><span class="si">{</span><span class="n">argc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;argc = </span><span class="si">{</span><span class="n">argc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># Define argv</span>
     <span class="n">addrs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -310,7 +309,7 @@
             <span class="n">se</span><span class="o">.</span><span class="n">inject_symbolic_argv_memory</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
             <span class="c1"># FIXME: Shall add a constraint on every char to be != \x00</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">) argv[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">src</span><span class="si">}</span><span class="s2">) argv[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">base</span><span class="p">,</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">base</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
 
@@ -334,8 +333,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __stack_chk_fail behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__stack_chk_fail hooked&#39;</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;*** stack smashing detected ***: terminated&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__stack_chk_fail hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s1">&#39;*** stack smashing detected ***: terminated&#39;</span><span class="p">)</span>
     <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span>
     <span class="n">pstate</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span></div>
 
@@ -345,7 +344,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __xstat behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__xstat hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__xstat hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># int ver</span>
@@ -388,7 +387,7 @@
 
 <span class="sd">    [`Man Page &lt;https://man7.org/linux/man-pages/man3/abort.3.html&gt;`_]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;abort hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;abort hooked&#39;</span><span class="p">)</span>
     <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">OK_DONE</span>
     <span class="n">pstate</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span></div>
 
@@ -415,7 +414,7 @@
 
 <span class="sd">    :return: Symbolic value of the integer base on the symbolic string ``nptr``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;atoi hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;atoi hooked&#39;</span><span class="p">)</span>
 
     <span class="n">ast</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">actx</span>
     <span class="n">arg</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -487,7 +486,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The calloc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;calloc hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;calloc hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">nmemb</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -514,7 +513,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The clock_gettime behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;clock_gettime hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;clock_gettime hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">clockid</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -543,7 +542,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The exit behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;exit hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;exit hooked&#39;</span><span class="p">)</span>
     <span class="n">arg</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">pstate</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">return</span> <span class="n">arg</span></div>
@@ -553,7 +552,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fclose behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fclose hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fclose hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># fd</span>
@@ -578,7 +577,7 @@
     <span class="c1">#define SEEK_SET    0   /* set file offset to offset */</span>
     <span class="c1">#define SEEK_CUR    1   /* set file offset to current plus offset */</span>
     <span class="c1">#define SEEK_END    2   /* set file offset to EOF plus offset */</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fseek hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fseek hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -607,7 +606,7 @@
 <span class="sd">    The ftell behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ftell hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;ftell hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -627,7 +626,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fgets behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fgets hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fgets hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">buff</span><span class="p">,</span> <span class="n">buff_ast</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_full_argument</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -651,14 +650,14 @@
                 <span class="n">pstate</span><span class="o">.</span><span class="n">push_constraint</span><span class="p">(</span><span class="n">size_ast</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="o">==</span> <span class="n">size</span><span class="p">)</span>
 
             <span class="n">se</span><span class="o">.</span><span class="n">inject_symbolic_file_memory</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fgets() in </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fgets() in </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">concretize_argument</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">buff_ast</span> <span class="k">if</span> <span class="n">data_no_trail</span> <span class="k">else</span> <span class="n">NULL_PTR</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File descriptor (</span><span class="si">{</span><span class="n">fd</span><span class="si">}</span><span class="s1">) not found&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File descriptor (</span><span class="si">{</span><span class="n">fd</span><span class="si">}</span><span class="s1">) not found&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">NULL_PTR</span></div>
 
 
@@ -667,7 +666,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fopen behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fopen hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fopen hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># const char *pathname</span>
@@ -682,7 +681,7 @@
     <span class="n">pstate</span><span class="o">.</span><span class="n">concretize_argument</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_file_defined</span><span class="p">(</span><span class="n">arg0s</span><span class="p">):</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;opening an input file: </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;opening an input file: </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="c1"># Program is opening an input</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">get_file_input</span><span class="p">(</span><span class="n">arg0s</span><span class="p">)</span>
         <span class="n">filedesc</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">create_file_descriptor</span><span class="p">(</span><span class="n">arg0s</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
@@ -694,7 +693,7 @@
             <span class="n">filedesc</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">create_file_descriptor</span><span class="p">(</span><span class="n">arg0s</span><span class="p">,</span> <span class="n">fd</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">id</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to open </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to open </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">NULL_PTR</span></div>
 
 
@@ -702,7 +701,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fprintf behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fprintf hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fprintf hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -718,7 +717,7 @@
         <span class="n">s</span> <span class="o">=</span> <span class="n">arg1f</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="c1"># FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Something wrong, probably UTF-8 string&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Something wrong, probably UTF-8 string&#39;</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">pstate</span><span class="o">.</span><span class="n">file_descriptor_exists</span><span class="p">(</span><span class="n">arg0</span><span class="p">):</span>
@@ -737,7 +736,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __fprintf_chk behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__fprintf_chk hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__fprintf_chk hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -754,7 +753,7 @@
         <span class="n">s</span> <span class="o">=</span> <span class="n">arg1f</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="c1"># FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Something wrong, probably UTF-8 string&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Something wrong, probably UTF-8 string&#39;</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">pstate</span><span class="o">.</span><span class="n">file_descriptor_exists</span><span class="p">(</span><span class="n">arg0</span><span class="p">):</span>
@@ -774,7 +773,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fputc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fputc hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fputc hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -802,7 +801,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fputs behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fputs hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fputs hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -840,7 +839,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fread behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fread hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fread hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">ptr</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># ptr</span>
@@ -865,14 +864,14 @@
                 <span class="n">pstate</span><span class="o">.</span><span class="n">push_constraint</span><span class="p">(</span><span class="n">size_ast</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="o">==</span> <span class="n">size</span><span class="p">)</span>
 
             <span class="n">se</span><span class="o">.</span><span class="n">inject_symbolic_file_memory</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;read in </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;read in </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">concretize_argument</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">/</span><span class="n">size_t</span><span class="p">)</span> <span class="k">if</span> <span class="n">size_t</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># number of items read</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File descriptor (</span><span class="si">{</span><span class="n">fd</span><span class="si">}</span><span class="s1">) not found&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File descriptor (</span><span class="si">{</span><span class="n">fd</span><span class="si">}</span><span class="s1">) not found&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">0</span></div>
 
 
@@ -880,7 +879,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The free behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;free hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;free hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">ptr</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -895,7 +894,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fwrite behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fwrite hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;fwrite hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -930,7 +929,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The write behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;write hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;write hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">fd</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -963,7 +962,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The gettimeofday behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;gettimeofday hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;gettimeofday hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">tv</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -989,7 +988,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The malloc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;malloc hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;malloc hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">size</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -1003,7 +1002,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The open behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;open hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;open hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># const char *pathname</span>
@@ -1031,8 +1030,11 @@
     <span class="k">if</span> <span class="n">flags</span> <span class="o">&amp;</span> <span class="mh">0x0200</span><span class="p">:</span> <span class="c1"># O_APPEND</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;a&quot;</span>  <span class="c1"># replace completely value</span>
 
+    <span class="c1"># enforce using binary mode for open</span>
+    <span class="n">mode</span> <span class="o">+=</span> <span class="s2">&quot;b&quot;</span>
+
     <span class="k">if</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_file_defined</span><span class="p">(</span><span class="n">arg0s</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">:</span>  <span class="c1"># input file and opened in reading</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;opening an input file: </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;opening an input file: </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="c1"># Program is opening an input</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">get_file_input</span><span class="p">(</span><span class="n">arg0s</span><span class="p">)</span>
         <span class="n">filedesc</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">create_file_descriptor</span><span class="p">(</span><span class="n">arg0s</span><span class="p">,</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
@@ -1044,14 +1046,14 @@
             <span class="n">filedesc</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">create_file_descriptor</span><span class="p">(</span><span class="n">arg0s</span><span class="p">,</span> <span class="n">fd</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">id</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to open </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to open </span><span class="si">{</span><span class="n">arg0s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">pstate</span><span class="o">.</span><span class="n">minus_one</span></div>
 
 <div class="viewcode-block" id="rtn_realloc"><a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_realloc">[docs]</a><span class="k">def</span> <span class="nf">rtn_realloc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The realloc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;realloc hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;realloc hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">oldptr</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -1066,7 +1068,7 @@
     <span class="k">if</span> <span class="n">ptr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="k">return</span> <span class="n">ptr</span>
 
     <span class="k">if</span> <span class="n">ptr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pstate</span><span class="o">.</span><span class="n">heap_allocator</span><span class="o">.</span><span class="n">alloc_pool</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid ptr passed to realloc&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid ptr passed to realloc&quot;</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">heap_allocator</span><span class="o">.</span><span class="n">free</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span> <span class="c1"># This will raise an error</span>
 
     <span class="n">old_memmap</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">heap_allocator</span><span class="o">.</span><span class="n">alloc_pool</span><span class="p">[</span><span class="n">oldptr</span><span class="p">]</span>
@@ -1090,7 +1092,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The memcmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;memcmp hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;memcmp hooked&#39;</span><span class="p">)</span>
 
     <span class="n">s1</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">s2</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1120,7 +1122,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The memcpy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;memcpy hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;memcpy hooked&#39;</span><span class="p">)</span>
 
     <span class="n">dst</span><span class="p">,</span> <span class="n">dst_ast</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_full_argument</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">src</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1141,7 +1143,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The mempcpy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;mempcpy hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;mempcpy hooked&#39;</span><span class="p">)</span>
 
     <span class="n">dst</span><span class="p">,</span> <span class="n">dst_ast</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_full_argument</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">src</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1162,7 +1164,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The memmem behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;memmem hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;memmem hooked&#39;</span><span class="p">)</span>
 
     <span class="n">haystack</span>    <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># const void*</span>
     <span class="n">haystacklen</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># size_t</span>
@@ -1192,7 +1194,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The memmove behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;memmove hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;memmove hooked&#39;</span><span class="p">)</span>
 
     <span class="n">dst</span><span class="p">,</span> <span class="n">dst_ast</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_full_argument</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">src</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1214,7 +1216,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The memset behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;memset hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;memset hooked&#39;</span><span class="p">)</span>
 
     <span class="n">dst</span><span class="p">,</span> <span class="n">dst_ast</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_full_argument</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">src</span><span class="p">,</span> <span class="n">src_ast</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_full_argument</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1236,7 +1238,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The printf behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;printf hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;printf hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -1248,7 +1250,7 @@
         <span class="n">s</span> <span class="o">=</span> <span class="n">arg0f</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="c1"># FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Something wrong, probably UTF-8 string&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Something wrong, probably UTF-8 string&#39;</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">se</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">pipe_stdout</span><span class="p">:</span>
@@ -1264,7 +1266,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_create behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_create hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_create hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># pthread_t *thread</span>
@@ -1285,7 +1287,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_exit behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_exit hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_exit hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -1304,7 +1306,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_join behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_join hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_join hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -1312,10 +1314,10 @@
 
     <span class="k">if</span> <span class="n">arg0</span> <span class="ow">in</span> <span class="n">pstate</span><span class="o">.</span><span class="n">threads</span><span class="p">:</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">join_thread</span><span class="p">(</span><span class="n">arg0</span><span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Thread id </span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">tid</span><span class="si">}</span><span class="s2"> joined thread id </span><span class="si">{</span><span class="n">arg0</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Thread id </span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">tid</span><span class="si">}</span><span class="s2"> joined thread id </span><span class="si">{</span><span class="n">arg0</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">cancel_join</span><span class="p">()</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Thread id </span><span class="si">{</span><span class="n">arg0</span><span class="si">}</span><span class="s2"> already destroyed&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Thread id </span><span class="si">{</span><span class="n">arg0</span><span class="si">}</span><span class="s2"> already destroyed&quot;</span><span class="p">)</span>
 
     <span class="c1"># Return value</span>
     <span class="k">return</span> <span class="mi">0</span></div>
@@ -1325,7 +1327,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_mutex_destroy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_mutex_destroy hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_mutex_destroy hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># pthread_mutex_t *restrict mutex</span>
@@ -1338,7 +1340,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_mutex_init behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_mutex_init hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_mutex_init hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># pthread_mutex_t *restrict mutex</span>
@@ -1353,7 +1355,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_mutex_lock behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_mutex_lock hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_mutex_lock hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># pthread_mutex_t *mutex</span>
@@ -1361,12 +1363,12 @@
 
     <span class="c1"># If the thread has been initialized and unused, define the tid has lock</span>
     <span class="k">if</span> <span class="n">mutex</span> <span class="o">==</span> <span class="n">pstate</span><span class="o">.</span><span class="n">PTHREAD_MUTEX_INIT_MAGIC</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;mutex unlocked&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;mutex unlocked&#39;</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write_ptr</span><span class="p">(</span><span class="n">arg0</span><span class="p">,</span> <span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">tid</span><span class="p">)</span>
 
     <span class="c1"># The mutex is locked and we are not allowed to continue the execution</span>
     <span class="k">elif</span> <span class="n">mutex</span> <span class="o">!=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">tid</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;mutex locked&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;mutex locked&#39;</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">mutex_locked</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1"># Return value</span>
@@ -1377,7 +1379,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_mutex_unlock behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_mutex_unlock hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;pthread_mutex_unlock hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># pthread_mutex_t *mutex</span>
@@ -1392,7 +1394,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The puts behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;puts hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;puts hooked&#39;</span><span class="p">)</span>
 
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_string_argument</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
@@ -1409,7 +1411,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The rand behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;rand hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;rand hooked&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0xffffffff</span><span class="p">)</span></div>
 
 
@@ -1417,7 +1419,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The read behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;read hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;read hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">fd</span>   <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -1425,7 +1427,7 @@
     <span class="n">size</span><span class="p">,</span> <span class="n">size_ast</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_full_argument</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">size_ast</span><span class="o">.</span><span class="n">isSymbolized</span><span class="p">():</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Reading from the file descriptor (</span><span class="si">{</span><span class="n">fd</span><span class="si">}</span><span class="s1">) with a symbolic size&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Reading from the file descriptor (</span><span class="si">{</span><span class="n">fd</span><span class="si">}</span><span class="s1">) with a symbolic size&#39;</span><span class="p">)</span>
 
     <span class="n">pstate</span><span class="o">.</span><span class="n">concretize_argument</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
@@ -1443,14 +1445,14 @@
                 <span class="n">pstate</span><span class="o">.</span><span class="n">push_constraint</span><span class="p">(</span><span class="n">size_ast</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="o">==</span> <span class="n">size</span><span class="p">)</span>
 
             <span class="n">se</span><span class="o">.</span><span class="n">inject_symbolic_file_memory</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;read in (input) </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;read in (input) </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">concretize_argument</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File descriptor (</span><span class="si">{</span><span class="n">fd</span><span class="si">}</span><span class="s1">) not found&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File descriptor (</span><span class="si">{</span><span class="n">fd</span><span class="si">}</span><span class="s1">) not found&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pstate</span><span class="o">.</span><span class="n">minus_one</span>  <span class="c1"># todo: set errno</span></div>
 
 
@@ -1458,7 +1460,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The getchar behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;getchar hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;getchar hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">filedesc</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_file_descriptor</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># stdin</span>
@@ -1469,7 +1471,7 @@
         <span class="k">if</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">is_input_fd</span><span class="p">():</span>  <span class="c1"># Reading into input</span>
             <span class="n">data</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="c1"># convert to integer</span>
             <span class="n">se</span><span class="o">.</span><span class="n">inject_symbolic_file_register</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">return_register</span><span class="p">,</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;read in </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;read in </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pstate</span><span class="o">.</span><span class="n">minus_one</span></div>
@@ -1479,7 +1481,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_destroy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_destroy hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_destroy hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sem_t *sem</span>
@@ -1495,7 +1497,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_getvalue behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_getvalue hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_getvalue hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sem_t *sem</span>
@@ -1514,7 +1516,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_init behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_init hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_init hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sem_t *sem</span>
@@ -1532,7 +1534,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_post behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_post hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_post hooked&#39;</span><span class="p">)</span>
 
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sem_t *sem</span>
 
@@ -1548,7 +1550,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_timedwait behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_timedwait hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_timedwait hooked&#39;</span><span class="p">)</span>
 
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sem_t *sem</span>
     <span class="n">arg1</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># const struct timespec *abs_timeout</span>
@@ -1574,11 +1576,11 @@
     <span class="c1"># TODO: Take into account the abs_timeout argument</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_ptr</span><span class="p">(</span><span class="n">arg0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore still not locked&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore still not locked&#39;</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write_ptr</span><span class="p">(</span><span class="n">arg0</span><span class="p">,</span> <span class="n">value</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">semaphore_locked</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore locked&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore locked&#39;</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">semaphore_locked</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1"># Return success</span>
@@ -1589,7 +1591,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_trywait behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_trywait hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_trywait hooked&#39;</span><span class="p">)</span>
 
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sem_t *sem</span>
 
@@ -1598,11 +1600,11 @@
     <span class="c1"># EAGAIN) instead of blocking.</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_ptr</span><span class="p">(</span><span class="n">arg0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore still not locked&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore still not locked&#39;</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write_ptr</span><span class="p">(</span><span class="n">arg0</span><span class="p">,</span> <span class="n">value</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">semaphore_locked</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore locked but continue&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore locked but continue&#39;</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">semaphore_locked</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Setting errno to EAGAIN (3406)</span>
@@ -1625,7 +1627,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_wait behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_wait hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sem_wait hooked&#39;</span><span class="p">)</span>
 
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># sem_t *sem</span>
 
@@ -1636,11 +1638,11 @@
     <span class="c1"># value rises above zero).</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_ptr</span><span class="p">(</span><span class="n">arg0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore still not locked&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore still not locked&#39;</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write_ptr</span><span class="p">(</span><span class="n">arg0</span><span class="p">,</span> <span class="n">value</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">semaphore_locked</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore locked&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;semaphore locked&#39;</span><span class="p">)</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">semaphore_locked</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="c1"># Return success</span>
@@ -1651,7 +1653,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sleep behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sleep hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sleep hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">se</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">skip_sleep_routine</span><span class="p">:</span>
@@ -1666,7 +1668,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sprintf behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sprintf hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;sprintf hooked&#39;</span><span class="p">)</span>
 
     <span class="c1"># Get arguments</span>
     <span class="n">buff</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -1679,7 +1681,7 @@
         <span class="n">s</span> <span class="o">=</span> <span class="n">arg0f</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="c1"># FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Something wrong, probably UTF-8 string&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;Something wrong, probably UTF-8 string&#39;</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="c1"># FIXME: todo</span>
@@ -1701,7 +1703,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strcasecmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strcasecmp hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strcasecmp hooked&#39;</span><span class="p">)</span>
 
     <span class="n">s1</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">s2</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1734,7 +1736,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strchr behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strchr hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strchr hooked&#39;</span><span class="p">)</span>
 
     <span class="n">string</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">char</span>   <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1762,7 +1764,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strcmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strcmp hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strcmp hooked&#39;</span><span class="p">)</span>
 
     <span class="n">s1</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">s2</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1793,7 +1795,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strcpy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strcpy hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strcpy hooked&#39;</span><span class="p">)</span>
 
     <span class="n">dst</span>  <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">src</span>  <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -1817,7 +1819,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strdup behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strdup hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strdup hooked&#39;</span><span class="p">)</span>
 
     <span class="n">s</span>  <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">s_str</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -1850,7 +1852,7 @@
 <span class="sd">    :param pstate: The current process state</span>
 <span class="sd">    :return: a concrete value</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strerror hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strerror hooked&#39;</span><span class="p">)</span>
 
     <span class="n">sys_errlist</span> <span class="o">=</span> <span class="p">[</span>
         <span class="sa">b</span><span class="s2">&quot;Success&quot;</span><span class="p">,</span>
@@ -2008,7 +2010,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strlen behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strlen hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strlen hooked&#39;</span><span class="p">)</span>
 
     <span class="n">ptr_bit_size</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">ptr_bit_size</span>
 
@@ -2042,7 +2044,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strncasecmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strncasecmp hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strncasecmp hooked&#39;</span><span class="p">)</span>
 
     <span class="n">s1</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">s2</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -2067,7 +2069,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strncmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strncmp hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strncmp hooked&#39;</span><span class="p">)</span>
 
     <span class="n">s1</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">s2</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -2090,7 +2092,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strncpy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strncpy hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strncpy hooked&#39;</span><span class="p">)</span>
 
     <span class="n">dst</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">src</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -2115,7 +2117,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strtok_r behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strtok_r hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strtok_r hooked&#39;</span><span class="p">)</span>
 
     <span class="n">string</span>  <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">delim</span>   <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -2160,7 +2162,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strtoul behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strtoul hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;strtoul hooked&#39;</span><span class="p">)</span>
 
     <span class="n">nptr</span>   <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">nptrs</span>  <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_string_argument</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -2189,7 +2191,7 @@
         <span class="k">return</span> <span class="n">NULL_PTR</span>
 
     <span class="n">environ_name</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target called getenv(</span><span class="si">{</span><span class="n">environ_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target called getenv(</span><span class="si">{</span><span class="n">environ_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
     <span class="n">host_env_val</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">environ_name</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">host_env_val</span> <span class="k">if</span> <span class="n">host_env_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span></div>
 
@@ -2228,7 +2230,7 @@
     <span class="n">msg</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="n">msg</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;__assert_fail called : </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;__assert_fail called : </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># Write 1 as return value of the program</span>
     <span class="n">pstate</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">return_register</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -2238,13 +2240,13 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The setlocale behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;setlocale hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;setlocale hooked&#39;</span><span class="p">)</span>
 
     <span class="n">category</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">locale</span>   <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">locale</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempt to modify Locale. Currently not supported.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempt to modify Locale. Currently not supported.&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="mi">0</span>
 
     <span class="c1"># This is a bit hacky but we just store the LOCALEs in the [extern] segment</span>
@@ -2259,7 +2261,7 @@
     <span class="k">if</span> <span class="n">category</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">LC_ALL</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;en_US.UTF-8</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;setlocale called with unsupported category=</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;setlocale called with unsupported category=</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">LC_ALL</span></div>
 
@@ -2269,7 +2271,7 @@
 <span class="sd">    The _setjmp behavior. </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># TODO</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;hooked _setjmp&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;hooked _setjmp&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="mi">0</span></div>
 
 
@@ -2280,7 +2282,7 @@
     <span class="c1"># NOTE All the programs tested so far used `longjmp` as an error handling mechanism, right</span>
     <span class="c1"># before exiting. This is why, `longjmp` is currently considered an exit condition. </span>
     <span class="c1"># TODO Real implementation</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;longjmp hooked&#39;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;longjmp hooked&#39;</span><span class="p">)</span>
     <span class="n">pstate</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="rtn_atexit"><a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_atexit">[docs]</a><span class="k">def</span> <span class="nf">rtn_atexit</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>

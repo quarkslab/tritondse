@@ -98,7 +98,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.find_function_addr"><code class="docutils literal notranslate"><span class="pre">CleLoader.find_function_addr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.imported_functions_relocations"><code class="docutils literal notranslate"><span class="pre">CleLoader.imported_functions_relocations()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.imported_variable_symbols_relocations"><code class="docutils literal notranslate"><span class="pre">CleLoader.imported_variable_symbols_relocations()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.longjmp_addr"><code class="docutils literal notranslate"><span class="pre">CleLoader.longjmp_addr</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.memory_segments"><code class="docutils literal notranslate"><span class="pre">CleLoader.memory_segments()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.name"><code class="docutils literal notranslate"><span class="pre">CleLoader.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.path"><code class="docutils literal notranslate"><span class="pre">CleLoader.path</span></code></a></li>
@@ -321,11 +320,11 @@ if None, the default mode of the architecture will be used.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tritondse.Program.endianness">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.14.0-60ab1f28)"><span class="pre">ENDIANNESS</span></a></em><a class="headerlink" href="#tritondse.Program.endianness" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.14.0-c76b8164)"><span class="pre">ENDIANNESS</span></a></em><a class="headerlink" href="#tritondse.Program.endianness" title="Permalink to this definition"></a></dt>
 <dd><p>Endianness of the program as defined in binary headers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.14.0-60ab1f28)">lief.ENDIANNESS</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.14.0-c76b8164)">lief.ENDIANNESS</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -360,11 +359,11 @@ if None, the default mode of the architecture will be used.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tritondse.Program.format">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-60ab1f28)"><span class="pre">EXE_FORMATS</span></a></em><a class="headerlink" href="#tritondse.Program.format" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-c76b8164)"><span class="pre">EXE_FORMATS</span></a></em><a class="headerlink" href="#tritondse.Program.format" title="Permalink to this definition"></a></dt>
 <dd><p>Binary format. Supported formats by lief are: ELF, PE, MachO</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-60ab1f28)">lief.EXE_FORMATS</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-c76b8164)">lief.EXE_FORMATS</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -442,12 +441,12 @@ architecture of the binary.</p>
 <dd class="field-odd"><p>LIEF relocation enum</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Union[<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_AARCH64" title="(in LIEF v0.14.0-60ab1f28)">lief.ELF.RELOCATION_AARCH64</a>,
-<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_ARM" title="(in LIEF v0.14.0-60ab1f28)">lief.ELF.RELOCATION_ARM</a>,
-<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_PPC64" title="(in LIEF v0.14.0-60ab1f28)">lief.ELF.RELOCATION_PPC64</a>,
-<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_PPC" title="(in LIEF v0.14.0-60ab1f28)">lief.ELF.RELOCATION_PPC</a>,
-<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_i386" title="(in LIEF v0.14.0-60ab1f28)">lief.ELF.RELOCATION_i386</a>,
-<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_X86_64" title="(in LIEF v0.14.0-60ab1f28)">lief.ELF.RELOCATION_X86_64</a>]</p>
+<dd class="field-even"><p>Union[<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_AARCH64" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_AARCH64</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_ARM" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_ARM</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_PPC64" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_PPC64</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_PPC" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_PPC</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_i386" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_i386</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_X86_64" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_X86_64</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -563,11 +562,6 @@ the relocation address in the binary.</p>
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="tritondse.CleLoader.longjmp_addr">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">longjmp_addr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.CleLoader.longjmp_addr" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.CleLoader.memory_segments">
 <span class="sig-name descname"><span class="pre">memory_segments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.11)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tritondse.LoadableSegment" title="tritondse.loaders.loader.LoadableSegment"><span class="pre">LoadableSegment</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/loaders/cle_loader.html#CleLoader.memory_segments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.CleLoader.memory_segments" title="Permalink to this definition"></a></dt>
@@ -645,7 +639,7 @@ the relocation address in the binary.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tritondse.QuokkaProgram.endianness">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.14.0-60ab1f28)"><span class="pre">ENDIANNESS</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.endianness" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.14.0-c76b8164)"><span class="pre">ENDIANNESS</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.endianness" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -665,7 +659,7 @@ the relocation address in the binary.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tritondse.QuokkaProgram.format">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-60ab1f28)"><span class="pre">EXE_FORMATS</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.format" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-c76b8164)"><span class="pre">EXE_FORMATS</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.format" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">

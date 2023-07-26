@@ -103,10 +103,8 @@
   <h1>Source code for tritondse.coverage</h1><div class="highlight"><pre>
 <span></span><span class="c1"># built-in imports</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">hashlib</span>
 <span class="kn">import</span> <span class="nn">struct</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
@@ -119,7 +117,9 @@
 
 <span class="c1"># local imports</span>
 <span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">PathConstraint</span><span class="p">,</span> <span class="n">PathBranch</span><span class="p">,</span> <span class="n">SolverStatus</span><span class="p">,</span> <span class="n">PathHash</span><span class="p">,</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">SymExType</span>
+<span class="kn">import</span> <span class="nn">tritondse.logging</span>
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
 <span class="n">CovItem</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">Addr</span><span class="p">,</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">PathHash</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">PathHash</span><span class="p">,</span> <span class="n">Edge</span><span class="p">]]</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -371,7 +371,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">strategy</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Trying to make difference of coverage with different strategies&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Trying to make difference of coverage with different strategies&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="nb">set</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]:</span>
@@ -425,7 +425,7 @@
 <span class="sd">                 is the branch to solve (but not to keep in path predicate)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">MANUAL</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Branch solving strategy set to MANUAL.&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Branch solving strategy set to MANUAL.&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="n">pending_csts</span> <span class="o">=</span> <span class="p">[]</span>
@@ -474,7 +474,7 @@
                                 <span class="k">pass</span>
 
                             <span class="k">else</span><span class="p">:</span> <span class="c1"># status == None</span>
-                                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Branch skipped!&#39;</span><span class="p">)</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Branch skipped!&#39;</span><span class="p">)</span>
 
                             <span class="n">pending_csts</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># reset pending constraint added</span>
 
@@ -499,13 +499,13 @@
                         <span class="k">if</span> <span class="n">pred</span><span class="o">.</span><span class="n">getType</span><span class="p">()</span> <span class="o">==</span> <span class="n">AST_NODE</span><span class="o">.</span><span class="n">EQUAL</span><span class="p">:</span>
                             <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">pred</span><span class="o">.</span><span class="n">getChildren</span><span class="p">()</span>
                             <span class="k">if</span> <span class="n">p2</span><span class="o">.</span><span class="n">getType</span><span class="p">()</span> <span class="o">==</span> <span class="n">AST_NODE</span><span class="o">.</span><span class="n">BV</span><span class="p">:</span>
-                                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Try to enumerate value </span><span class="si">{</span><span class="n">offset</span><span class="si">}</span><span class="s2">:0x</span><span class="si">{</span><span class="n">addr</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Try to enumerate value </span><span class="si">{</span><span class="n">offset</span><span class="si">}</span><span class="s2">:0x</span><span class="si">{</span><span class="n">addr</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                                 <span class="n">res</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">typ</span><span class="p">,</span> <span class="n">pending_csts</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">p2</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()),</span> <span class="n">i</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">covered_symbolic_pointers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>  <span class="c1"># add the pointer in covered regardless of result</span>
                             <span class="k">else</span><span class="p">:</span>
-                                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;memory constraint unexpected pattern: </span><span class="si">{</span><span class="n">pred</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;memory constraint unexpected pattern: </span><span class="si">{</span><span class="n">pred</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;memory constraint unexpected pattern: </span><span class="si">{</span><span class="n">pred</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;memory constraint unexpected pattern: </span><span class="si">{</span><span class="n">pred</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">SOUND_MEM_ACCESS</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">:</span>
                     <span class="n">pending_csts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>  <span class="c1"># if sound add the mem dereference as a constraint in path predicate</span></div>

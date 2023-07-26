@@ -106,7 +106,6 @@
 <span class="c1"># built-in imports</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Tuple</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
 
 <span class="c1"># third party</span>
@@ -115,7 +114,9 @@
 <span class="c1"># local imports</span>
 <span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">ArchMode</span><span class="p">,</span> <span class="n">Perm</span><span class="p">,</span> <span class="n">Endian</span>
 <span class="kn">from</span> <span class="nn">tritondse.loaders</span> <span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">LoadableSegment</span>
+<span class="kn">import</span> <span class="nn">tritondse.logging</span>
 
+<span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;loader&quot;</span><span class="p">)</span>
 
 <span class="n">_arch_mapper</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">lief</span><span class="o">.</span><span class="n">ARCHITECTURES</span><span class="o">.</span><span class="n">ARM</span><span class="p">:</span>   <span class="n">Architecture</span><span class="o">.</span><span class="n">ARM32</span><span class="p">,</span>
@@ -316,7 +317,7 @@
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_glob_dat</span><span class="p">(</span><span class="n">rel</span><span class="p">)</span> <span class="ow">and</span> <span class="n">rel</span><span class="o">.</span><span class="n">has_symbol</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rel</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">is_variable</span><span class="p">:</span>
                         <span class="k">yield</span> <span class="n">rel</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">rel</span><span class="o">.</span><span class="n">address</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Something wrong with the pltgot relocations&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Something wrong with the pltgot relocations&#39;</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Imported functions relocations not implemented for: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>

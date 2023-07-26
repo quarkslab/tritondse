@@ -101,8 +101,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tritondse.symbolic_explorator</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span></span><span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">gc</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
@@ -115,14 +114,18 @@
 <span class="kn">from</span> <span class="nn">tritondse.process_state</span>     <span class="kn">import</span> <span class="n">ProcessState</span>
 <span class="kn">from</span> <span class="nn">tritondse.loaders</span>           <span class="kn">import</span> <span class="n">Loader</span>
 <span class="kn">from</span> <span class="nn">tritondse.seed</span>              <span class="kn">import</span> <span class="n">Seed</span>
-<span class="kn">from</span> <span class="nn">tritondse.seeds_manager</span>     <span class="kn">import</span> <span class="n">SeedManager</span>
-<span class="kn">from</span> <span class="nn">tritondse.worklist</span>          <span class="kn">import</span> <span class="n">SeedScheduler</span>
 <span class="kn">from</span> <span class="nn">tritondse.symbolic_executor</span> <span class="kn">import</span> <span class="n">SymbolicExecutor</span>
-<span class="kn">from</span> <span class="nn">tritondse.callbacks</span>         <span class="kn">import</span> <span class="n">CallbackManager</span>
 <span class="kn">from</span> <span class="nn">tritondse.workspace</span>         <span class="kn">import</span> <span class="n">Workspace</span>
 <span class="kn">from</span> <span class="nn">tritondse.coverage</span>          <span class="kn">import</span> <span class="n">GlobalCoverage</span>
 <span class="kn">from</span> <span class="nn">tritondse.types</span>             <span class="kn">import</span> <span class="n">Addr</span>
 <span class="kn">from</span> <span class="nn">tritondse.exception</span>         <span class="kn">import</span> <span class="n">StopExplorationException</span>
+<span class="kn">from</span> <span class="nn">tritondse.seeds_manager</span> <span class="kn">import</span> <span class="n">SeedManager</span>
+<span class="kn">from</span> <span class="nn">tritondse.worklist</span> <span class="kn">import</span> <span class="n">SeedScheduler</span>
+<span class="kn">from</span> <span class="nn">tritondse.callbacks</span> <span class="kn">import</span> <span class="n">CallbackManager</span>
+<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;explorator&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ExplorationStatus"><a class="viewcode-back" href="../../api/explorator.html#tritondse.ExplorationStatus">[docs]</a><span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
@@ -169,8 +172,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">bin_path</span> <span class="o">=</span> <span class="n">bin_path</span>  <span class="c1"># Patch its official new location</span>
                 <span class="n">bin_path</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">S_IRWXU</span><span class="p">)</span>  <span class="c1"># Make it executable</span>
 
-        <span class="c1"># Configure logfile</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_configure_file_logger</span><span class="p">()</span>
+        <span class="c1"># Configure logfile in workspace</span>
+        <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">enable_to_file</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">level</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">workspace</span><span class="o">.</span><span class="n">logfile_path</span><span class="p">)</span>
 
         <span class="c1"># Initialize coverage</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span> <span class="o">=</span> <span class="n">GlobalCoverage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">coverage_strategy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">branch_solving_strategy</span><span class="p">)</span>
@@ -224,16 +227,16 @@
 
     <span class="k">def</span> <span class="nf">_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">uid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Worker thread &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Pick-up seed: </span><span class="si">{</span><span class="n">seed</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1"> (fresh: </span><span class="si">{</span><span class="n">seed</span><span class="o">.</span><span class="n">is_fresh</span><span class="p">()</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Pick-up seed: </span><span class="si">{</span><span class="n">seed</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1"> (fresh: </span><span class="si">{</span><span class="n">seed</span><span class="o">.</span><span class="n">is_fresh</span><span class="p">()</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">exploration_timeout</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__time_delta</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">exploration_timeout</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Exploration timeout&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Exploration timeout&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">stop_exploration</span><span class="p">()</span>
             <span class="k">return</span>
 
         <span class="c1"># Execute the binary with seeds</span>
         <span class="n">cbs</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cbm</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">cbm</span><span class="o">.</span><span class="n">fork</span><span class="p">()</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initialize ProcessState with thread scheduling: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">thread_scheduling</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initialize ProcessState with thread scheduling: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">thread_scheduling</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">execution</span> <span class="o">=</span> <span class="n">SymbolicExecutor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">workspace</span><span class="p">,</span> <span class="n">uid</span><span class="o">=</span><span class="n">uid</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">cbs</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loader</span><span class="p">:</span>  <span class="c1"># If doing the exploration from a program</span>
             <span class="n">execution</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loader</span><span class="p">)</span>
@@ -250,18 +253,18 @@
             <span class="n">expl_ts</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ts</span>
         <span class="k">except</span> <span class="n">StopExplorationException</span><span class="p">:</span>
             <span class="n">expl_ts</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">ts</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exploration interrupted (coverage not integrated)&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Exploration interrupted (coverage not integrated)&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">stop_exploration</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">exploration_limit</span> <span class="ow">and</span> <span class="p">(</span><span class="n">uid</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">exploration_limit</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Exploration limit reached&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Exploration limit reached&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">stop_exploration</span><span class="p">()</span>
 
         <span class="c1"># Some analysis in post execution</span>
         <span class="n">solve_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">seeds_manager</span><span class="o">.</span><span class="n">post_execution</span><span class="p">(</span><span class="n">execution</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_total_emulation_time</span> <span class="o">+=</span> <span class="n">expl_ts</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Emulation: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fmt_secs</span><span class="p">(</span><span class="n">expl_ts</span><span class="p">)</span><span class="si">}</span><span class="s2"> | Solving: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fmt_secs</span><span class="p">(</span><span class="n">solve_time</span><span class="p">)</span><span class="si">}</span><span class="s2"> | Elapsed: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fmt_secs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__time_delta</span><span class="p">())</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Emulation: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fmt_secs</span><span class="p">(</span><span class="n">expl_ts</span><span class="p">)</span><span class="si">}</span><span class="s2"> | Solving: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fmt_secs</span><span class="p">(</span><span class="n">solve_time</span><span class="p">)</span><span class="si">}</span><span class="s2"> | Elapsed: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fmt_secs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__time_delta</span><span class="p">())</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SymbolicExplorator.step"><a class="viewcode-back" href="../../api/explorator.html#tritondse.SymbolicExplorator.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -274,7 +277,7 @@
 
         <span class="c1"># If we don&#39;t have any new seed to process just switch exploration to idle</span>
         <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;worklist of seed to process is empty&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;worklist of seed to process is empty&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">ExplorationStatus</span><span class="o">.</span><span class="n">IDLE</span>
             <span class="k">return</span>
 
@@ -314,20 +317,20 @@
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">ExplorationStatus</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">seeds_manager</span><span class="o">.</span><span class="n">seeds_available</span><span class="p">():</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;exploration step done (no new seed available)&quot;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;exploration step done (no new seed available)&quot;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">ExplorationStatus</span><span class="o">.</span><span class="n">IDLE</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;should not exit step() in RUNNING state (stop? </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="si">}</span><span class="s1">, seeds available? </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">seeds_manager</span><span class="o">.</span><span class="n">seeds_available</span><span class="p">()</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;should not exit step() in RUNNING state (stop? </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="si">}</span><span class="s1">, seeds available? </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">seeds_manager</span><span class="o">.</span><span class="n">seeds_available</span><span class="p">()</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;keyboard interrupt, stop symbolic exploration&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;keyboard interrupt, stop symbolic exploration&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">stop_exploration</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">post_exploration</span><span class="p">()</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total time of the exploration: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fmt_secs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__time_delta</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total time of the exploration: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_fmt_secs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__time_delta</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">ExplorationStatus</span><span class="o">.</span><span class="n">IDLE</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Execution IDLE no seeds to execute&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Execution IDLE no seeds to execute&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span></div>
 
@@ -360,14 +363,7 @@
 <div class="viewcode-block" id="SymbolicExplorator.post_exploration"><a class="viewcode-back" href="../../api/explorator.html#tritondse.SymbolicExplorator.post_exploration">[docs]</a>    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Perform  all calls to post exploration functions&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seeds_manager</span><span class="o">.</span><span class="n">post_exploration</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">coverage</span><span class="o">.</span><span class="n">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workspace</span><span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">_configure_file_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Configure the filehandler to log to file &quot;&quot;&quot;</span>
-        <span class="n">hldr</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workspace</span><span class="o">.</span><span class="n">logfile_path</span><span class="p">)</span>
-        <span class="n">hldr</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
-        <span class="n">hldr</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> </span><span class="si">%(threadName)s</span><span class="s2"> [</span><span class="si">%(levelname)s</span><span class="s2">] </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">))</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">hldr</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coverage</span><span class="o">.</span><span class="n">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workspace</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>

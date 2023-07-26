@@ -103,11 +103,8 @@
   <h1>Source code for tritondse.trace</h1><div class="highlight"><pre>
 <span></span><span class="c1"># built-in imports</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
@@ -116,6 +113,9 @@
 <span class="c1"># local imports</span>
 <span class="kn">import</span> <span class="nn">tritondse</span> <span class="c1"># NOTE We need this import so we can use it to determine the path of this file.</span>
 <span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="n">CoverageSingleRun</span>
+<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tracer&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="TraceException"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.TraceException">[docs]</a><span class="k">class</span> <span class="nc">TraceException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
@@ -235,7 +235,7 @@
 
         <span class="n">cmdlne</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;python -m pyqbdipreload </span><span class="si">{</span><span class="n">QBDITrace</span><span class="o">.</span><span class="n">QBDI_SCRIPT_FILEPATH</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">binary_path</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Command line: </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmdlne</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Command line: </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmdlne</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="c1"># Set environment variables.</span>
         <span class="n">environ</span> <span class="o">=</span> <span class="p">{</span>
@@ -254,12 +254,12 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;stdout: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;stdout: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stderr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;stdout: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;stdout: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
             <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;QBDI tracer timeout expired!&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;QBDI tracer timeout expired!&#39;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="n">TraceException</span><span class="p">(</span><span class="s1">&#39;QBDI tracer timeout expired&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">stdin_fp</span><span class="p">:</span>
@@ -276,7 +276,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">trace</span> <span class="o">=</span> <span class="n">QBDITrace</span><span class="p">()</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loading coverage file: </span><span class="si">{</span><span class="n">coverage_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loading coverage file: </span><span class="si">{</span><span class="n">coverage_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">coverage_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
 
@@ -303,7 +303,7 @@
 <span class="sd">        :return: coverage object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Please .run() the trace before querying coverage&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Please .run() the trace before querying coverage&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span>
 
@@ -323,7 +323,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Usage: trace.py program [args]&quot;</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+    <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">QBDITrace</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">EDGE</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="s2">&quot;/tmp/test.cov&quot;</span><span class="p">,</span> <span class="n">dump_trace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="n">coverage</span> <span class="o">=</span> <span class="n">QBDITrace</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;/tmp/test.cov&quot;</span><span class="p">)</span>

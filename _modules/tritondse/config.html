@@ -135,17 +135,12 @@
                  <span class="n">smt_enumeration_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span>
                  <span class="n">coverage_strategy</span><span class="p">:</span> <span class="n">CoverageStrategy</span> <span class="o">=</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">,</span>
                  <span class="n">branch_solving_strategy</span><span class="p">:</span> <span class="n">BranchSolvingStrategy</span> <span class="o">=</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">FIRST_LAST_NOT_COVERED</span><span class="p">,</span>
-                 <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
                  <span class="n">program_argv</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">time_inc_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.00001</span><span class="p">,</span>
                  <span class="n">skip_unsupported_import</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">skip_unsupported_instruction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
                  <span class="n">memory_segmentation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param debug: Enable debugging logging</span>
-<span class="sd">        :type debug: bool</span>
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">seed_format</span><span class="p">:</span> <span class="n">SeedFormat</span> <span class="o">=</span> <span class="n">seed_format</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Seed type is either Raw (raw bytes) or Composite (more expressive).</span>
@@ -194,11 +189,6 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Branch solving strategy to apply for a single execution. For a given non-covered</span>
 <span class="sd">        branch allows changing whether we try to solve it at all occurences or more seldomly.</span>
 <span class="sd">        default: :py:obj:`BranchSolvingStrategy.FIRST_LAST_NOT_COVERED`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">debug</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Enable debug logging or not. Value taken from constructor.</span>
-<span class="sd">        FIXME: What if the value is changed during execution ?</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">workspace</span>

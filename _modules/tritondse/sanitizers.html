@@ -102,13 +102,16 @@
              
   <h1>Source code for tritondse.sanitizers</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">from</span> <span class="nn">triton</span> <span class="kn">import</span> <span class="n">MemoryAccess</span><span class="p">,</span> <span class="n">CPUSIZE</span><span class="p">,</span> <span class="n">Instruction</span>
+<span class="kn">from</span> <span class="nn">triton</span> <span class="kn">import</span> <span class="n">Instruction</span>
 <span class="kn">from</span> <span class="nn">tritondse.callbacks</span> <span class="kn">import</span> <span class="n">CbType</span><span class="p">,</span> <span class="n">ProbeInterface</span>
 <span class="kn">from</span> <span class="nn">tritondse.seed</span> <span class="kn">import</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">SeedStatus</span>
 <span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">SolverStatus</span>
 <span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">ProcessState</span>
+<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sanitizers&quot;</span><span class="p">)</span>
+
 
 
 <span class="k">def</span> <span class="nf">mk_new_crashing_seed</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Seed</span><span class="p">:</span>
@@ -158,7 +161,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">pstate</span><span class="o">.</span><span class="n">is_heap_ptr</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pstate</span><span class="o">.</span><span class="n">heap_allocator</span><span class="o">.</span><span class="n">is_ptr_freed</span><span class="p">(</span><span class="n">ptr</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
             <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">return</span> <span class="kc">True</span>
@@ -227,7 +230,7 @@
         <span class="c1"># FIXME: Why do we call is_valid_memory_mapping ? It is not a &quot;Null Deref vulnerability&quot;, it is more a segmentation error</span>
         <span class="k">if</span> <span class="n">ptr</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">segmentation_enabled</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">is_mapped</span><span class="p">(</span><span class="n">ptr</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
             <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">return</span> <span class="kc">True</span>
@@ -290,7 +293,7 @@
 
         <span class="k">if</span> <span class="n">symbolic_cells</span><span class="p">:</span>
             <span class="n">extra</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;(function </span><span class="si">{</span><span class="n">extra_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">extra_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">#x</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">if</span> <span class="n">extra_data</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Potential format string of length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">symbolic_cells</span><span class="p">)</span><span class="si">}</span><span class="s1"> on </span><span class="si">{</span><span class="n">fmt_ptr</span><span class="si">:</span><span class="s1">x</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Potential format string of length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">symbolic_cells</span><span class="p">)</span><span class="si">}</span><span class="s1"> on </span><span class="si">{</span><span class="n">fmt_ptr</span><span class="si">:</span><span class="s1">x</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">extra</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">OK_DONE</span>
             <span class="n">pp_seeds</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">nopp_seeds</span> <span class="o">=</span> <span class="p">[]</span>
@@ -314,11 +317,11 @@
             <span class="k">if</span> <span class="n">pp_seeds</span><span class="p">:</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="n">pp_seeds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                 <span class="n">se</span><span class="o">.</span><span class="n">enqueue_seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>  <span class="c1"># Only keep last seed</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found model that might lead to a crash: </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">hash</span><span class="si">}</span><span class="s1"> (with path predicate)&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found model that might lead to a crash: </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">hash</span><span class="si">}</span><span class="s1"> (with path predicate)&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">nopp_seeds</span><span class="p">:</span>
                 <span class="n">s</span> <span class="o">=</span> <span class="n">nopp_seeds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                 <span class="n">se</span><span class="o">.</span><span class="n">enqueue_seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>  <span class="c1"># Only keep last seed</span>
-                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found model that might lead to a crash: </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">hash</span><span class="si">}</span><span class="s1"> (without path predicate)&#39;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found model that might lead to a crash: </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">hash</span><span class="si">}</span><span class="s1"> (without path predicate)&#39;</span><span class="p">)</span>
 
             <span class="c1"># Do not stop the execution, just continue the execution</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">False</span>
@@ -368,7 +371,7 @@
         <span class="n">rf</span> <span class="o">=</span> <span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">of</span> <span class="k">if</span> <span class="n">pstate</span><span class="o">.</span><span class="n">architecture</span> <span class="o">==</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">X86_64</span> <span class="k">else</span> <span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">v</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">pstate</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">rf</span><span class="p">):</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Integer overflow at </span><span class="si">{</span><span class="n">instruction</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Integer overflow at </span><span class="si">{</span><span class="n">instruction</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="c1"># FIXME: What if it&#39;s normal behavior?</span>
             <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span>
             <span class="k">return</span> <span class="kc">True</span>
@@ -378,7 +381,7 @@
                 <span class="n">sym_flag</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">read_symbolic_register</span><span class="p">(</span><span class="n">rf</span><span class="p">)</span>
                 <span class="n">_</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">solve_no_pp</span><span class="p">(</span><span class="n">sym_flag</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">model</span><span class="p">:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Potential integer overflow at </span><span class="si">{</span><span class="n">instruction</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Potential integer overflow at </span><span class="si">{</span><span class="n">instruction</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                     <span class="n">crash_seed</span> <span class="o">=</span> <span class="n">mk_new_crashing_seed</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
                     <span class="n">se</span><span class="o">.</span><span class="n">enqueue_seed</span><span class="p">(</span><span class="n">crash_seed</span><span class="p">)</span>
                     <span class="k">return</span> <span class="kc">True</span>
