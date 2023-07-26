@@ -696,7 +696,6 @@ class SymbolicExecutor(object):
             new_variables = {}
             for k, c in self.seed.content.variables.items():
                 if k in self._symbolic_seed.variables:
-                    print(f"{k} conc:{c}, sym:{self._symbolic_seed.variables[k]}")
                     conc = bytearray(c) if isinstance(c, bytes) else [c]
                     new_vals = repl_bytearray(conc, self._symbolic_seed.variables[k])
                     new_variables[k] = bytes(new_vals) if isinstance(c, bytes) else new_vals[0]  # new variables are either bytes or int
