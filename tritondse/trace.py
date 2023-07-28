@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 from pathlib import Path
+import time
 from typing import List, Optional, Union
 from collections import Counter
 
@@ -130,7 +131,8 @@ class QBDITrace(Trace):
 
         args = [] if not args else args
 
-        cmdlne = f'python -m pyqbdipreload {QBDITrace.QBDI_SCRIPT_FILEPATH}'.split(' ') + [binary_path] + args
+        cmdlne = f'timeout {timeout} python -m pyqbdipreload {QBDITrace.QBDI_SCRIPT_FILEPATH}'.split(' ') + [binary_path] + args
+        cmdlne = " ".join(cmdlne)
 
         logger.debug(f'Command line: {" ".join(cmdlne)}')
 
@@ -147,16 +149,22 @@ class QBDITrace(Trace):
         stdin_fp = open(stdin_file, 'rb') if stdin_file else None
 
         # Run QBDI tool.
-        process = subprocess.Popen(cmdlne, stdin=stdin_fp, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, env=environ)
+        process = subprocess.Popen(cmdlne,
+                                   shell=True,
+                                   stdin=stdin_fp,
+                                   stdout=subprocess.DEVNULL,
+                                   stderr=subprocess.DEVNULL,
+                                   cwd=cwd,
+                                   env=environ)
         try:
             stdout, stderr = process.communicate(timeout=timeout)
-            for line in stdout.split(b"\n"):
-                logger.debug(f"stdout: {line}")
-            for line in stderr.split(b"\n"):
-                logger.debug(f"stdout: {line}")
+            # for line in stdout.split(b"\n"):
+            #     logger.debug(f"stdout: {line}")
+            # for line in stderr.split(b"\n"):
+            #     logger.debug(f"stdout: {line}")
         except subprocess.TimeoutExpired:
             process.wait()
-            logger.error('QBDI tracer timeout expired!')
+            # logger.warning('QBDI tracer timeout expired!')
             raise TraceException('QBDI tracer timeout expired')
 
         if stdin_fp:
