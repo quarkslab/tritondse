@@ -69,7 +69,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.arch_mode"><code class="docutils literal notranslate"><span class="pre">Program.arch_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.architecture"><code class="docutils literal notranslate"><span class="pre">Program.architecture</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.cpustate"><code class="docutils literal notranslate"><span class="pre">Program.cpustate</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.endianess"><code class="docutils literal notranslate"><span class="pre">Program.endianess()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.endianness"><code class="docutils literal notranslate"><span class="pre">Program.endianness</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.entry_point"><code class="docutils literal notranslate"><span class="pre">Program.entry_point</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Program.find_function_addr"><code class="docutils literal notranslate"><span class="pre">Program.find_function_addr()</span></code></a></li>
@@ -94,6 +93,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.arch_mode"><code class="docutils literal notranslate"><span class="pre">CleLoader.arch_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.architecture"><code class="docutils literal notranslate"><span class="pre">CleLoader.architecture</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.cpustate"><code class="docutils literal notranslate"><span class="pre">CleLoader.cpustate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.endianness"><code class="docutils literal notranslate"><span class="pre">CleLoader.endianness</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.entry_point"><code class="docutils literal notranslate"><span class="pre">CleLoader.entry_point</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.find_function_addr"><code class="docutils literal notranslate"><span class="pre">CleLoader.find_function_addr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.CleLoader.imported_functions_relocations"><code class="docutils literal notranslate"><span class="pre">CleLoader.imported_functions_relocations()</span></code></a></li>
@@ -163,6 +163,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.arch_mode"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.arch_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.architecture"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.architecture</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.cpustate"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.cpustate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.endianness"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.endianness</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.entry_point"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.entry_point</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.find_function_addr"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.find_function_addr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.MonolithicLoader.imported_functions_relocations"><code class="docutils literal notranslate"><span class="pre">MonolithicLoader.imported_functions_relocations()</span></code></a></li>
@@ -187,6 +188,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.arch_mode"><code class="docutils literal notranslate"><span class="pre">Loader.arch_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.architecture"><code class="docutils literal notranslate"><span class="pre">Loader.architecture</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.cpustate"><code class="docutils literal notranslate"><span class="pre">Loader.cpustate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.endianness"><code class="docutils literal notranslate"><span class="pre">Loader.endianness</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.entry_point"><code class="docutils literal notranslate"><span class="pre">Loader.entry_point</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.find_function_addr"><code class="docutils literal notranslate"><span class="pre">Loader.find_function_addr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.Loader.imported_functions_relocations"><code class="docutils literal notranslate"><span class="pre">Loader.imported_functions_relocations()</span></code></a></li>
@@ -313,18 +315,13 @@ if None, the default mode of the architecture will be used.</p>
 {“register_name” : register_value}</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.Program.endianess">
-<span class="sig-name descname"><span class="pre">endianess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="types.html#tritondse.types.Endian" title="tritondse.types.Endian"><span class="pre">Endian</span></a></span></span><a class="reference internal" href="../_modules/tritondse/loaders/program.html#Program.endianess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Program.endianess" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="tritondse.Program.endianness">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.14.0-c76b8164)"><span class="pre">ENDIANNESS</span></a></em><a class="headerlink" href="#tritondse.Program.endianness" title="Permalink to this definition"></a></dt>
-<dd><p>Endianness of the program as defined in binary headers.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Endian" title="tritondse.types.Endian"><span class="pre">Endian</span></a></em><a class="headerlink" href="#tritondse.Program.endianness" title="Permalink to this definition"></a></dt>
+<dd><p>Endianess of the loaded program</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.14.0-c76b8164)">lief.ENDIANNESS</a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Endianness</p>
 </dd>
 </dl>
 </dd></dl>
@@ -359,11 +356,11 @@ if None, the default mode of the architecture will be used.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tritondse.Program.format">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-c76b8164)"><span class="pre">EXE_FORMATS</span></a></em><a class="headerlink" href="#tritondse.Program.format" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-ac939a64)"><span class="pre">EXE_FORMATS</span></a></em><a class="headerlink" href="#tritondse.Program.format" title="Permalink to this definition"></a></dt>
 <dd><p>Binary format. Supported formats by lief are: ELF, PE, MachO</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-c76b8164)">lief.EXE_FORMATS</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-ac939a64)">lief.EXE_FORMATS</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -441,12 +438,12 @@ architecture of the binary.</p>
 <dd class="field-odd"><p>LIEF relocation enum</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Union[<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_AARCH64" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_AARCH64</a>,
-<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_ARM" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_ARM</a>,
-<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_PPC64" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_PPC64</a>,
-<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_PPC" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_PPC</a>,
-<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_i386" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_i386</a>,
-<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_X86_64" title="(in LIEF v0.14.0-c76b8164)">lief.ELF.RELOCATION_X86_64</a>]</p>
+<dd class="field-even"><p>Union[<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_AARCH64" title="(in LIEF v0.14.0-ac939a64)">lief.ELF.RELOCATION_AARCH64</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_ARM" title="(in LIEF v0.14.0-ac939a64)">lief.ELF.RELOCATION_ARM</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_PPC64" title="(in LIEF v0.14.0-ac939a64)">lief.ELF.RELOCATION_PPC64</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_PPC" title="(in LIEF v0.14.0-ac939a64)">lief.ELF.RELOCATION_PPC</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_i386" title="(in LIEF v0.14.0-ac939a64)">lief.ELF.RELOCATION_i386</a>,
+<a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/elf.html#lief.ELF.RELOCATION_X86_64" title="(in LIEF v0.14.0-ac939a64)">lief.ELF.RELOCATION_X86_64</a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -507,6 +504,17 @@ if None, the default mode of the architecture will be used.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpustate</span></span><a class="headerlink" href="#tritondse.CleLoader.cpustate" title="Permalink to this definition"></a></dt>
 <dd><p>Provide the initial cpu state in the forma of a dictionary of
 {“register_name” : register_value}</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.CleLoader.endianness">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Endian" title="tritondse.types.Endian"><span class="pre">Endian</span></a></em><a class="headerlink" href="#tritondse.CleLoader.endianness" title="Permalink to this definition"></a></dt>
+<dd><p>Endianess of the loaded program</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Endianness</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -639,7 +647,7 @@ the relocation address in the binary.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tritondse.QuokkaProgram.endianness">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.ENDIANNESS" title="(in LIEF v0.14.0-c76b8164)"><span class="pre">ENDIANNESS</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.endianness" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Endian" title="tritondse.types.Endian"><span class="pre">Endian</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.endianness" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -659,7 +667,7 @@ the relocation address in the binary.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="tritondse.QuokkaProgram.format">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-c76b8164)"><span class="pre">EXE_FORMATS</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.format" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://lief-project.github.io/doc/latest/api/python/abstract.html#lief.EXE_FORMATS" title="(in LIEF v0.14.0-ac939a64)"><span class="pre">EXE_FORMATS</span></a></em><a class="headerlink" href="#tritondse.QuokkaProgram.format" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1007,7 +1015,7 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 <h2>MonolithicLoader<a class="headerlink" href="#monolithicloader" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="tritondse.MonolithicLoader">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">MonolithicLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">architecture</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture"><span class="pre">Architecture</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpustate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tritondse.LoadableSegment" title="tritondse.loaders.loader.LoadableSegment"><span class="pre">LoadableSegment</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_thumb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.Platform" title="tritondse.types.Platform"><span class="pre">Platform</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/loaders/loader.html#MonolithicLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.MonolithicLoader" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">MonolithicLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">architecture</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.Architecture" title="tritondse.types.Architecture"><span class="pre">Architecture</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpustate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#tritondse.LoadableSegment" title="tritondse.loaders.loader.LoadableSegment"><span class="pre">LoadableSegment</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_thumb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">platform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.Platform" title="tritondse.types.Platform"><span class="pre">Platform</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endianess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.Endian" title="tritondse.types.Endian"><span class="pre">Endian</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Endian.LITTLE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/loaders/loader.html#MonolithicLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.MonolithicLoader" title="Permalink to this definition"></a></dt>
 <dd><p>Monolithic loader. It helps loading raw firmware at a given address
 in DSE memory space, with the various attributes like architecture etc.</p>
 <dl class="py property">
@@ -1037,6 +1045,13 @@ in DSE memory space, with the various attributes like architecture etc.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpustate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.MonolithicLoader.cpustate" title="Permalink to this definition"></a></dt>
 <dd><p>Provide the initial cpu state in the format of a dictionary of
 {“register_name” : register_value}</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.MonolithicLoader.endianness">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Endian" title="tritondse.types.Endian"><span class="pre">Endian</span></a></em><a class="headerlink" href="#tritondse.MonolithicLoader.endianness" title="Permalink to this definition"></a></dt>
+<dd><p>Endianess of the monolithic loader.
+(default is LITTLE)</p>
 </dd></dl>
 
 <dl class="py property">
@@ -1196,6 +1211,17 @@ if None, the default mode of the architecture will be used.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cpustate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.Loader.cpustate" title="Permalink to this definition"></a></dt>
 <dd><p>Provide the initial cpu state in the forma of a dictionary of
 {“register_name” : register_value}</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tritondse.Loader.endianness">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">endianness</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.Endian" title="tritondse.types.Endian"><span class="pre">Endian</span></a></em><a class="headerlink" href="#tritondse.Loader.endianness" title="Permalink to this definition"></a></dt>
+<dd><p>Endianess of the loaded program</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Endianness</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">

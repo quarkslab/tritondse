@@ -191,7 +191,7 @@
 <span class="sd">    read and write concrete memory values in a Pythonic manner.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">TritonContext</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">TritonContext</span><span class="p">,</span> <span class="n">endianness</span><span class="p">:</span> <span class="n">Endian</span> <span class="o">=</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param ctx: TritonContext to interface with</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -200,7 +200,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_linear_map_addr</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># List of [map_start, map_end, map_start, map_end ...]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_linear_map_map</span> <span class="o">=</span> <span class="p">[]</span>   <span class="c1"># List of [MemMap,    None,    MemMap,    None    ...]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_segment_enabled</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_endian</span> <span class="o">=</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_endian</span> <span class="o">=</span> <span class="n">endianness</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_endian_key</span> <span class="o">=</span> <span class="n">ENDIAN_MAP</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_endian</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mem_cbs_enabled</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="c1"># self._maps = {}  # Addr: -&gt; Map</span>

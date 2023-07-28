@@ -178,9 +178,10 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Name of the loader&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Program(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">)&quot;</span>
 
-<div class="viewcode-block" id="Program.endianess"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program.endianess">[docs]</a>    <span class="k">def</span> <span class="nf">endianess</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Endian</span><span class="p">:</span>
-        <span class="c1"># FIXME: Depending on architecture returning good endianess</span>
-        <span class="k">return</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">endianness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Endian</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">lief</span><span class="o">.</span><span class="n">ENDIANNESS</span><span class="o">.</span><span class="n">LITTLE</span><span class="p">:</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span><span class="p">,</span>
+                <span class="n">lief</span><span class="o">.</span><span class="n">ENDIANNESS</span><span class="o">.</span><span class="n">BIG</span><span class="p">:</span> <span class="n">Endian</span><span class="o">.</span><span class="n">BIG</span><span class="p">}[</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">abstract</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">endianness</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
@@ -209,15 +210,6 @@
 <span class="sd">        :return: Platform</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plfm</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">endianness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">lief</span><span class="o">.</span><span class="n">ENDIANNESS</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Endianness of the program as defined in binary headers.</span>
-
-<span class="sd">        :rtype: lief.ENDIANNESS</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">abstract</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">endianness</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">lief</span><span class="o">.</span><span class="n">EXE_FORMATS</span><span class="p">:</span>

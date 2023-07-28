@@ -105,6 +105,7 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">struct</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
@@ -118,7 +119,7 @@
 <span class="kn">from</span> <span class="nn">tritondse.thread_context</span> <span class="kn">import</span> <span class="n">ThreadContext</span>
 <span class="kn">from</span> <span class="nn">tritondse.heap_allocator</span> <span class="kn">import</span> <span class="n">HeapAllocator</span>
 <span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">ByteSize</span><span class="p">,</span> <span class="n">BitSize</span><span class="p">,</span> <span class="n">PathConstraint</span><span class="p">,</span> <span class="n">Register</span><span class="p">,</span> <span class="n">Expression</span><span class="p">,</span> \
-                            <span class="n">AstNode</span><span class="p">,</span> <span class="n">Registers</span><span class="p">,</span> <span class="n">SolverStatus</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">SymbolicVariable</span><span class="p">,</span> <span class="n">ArchMode</span><span class="p">,</span> <span class="n">Perm</span><span class="p">,</span> <span class="n">FileDesc</span>
+                            <span class="n">AstNode</span><span class="p">,</span> <span class="n">Registers</span><span class="p">,</span> <span class="n">SolverStatus</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">SymbolicVariable</span><span class="p">,</span> <span class="n">ArchMode</span><span class="p">,</span> <span class="n">Perm</span><span class="p">,</span> <span class="n">FileDesc</span><span class="p">,</span> <span class="n">Endian</span>
 <span class="kn">from</span> <span class="nn">tritondse.arch</span> <span class="kn">import</span> <span class="n">ARCHS</span><span class="p">,</span> <span class="n">CpuState</span>
 <span class="kn">from</span> <span class="nn">tritondse.loaders</span> <span class="kn">import</span> <span class="n">Loader</span>
 <span class="kn">from</span> <span class="nn">tritondse.memory</span> <span class="kn">import</span> <span class="n">Memory</span><span class="p">,</span> <span class="n">MemoryAccessViolation</span>
@@ -139,9 +140,11 @@
     <span class="n">STACK_SEG</span> <span class="o">=</span> <span class="s2">&quot;[stack]&quot;</span>
     <span class="n">EXTERN_SEG</span> <span class="o">=</span> <span class="s2">&quot;[extern]&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_inc_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0001</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endianness</span><span class="p">:</span> <span class="n">Endian</span> <span class="o">=</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span><span class="p">,</span> <span class="n">time_inc_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0001</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :param time_inc_coefficient: Time coefficient to represent execution time of an instruction see: :py:attr:`tritondse.Config.time_inc_coefficient`</span>
+<span class="sd">        :param endianness: Endianness to consider</span>
+<span class="sd">        :param time_inc_coefficient: Time coefficient to represent execution time of an</span>
+<span class="sd">                                     instruction see: :py:attr:`tritondse.Config.time_inc_coefficient`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># EXTERN_BASE is a &quot;fake&quot; memory area (not mapped) that will</span>
         <span class="c1"># which addresses will be used for external symbols</span>
@@ -166,7 +169,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_archinfo</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Memory object</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">:</span> <span class="n">Memory</span> <span class="o">=</span> <span class="n">Memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tt_ctx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">:</span> <span class="n">Memory</span> <span class="o">=</span> <span class="n">Memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tt_ctx</span><span class="p">,</span> <span class="n">endianness</span><span class="p">)</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Memory object associated with the ProcessState &quot;&quot;&quot;</span>
 
         <span class="c1"># Used to define that the process must exist</span>
@@ -216,6 +219,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
         <span class="c1"># Configuration values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endianness</span> <span class="o">=</span> <span class="n">endianness</span>  <span class="c1">#: Current endianness</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">time_inc_coefficient</span> <span class="o">=</span> <span class="n">time_inc_coefficient</span>
 
         <span class="c1"># Runtime temporary variables</span>
@@ -515,6 +519,34 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">architecture</span> <span class="o">=</span> <span class="n">arch</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_archinfo</span> <span class="o">=</span> <span class="n">ARCHS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">architecture</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cpu</span> <span class="o">=</span> <span class="n">CpuState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tt_ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archinfo</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ProcessState.unpack_integer"><a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.unpack_integer">[docs]</a>    <span class="k">def</span> <span class="nf">unpack_integer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unpack the given bytes into into integer value respecting</span>
+<span class="sd">        size given and endianness.</span>
+
+<span class="sd">        :param data: bytes data to unpack</span>
+<span class="sd">        :param size: size in bits of data to unpack</span>
+<span class="sd">        :return: integer value unpacked</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">endianness</span> <span class="o">==</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span> <span class="k">else</span> <span class="s2">&quot;&gt;&quot;</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="p">{</span><span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="mi">32</span><span class="p">:</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="mi">64</span><span class="p">:</span> <span class="s1">&#39;Q&#39;</span><span class="p">}</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="n">tab</span><span class="p">[</span><span class="n">size</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="ProcessState.pack_integer"><a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.pack_integer">[docs]</a>    <span class="k">def</span> <span class="nf">pack_integer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unpack the given bytes into into integer value respecting</span>
+<span class="sd">        size given and endianness.</span>
+
+<span class="sd">        :param data: bytes data to unpack</span>
+<span class="sd">        :param size: size in bits of data to unpack</span>
+<span class="sd">        :return: integer value packed as bytes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">endianness</span> <span class="o">==</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span> <span class="k">else</span> <span class="s2">&quot;&gt;&quot;</span>
+        <span class="n">tab</span> <span class="o">=</span> <span class="p">{</span><span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span> <span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="mi">32</span><span class="p">:</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="mi">64</span><span class="p">:</span> <span class="s1">&#39;Q&#39;</span><span class="p">}</span>
+        <span class="n">s</span> <span class="o">+=</span> <span class="n">tab</span><span class="p">[</span><span class="n">size</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ProcessState.read_register"><a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.read_register">[docs]</a>    <span class="k">def</span> <span class="nf">read_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1240,7 +1272,7 @@
 
 <div class="viewcode-block" id="ProcessState.from_loader"><a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.from_loader">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_loader</span><span class="p">(</span><span class="n">loader</span><span class="p">:</span> <span class="n">Loader</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">:</span>
-        <span class="n">pstate</span> <span class="o">=</span> <span class="n">ProcessState</span><span class="p">()</span>
+        <span class="n">pstate</span> <span class="o">=</span> <span class="n">ProcessState</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">endianness</span><span class="p">)</span>
 
         <span class="c1"># Initialize the architecture of the processstate</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">initialize_context</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">architecture</span><span class="p">)</span>
@@ -1283,7 +1315,6 @@
 
                     <span class="c1"># Apply relocation to our custom address in process memory</span>
                     <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write_ptr</span><span class="p">(</span><span class="n">rel_addr</span><span class="p">,</span> <span class="n">cur_linkage_address</span><span class="p">)</span>
-
                     <span class="c1"># Increment linkage address number</span>
                     <span class="n">cur_linkage_address</span> <span class="o">+=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">ptr_size</span>
 

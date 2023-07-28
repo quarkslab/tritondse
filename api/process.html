@@ -79,6 +79,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.current_instruction"><code class="docutils literal notranslate"><span class="pre">ProcessState.current_instruction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.current_thread"><code class="docutils literal notranslate"><span class="pre">ProcessState.current_thread</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.dynamic_symbol_table"><code class="docutils literal notranslate"><span class="pre">ProcessState.dynamic_symbol_table</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.endianness"><code class="docutils literal notranslate"><span class="pre">ProcessState.endianness</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.evaluate_expression_model"><code class="docutils literal notranslate"><span class="pre">ProcessState.evaluate_expression_model()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.fetch_instruction"><code class="docutils literal notranslate"><span class="pre">ProcessState.fetch_instruction()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.file_descriptor_exists"><code class="docutils literal notranslate"><span class="pre">ProcessState.file_descriptor_exists()</span></code></a></li>
@@ -104,6 +105,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.last_branch_constraint"><code class="docutils literal notranslate"><span class="pre">ProcessState.last_branch_constraint</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.memory"><code class="docutils literal notranslate"><span class="pre">ProcessState.memory</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.minus_one"><code class="docutils literal notranslate"><span class="pre">ProcessState.minus_one</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.pack_integer"><code class="docutils literal notranslate"><span class="pre">ProcessState.pack_integer()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.path_predicate_size"><code class="docutils literal notranslate"><span class="pre">ProcessState.path_predicate_size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.pop_stack_value"><code class="docutils literal notranslate"><span class="pre">ProcessState.pop_stack_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.process_instruction"><code class="docutils literal notranslate"><span class="pre">ProcessState.process_instruction()</span></code></a></li>
@@ -135,6 +137,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.symbolize_register"><code class="docutils literal notranslate"><span class="pre">ProcessState.symbolize_register()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.threads"><code class="docutils literal notranslate"><span class="pre">ProcessState.threads</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.tt_ctx"><code class="docutils literal notranslate"><span class="pre">ProcessState.tt_ctx</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.unpack_integer"><code class="docutils literal notranslate"><span class="pre">ProcessState.unpack_integer()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.write_argument_value"><code class="docutils literal notranslate"><span class="pre">ProcessState.write_argument_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.write_register"><code class="docutils literal notranslate"><span class="pre">ProcessState.write_register()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tritondse.ProcessState.write_stack_value"><code class="docutils literal notranslate"><span class="pre">ProcessState.write_stack_value()</span></code></a></li>
@@ -277,7 +280,7 @@
 <h2>ProcessState<a class="headerlink" href="#processstate" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="tritondse.ProcessState">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">ProcessState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_inc_coefficient</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/process_state.html#ProcessState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.ProcessState" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">ProcessState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">endianness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.Endian" title="tritondse.types.Endian"><span class="pre">Endian</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Endian.LITTLE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_inc_coefficient</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/process_state.html#ProcessState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.ProcessState" title="Permalink to this definition"></a></dt>
 <dd><p>Current process state. This class keeps all the runtime related to a running
 process, namely current, instruction, thread, memory maps, file descriptors etc.
 It also wraps Triton execution and thus hold its context. At the top of this,
@@ -285,7 +288,11 @@ it provides a user-friendly API to access data in both the concrete and symbolic
 state of Triton.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>time_inc_coefficient</strong> – Time coefficient to represent execution time of an instruction see: <a class="reference internal" href="configuration.html#tritondse.Config.time_inc_coefficient" title="tritondse.Config.time_inc_coefficient"><code class="xref py py-attr docutils literal notranslate"><span class="pre">tritondse.Config.time_inc_coefficient</span></code></a></p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>endianness</strong> – Endianness to consider</p></li>
+<li><p><strong>time_inc_coefficient</strong> – Time coefficient to represent execution time of an
+instruction see: <a class="reference internal" href="configuration.html#tritondse.Config.time_inc_coefficient" title="tritondse.Config.time_inc_coefficient"><code class="xref py py-attr docutils literal notranslate"><span class="pre">tritondse.Config.time_inc_coefficient</span></code></a></p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -457,6 +464,12 @@ value.</p>
 <dt class="sig sig-object py" id="tritondse.ProcessState.dynamic_symbol_table">
 <span class="sig-name descname"><span class="pre">dynamic_symbol_table</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Addr</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.ProcessState.dynamic_symbol_table" title="Permalink to this definition"></a></dt>
 <dd><p>Dictionnary of dynamic symbols as retrieved during the loading</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.ProcessState.endianness">
+<span class="sig-name descname"><span class="pre">endianness</span></span><a class="headerlink" href="#tritondse.ProcessState.endianness" title="Permalink to this definition"></a></dt>
+<dd><p>Current endianness</p>
 </dd></dl>
 
 <dl class="py method">
@@ -807,6 +820,24 @@ Should be called after <a class="reference internal" href="#tritondse.ProcessSta
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>-1 as an unsigned Python integer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.ProcessState.pack_integer">
+<span class="sig-name descname"><span class="pre">pack_integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a></span></span><a class="reference internal" href="../_modules/tritondse/process_state.html#ProcessState.pack_integer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.ProcessState.pack_integer" title="Permalink to this definition"></a></dt>
+<dd><p>Unpack the given bytes into into integer value respecting
+size given and endianness.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – bytes data to unpack</p></li>
+<li><p><strong>size</strong> – size in bits of data to unpack</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>integer value packed as bytes</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1261,6 +1292,24 @@ Triton function.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="tritondse.ProcessState.unpack_integer">
+<span class="sig-name descname"><span class="pre">unpack_integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.11)"><span class="pre">bytes</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></span><a class="reference internal" href="../_modules/tritondse/process_state.html#ProcessState.unpack_integer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.ProcessState.unpack_integer" title="Permalink to this definition"></a></dt>
+<dd><p>Unpack the given bytes into into integer value respecting
+size given and endianness.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – bytes data to unpack</p></li>
+<li><p><strong>size</strong> – size in bits of data to unpack</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>integer value unpacked</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="tritondse.ProcessState.write_argument_value">
 <span class="sig-name descname"><span class="pre">write_argument_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/process_state.html#ProcessState.write_argument_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.ProcessState.write_argument_value" title="Permalink to this definition"></a></dt>
 <dd><p>Write the parameter index with the given value. It will take in account
@@ -1451,7 +1500,7 @@ use it through <code class="xref py py-obj docutils literal notranslate"><span c
 <h2>Memory<a class="headerlink" href="#memory" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="tritondse.memory.Memory">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.memory.</span></span><span class="sig-name descname"><span class="pre">Memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TritonContext</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/memory.html#Memory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.memory.Memory" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.memory.</span></span><span class="sig-name descname"><span class="pre">Memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TritonContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endianness</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.Endian" title="tritondse.types.Endian"><span class="pre">Endian</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Endian.LITTLE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/memory.html#Memory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.memory.Memory" title="Permalink to this definition"></a></dt>
 <dd><p>Memory representation of the current <code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessState</span></code> object.
 It wraps all interaction with Triton’s memory context to provide high-level
 function. It adds a segmentation and memory permission model at the top

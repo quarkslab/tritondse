@@ -107,7 +107,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.coverage.GlobalCoverage.difference"><code class="docutils literal notranslate"><span class="pre">GlobalCoverage.difference()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.coverage.GlobalCoverage.from_file"><code class="docutils literal notranslate"><span class="pre">GlobalCoverage.from_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.coverage.GlobalCoverage.improve_coverage"><code class="docutils literal notranslate"><span class="pre">GlobalCoverage.improve_coverage()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.coverage.GlobalCoverage.improves_coverage"><code class="docutils literal notranslate"><span class="pre">GlobalCoverage.improves_coverage()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.coverage.GlobalCoverage.is_covered"><code class="docutils literal notranslate"><span class="pre">GlobalCoverage.is_covered()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.coverage.GlobalCoverage.iter_new_paths"><code class="docutils literal notranslate"><span class="pre">GlobalCoverage.iter_new_paths()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.coverage.GlobalCoverage.merge"><code class="docutils literal notranslate"><span class="pre">GlobalCoverage.merge()</span></code></a></li>
@@ -609,21 +608,6 @@ two covered dicts. If <code class="docutils literal notranslate"><span class="pr
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Whether the coverage covers new items</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.coverage.GlobalCoverage.improves_coverage">
-<span class="sig-name descname"><span class="pre">improves_coverage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tritondse.coverage.CoverageSingleRun" title="tritondse.coverage.CoverageSingleRun"><span class="pre">CoverageSingleRun</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/coverage.html#GlobalCoverage.improves_coverage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.coverage.GlobalCoverage.improves_coverage" title="Permalink to this definition"></a></dt>
-<dd><p>Check if <cite>other</cite> improves coverage
-Used to know if an input is relevant to keep or not</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>other</strong> – The CoverageSingleRun to check against our global coverage state</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
