@@ -256,28 +256,41 @@ class SymbolicExecutor(object):
             logger.debug(f"symbolic {s} at 0x{pc:x}: target: 0x{tgt_addr:x} [{lea_ast}]")
             self.pstate.push_constraint(lea_ast == tgt_addr, f"sym-{s}:{self.trace_offset}:{pc}")
 
-    def __emulate(self):
+    def emulate(self):
         while not self.pstate.stop and self.pstate.threads:
+            if not self.step():
+                break
+        if not self.seed.is_status_set():  # Set a status if it has not already been done
+            self.seed.status = SeedStatus.OK_DONE
+        return
+
+
+    def step(self) -> bool:
+        """
+        Perform a single instruction step. Returns whether the emulation can
+        continue or we have to stop.
+        """
+        try:
             # Schedule thread if it's time
             self.__schedule_thread()
 
             if not self.pstate.current_thread.is_running():
                 logger.warning(f"After scheduling current thread is not running (probably in a deadlock state)")
-                break  # Were not able to find a suitable thread thus exit emulation
+                return False  # Were not able to find a suitable thread thus exit emulation
 
             # Fetch program counter (of the thread selected), at this point the current thread should be running!
             self.current_pc = self.pstate.cpu.program_counter  # should normally be already set but still.
 
             if self.current_pc == self._run_to_target:  # Hit the location we wanted to reach
-                break
+                return False
 
             if self.current_pc == 0:
                 logger.error(f"PC=0, is it normal ? (stop)")
-                break
+                return False
 
             if not self.pstate.memory.has_ever_been_written(self.current_pc, CPUSIZE.BYTE):
                 logger.error(f"Instruction not mapped: 0x{self.current_pc:x}")
-                break
+                return False
 
             instruction = self.pstate.fetch_instruction()
             opcode = instruction.getOpcode()
@@ -304,7 +317,7 @@ class SymbolicExecutor(object):
                 for cb in pre_insts:
                     cb(self, self.pstate, instruction)
             except SkipInstructionException as _:
-                continue
+                return True
 
             if self.pstate.is_syscall():
                 logger.warning(f"execute syscall instruction {self.pstate.read_register(self.pstate._syscall_register)}")
@@ -321,7 +334,7 @@ class SymbolicExecutor(object):
                 if self.config.skip_unsupported_instruction:
                     self.pstate.cpu.program_counter += instruction.getSize() # try to jump over the instruction
                 else:
-                    break  # stop emulation
+                    return False  # stop emulation
             self._in_processing = False
             # increment trace offset
             self.trace_offset += 1
@@ -382,17 +395,28 @@ class SymbolicExecutor(object):
             except AllocatorException as e:
                 logger.info(f'An exception has been raised: {e}')
                 self.seed.status = SeedStatus.CRASH
-                return
+                return False
 
             # Check timeout of the execution
             if self.config.execution_timeout and (time.time() - self.start_time) >= self.config.execution_timeout:
                 logger.info('Timeout of an execution reached')
                 self.seed.status = SeedStatus.HANG
-                return
+                return False
+            return True
+        except AbortExecutionException as e:
+            return False
+        except MemoryAccessViolation as e:
+            logger.warning(f"Memory violation: {str(e)}")
 
-        if not self.seed.is_status_set():  # Set a status if it has not already been done
-            self.seed.status = SeedStatus.OK_DONE
-        return
+            # Call all the callbacks on the memory violations
+            for cb in self.callback_manager.get_memory_violation_callbacks():
+                cb(self, self.pstate, e)
+
+            # Assign the seed the status of crash
+            if not self.seed.is_status_set():
+                self.seed.status = SeedStatus.CRASH
+            return False
+
 
     def __handle_external_return(self, routine_name: str, ret_val: Optional[Union[int, Expression]]) -> None:
         """ Symbolize or concretize return values of external functions """
@@ -530,22 +554,10 @@ class SymbolicExecutor(object):
         """
         raise StopExplorationException("Stop exploration")
 
-    def run(self, stop_at: Addr = None) -> None:
-        """
-        Execute the program.
-
-        If the :py:attr:`tritondse.Config.execution_timeout` is not set
-        the execution might hang forever if the program does.
-
-        :param stop_at: Address where to stop (if necessary)
-        :return: None
-        """
-        if stop_at:
-            self._run_to_target = stop_at
-
+    def emulation_init(self) -> bool:
         if self.pstate is None:
             logger.error(f"ProcessState is None (have you called \"load\"?")
-            return
+            return False
 
         self.start_time = time.time()
 
@@ -575,22 +587,33 @@ class SymbolicExecutor(object):
 
         # Call it here to make sure in case of "load_process" the use has properly instanciated the architecture
         self._configure_pstate()
+        return True
 
-        try:
-            self.__emulate()
-        except AbortExecutionException as e:
-            pass
-        except MemoryAccessViolation as e:
-            logger.warning(f"Memory violation: {str(e)}")
+    def run(self, stop_at: Addr = None) -> None:
+        """
+        Execute the program.
 
-            # Call all the callbacks on the memory violations
-            for cb in self.callback_manager.get_memory_violation_callbacks():
-                cb(self, self.pstate, e)
+        If the :py:attr:`tritondse.Config.execution_timeout` is not set
+        the execution might hang forever if the program does.
 
-            # Assign the seed the status of crash
-            if not self.seed.is_status_set():
-                self.seed.status = SeedStatus.CRASH
+        :param stop_at: Address where to stop (if necessary)
+        :return: None
+        """
+        if stop_at:
+            self._run_to_target = stop_at
 
+        # Call init steps
+        if not self.emulation_init():
+            return
+
+        # Run until reaching a stopping condition
+        self.emulate()
+
+        # Call termination steps
+        self.emulation_deinit()
+
+    def emulation_deinit(self):
+        _, post_cb = self.cbm.get_execution_callbacks()
         # Iterate through post exec callbacks
         for cb in post_cb:
             cb(self, self.pstate)
