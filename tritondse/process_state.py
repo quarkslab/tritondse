@@ -503,7 +503,7 @@ class ProcessState(object):
         """
         return bool(self.current_instruction.getType() in self._archinfo.syscall_inst)
 
-    def fetch_instruction(self, address: Addr = None, set_as_current: bool = True) -> Instruction:
+    def fetch_instruction(self, address: Addr = None, set_as_current: bool = True, disable_callbacks: bool = True) -> Instruction:
         """
         Fetch the instruction at the given address. If no address
         is specified the current program counter one is used.
@@ -512,21 +512,24 @@ class ProcessState(object):
 
         :param address: address where to get the instruction from
         :param set_as_current: set as the current instruction in the process state
+        :param disable_callbacks: whether memory callbacks should be disabled to fetch memory bytes
         :return: instruction disassembled
         """
         if address is None:
             address = self.cpu.program_counter
-        with self.memory.without_segmentation(disable_callbacks=True):
+        with self.memory.without_segmentation(disable_callbacks=disable_callbacks):
             data = self.memory.read(address, 16)
         i = Instruction(address, data)
         i.setThreadId(self.current_thread.tid)
         self.tt_ctx.disassembly(i)  # This needs to be done before using i.getSize()
                                     # otherwise, i.getSize() will always be 16
-        map = self.memory.get_map(address, i.getSize())
-        if map is None:
-            raise MemoryAccessViolation(address, Perm.X, memory_not_mapped=True)
-        if Perm.X not in map.perm:  # Note: in this model we can execute code in non-readable pages
-            raise MemoryAccessViolation(address, Perm.X, map_perm=map.perm, perm_error=True)
+
+        if self.memory.segmentation_enabled:
+            map = self.memory.get_map(address, i.getSize())
+            if map is None:
+                raise MemoryAccessViolation(address, Perm.X, memory_not_mapped=True)
+            if Perm.X not in map.perm:  # Note: in this model we can execute code in non-readable pages
+                raise MemoryAccessViolation(address, Perm.X, map_perm=map.perm, perm_error=True)
         if set_as_current:
             self.__current_inst = i
         return i
