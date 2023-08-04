@@ -257,7 +257,18 @@ class Seed(object):
         :rtype: Seed
         """
         raw = Path(path).read_bytes()
-        return Seed.from_bytes(raw, status)
+
+        seed = Seed.from_bytes(raw, status)
+
+        # Parse filename to extract back metadata if any
+        name = Path(path).name
+        if name.endswith(".tritondse.cov"):
+            name = name.replace(".tritondse.cov", "")
+        metas = name.split("_")
+        if len(metas) >= 4:
+            seed.meta_fname = metas[3:]
+
+        return seed
 
     # Utility function for composite seeds
     def is_file_defined(self, name: str) -> bool:
