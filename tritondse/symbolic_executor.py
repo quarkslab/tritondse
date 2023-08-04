@@ -288,9 +288,10 @@ class SymbolicExecutor(object):
                 logger.error(f"PC=0, is it normal ? (stop)")
                 return False
 
-            if not self.pstate.memory.has_ever_been_written(self.current_pc, CPUSIZE.BYTE):
-                logger.error(f"Instruction not mapped: 0x{self.current_pc:x}")
-                return False
+            if self.pstate.memory.segmentation_enabled:
+                if not self.pstate.memory.has_ever_been_written(self.current_pc, CPUSIZE.BYTE):
+                    logger.error(f"Instruction not mapped: 0x{self.current_pc:x}")
+                    return False
 
             instruction = self.pstate.fetch_instruction()
             opcode = instruction.getOpcode()
