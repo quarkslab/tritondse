@@ -153,12 +153,13 @@ class Memory(object):
         :param disable_callbacks: Whether to disable memory callbacks that could have been set
         :return:
         """
+        previous = self._segment_enabled
         self.disable_segmentation()
         cbs = self._mem_cbs_enabled
         self._mem_cbs_enabled = not disable_callbacks
         yield self
         self._mem_cbs_enabled = cbs
-        self.enable_segmentation()
+        self.set_segmentation(previous)
 
     def callbacks_enabled(self) -> bool:
         """
