@@ -106,6 +106,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
 
@@ -233,7 +234,8 @@
 
         <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span> <span class="k">else</span> <span class="n">args</span>
 
-        <span class="n">cmdlne</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;python -m pyqbdipreload </span><span class="si">{</span><span class="n">QBDITrace</span><span class="o">.</span><span class="n">QBDI_SCRIPT_FILEPATH</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">binary_path</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span>
+        <span class="n">cmdlne</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;timeout </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s1"> python -m pyqbdipreload </span><span class="si">{</span><span class="n">QBDITrace</span><span class="o">.</span><span class="n">QBDI_SCRIPT_FILEPATH</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">binary_path</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span>
+        <span class="n">cmdlne</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmdlne</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Command line: </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmdlne</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
@@ -250,16 +252,22 @@
         <span class="n">stdin_fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">stdin_file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">stdin_file</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="c1"># Run QBDI tool.</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmdlne</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">stdin_fp</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">environ</span><span class="p">)</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmdlne</span><span class="p">,</span>
+                                   <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">stdin</span><span class="o">=</span><span class="n">stdin_fp</span><span class="p">,</span>
+                                   <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+                                   <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+                                   <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
+                                   <span class="n">env</span><span class="o">=</span><span class="n">environ</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">stdout</span><span class="p">,</span> <span class="n">stderr</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;stdout: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">stderr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;stdout: </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># for line in stdout.split(b&quot;\n&quot;):</span>
+            <span class="c1">#     logger.debug(f&quot;stdout: {line}&quot;)</span>
+            <span class="c1"># for line in stderr.split(b&quot;\n&quot;):</span>
+            <span class="c1">#     logger.debug(f&quot;stdout: {line}&quot;)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
             <span class="n">process</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;QBDI tracer timeout expired!&#39;</span><span class="p">)</span>
+            <span class="c1"># logger.warning(&#39;QBDI tracer timeout expired!&#39;)</span>
             <span class="k">raise</span> <span class="n">TraceException</span><span class="p">(</span><span class="s1">&#39;QBDI tracer timeout expired&#39;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">stdin_fp</span><span class="p">:</span>
