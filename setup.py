@@ -13,7 +13,7 @@ with open("README.md") as f:
 
 setup(
     name="tritondse",
-    version="0.1.7",
+    version="0.1.8",
     description="A library of Dynamic Symbolic Exploration based the Triton library",
     packages=find_packages(),
     long_description=README,
