@@ -229,7 +229,10 @@ class SeedManager:
                 edge = (branch['srcAddr'], branch['dstAddr']) if typ == SymExType.CONDITIONAL_JMP else covitem
 
                 # Call on_branch_solving, if one replies False does not solve the branch
-                cb_result = all(cb(execution, execution.pstate, edge, typ) for cb in self.cbm.get_on_solving_callback())
+                if self.cbm is not None:
+                    cb_result = all(cb(execution, execution.pstate, edge, typ) for cb in self.cbm.get_on_solving_callback())
+                else:
+                    cb_result = True
 
                 # Add path_prefix in path predicate (regardless on whether we solve the item or not)
                 path_predicate.extend(x.getTakenPredicate() for x in p_prefix)
