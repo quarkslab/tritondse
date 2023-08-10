@@ -360,7 +360,18 @@
 <span class="sd">        :rtype: Seed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">raw</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">Seed</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span></div>
+
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">Seed</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+
+        <span class="c1"># Parse filename to extract back metadata if any</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.tritondse.cov&quot;</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.tritondse.cov&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">metas</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">metas</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">seed</span><span class="o">.</span><span class="n">meta_fname</span> <span class="o">=</span> <span class="n">metas</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">seed</span></div>
 
     <span class="c1"># Utility function for composite seeds</span>
 <div class="viewcode-block" id="Seed.is_file_defined"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_file_defined">[docs]</a>    <span class="k">def</span> <span class="nf">is_file_defined</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

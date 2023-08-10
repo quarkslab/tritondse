@@ -256,12 +256,13 @@
 <span class="sd">        :param disable_callbacks: Whether to disable memory callbacks that could have been set</span>
 <span class="sd">        :return:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">previous</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_enabled</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">disable_segmentation</span><span class="p">()</span>
         <span class="n">cbs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mem_cbs_enabled</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mem_cbs_enabled</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">disable_callbacks</span>
         <span class="k">yield</span> <span class="bp">self</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mem_cbs_enabled</span> <span class="o">=</span> <span class="n">cbs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">enable_segmentation</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_segmentation</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Memory.callbacks_enabled"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.callbacks_enabled">[docs]</a>    <span class="k">def</span> <span class="nf">callbacks_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

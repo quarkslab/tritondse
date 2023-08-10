@@ -64,6 +64,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.config"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.config</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.coverage"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.coverage</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.current_pc"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.current_pc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.emulate"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.emulate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.emulation_deinit"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.emulation_deinit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.emulation_init"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.emulation_init()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.end_time"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.end_time</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.enqueue_seed"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.enqueue_seed()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.execution_time"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.execution_time</span></code></a></li>
@@ -87,6 +90,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.seed"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.seed</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.skip_instruction"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.skip_instruction()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.start_time"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.start_time</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.step"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.step()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.stop_exploration"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.stop_exploration()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.trace_offset"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.trace_offset</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.uid"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.uid</span></code></a></li>
@@ -207,6 +211,21 @@ that takes care of returning appropriately afterward.</p>
 <span class="sig-name descname"><span class="pre">current_pc</span></span><a class="headerlink" href="#tritondse.SymbolicExecutor.current_pc" title="Permalink to this definition"></a></dt>
 <dd><p>current program counter</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.SymbolicExecutor.emulate">
+<span class="sig-name descname"><span class="pre">emulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/symbolic_executor.html#SymbolicExecutor.emulate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExecutor.emulate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.SymbolicExecutor.emulation_deinit">
+<span class="sig-name descname"><span class="pre">emulation_deinit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/symbolic_executor.html#SymbolicExecutor.emulation_deinit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExecutor.emulation_deinit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.SymbolicExecutor.emulation_init">
+<span class="sig-name descname"><span class="pre">emulation_init</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/symbolic_executor.html#SymbolicExecutor.emulation_init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExecutor.emulation_init" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tritondse.SymbolicExecutor.end_time">
@@ -481,6 +500,13 @@ relevant to call it from pre-inst or pre-addr callbacks.</p>
 <dt class="sig sig-object py" id="tritondse.SymbolicExecutor.start_time">
 <span class="sig-name descname"><span class="pre">start_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.SymbolicExecutor.start_time" title="Permalink to this definition"></a></dt>
 <dd><p>start time of the process</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.SymbolicExecutor.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/symbolic_executor.html#SymbolicExecutor.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExecutor.step" title="Permalink to this definition"></a></dt>
+<dd><p>Perform a single instruction step. Returns whether the emulation can
+continue or we have to stop.</p>
 </dd></dl>
 
 <dl class="py method">

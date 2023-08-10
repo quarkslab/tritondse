@@ -359,28 +359,42 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;symbolic </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"> at 0x</span><span class="si">{</span><span class="n">pc</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">: target: 0x</span><span class="si">{</span><span class="n">tgt_addr</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">lea_ast</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">push_constraint</span><span class="p">(</span><span class="n">lea_ast</span> <span class="o">==</span> <span class="n">tgt_addr</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sym-</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">trace_offset</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">pc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__emulate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SymbolicExecutor.emulate"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.emulate">[docs]</a>    <span class="k">def</span> <span class="nf">emulate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">stop</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">threads</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">():</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_status_set</span><span class="p">():</span>  <span class="c1"># Set a status if it has not already been done</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">OK_DONE</span>
+        <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="SymbolicExecutor.step"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform a single instruction step. Returns whether the emulation can</span>
+<span class="sd">        continue or we have to stop.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Schedule thread if it&#39;s time</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__schedule_thread</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;After scheduling current thread is not running (probably in a deadlock state)&quot;</span><span class="p">)</span>
-                <span class="k">break</span>  <span class="c1"># Were not able to find a suitable thread thus exit emulation</span>
+                <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Were not able to find a suitable thread thus exit emulation</span>
 
             <span class="c1"># Fetch program counter (of the thread selected), at this point the current thread should be running!</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_pc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">program_counter</span>  <span class="c1"># should normally be already set but still.</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pc</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_to_target</span><span class="p">:</span>  <span class="c1"># Hit the location we wanted to reach</span>
-                <span class="k">break</span>
+                <span class="k">return</span> <span class="kc">False</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_pc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PC=0, is it normal ? (stop)&quot;</span><span class="p">)</span>
-                <span class="k">break</span>
+                <span class="k">return</span> <span class="kc">False</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">has_ever_been_written</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pc</span><span class="p">,</span> <span class="n">CPUSIZE</span><span class="o">.</span><span class="n">BYTE</span><span class="p">):</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Instruction not mapped: 0x</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pc</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">break</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">segmentation_enabled</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">has_ever_been_written</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pc</span><span class="p">,</span> <span class="n">CPUSIZE</span><span class="o">.</span><span class="n">BYTE</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Instruction not mapped: 0x</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_pc</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
 
             <span class="n">instruction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">fetch_instruction</span><span class="p">()</span>
             <span class="n">opcode</span> <span class="o">=</span> <span class="n">instruction</span><span class="o">.</span><span class="n">getOpcode</span><span class="p">()</span>
@@ -407,7 +421,7 @@
                 <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">pre_insts</span><span class="p">:</span>
                     <span class="n">cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="p">,</span> <span class="n">instruction</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">SkipInstructionException</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
-                <span class="k">continue</span>
+                <span class="k">return</span> <span class="kc">True</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">is_syscall</span><span class="p">():</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;execute syscall instruction </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">_syscall_register</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -424,7 +438,7 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">skip_unsupported_instruction</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">program_counter</span> <span class="o">+=</span> <span class="n">instruction</span><span class="o">.</span><span class="n">getSize</span><span class="p">()</span> <span class="c1"># try to jump over the instruction</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="k">break</span>  <span class="c1"># stop emulation</span>
+                    <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># stop emulation</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_in_processing</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="c1"># increment trace offset</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">trace_offset</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -485,17 +499,28 @@
             <span class="k">except</span> <span class="n">AllocatorException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;An exception has been raised: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span>
-                <span class="k">return</span>
+                <span class="k">return</span> <span class="kc">False</span>
 
             <span class="c1"># Check timeout of the execution</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">execution_timeout</span> <span class="ow">and</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">execution_timeout</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Timeout of an execution reached&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">HANG</span>
-                <span class="k">return</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="n">AbortExecutionException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="n">MemoryAccessViolation</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Memory violation: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_status_set</span><span class="p">():</span>  <span class="c1"># Set a status if it has not already been done</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">OK_DONE</span>
-        <span class="k">return</span>
+            <span class="c1"># Call all the callbacks on the memory violations</span>
+            <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">get_memory_violation_callbacks</span><span class="p">():</span>
+                <span class="n">cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+            <span class="c1"># Assign the seed the status of crash</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_status_set</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
 
     <span class="k">def</span> <span class="nf">__handle_external_return</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routine_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ret_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Expression</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Symbolize or concretize return values of external functions &quot;&quot;&quot;</span>
@@ -633,22 +658,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="n">StopExplorationException</span><span class="p">(</span><span class="s2">&quot;Stop exploration&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.run"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop_at</span><span class="p">:</span> <span class="n">Addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Execute the program.</span>
-
-<span class="sd">        If the :py:attr:`tritondse.Config.execution_timeout` is not set</span>
-<span class="sd">        the execution might hang forever if the program does.</span>
-
-<span class="sd">        :param stop_at: Address where to stop (if necessary)</span>
-<span class="sd">        :return: None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">stop_at</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_run_to_target</span> <span class="o">=</span> <span class="n">stop_at</span>
-
+<div class="viewcode-block" id="SymbolicExecutor.emulation_init"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.emulation_init">[docs]</a>    <span class="k">def</span> <span class="nf">emulation_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ProcessState is None (have you called </span><span class="se">\&quot;</span><span class="s2">load</span><span class="se">\&quot;</span><span class="s2">?&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
@@ -678,22 +691,33 @@
 
         <span class="c1"># Call it here to make sure in case of &quot;load_process&quot; the use has properly instanciated the architecture</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_configure_pstate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__emulate</span><span class="p">()</span>
-        <span class="k">except</span> <span class="n">AbortExecutionException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">pass</span>
-        <span class="k">except</span> <span class="n">MemoryAccessViolation</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Memory violation: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="SymbolicExecutor.run"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop_at</span><span class="p">:</span> <span class="n">Addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the program.</span>
 
-            <span class="c1"># Call all the callbacks on the memory violations</span>
-            <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">get_memory_violation_callbacks</span><span class="p">():</span>
-                <span class="n">cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+<span class="sd">        If the :py:attr:`tritondse.Config.execution_timeout` is not set</span>
+<span class="sd">        the execution might hang forever if the program does.</span>
 
-            <span class="c1"># Assign the seed the status of crash</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_status_set</span><span class="p">():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span>
+<span class="sd">        :param stop_at: Address where to stop (if necessary)</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">stop_at</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_to_target</span> <span class="o">=</span> <span class="n">stop_at</span>
 
+        <span class="c1"># Call init steps</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">emulation_init</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="c1"># Run until reaching a stopping condition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emulate</span><span class="p">()</span>
+
+        <span class="c1"># Call termination steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emulation_deinit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SymbolicExecutor.emulation_deinit"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.emulation_deinit">[docs]</a>    <span class="k">def</span> <span class="nf">emulation_deinit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">post_cb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cbm</span><span class="o">.</span><span class="n">get_execution_callbacks</span><span class="p">()</span>
         <span class="c1"># Iterate through post exec callbacks</span>
         <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">post_cb</span><span class="p">:</span>
             <span class="n">cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="p">)</span>
