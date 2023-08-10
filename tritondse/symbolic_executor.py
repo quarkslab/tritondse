@@ -2,7 +2,10 @@
 import io
 import time
 import os
-import resource
+
+if os.name == 'posix':
+    import resource
+
 from typing import Optional, Union, List, NoReturn, Dict, Type
 
 # third party imports
@@ -671,16 +674,22 @@ class SymbolicExecutor(object):
 
     @staticmethod
     def mem_usage_str() -> str:
-        """ debug function to track memory consumption of an execution """
-        size, resident, shared, _, _, _, _ = (int(x) for x in open(f"/proc/{os.getpid()}/statm").read().split(" "))
-        resident = resident * resource.getpagesize()
-        units = [(float(1024), "Kb"), (float(1024 **2), "Mb"), (float(1024 **3), "Gb")]
-        for unit, s in units[::-1]:
-            if resident / unit < 1:
-                continue
-            else:  # We are on the right unit
-                return "%.2f%s" % (resident/unit, s)
-        return "%dB" % resident
+        """
+        Debug function to track memory consumption of an execution (not
+        implemented on Windows).
+        """
+        if os.name == "posix":
+            size, resident, shared, _, _, _, _ = (int(x) for x in open(f"/proc/{os.getpid()}/statm").read().split(" "))
+            resident = resident * resource.getpagesize()
+            units = [(float(1024), "Kb"), (float(1024 **2), "Mb"), (float(1024 **3), "Gb")]
+            for unit, s in units[::-1]:
+                if resident / unit < 1:
+                    continue
+                else:  # We are on the right unit
+                    return "%.2f%s" % (resident/unit, s)
+            return "%dB" % resident
+        else:
+          return "N/A"
 
     def mk_new_seed_from_model(self, model: Model) -> Seed:
         """
