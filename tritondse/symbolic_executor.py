@@ -702,7 +702,8 @@ class SymbolicExecutor(object):
             for i, sv in enumerate(symbolic):  # Enumerate symvars associated with each bytes
                 if sv is not None:
                     if sv.getId() in model:  # If solver provided a new value for the symvar
-                        concrete[i] = model[sv.getId()].getValue()  # Replace it in the bytearray
+                        value = model[sv.getId()].getValue()
+                        concrete[i] = value # Replace it in the bytearray
             return concrete
 
         if self.config.is_format_raw(): # RAW seed. => symbolize_stdin
@@ -774,7 +775,7 @@ class SymbolicExecutor(object):
         self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
         sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset) # Symbolize bytes
         sym_seed = self._symbolic_seed.files[name] if self.seed.is_composite() else self._symbolic_seed
-        sym_seed[offset:offset+len(value)-1] = sym_vars # Add symbolic variables to symbolic seed
+        sym_seed[offset:offset+len(value)] = sym_vars # Add symbolic variables to symbolic seed
         # FIXME: Handle if reading twice same input bytes !
 
     def inject_symbolic_variable_memory(self, addr: Addr, name: str, value: bytes, offset: int = 0) -> None:
