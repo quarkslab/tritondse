@@ -66,7 +66,7 @@ class SymbolicExecutor(object):
             logger.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
             self.config.seed_format = seed.format
 
-        self._symbolic_seed = self._init_symbolic_seed(seed)
+        self.symbolic_seed = self._init_symbolic_seed(seed) #: symbolic seed (same structure than Seed but with symbols)
 
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy)  #: Coverage of the execution
         self.rtn_table = dict()   # Addr -> Tuple[fname, routine]
@@ -190,10 +190,10 @@ class SymbolicExecutor(object):
         :return: True if the seed has already been inserted
         """
         if self.config.is_format_raw():
-            return bool(self._symbolic_seed)
+            return bool(self.symbolic_seed)
         elif self.config.is_format_composite():
             # Namely has one of the various input been injected or not
-            return bool(self._symbolic_seed.content.files) or bool(self._symbolic_seed.content.variables)
+            return bool(self.symbolic_seed.content.files) or bool(self.symbolic_seed.content.variables)
         else:
             assert False
 
@@ -707,7 +707,7 @@ class SymbolicExecutor(object):
             return concrete
 
         if self.config.is_format_raw(): # RAW seed. => symbolize_stdin
-            content = bytes(repl_bytearray(bytearray(self.seed.content), self._symbolic_seed))
+            content = bytes(repl_bytearray(bytearray(self.seed.content), self.symbolic_seed))
 
         elif self.config.is_format_composite():
             # NOTE will have to update this if more things are added to CompositeData
@@ -715,23 +715,23 @@ class SymbolicExecutor(object):
 
             # Handle argv (its meant to be here)
             args = [bytearray(x) for x in self.seed.content.argv]
-            new_argv = [bytes(repl_bytearray(c, s)) for c, s in zip(args, self._symbolic_seed.argv)]
+            new_argv = [bytes(repl_bytearray(c, s)) for c, s in zip(args, self.symbolic_seed.argv)]
 
             # Handle stdin and files
             # If the seed provides the content of files (#NOTE stdin is treated as a file)
             new_files = {}
             for k, c in self.seed.content.files.items():
-                if k in self._symbolic_seed.files:
-                    new_files[k] = bytes(repl_bytearray(bytearray(c), self._symbolic_seed.files[k]))
+                if k in self.symbolic_seed.files:
+                    new_files[k] = bytes(repl_bytearray(bytearray(c), self.symbolic_seed.files[k]))
                 else:
                     new_files[k] = c  # keep the current value in the seed
 
             # Handle variables, if the seed provides some
             new_variables = {}
             for k, c in self.seed.content.variables.items():
-                if k in self._symbolic_seed.variables:
+                if k in self.symbolic_seed.variables:
                     conc = bytearray(c) if isinstance(c, bytes) else [c]
-                    new_vals = repl_bytearray(conc, self._symbolic_seed.variables[k])
+                    new_vals = repl_bytearray(conc, self.symbolic_seed.variables[k])
                     new_variables[k] = bytes(new_vals) if isinstance(c, bytes) else new_vals[0]  # new variables are either bytes or int
                 else:
                     new_variables[k] = c  # If it has not been injected keep the current concrete value
@@ -761,7 +761,7 @@ class SymbolicExecutor(object):
         """
         self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
         sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), f"argv[{index}]") # Symbolize bytes
-        self._symbolic_seed.argv[index] = sym_vars # Add symbolic variables to symbolic seed
+        self.symbolic_seed.argv[index] = sym_vars # Add symbolic variables to symbolic seed
 
     def inject_symbolic_file_memory(self, addr: Addr, name: str, value: bytes, offset: int = 0) -> None:
         """
@@ -774,7 +774,7 @@ class SymbolicExecutor(object):
         """
         self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
         sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset) # Symbolize bytes
-        sym_seed = self._symbolic_seed.files[name] if self.seed.is_composite() else self._symbolic_seed
+        sym_seed = self.symbolic_seed.files[name] if self.seed.is_composite() else self.symbolic_seed
         sym_seed[offset:offset+len(value)] = sym_vars # Add symbolic variables to symbolic seed
         # FIXME: Handle if reading twice same input bytes !
 
@@ -790,7 +790,7 @@ class SymbolicExecutor(object):
         """
         self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
         sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset)  # Symbolize bytes
-        self._symbolic_seed.variables[name][offset:offset+len(value)-1] = sym_vars # Add symbolic variables to symbolic seed
+        self.symbolic_seed.variables[name][offset:offset+len(value)-1] = sym_vars # Add symbolic variables to symbolic seed
         # FIXME: Handle if reading twice same input bytes !
 
     def inject_symbolic_file_register(self, reg: Union[str, Register], name: str, value: int, offset: int = 0) -> None:
@@ -808,7 +808,7 @@ class SymbolicExecutor(object):
             return
         self.pstate.write_register(reg, value)  # Write concrete value in register
         sym_vars = self.pstate.symbolize_register(reg, f"{name}[{offset}]")  # Symbolize bytes
-        sym_seed = self._symbolic_seed.files[name] if self.seed.is_composite() else self._symbolic_seed
+        sym_seed = self.symbolic_seed.files[name] if self.seed.is_composite() else self.symbolic_seed
         sym_seed[offset] = sym_vars  # Add symbolic variables to symbolic seed
 
     def inject_symbolic_variable_register(self, reg: Union[str, Register], name: str, value: int) -> None:
@@ -827,7 +827,7 @@ class SymbolicExecutor(object):
         if isinstance(value, int):
             self.pstate.write_register(reg, value)                         # write concrete value in register
             sym_var = self.pstate.symbolize_register(reg, f"{name}[{0}]")  # symbolize value
-            self._symbolic_seed.variables[name][0] = sym_var               # add the symbolic variables to symbolic seed
+            self.symbolic_seed.variables[name][0] = sym_var               # add the symbolic variables to symbolic seed
         else:  # meant to be bytes
             logger.warning("variable injected in registers have to be integer values")
 
