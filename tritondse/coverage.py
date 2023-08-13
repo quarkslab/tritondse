@@ -404,10 +404,12 @@ class GlobalCoverage(CoverageSingleRun):
                         else:
                             logger.warning(f"memory constraint unexpected pattern: {pred}")
 
-                if BranchSolvingStrategy.SOUND_MEM_ACCESS in self.branch_strategy:
-                    pending_csts.append(pc)  # if sound add the mem dereference as a constraint in path predicate
-                    # NOTE: in both case the branch is not taken in account in the current_path_hash
+                    if BranchSolvingStrategy.SOUND_MEM_ACCESS in self.branch_strategy:
+                        pending_csts.append(pc)  # if sound add the mem dereference as a constraint in path predicate
+                        # NOTE: in both case the branch is not taken in account in the current_path_hash
 
+                else:  # Routines, or user-defined constraints thus add it all the time.
+                    pending_csts.append(pc)
 
     def _get_covitem(self, path_hash, branch: PathBranch) -> CovItem:
         src, dst = branch['srcAddr'], branch['dstAddr']
