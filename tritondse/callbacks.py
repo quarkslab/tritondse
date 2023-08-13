@@ -8,7 +8,7 @@ from triton import CALLBACK, Instruction, MemoryAccess, OPCODE
 
 # local imports
 from tritondse.process_state import ProcessState
-from tritondse.types import Addr, Input, Register, Expression, Edge, SymExType
+from tritondse.types import Addr, Input, Register, Expression, Edge, SymExType, AstNode
 from tritondse.thread_context import ThreadContext
 from tritondse.seed import Seed
 from tritondse.memory import MemoryAccessViolation
@@ -57,7 +57,7 @@ InstrCallback           = Callable[['SymbolicExecutor', ProcessState, Instructio
 MemReadCallback         = Callable[['SymbolicExecutor', ProcessState, MemoryAccess], None]
 MemWriteCallback        = Callable[['SymbolicExecutor', ProcessState, MemoryAccess, int], None]
 MnemonicCallback        = Callable[['SymbolicExecutor', ProcessState, OPCODE], None]
-SymExSolvingCallback    = Callable[['SymbolicExecutor', ProcessState, Edge, SymExType], bool]
+SymExSolvingCallback    = Callable[['SymbolicExecutor', ProcessState, Edge, SymExType, AstNode, List[AstNode]], bool]
 BranchCoveredCallback   = Callable[['SymbolicExecutor', ProcessState, Edge], bool]
 NewInputCallback        = Callable[['SymbolicExecutor', ProcessState, Seed], Optional[Seed]]
 OpcodeCallback          = Callable[['SymbolicExecutor', ProcessState, bytes], None]
