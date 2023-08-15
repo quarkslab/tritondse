@@ -134,7 +134,7 @@ class QBDITrace(Trace):
         cmdlne = f'timeout {timeout} python -m pyqbdipreload {QBDITrace.QBDI_SCRIPT_FILEPATH}'.split(' ') + [binary_path] + args
         cmdlne = " ".join(cmdlne)
 
-        logger.debug(f'Command line: {" ".join(cmdlne)}')
+        logger.debug(f'Command line: {cmdlne}')
 
         # Set environment variables.
         environ = {
