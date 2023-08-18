@@ -332,13 +332,14 @@ class SymbolicExecutor(object):
             if not self.pstate.process_instruction(instruction):
                 if self.pstate.is_halt_instruction():
                     logger.info(f"hit {str(instruction)} instruction stop.")
+                    return False
                 else:
                     logger.error('Instruction not supported: %s' % (str(instruction)))
+                    if self.config.skip_unsupported_instruction:
+                        self.pstate.cpu.program_counter += instruction.getSize() # try to jump over the instruction
+                    else:
+                        return False  # stop emulation
 
-                if self.config.skip_unsupported_instruction:
-                    self.pstate.cpu.program_counter += instruction.getSize() # try to jump over the instruction
-                else:
-                    return False  # stop emulation
             self._in_processing = False
             # increment trace offset
             self.trace_offset += 1
