@@ -36,3 +36,12 @@ class AllocatorException(Exception):
     """
     def __init__(self, message):
         super(Exception, self).__init__(message)
+
+
+class ProbeException(Exception):
+    """
+    Exception to raise in a probe to stop the current exception.
+    It is caught by SymbolicExplorator.
+    """
+    def __init__(self, message):
+        super(Exception, self).__init__(message)
