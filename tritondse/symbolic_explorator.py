@@ -11,6 +11,7 @@ from tritondse.config            import Config
 from tritondse.process_state     import ProcessState
 from tritondse.loaders           import Loader
 from tritondse.seed              import Seed
+from tritondse.seed              import SeedStatus
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.workspace         import Workspace
 from tritondse.coverage          import GlobalCoverage

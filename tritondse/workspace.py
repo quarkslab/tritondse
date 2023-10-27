@@ -25,6 +25,7 @@ class Workspace(object):
     CORPUS_DIR = "corpus"
     CRASH_DIR = "crashes"
     HANG_DIR = "hangs"
+    FAIL_DIR = "fails"
     WORKLIST_DIR = "worklist"
     METADATA_DIR = "metadata"
     BIN_DIR = "bin"
@@ -54,7 +55,7 @@ class Workspace(object):
         :type flush: bool
         """
 
-        for dir in (self.root_dir / x for x in [self.CORPUS_DIR, self.CRASH_DIR, self.HANG_DIR, self.WORKLIST_DIR, self.METADATA_DIR, self.BIN_DIR]):
+        for dir in (self.root_dir / x for x in [self.CORPUS_DIR, self.CRASH_DIR, self.HANG_DIR, self.WORKLIST_DIR, self.METADATA_DIR, self.BIN_DIR, self.FAIL_DIR]):
             if not dir.exists():
                 logger.debug(f"Creating the {dir} directory")
                 dir.mkdir(parents=True)
@@ -161,6 +162,15 @@ class Workspace(object):
         """
         yield from self._iter_seeds(self.WORKLIST_DIR, SeedStatus.NEW)
 
+    def iter_fails(self) -> Generator[Seed, None, None]:
+        """
+        Iterate over the fail files as Seed object.
+
+        :returns: generator of Seed object
+        :rtype: Generator[Seed, None, None]
+        """
+        yield from self._iter_seeds(self.FAIL_DIR, SeedStatus.FAIL)
+
     def save_seed(self, seed: Seed) -> None:
         """
         Save the current seed in the workspace directory matching its status.
@@ -171,7 +181,8 @@ class Workspace(object):
         mapper = {SeedStatus.NEW: self.WORKLIST_DIR,
                   SeedStatus.OK_DONE: self.CORPUS_DIR,
                   SeedStatus.HANG: self.HANG_DIR,
-                  SeedStatus.CRASH: self.CRASH_DIR}
+                  SeedStatus.CRASH: self.CRASH_DIR,
+                  SeedStatus.FAIL: self.FAIL_DIR}
         p = (self.root_dir / mapper[seed.status]) / seed.filename
         p.write_bytes(bytes(seed))
 

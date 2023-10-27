@@ -408,14 +408,18 @@ class SymbolicExecutor(object):
                 self.seed.status = SeedStatus.HANG
                 return False
             return True
-        except AbortExecutionException as e:
-            return False
-        except MemoryAccessViolation as e:
-            logger.warning(f"Memory violation: {str(e)}")
 
             # Call all the callbacks on the memory violations
             for cb in self.callback_manager.get_memory_violation_callbacks():
                 cb(self, self.pstate, e)
+        except AbortExecutionException as e:
+            return False
+        except MemoryAccessViolation as e:
+            logger.warning(f"Memory violation: {str(e)}")
+        except Exception as e:
+            logger.warning(f"Execution interrupted: {e}")
+            self.seed.status = SeedStatus.FAIL
+            return False
 
             # Assign the seed the status of crash
             if not self.seed.is_status_set():

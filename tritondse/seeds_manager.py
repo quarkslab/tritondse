@@ -54,6 +54,7 @@ class SeedManager:
         self.corpus = set()
         self.crash = set()
         self.hangs = set()
+        self.fails = set()
 
         self.__load_seed_workspace()
 
@@ -82,10 +83,13 @@ class SeedManager:
         # Load worklist
         for seed in self.workspace.iter_worklist():
             self.worklist.add(seed)
+        # Load fails
+        for seed in self.workspace.iter_fails():
+            self.fails.add(seed)
 
     def is_new_seed(self, seed: Seed) -> bool:
         """
-        Check if a seed is a new one (not into corpus, crash and hangs)
+        Check if a seed is a new one (not into corpus, crash, hangs and fails)
 
         :param seed: The seed to test
         :type seed: Seed
@@ -94,7 +98,7 @@ class SeedManager:
         .. warning:: That function does not check that the seed
                      is not in the pending seeds queue
         """
-        return sum(seed in x for x in [self.corpus, self.crash, self.hangs]) == 0
+        return sum(seed in x for x in [self.corpus, self.crash, self.hangs, self.fails]) == 0
 
     def add_seed_queue(self, seed: Seed) -> None:
         """
@@ -115,6 +119,8 @@ class SeedManager:
             self.hangs.add(seed)
         elif seed.status == SeedStatus.CRASH:
             self.crash.add(seed)
+        elif seed.status == SeedStatus.FAIL:
+            self.fails.add(seed)
         else:
             assert False
 
@@ -159,7 +165,7 @@ class SeedManager:
             logger.error(f"seed not meant to be NEW at the end of execution ({seed.hash}) (dropped)")
             self.drop_seed(seed)
 
-        elif seed.status in [SeedStatus.HANG, SeedStatus.CRASH]:
+        elif seed.status in [SeedStatus.HANG, SeedStatus.CRASH, SeedStatus.FAIL]:
             self.archive_seed(seed)
             # NOTE: Do not perform further processing on the seed (like generating inputs from it)
 
