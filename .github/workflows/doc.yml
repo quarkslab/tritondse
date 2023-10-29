@@ -18,7 +18,7 @@ jobs:
       - name: "Set up Python"
         uses: actions/setup-python@v1
         with:
-          python-version: 3.12.0
+          python-version: 3.11.6
 
       - name: "Install Pandoc"
         run: |
@@ -29,6 +29,7 @@ jobs:
         run: |
           cd doc/
           pip3 install setuptools
+          pip3 install --upgrade pip
           pip3 install -r requirements.txt
 
       - name: "Build Sphinx Doc"
