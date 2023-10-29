@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -132,7 +132,9 @@
 <span class="sd">* a tuple of both a Pathhash and an edge</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="CoverageStrategy"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageStrategy">[docs]</a><span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
+<div class="viewcode-block" id="CoverageStrategy">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageStrategy">[docs]</a>
+<span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
 <span class="k">class</span> <span class="nc">CoverageStrategy</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Coverage strategy (metric) enum.</span>
@@ -146,7 +148,10 @@
     <span class="n">PREFIXED_EDGE</span> <span class="o">=</span> <span class="s2">&quot;PREFIXED_EDGE&quot;</span>  <span class="c1"># doc: edge coverage but also taking in account path prefix)</span></div>
 
 
-<div class="viewcode-block" id="BranchSolvingStrategy"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.BranchSolvingStrategy">[docs]</a><span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
+
+<div class="viewcode-block" id="BranchSolvingStrategy">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.BranchSolvingStrategy">[docs]</a>
+<span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
 <span class="k">class</span> <span class="nc">BranchSolvingStrategy</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Branch strategy enumerate.</span>
@@ -169,7 +174,10 @@
     <span class="n">MANUAL</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>                  <span class="c1"># doc: disable automatic branch solving after an execution (has to be done manually in callbacks)</span></div>
 
 
-<div class="viewcode-block" id="CoverageSingleRun"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun">[docs]</a><span class="k">class</span> <span class="nc">CoverageSingleRun</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CoverageSingleRun">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun">[docs]</a>
+<span class="k">class</span> <span class="nc">CoverageSingleRun</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Coverage produced by a **Single Execution**</span>
 <span class="sd">    Depending on the strategy given to the constructor</span>
@@ -199,7 +207,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; List of addresses forming the path currently being taken &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">()</span>
 
-<div class="viewcode-block" id="CoverageSingleRun.add_covered_address"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.add_covered_address">[docs]</a>    <span class="k">def</span> <span class="nf">add_covered_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="CoverageSingleRun.add_covered_address">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.add_covered_address">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_covered_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add an instruction address covered.</span>
 <span class="sd">        *(Called by :py:obj:`SymbolicExecutor` for each</span>
@@ -210,7 +220,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">covered_instructions</span><span class="p">[</span><span class="n">address</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="CoverageSingleRun.add_covered_dynamic_branch"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.add_covered_dynamic_branch">[docs]</a>    <span class="k">def</span> <span class="nf">add_covered_dynamic_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CoverageSingleRun.add_covered_dynamic_branch">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.add_covered_dynamic_branch">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_covered_dynamic_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a dynamic branch covered. The branch will be encoded according to the</span>
 <span class="sd">        coverage strategy.</span>
@@ -238,7 +251,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="CoverageSingleRun.add_covered_branch"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.add_covered_branch">[docs]</a>    <span class="k">def</span> <span class="nf">add_covered_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program_counter</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">taken_addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">not_taken_addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CoverageSingleRun.add_covered_branch">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.add_covered_branch">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_covered_branch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">program_counter</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">taken_addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">not_taken_addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a branch to our covered branches list. Each branch is encoded according</span>
 <span class="sd">        to the coverage strategy. For code coverage, the branch encoding is the</span>
@@ -305,6 +321,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">taken_addr</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;Q&quot;</span><span class="p">,</span> <span class="n">taken_addr</span><span class="p">))</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">unique_instruction_covered</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -326,7 +343,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">covered_instructions</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
-<div class="viewcode-block" id="CoverageSingleRun.post_execution"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.post_execution">[docs]</a>    <span class="k">def</span> <span class="nf">post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="CoverageSingleRun.post_execution">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.post_execution">[docs]</a>
+    <span class="k">def</span> <span class="nf">post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function is called after each execution</span>
 <span class="sd">        for post processing or clean-up. *(Not</span>
@@ -334,7 +353,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="CoverageSingleRun.is_covered"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.is_covered">[docs]</a>    <span class="k">def</span> <span class="nf">is_covered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">CovItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CoverageSingleRun.is_covered">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.is_covered">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_covered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">CovItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return whether the item has been covered or not.</span>
 <span class="sd">        **The item should match the strategy**</span>
@@ -351,7 +373,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span></div>
 
-<div class="viewcode-block" id="CoverageSingleRun.pp_item"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.pp_item">[docs]</a>    <span class="k">def</span> <span class="nf">pp_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covitem</span><span class="p">:</span> <span class="n">CovItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CoverageSingleRun.pp_item">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.pp_item">[docs]</a>
+    <span class="k">def</span> <span class="nf">pp_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covitem</span><span class="p">:</span> <span class="n">CovItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pretty print a CovItem according the coverage strategy</span>
 
@@ -367,18 +392,25 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PREFIXED_EDGE</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">covitem</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s2">_0x</span><span class="si">{</span><span class="n">covitem</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2">-0x</span><span class="si">{</span><span class="n">covitem</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2">)&quot;</span></div>
 
-<div class="viewcode-block" id="CoverageSingleRun.difference"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.difference">[docs]</a>    <span class="k">def</span> <span class="nf">difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CoverageSingleRun.difference">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.CoverageSingleRun.difference">[docs]</a>
+    <span class="k">def</span> <span class="nf">difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">strategy</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Trying to make difference of coverage with different strategies&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="nb">set</span><span class="p">()</span></div>
 
+
     <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="GlobalCoverage"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage">[docs]</a><span class="k">class</span> <span class="nc">GlobalCoverage</span><span class="p">(</span><span class="n">CoverageSingleRun</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GlobalCoverage">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage">[docs]</a>
+<span class="k">class</span> <span class="nc">GlobalCoverage</span><span class="p">(</span><span class="n">CoverageSingleRun</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Global Coverage.</span>
 <span class="sd">    Represent the overall coverage of the exploration.</span>
@@ -411,7 +443,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">covered_symbolic_pointers</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">Addr</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Set of addresses for which pointers have been enumerated &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="GlobalCoverage.iter_new_paths"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.iter_new_paths">[docs]</a>    <span class="k">def</span> <span class="nf">iter_new_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PathConstraint</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">SymExType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">PathConstraint</span><span class="p">],</span> <span class="n">PathBranch</span><span class="p">,</span> <span class="n">CovItem</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SolverStatus</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+<div class="viewcode-block" id="GlobalCoverage.iter_new_paths">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.iter_new_paths">[docs]</a>
+    <span class="k">def</span> <span class="nf">iter_new_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PathConstraint</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">SymExType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">PathConstraint</span><span class="p">],</span> <span class="n">PathBranch</span><span class="p">,</span> <span class="n">CovItem</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SolverStatus</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The function iterate the given path predicate and yield PatchConstraint to</span>
 <span class="sd">        consider as-is and PathBranch representing the new branch to take. It acts</span>
@@ -509,6 +543,7 @@
 
                 <span class="k">if</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">SOUND_MEM_ACCESS</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">:</span>
                     <span class="n">pending_csts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>  <span class="c1"># if sound add the mem dereference as a constraint in path predicate</span></div>
+
                     <span class="c1"># NOTE: in both case the branch is not taken in account in the current_path_hash</span>
 
 
@@ -574,7 +609,9 @@
         <span class="k">return</span> <span class="n">not_covered</span>
 
 
-<div class="viewcode-block" id="GlobalCoverage.merge"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="GlobalCoverage.merge">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.merge">[docs]</a>
+    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Merge a CoverageSingeRun instance into this instance</span>
 
@@ -616,7 +653,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">not_covered_items</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">not_covered_items</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 
-<div class="viewcode-block" id="GlobalCoverage.can_improve_coverage"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.can_improve_coverage">[docs]</a>    <span class="k">def</span> <span class="nf">can_improve_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="GlobalCoverage.can_improve_coverage">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.can_improve_coverage">[docs]</a>
+    <span class="k">def</span> <span class="nf">can_improve_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if some of the non-covered are not already in the global coverage</span>
 <span class="sd">        Used to know if an input is relevant to keep or not</span>
@@ -627,7 +667,10 @@
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">new_items_to_cover</span><span class="p">(</span><span class="n">other</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="GlobalCoverage.can_cover_symbolic_pointers"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.can_cover_symbolic_pointers">[docs]</a>    <span class="k">def</span> <span class="nf">can_cover_symbolic_pointers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="GlobalCoverage.can_cover_symbolic_pointers">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.can_cover_symbolic_pointers">[docs]</a>
+    <span class="k">def</span> <span class="nf">can_cover_symbolic_pointers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Determines if this execution has symbolic memory accesses to enumerate. If so we may want</span>
 <span class="sd">        to enumerate them even though </span>
@@ -649,7 +692,10 @@
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="GlobalCoverage.new_items_to_cover"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.new_items_to_cover">[docs]</a>    <span class="k">def</span> <span class="nf">new_items_to_cover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="GlobalCoverage.new_items_to_cover">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.new_items_to_cover">[docs]</a>
+    <span class="k">def</span> <span class="nf">new_items_to_cover</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">CovItem</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return all coverage items (addreses, edges, paths) that the given CoverageSingleRun</span>
 <span class="sd">        can cover if it is possible to negate their branches</span>
@@ -662,7 +708,10 @@
         <span class="c1"># Resulting covitem are really new ones that the trace brings</span>
         <span class="k">return</span> <span class="n">other</span><span class="o">.</span><span class="n">not_covered_items</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">uncoverable_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_coverage</span></div>
 
-<div class="viewcode-block" id="GlobalCoverage.improve_coverage"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.improve_coverage">[docs]</a>    <span class="k">def</span> <span class="nf">improve_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="GlobalCoverage.improve_coverage">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.improve_coverage">[docs]</a>
+    <span class="k">def</span> <span class="nf">improve_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the given object do cover new covitem than the current</span>
 <span class="sd">        coverage. More concretely it performs the difference between the</span>
@@ -673,13 +722,19 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_items</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="GlobalCoverage.from_file"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="GlobalCoverage.from_file">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.from_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;GlobalCoverage&#39;</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">obj</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">obj</span></div>
 
-<div class="viewcode-block" id="GlobalCoverage.to_file"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.to_file">[docs]</a>    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="GlobalCoverage.to_file">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.to_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -687,7 +742,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_path_hash</span> <span class="o">=</span> <span class="n">copy</span></div>
 
 
-<div class="viewcode-block" id="GlobalCoverage.post_exploration"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.post_exploration">[docs]</a>    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="s1">&#39;Workspace&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="GlobalCoverage.post_exploration">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.post_exploration">[docs]</a>
+    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="s1">&#39;Workspace&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Function called at the very end of the exploration.</span>
 <span class="sd">        It saves the coverage in the workspace.</span>
 
@@ -697,7 +755,10 @@
         <span class="c1"># Save the coverage</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">workspace</span><span class="o">.</span><span class="n">get_metadata_file_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">COVERAGE_FILE</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="GlobalCoverage.clone"><a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.clone">[docs]</a>    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;GlobalCoverage&#39;</span><span class="p">:</span>
+
+<div class="viewcode-block" id="GlobalCoverage.clone">
+<a class="viewcode-back" href="../../api/coverage.html#tritondse.coverage.GlobalCoverage.clone">[docs]</a>
+    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;GlobalCoverage&#39;</span><span class="p">:</span>
         <span class="n">cov2</span> <span class="o">=</span> <span class="n">GlobalCoverage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">strategy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">branch_strategy</span><span class="p">)</span>
 
         <span class="c1"># Copy items from the CoverageSingleRun</span>
@@ -713,7 +774,9 @@
         <span class="n">cov2</span><span class="o">.</span><span class="n">pending_coverage</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_coverage</span><span class="p">}</span>
         <span class="n">cov2</span><span class="o">.</span><span class="n">uncoverable_items</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">uncoverable_items</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="n">cov2</span><span class="o">.</span><span class="n">covered_symbolic_pointers</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">covered_symbolic_pointers</span><span class="p">}</span>
-        <span class="k">return</span> <span class="n">cov2</span></div></div>
+        <span class="k">return</span> <span class="n">cov2</span></div>
+</div>
+
 </pre></div>
 
            </div>

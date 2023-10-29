@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -130,7 +130,9 @@
     <span class="k">return</span> <span class="n">Seed</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">new_input</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="UAFSanitizer"><a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.UAFSanitizer">[docs]</a><span class="k">class</span> <span class="nc">UAFSanitizer</span><span class="p">(</span><span class="n">ProbeInterface</span><span class="p">):</span>
+<div class="viewcode-block" id="UAFSanitizer">
+<a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.UAFSanitizer">[docs]</a>
+<span class="k">class</span> <span class="nc">UAFSanitizer</span><span class="p">(</span><span class="n">ProbeInterface</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Use-After-Free Sanitizer.</span>
 <span class="sd">    It is able to detect UaF and double-free. It works by hooking</span>
@@ -144,7 +146,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_callback</span><span class="p">(</span><span class="n">CbType</span><span class="o">.</span><span class="n">MEMORY_WRITE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory_write</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_callback</span><span class="p">(</span><span class="n">CbType</span><span class="o">.</span><span class="n">PRE_RTN</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_free_routine</span><span class="p">,</span> <span class="s1">&#39;free&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="UAFSanitizer.check"><a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.UAFSanitizer.check">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="UAFSanitizer.check">
+<a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.UAFSanitizer.check">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks whether the given ``ptr`` is symptomatic of a Use-After-Free by querying</span>
@@ -167,6 +171,7 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_memory_read</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">pstate</span><span class="p">,</span> <span class="n">mem</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">UAFSanitizer</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">pstate</span><span class="p">,</span> <span class="n">mem</span><span class="o">.</span><span class="n">getAddress</span><span class="p">(),</span> <span class="sa">f</span><span class="s1">&#39;UAF detected at </span><span class="si">{</span><span class="n">mem</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -181,7 +186,10 @@
         <span class="k">return</span> <span class="n">UAFSanitizer</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">pstate</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Double free detected at </span><span class="si">{</span><span class="n">addr</span><span class="si">:</span><span class="s1">#x</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="NullDerefSanitizer"><a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.NullDerefSanitizer">[docs]</a><span class="k">class</span> <span class="nc">NullDerefSanitizer</span><span class="p">(</span><span class="n">ProbeInterface</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NullDerefSanitizer">
+<a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.NullDerefSanitizer">[docs]</a>
+<span class="k">class</span> <span class="nc">NullDerefSanitizer</span><span class="p">(</span><span class="n">ProbeInterface</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Null Dereference Sanitizer.</span>
 <span class="sd">    Simply checks if any memory read or write is performed at address 0.</span>
@@ -192,7 +200,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_callback</span><span class="p">(</span><span class="n">CbType</span><span class="o">.</span><span class="n">MEMORY_READ</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory_read</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_callback</span><span class="p">(</span><span class="n">CbType</span><span class="o">.</span><span class="n">MEMORY_WRITE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory_write</span><span class="p">)</span>
 
-<div class="viewcode-block" id="NullDerefSanitizer.check"><a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.NullDerefSanitizer.check">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="NullDerefSanitizer.check">
+<a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.NullDerefSanitizer.check">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks that the ``ptr`` given is basically not 0.</span>
@@ -237,6 +247,7 @@
 
         <span class="k">return</span> <span class="kc">False</span></div>
 
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_memory_read</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">pstate</span><span class="p">,</span> <span class="n">mem</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">NullDerefSanitizer</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">pstate</span><span class="p">,</span> <span class="n">mem</span><span class="o">.</span><span class="n">getAddress</span><span class="p">(),</span> <span class="sa">f</span><span class="s1">&#39;Invalid memory access when reading at </span><span class="si">{</span><span class="n">mem</span><span class="si">}</span><span class="s1"> from </span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">current_instruction</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -246,7 +257,10 @@
         <span class="k">return</span> <span class="n">NullDerefSanitizer</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">pstate</span><span class="p">,</span> <span class="n">mem</span><span class="o">.</span><span class="n">getAddress</span><span class="p">(),</span> <span class="sa">f</span><span class="s1">&#39;Invalid memory access when writting at </span><span class="si">{</span><span class="n">mem</span><span class="si">}</span><span class="s1"> from </span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">current_instruction</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FormatStringSanitizer"><a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.FormatStringSanitizer">[docs]</a><span class="k">class</span> <span class="nc">FormatStringSanitizer</span><span class="p">(</span><span class="n">ProbeInterface</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FormatStringSanitizer">
+<a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.FormatStringSanitizer">[docs]</a>
+<span class="k">class</span> <span class="nc">FormatStringSanitizer</span><span class="p">(</span><span class="n">ProbeInterface</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Format String Sanitizer.</span>
 <span class="sd">    This probes hooks standard libc functions like &#39;printf&#39;, &#39;fprintf&#39;, &#39;sprintf&#39;,</span>
@@ -265,7 +279,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_callback</span><span class="p">(</span><span class="n">CbType</span><span class="o">.</span><span class="n">PRE_RTN</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xprintf_arg1_routine</span><span class="p">,</span> <span class="s1">&#39;dprintf&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_callback</span><span class="p">(</span><span class="n">CbType</span><span class="o">.</span><span class="n">PRE_RTN</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xprintf_arg1_routine</span><span class="p">,</span> <span class="s1">&#39;snprintf&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FormatStringSanitizer.check"><a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.FormatStringSanitizer.check">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="FormatStringSanitizer.check">
+<a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.FormatStringSanitizer.check">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">pstate</span><span class="p">,</span> <span class="n">fmt_ptr</span><span class="p">,</span> <span class="n">extra_data</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks that the format string at ``fmt_ptr`` does not contain</span>
@@ -328,6 +344,7 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_xprintf_arg0_routine</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">pstate</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
         <span class="n">string_ptr</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -339,7 +356,10 @@
         <span class="n">FormatStringSanitizer</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">se</span><span class="p">,</span> <span class="n">pstate</span><span class="p">,</span> <span class="n">string_ptr</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">addr</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="IntegerOverflowSanitizer"><a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.IntegerOverflowSanitizer">[docs]</a><span class="k">class</span> <span class="nc">IntegerOverflowSanitizer</span><span class="p">(</span><span class="n">ProbeInterface</span><span class="p">):</span>
+
+<div class="viewcode-block" id="IntegerOverflowSanitizer">
+<a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.IntegerOverflowSanitizer">[docs]</a>
+<span class="k">class</span> <span class="nc">IntegerOverflowSanitizer</span><span class="p">(</span><span class="n">ProbeInterface</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Integer Overflow Sanitizer.</span>
 <span class="sd">    This probe checks on every instructions that the overflow</span>
@@ -352,7 +372,9 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">IntegerOverflowSanitizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_callback</span><span class="p">(</span><span class="n">CbType</span><span class="o">.</span><span class="n">POST_INST</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">check</span><span class="p">)</span>
 
-<div class="viewcode-block" id="IntegerOverflowSanitizer.check"><a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.IntegerOverflowSanitizer.check">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="IntegerOverflowSanitizer.check">
+<a class="viewcode-back" href="../../api/sanitizers.html#tritondse.sanitizers.IntegerOverflowSanitizer.check">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">instruction</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The entry point of the sanitizer. This function check if a bug is present</span>
@@ -386,7 +408,9 @@
                     <span class="n">se</span><span class="o">.</span><span class="n">enqueue_seed</span><span class="p">(</span><span class="n">crash_seed</span><span class="p">)</span>
                     <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">return</span> <span class="kc">False</span></div></div>
+        <span class="k">return</span> <span class="kc">False</span></div>
+</div>
+
 </pre></div>
 
            </div>

@@ -10,11 +10,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -116,13 +116,17 @@
 <span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">Endian</span>
 
 
-<div class="viewcode-block" id="QuokkaProgram"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram">[docs]</a><span class="k">class</span> <span class="nc">QuokkaProgram</span><span class="p">(</span><span class="n">quokka</span><span class="o">.</span><span class="n">Program</span><span class="p">):</span>
+<div class="viewcode-block" id="QuokkaProgram">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram">[docs]</a>
+<span class="k">class</span> <span class="nc">QuokkaProgram</span><span class="p">(</span><span class="n">quokka</span><span class="o">.</span><span class="n">Program</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">exec_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">QuokkaProgram</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">export_file</span><span class="p">,</span> <span class="n">exec_path</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">program</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">executable</span><span class="o">.</span><span class="n">exec_file</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
 
-<div class="viewcode-block" id="QuokkaProgram.get_call_graph"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.get_call_graph">[docs]</a>    <span class="k">def</span> <span class="nf">get_call_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backedge_on_ret</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">networkx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
+<div class="viewcode-block" id="QuokkaProgram.get_call_graph">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.get_call_graph">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_call_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backedge_on_ret</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">networkx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the call graph of the program.</span>
 
@@ -136,7 +140,10 @@
                 <span class="n">g</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">((</span><span class="n">x</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">fun</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fun</span><span class="o">.</span><span class="n">calls</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">g</span></div>
 
-<div class="viewcode-block" id="QuokkaProgram.get_slice"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.get_slice">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="QuokkaProgram.get_slice">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.get_slice">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_slice</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">networkx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">frm</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">networkx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the slice between the two nodes on the given graph.</span>
@@ -152,14 +159,20 @@
         <span class="n">preds</span> <span class="o">=</span> <span class="n">networkx</span><span class="o">.</span><span class="n">ancestors</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">to</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">graph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">succs</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">preds</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="n">frm</span><span class="p">,</span> <span class="n">to</span><span class="p">}))</span></div>
 
-<div class="viewcode-block" id="QuokkaProgram.merge"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">):</span>
+
+<div class="viewcode-block" id="QuokkaProgram.merge">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.merge">[docs]</a>
+    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">):</span>
         <span class="c1"># TODO: To implement</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">export_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">  funs:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
 
-<div class="viewcode-block" id="QuokkaProgram.get_caller_instructions"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.get_caller_instructions">[docs]</a>    <span class="k">def</span> <span class="nf">get_caller_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">quokka</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<div class="viewcode-block" id="QuokkaProgram.get_caller_instructions">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.get_caller_instructions">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_caller_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">quokka</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of instructions calling `target`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -176,6 +189,7 @@
             <span class="n">inst</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">instructions</span><span class="p">)[</span><span class="n">offset</span><span class="p">]</span>
             <span class="n">caller_instructions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">address</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">caller_instructions</span></div>
+
 
 
     <span class="c1"># ============== Methods for interroperability with Program object ==============</span>
@@ -211,22 +225,38 @@
     <span class="k">def</span> <span class="nf">relocation_enum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">relocation_enum</span>
 
-<div class="viewcode-block" id="QuokkaProgram.memory_segments"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.memory_segments">[docs]</a>    <span class="k">def</span> <span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<div class="viewcode-block" id="QuokkaProgram.memory_segments">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.memory_segments">[docs]</a>
+    <span class="k">def</span> <span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">memory_segments</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="QuokkaProgram.imported_functions_relocations"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.imported_functions_relocations">[docs]</a>    <span class="k">def</span> <span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="QuokkaProgram.imported_functions_relocations">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.imported_functions_relocations">[docs]</a>
+    <span class="k">def</span> <span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">imported_functions_relocations</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="QuokkaProgram.imported_variable_symbols_relocations"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.imported_variable_symbols_relocations">[docs]</a>    <span class="k">def</span> <span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="QuokkaProgram.imported_variable_symbols_relocations">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.imported_variable_symbols_relocations">[docs]</a>
+    <span class="k">def</span> <span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">imported_variable_symbols_relocations</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="QuokkaProgram.find_function_addr"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.find_function_addr">[docs]</a>    <span class="k">def</span> <span class="nf">find_function_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Addr</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="QuokkaProgram.find_function_addr">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.find_function_addr">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_function_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Addr</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">find_function_addr</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="QuokkaProgram.find_function_from_addr"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.find_function_from_addr">[docs]</a>    <span class="k">def</span> <span class="nf">find_function_from_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">quokka</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">Function</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="QuokkaProgram.find_function_from_addr">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.find_function_from_addr">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_function_from_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">quokka</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">Function</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">in_func</span><span class="p">(</span><span class="n">address</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">f</span></div></div>
+                <span class="k">return</span> <span class="n">f</span></div>
+</div>
+
 </pre></div>
 
            </div>

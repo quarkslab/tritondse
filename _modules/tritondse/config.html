@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -114,7 +114,9 @@
 <span class="kn">from</span> <span class="nn">tritondse.seed</span> <span class="kn">import</span> <span class="n">SeedFormat</span>
 
 
-<div class="viewcode-block" id="Config"><a class="viewcode-back" href="../../api/configuration.html#tritondse.Config">[docs]</a><span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Config">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config">[docs]</a>
+<span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Data class holding tritondse configuration</span>
 <span class="sd">    parameter</span>
@@ -227,7 +229,9 @@
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">23</span><span class="p">)</span><span class="si">}</span><span class="s2">= </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
 
-<div class="viewcode-block" id="Config.to_file"><a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.to_file">[docs]</a>    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Config.to_file">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.to_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the current configuration to a file</span>
 
@@ -236,7 +240,10 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="Config.from_file"><a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="Config.from_file">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.from_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Config&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a configuration from a file to a new instance of Config</span>
@@ -247,7 +254,10 @@
         <span class="n">raw</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">Config</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Config.from_json"><a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.from_json">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="Config.from_json">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.from_json">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Config&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a configuration from a json input to a new instance of Config</span>
@@ -270,7 +280,10 @@
                 <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;config unknown parameter: </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">c</span></div>
 
-<div class="viewcode-block" id="Config.to_json"><a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Config.to_json">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.to_json">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert the current configuration to a json output</span>
 
@@ -288,13 +301,21 @@
                 <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Config.is_format_composite"><a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.is_format_composite">[docs]</a>    <span class="k">def</span> <span class="nf">is_format_composite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Config.is_format_composite">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.is_format_composite">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_format_composite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Return true if the seed format is composite&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed_format</span> <span class="o">==</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span></div>
 
-<div class="viewcode-block" id="Config.is_format_raw"><a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.is_format_raw">[docs]</a>    <span class="k">def</span> <span class="nf">is_format_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Config.is_format_raw">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.is_format_raw">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_format_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Return true if the seed format is raw &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed_format</span> <span class="o">==</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">RAW</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed_format</span> <span class="o">==</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">RAW</span></div>
+</div>
+
 </pre></div>
 
            </div>

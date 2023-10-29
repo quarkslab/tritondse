@@ -12,11 +12,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -112,9 +112,9 @@
            <div itemprop="articleBody">
              
   <section id="Sanitizers-&amp;-Probes">
-<h1>Sanitizers &amp; Probes<a class="headerlink" href="#Sanitizers-&-Probes" title="Permalink to this heading"></a></h1>
+<h1>Sanitizers &amp; Probes<a class="headerlink" href="#Sanitizers-&-Probes" title="Link to this heading"></a></h1>
 <section id="Probe-mechanism">
-<h2>Probe mechanism<a class="headerlink" href="#Probe-mechanism" title="Permalink to this heading"></a></h2>
+<h2>Probe mechanism<a class="headerlink" href="#Probe-mechanism" title="Link to this heading"></a></h2>
 <p>TritonDSE introduces a probe mechanism. A probe is a class exposing a set of callbacks to register on a given exploration or execution. That enables writing more complex checkers that can be easily registered on a callback manager.</p>
 <p>A probe as the following interface:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ProbeInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -134,7 +134,7 @@
 <p>So to write its own probe one, just have to call <code class="docutils literal notranslate"><span class="pre">_add_callback</span></code> with its own hooks <em>(usually some other methods)</em>. They will automatically be picked by the callback manager and registered.</p>
 </section>
 <section id="Using-built-in-sanitizers">
-<h2>Using built-in sanitizers<a class="headerlink" href="#Using-built-in-sanitizers" title="Permalink to this heading"></a></h2>
+<h2>Using built-in sanitizers<a class="headerlink" href="#Using-built-in-sanitizers" title="Link to this heading"></a></h2>
 <p>TritonDSE provides few simple sanitizers developped as probes. These sanitizers are the following:</p>
 <ul class="simple">
 <li><p>UAFSanitizer: checks for UaF using the simple built-in allocator <em>(in ProcessState)</em></p></li>
@@ -158,7 +158,7 @@ dse.callback_manager.register_probe(NullDerefSanitizer())
 <p>The probe will now be enabled for all executions.</p>
 </section>
 <section id="Writing-a-sanitizer">
-<h2>Writing a sanitizer<a class="headerlink" href="#Writing-a-sanitizer" title="Permalink to this heading"></a></h2>
+<h2>Writing a sanitizer<a class="headerlink" href="#Writing-a-sanitizer" title="Link to this heading"></a></h2>
 <p>For the purpose of this tutorial, let’s write a sanitizer that will checks <code class="docutils literal notranslate"><span class="pre">fopen</span></code> libc call and its variant <code class="docutils literal notranslate"><span class="pre">freopen</span></code> cannot be hijacked to open an unwanted file <em>(here /etc/passwd)</em>. We are first going to check that the string given in input is controllable and if it is, checking by SMT that it can be the intended string.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:

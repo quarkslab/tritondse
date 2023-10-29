@@ -11,11 +11,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -112,11 +112,11 @@
            <div itemprop="articleBody">
              
   <section id="toy-example">
-<h1>Toy Example<a class="headerlink" href="#toy-example" title="Permalink to this heading"></a></h1>
+<h1>Toy Example<a class="headerlink" href="#toy-example" title="Link to this heading"></a></h1>
 <p>These toy examples will present you various use-cases containing a bug to trigger.
 The goal is to trigger them using the tritondse exploration.</p>
 <section id="multiple-input-sources">
-<h2>0. Multiple input sources<a class="headerlink" href="#multiple-input-sources" title="Permalink to this heading"></a></h2>
+<h2>0. Multiple input sources<a class="headerlink" href="#multiple-input-sources" title="Link to this heading"></a></h2>
 <p>TritonDSE supports injecting input on multiple locations. Use a <cite>COMPOSITE</cite> seed to inject
 <cite>stdin</cite> and <cite>argv</cite> and explore the program to trigger the crash.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
@@ -147,7 +147,7 @@ The goal is to trigger them using the tritondse exploration.</p>
 </div>
 </section>
 <section id="non-standard-input">
-<h2>1. Non standard input<a class="headerlink" href="#non-standard-input" title="Permalink to this heading"></a></h2>
+<h2>1. Non standard input<a class="headerlink" href="#non-standard-input" title="Link to this heading"></a></h2>
 <p>The goal here is to trigger the bug by symbolizing the content of a file.
 Furthermore, <cite>sscanf</cite> is currently not supported by TritonDSE, you will need to provide
 the emulation yourself.</p>
@@ -188,7 +188,7 @@ the emulation yourself.</p>
 </div>
 </section>
 <section id="symbolic-read">
-<h2>2. Symbolic read<a class="headerlink" href="#symbolic-read" title="Permalink to this heading"></a></h2>
+<h2>2. Symbolic read<a class="headerlink" href="#symbolic-read" title="Link to this heading"></a></h2>
 <p>By default the exploration just negate branches, but does not try to perform
 state coverage on pointer values <em>(as it raises a lot of test-cases potentially
 not interesting)</em>. The goal here is to perform manual state coverage on pointer
@@ -219,7 +219,7 @@ values.</p>
 </div>
 </section>
 <section id="symbolic-read-write">
-<h2>3. Symbolic read &amp; write<a class="headerlink" href="#symbolic-read-write" title="Permalink to this heading"></a></h2>
+<h2>3. Symbolic read &amp; write<a class="headerlink" href="#symbolic-read-write" title="Link to this heading"></a></h2>
 <p>Same principle here, except that triggering the bug require resolving some
 kind of a pointer aliasing issue.</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
@@ -252,7 +252,7 @@ kind of a pointer aliasing issue.</p>
 </div>
 </section>
 <section id="string-length">
-<h2>4. String length<a class="headerlink" href="#string-length" title="Permalink to this heading"></a></h2>
+<h2>4. String length<a class="headerlink" href="#string-length" title="Link to this heading"></a></h2>
 <p>Symbolic execution hardly infers ‘meta-properties’ of data. For string its length
 is a meta-property that the symbolic executor does not know how to mutate. It can
 be an issue when performing coverage.</p>
@@ -284,7 +284,7 @@ be an issue when performing coverage.</p>
 </div>
 </section>
 <section id="off-by-one-example">
-<h2>5. Off-by-One example<a class="headerlink" href="#off-by-one-example" title="Permalink to this heading"></a></h2>
+<h2>5. Off-by-One example<a class="headerlink" href="#off-by-one-example" title="Link to this heading"></a></h2>
 <p>Write a simple intrinsic function to obtain the stack buffer size
 during exploration, and write a simple sanitizer for <cite>strncpy</cite> that
 checks that no buffer overflow is taking place.</p>

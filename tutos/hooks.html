@@ -12,11 +12,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -113,7 +113,7 @@
            <div itemprop="articleBody">
              
   <section id="Playing-with-Hooks">
-<h1>Playing with Hooks<a class="headerlink" href="#Playing-with-Hooks" title="Permalink to this heading"></a></h1>
+<h1>Playing with Hooks<a class="headerlink" href="#Playing-with-Hooks" title="Link to this heading"></a></h1>
 <p>Setting hooks is the main interface with an execution and an exploration to perform user-defined actions. TritonDSE enables hooking the following events:</p>
 <ul class="simple">
 <li><p>address reached</p></li>
@@ -153,7 +153,7 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 </pre></div></div>
 </div>
 <section id="I.-Instruction-hooking">
-<h2>I. Instruction hooking<a class="headerlink" href="#I.-Instruction-hooking" title="Permalink to this heading"></a></h2>
+<h2>I. Instruction hooking<a class="headerlink" href="#I.-Instruction-hooking" title="Link to this heading"></a></h2>
 <p>Instruction hooking enables hooking the execution of every instructions executed regardless of theirs address etc.</p>
 <p>The signature for an instruction hook is the following:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">Instruction</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
@@ -251,7 +251,7 @@ executor.callback_manager.register_post_instruction_callback(trace_inst)
 <p>In this case we could also have used <code class="docutils literal notranslate"><span class="pre">register_pre_instruction_callback</span></code> but the <code class="docutils literal notranslate"><span class="pre">Instruction</span></code> object would not be decoded yet, so it prevents getting its disassembly.</p>
 </section>
 <section id="II.-Address/Function-hooking">
-<h2>II. Address/Function hooking<a class="headerlink" href="#II.-Address/Function-hooking" title="Permalink to this heading"></a></h2>
+<h2>II. Address/Function hooking<a class="headerlink" href="#II.-Address/Function-hooking" title="Link to this heading"></a></h2>
 <div class="line-block">
 <div class="line">We can hook any address and perform an associated action.</div>
 <div class="line">We can also hook any function as long as the symbol is set. They both have the same signature:</div>
@@ -321,7 +321,7 @@ puts: Win
 <p>We did not really won where as we forced the ZF flag, but we retrieved encoded values on wich the comparison is made.</p>
 </section>
 <section id="III.-Solving-queries">
-<h2>III. Solving queries<a class="headerlink" href="#III.-Solving-queries" title="Permalink to this heading"></a></h2>
+<h2>III. Solving queries<a class="headerlink" href="#III.-Solving-queries" title="Link to this heading"></a></h2>
 <p>We can modify our hooks to directly solve by SMT what shall be the appropriate value of CL in order to match the comparison.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
@@ -394,7 +394,7 @@ argv[1][4]:8: e
 </div>
 </section>
 <section id="IV.-Hooking-exploration-events">
-<h2>IV. Hooking exploration events<a class="headerlink" href="#IV.-Hooking-exploration-events" title="Permalink to this heading"></a></h2>
+<h2>IV. Hooking exploration events<a class="headerlink" href="#IV.-Hooking-exploration-events" title="Link to this heading"></a></h2>
 <p>We can similarly put callbacks on a <code class="docutils literal notranslate"><span class="pre">SymbolicExplorator</span></code>. In this case, the callback manager will be shared among all the <code class="docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> instances. Let’s hook every iteration to print some statistics:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:

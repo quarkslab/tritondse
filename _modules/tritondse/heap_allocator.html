@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -109,7 +109,9 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="HeapAllocator"><a class="viewcode-back" href="../../api/process.html#tritondse.heap_allocator.HeapAllocator">[docs]</a><span class="k">class</span> <span class="nc">HeapAllocator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="HeapAllocator">
+<a class="viewcode-back" href="../../api/process.html#tritondse.heap_allocator.HeapAllocator">[docs]</a>
+<span class="k">class</span> <span class="nc">HeapAllocator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Custom tiny heap allocator. Used by built-ins routines like malloc/free.</span>
 <span class="sd">    This allocation manager also provides an API enabling checking whether</span>
@@ -147,7 +149,9 @@
         <span class="c1"># TODO: For a to-the-moon allocator, we could merge freed chunks. Like 4 chunks of 1 byte into one chunk of 4 bytes.</span>
         <span class="c1"># TODO: For a to-the-moon allocator, we could split a big chunk into two chunks when asking an allocation.</span>
 
-<div class="viewcode-block" id="HeapAllocator.alloc"><a class="viewcode-back" href="../../api/process.html#tritondse.heap_allocator.HeapAllocator.alloc">[docs]</a>    <span class="k">def</span> <span class="nf">alloc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
+<div class="viewcode-block" id="HeapAllocator.alloc">
+<a class="viewcode-back" href="../../api/process.html#tritondse.heap_allocator.HeapAllocator.alloc">[docs]</a>
+    <span class="k">def</span> <span class="nf">alloc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Performs an allocation of the given byte size.</span>
 
@@ -182,7 +186,10 @@
 
         <span class="k">return</span> <span class="n">ptr</span></div>
 
-<div class="viewcode-block" id="HeapAllocator.free"><a class="viewcode-back" href="../../api/process.html#tritondse.heap_allocator.HeapAllocator.free">[docs]</a>    <span class="k">def</span> <span class="nf">free</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="HeapAllocator.free">
+<a class="viewcode-back" href="../../api/process.html#tritondse.heap_allocator.HeapAllocator.free">[docs]</a>
+    <span class="k">def</span> <span class="nf">free</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Free the given memory chunk.</span>
 
@@ -207,7 +214,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="o">.</span><span class="n">unmap</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">alloc_pool</span><span class="p">[</span><span class="n">ptr</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="HeapAllocator.is_ptr_allocated"><a class="viewcode-back" href="../../api/process.html#tritondse.heap_allocator.HeapAllocator.is_ptr_allocated">[docs]</a>    <span class="k">def</span> <span class="nf">is_ptr_allocated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="HeapAllocator.is_ptr_allocated">
+<a class="viewcode-back" href="../../api/process.html#tritondse.heap_allocator.HeapAllocator.is_ptr_allocated">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_ptr_allocated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether a given address has been allocated</span>
 
@@ -217,7 +227,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_memory</span><span class="o">.</span><span class="n">is_mapped</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HeapAllocator.is_ptr_freed"><a class="viewcode-back" href="../../api/process.html#tritondse.heap_allocator.HeapAllocator.is_ptr_freed">[docs]</a>    <span class="k">def</span> <span class="nf">is_ptr_freed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="HeapAllocator.is_ptr_freed">
+<a class="viewcode-back" href="../../api/process.html#tritondse.heap_allocator.HeapAllocator.is_ptr_freed">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_ptr_freed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether a given pointer has recently been freed.</span>
 
@@ -230,7 +243,9 @@
             <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">chunk</span><span class="o">.</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">ptr</span> <span class="o">&lt;</span> <span class="n">chunk</span><span class="o">.</span><span class="n">start</span> <span class="o">+</span> <span class="n">size</span><span class="p">:</span>
                     <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">False</span></div></div>
+        <span class="k">return</span> <span class="kc">False</span></div>
+</div>
+
 </pre></div>
 
            </div>

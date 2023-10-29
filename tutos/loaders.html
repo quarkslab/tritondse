@@ -12,11 +12,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -113,10 +113,10 @@
            <div itemprop="articleBody">
              
   <section id="Loaders">
-<h1>Loaders<a class="headerlink" href="#Loaders" title="Permalink to this heading"></a></h1>
+<h1>Loaders<a class="headerlink" href="#Loaders" title="Link to this heading"></a></h1>
 <p>Loaders are the objects enabling loading a given binary intro TritonDSE memory so that it can get symbolically executed. In essence, they map the program in memory and to initialize registers.</p>
 <section id="Linux-ELF-loader">
-<h2>Linux ELF loader<a class="headerlink" href="#Linux-ELF-loader" title="Permalink to this heading"></a></h2>
+<h2>Linux ELF loader<a class="headerlink" href="#Linux-ELF-loader" title="Link to this heading"></a></h2>
 <p>TritonDSE primarly supports userland Linux programs and provides a basic ELF file loader based on LIEF. It will only loads the main binary but not other shared libraries.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -147,7 +147,7 @@ list(ps.memory.get_maps())
 <p>The loader maps the <code class="docutils literal notranslate"><span class="pre">LOAD</span></code> segment of the ELF file and creates two additional segments for imported functions and for the stack.</p>
 </section>
 <section id="CLE-Loader">
-<h2>CLE Loader<a class="headerlink" href="#CLE-Loader" title="Permalink to this heading"></a></h2>
+<h2>CLE Loader<a class="headerlink" href="#CLE-Loader" title="Link to this heading"></a></h2>
 <p>To enable supporting more file format and shared libraries TritonDSE uses the infamous <a class="reference external" href="https://github.com/angr/cle">cle project</a> from the angr symbolic executor.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -196,7 +196,7 @@ list(ps.memory.get_maps())
 <p>While CLE can theoretically load MachO or PE binary they have not been loaded.</p>
 </div></section>
 <section id="Firmware-Loading">
-<h2>Firmware Loading<a class="headerlink" href="#Firmware-Loading" title="Permalink to this heading"></a></h2>
+<h2>Firmware Loading<a class="headerlink" href="#Firmware-Loading" title="Link to this heading"></a></h2>
 <p>Performing symbolic execution on low-level firmware requires a specific loader. TritonDSE provides the <code class="docutils literal notranslate"><span class="pre">MonolithicLoader</span></code> that enables loading monolithic firmware by defining the memory segments manually.</p>
 <p>The following example shows how to load a small firmware:</p>
 <div class="nbinput nblast docutils container">
@@ -224,7 +224,7 @@ ldr = MonolithicLoader(Architecture.ARM32,
 <p>In this example we define two memory segments, one for the firmware itself, and one for an arbitrary stack. We also adjust <code class="docutils literal notranslate"><span class="pre">pc</span></code> and <code class="docutils literal notranslate"><span class="pre">sp</span></code> to point respectively to the entry point and the base of the stack.</p>
 </section>
 <section id="Writing-a-Loader">
-<h2>Writing a Loader<a class="headerlink" href="#Writing-a-Loader" title="Permalink to this heading"></a></h2>
+<h2>Writing a Loader<a class="headerlink" href="#Writing-a-Loader" title="Link to this heading"></a></h2>
 <p>If none of the available loaders are available for the program to emulate, one can define its own loader. It has to inherit <code class="docutils literal notranslate"><span class="pre">Loader</span></code> and have to implement all methods of this class. The class to inherit have the following interface:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:

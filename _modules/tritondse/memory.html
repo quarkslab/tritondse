@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -182,7 +182,9 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="Memory"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory">[docs]</a><span class="k">class</span> <span class="nc">Memory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Memory">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory">[docs]</a>
+<span class="k">class</span> <span class="nc">Memory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Memory representation of the current :py:class:`ProcessState` object.</span>
 <span class="sd">    It wraps all interaction with Triton&#39;s memory context to provide high-level</span>
@@ -205,7 +207,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_mem_cbs_enabled</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="c1"># self._maps = {}  # Addr: -&gt; Map</span>
 
-<div class="viewcode-block" id="Memory.set_endianess"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.set_endianess">[docs]</a>    <span class="k">def</span> <span class="nf">set_endianess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">en</span><span class="p">:</span> <span class="n">Endian</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Memory.set_endianess">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.set_endianess">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_endianess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">en</span><span class="p">:</span> <span class="n">Endian</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the endianness of memory accesses. By default,</span>
 <span class="sd">        endianess is little.</span>
@@ -215,6 +219,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_endian</span> <span class="o">=</span> <span class="n">en</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_endian_key</span> <span class="o">=</span> <span class="n">ENDIAN_MAP</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_endian</span><span class="p">]</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_ptr_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -229,25 +234,36 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_segment_enabled</span>
 
-<div class="viewcode-block" id="Memory.disable_segmentation"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.disable_segmentation">[docs]</a>    <span class="k">def</span> <span class="nf">disable_segmentation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Memory.disable_segmentation">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.disable_segmentation">[docs]</a>
+    <span class="k">def</span> <span class="nf">disable_segmentation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Turn-off segmentation enforcing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_segment_enabled</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Memory.enable_segmentation"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.enable_segmentation">[docs]</a>    <span class="k">def</span> <span class="nf">enable_segmentation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.enable_segmentation">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.enable_segmentation">[docs]</a>
+    <span class="k">def</span> <span class="nf">enable_segmentation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Turn-off segmentation enforcing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_segment_enabled</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="Memory.set_segmentation"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.set_segmentation">[docs]</a>    <span class="k">def</span> <span class="nf">set_segmentation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.set_segmentation">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.set_segmentation">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_segmentation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the segmentation enforcing with the given boolean.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_segment_enabled</span> <span class="o">=</span> <span class="n">enabled</span></div>
 
-<div class="viewcode-block" id="Memory.without_segmentation"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.without_segmentation">[docs]</a>    <span class="nd">@contextmanager</span>
+
+<div class="viewcode-block" id="Memory.without_segmentation">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.without_segmentation">[docs]</a>
+    <span class="nd">@contextmanager</span>
     <span class="k">def</span> <span class="nf">without_segmentation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_callbacks</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="s1">&#39;Memory&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Context manager enabling manipulating temporarily the memory</span>
@@ -264,7 +280,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_mem_cbs_enabled</span> <span class="o">=</span> <span class="n">cbs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_segmentation</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.callbacks_enabled"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.callbacks_enabled">[docs]</a>    <span class="k">def</span> <span class="nf">callbacks_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.callbacks_enabled">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.callbacks_enabled">[docs]</a>
+    <span class="k">def</span> <span class="nf">callbacks_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return whether memory callbacks are enabled.</span>
 
@@ -272,7 +291,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mem_cbs_enabled</span></div>
 
-<div class="viewcode-block" id="Memory.get_maps"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.get_maps">[docs]</a>    <span class="k">def</span> <span class="nf">get_maps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">MemMap</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="Memory.get_maps">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.get_maps">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_maps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">MemMap</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Iterate all the memory maps defined, including all memory</span>
 <span class="sd">        areas allocated on the heap.</span>
@@ -281,7 +303,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">yield from</span> <span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linear_map_map</span> <span class="k">if</span> <span class="n">x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.map"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.map">[docs]</a>    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">perm</span><span class="p">:</span> <span class="n">Perm</span> <span class="o">=</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">W</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MemMap</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.map">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.map">[docs]</a>
+    <span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">perm</span><span class="p">:</span> <span class="n">Perm</span> <span class="o">=</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">W</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MemMap</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Map the given address and size in memory with the given permission.</span>
 
@@ -318,7 +343,10 @@
             <span class="n">prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linear_map_addr</span><span class="p">[</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">raise</span> <span class="n">MapOverlapException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;0x</span><span class="si">{</span><span class="n">start</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s2"> overlap with map: 0x</span><span class="si">{</span><span class="n">prev</span><span class="si">:</span><span class="s2">08x</span><span class="si">}</span><span class="s2"> (odd)&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.unmap"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.unmap">[docs]</a>    <span class="k">def</span> <span class="nf">unmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.unmap">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.unmap">[docs]</a>
+    <span class="k">def</span> <span class="nf">unmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Unmap the :py:class:`MemMap` object mapped at the address.</span>
 <span class="sd">        The address can be within the map and not requires pointing</span>
@@ -346,7 +374,10 @@
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MemoryAccessViolation</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">Perm</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">memory_not_mapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.mprotect"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.mprotect">[docs]</a>    <span class="k">def</span> <span class="nf">mprotect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">perm</span><span class="p">:</span> <span class="n">Perm</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.mprotect">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.mprotect">[docs]</a>
+    <span class="k">def</span> <span class="nf">mprotect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">perm</span><span class="p">:</span> <span class="n">Perm</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the map at the given address with permissions provided in argument.</span>
 
@@ -364,6 +395,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_linear_map_map</span><span class="p">[</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">MemMap</span><span class="p">(</span><span class="nb">map</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="nb">map</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">perm</span><span class="p">,</span> <span class="nb">map</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>  <span class="c1"># replace map with new perms</span>
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MemoryAccessViolation</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">Perm</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">memory_not_mapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -395,7 +427,9 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Memory.write"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="Memory.write">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write">[docs]</a>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the given `data` bytes at `addr` address.</span>
 
@@ -411,7 +445,10 @@
                 <span class="k">raise</span> <span class="n">MemoryAccessViolation</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">W</span><span class="p">,</span> <span class="n">map_perm</span><span class="o">=</span><span class="nb">map</span><span class="o">.</span><span class="n">perm</span><span class="p">,</span> <span class="n">perm_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">setConcreteMemoryAreaValue</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read">[docs]</a>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read `size` bytes at `addr` address.</span>
 
@@ -426,6 +463,7 @@
             <span class="k">if</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">map</span><span class="o">.</span><span class="n">perm</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">MemoryAccessViolation</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span><span class="p">,</span> <span class="n">map_perm</span><span class="o">=</span><span class="nb">map</span><span class="o">.</span><span class="n">perm</span><span class="p">,</span> <span class="n">perm_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">getConcreteMemoryAreaValue</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_get_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MemMap</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -450,7 +488,9 @@
         <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># Either raised when linear_map is empty or the address is beyond everything that is mapped</span>
 
-<div class="viewcode-block" id="Memory.get_map"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.get_map">[docs]</a>    <span class="k">def</span> <span class="nf">get_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MemMap</span><span class="p">]:</span>
+<div class="viewcode-block" id="Memory.get_map">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.get_map">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MemMap</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find the MemMap associated with the given address and returns</span>
 <span class="sd">        it if any.</span>
@@ -461,7 +501,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_map</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.find_map"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.find_map">[docs]</a>    <span class="k">def</span> <span class="nf">find_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">MemMap</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="Memory.find_map">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.find_map">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">MemMap</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find a map given its name.</span>
 
@@ -474,7 +517,10 @@
                 <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">map</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">l</span></div>
 
-<div class="viewcode-block" id="Memory.map_from_name"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.map_from_name">[docs]</a>    <span class="k">def</span> <span class="nf">map_from_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MemMap</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.map_from_name">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.map_from_name">[docs]</a>
+    <span class="k">def</span> <span class="nf">map_from_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MemMap</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a map from its name. This function assumes</span>
 <span class="sd">        the map is present.</span>
@@ -488,7 +534,10 @@
                 <span class="k">return</span> <span class="nb">map</span>
         <span class="k">assert</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Memory.is_mapped"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.is_mapped">[docs]</a>    <span class="k">def</span> <span class="nf">is_mapped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.is_mapped">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.is_mapped">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_mapped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The function checks whether the memory is mapped or not.</span>
 <span class="sd">        The implementation return False if the memory chunk overlap</span>
@@ -501,7 +550,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_map</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Memory.has_ever_been_written"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.has_ever_been_written">[docs]</a>    <span class="k">def</span> <span class="nf">has_ever_been_written</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.has_ever_been_written">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.has_ever_been_written">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_ever_been_written</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns whether the given range of addresses has previously</span>
 <span class="sd">        been written or not. (Do not take in account the memory mapping).</span>
@@ -513,7 +565,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">isConcreteMemoryValueDefined</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_uint"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_uint">[docs]</a>    <span class="k">def</span> <span class="nf">read_uint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Memory.read_uint">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_uint">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_uint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read in the process memory a **little-endian** integer of the ``size`` at ``addr``.</span>
 
@@ -527,7 +582,10 @@
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_endian_key</span><span class="o">+</span><span class="n">STRUCT_MAP</span><span class="p">[(</span><span class="kc">True</span><span class="p">,</span> <span class="n">size</span><span class="p">)],</span> <span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Memory.read_sint"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_sint">[docs]</a>    <span class="k">def</span> <span class="nf">read_sint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Memory.read_sint">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_sint">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_sint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read in the process memory a **little-endian** integer of the ``size`` at ``addr``.</span>
 
@@ -541,7 +599,10 @@
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_endian_key</span><span class="o">+</span><span class="n">STRUCT_MAP</span><span class="p">[(</span><span class="kc">False</span><span class="p">,</span> <span class="n">size</span><span class="p">)],</span> <span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Memory.read_ptr"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_ptr">[docs]</a>    <span class="k">def</span> <span class="nf">read_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_ptr">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_ptr">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read in the process memory a little-endian integer of size :py:attr:`tritondse.ProcessState.ptr_size`</span>
 
@@ -551,7 +612,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_uint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr_size</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_char"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_char">[docs]</a>    <span class="k">def</span> <span class="nf">read_char</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_char">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_char">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_char</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read a char in memory (1-byte) following endianess.</span>
 
@@ -560,7 +624,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_sint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_uchar"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_uchar">[docs]</a>    <span class="k">def</span> <span class="nf">read_uchar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_uchar">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_uchar">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_uchar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read an unsigned char in memory (1-byte) following endianness.</span>
 
@@ -569,7 +636,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_uint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_int"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_int">[docs]</a>    <span class="k">def</span> <span class="nf">read_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_int">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_int">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read a signed integer in memory (4-byte) following endianness.</span>
 
@@ -578,7 +648,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_sint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_word"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_word">[docs]</a>    <span class="k">def</span> <span class="nf">read_word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_word">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_word">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read signed word in memory (2-byte) following endianness.</span>
 
@@ -587,7 +660,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_uint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_dword"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_dword">[docs]</a>    <span class="k">def</span> <span class="nf">read_dword</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_dword">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_dword">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_dword</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read signed double word in memory (4-byte) following endianness.</span>
 
@@ -596,7 +672,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_uint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_qword"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_qword">[docs]</a>    <span class="k">def</span> <span class="nf">read_qword</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_qword">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_qword">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_qword</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read signed qword in memory (8-byte) following endianness.</span>
 
@@ -605,7 +684,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_uint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_long"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_long">[docs]</a>    <span class="k">def</span> <span class="nf">read_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_long">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_long">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read &#39;C style&#39; long in memory (4-byte) following endianness.</span>
 
@@ -614,7 +696,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_sint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_ulong"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_ulong">[docs]</a>    <span class="k">def</span> <span class="nf">read_ulong</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_ulong">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_ulong">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_ulong</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read unsigned long in memory (4-byte) following endianness.</span>
 
@@ -623,7 +708,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_uint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_long_long"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_long_long">[docs]</a>    <span class="k">def</span> <span class="nf">read_long_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_long_long">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_long_long">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_long_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read long long in memory (8-byte) following endianness.</span>
 
@@ -632,7 +720,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_sint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_ulong_long"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_ulong_long">[docs]</a>    <span class="k">def</span> <span class="nf">read_ulong_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_ulong_long">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_ulong_long">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_ulong_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read unsigned long long in memory (8-byte) following endianness.</span>
 
@@ -641,7 +732,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">read_uint</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.read_string"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_string">[docs]</a>    <span class="k">def</span> <span class="nf">read_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.read_string">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.read_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">read_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Read a string in process memory at the given address</span>
 
 <span class="sd">        .. warning:: The memory read is unbounded. Thus the memory is iterated up until</span>
@@ -659,7 +753,10 @@
             <span class="n">s</span> <span class="o">+=</span> <span class="nb">chr</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
             <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="Memory.write_int"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_int">[docs]</a>    <span class="k">def</span> <span class="nf">write_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Memory.write_int">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_int">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write in the process memory the given integer value of the given size at</span>
 <span class="sd">        a specific address.</span>
@@ -671,7 +768,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_endian_key</span><span class="o">+</span><span class="n">STRUCT_MAP</span><span class="p">[(</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">)],</span> <span class="n">value</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Memory.write_ptr"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_ptr">[docs]</a>    <span class="k">def</span> <span class="nf">write_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.write_ptr">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_ptr">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Similar to :py:meth:`write_int` but the size is automatically adjusted</span>
 <span class="sd">        to be ``ptr_size``.</span>
@@ -684,7 +784,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr_size</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.write_char"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_char">[docs]</a>    <span class="k">def</span> <span class="nf">write_char</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.write_char">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_char">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_char</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the integer value as a single byte in memory.</span>
 
@@ -694,7 +797,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.write_word"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_word">[docs]</a>    <span class="k">def</span> <span class="nf">write_word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.write_word">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_word">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the word (2-byte) in memory following endianess.</span>
 
@@ -704,7 +810,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.write_dword"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_dword">[docs]</a>    <span class="k">def</span> <span class="nf">write_dword</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.write_dword">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_dword">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_dword</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the word (4-byte) in memory following endianess.</span>
 
@@ -714,7 +823,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.write_qword"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_qword">[docs]</a>    <span class="k">def</span> <span class="nf">write_qword</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.write_qword">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_qword">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_qword</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the qword (8-byte) in memory following endianess.</span>
 
@@ -724,7 +836,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.write_long"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_long">[docs]</a>    <span class="k">def</span> <span class="nf">write_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.write_long">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_long">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write a &quot;C style&quot; long (4-byte) in memory following endianess.</span>
 
@@ -734,7 +849,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Memory.write_long_long"><a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_long_long">[docs]</a>    <span class="k">def</span> <span class="nf">write_long_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Memory.write_long_long">
+<a class="viewcode-back" href="../../api/process.html#tritondse.memory.Memory.write_long_long">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_long_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the &quot;C style&quot; long long (8-byte) in memory following endianess.</span>
 
@@ -742,7 +860,9 @@
 <span class="sd">        :param value: integer value</span>
 <span class="sd">        :raise struct.error: If integer value do not fit in a long long</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_int</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

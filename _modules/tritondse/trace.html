@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -119,15 +119,22 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tracer&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="TraceException"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.TraceException">[docs]</a><span class="k">class</span> <span class="nc">TraceException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="TraceException">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.TraceException">[docs]</a>
+<span class="k">class</span> <span class="nc">TraceException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
-<div class="viewcode-block" id="Trace"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.Trace">[docs]</a><span class="k">class</span> <span class="nc">Trace</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Trace">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.Trace">[docs]</a>
+<span class="k">class</span> <span class="nc">Trace</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="Trace.run"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.Trace.run">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Trace.run">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.Trace.run">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">strategy</span><span class="p">:</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="n">binary_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dump_trace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">stdin_file</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the binary passed as argument and return the coverage.</span>
 
@@ -144,13 +151,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">trace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Trace.from_file"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.Trace.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Trace.from_file">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.Trace.from_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;QBDITrace&#39;</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoverageSingleRun</span><span class="p">:</span>
@@ -161,12 +172,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-<div class="viewcode-block" id="Trace.get_coverage"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.Trace.get_coverage">[docs]</a>    <span class="k">def</span> <span class="nf">get_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoverageSingleRun</span><span class="p">:</span>
+<div class="viewcode-block" id="Trace.get_coverage">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.Trace.get_coverage">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoverageSingleRun</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the execution coverage.</span>
 
 <span class="sd">        :return: :py:obj:`CoverageSingleRun`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">strategy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoverageStrategy</span><span class="p">:</span>
@@ -179,14 +193,19 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage</span><span class="o">.</span><span class="n">strategy</span></div>
 
 
-<div class="viewcode-block" id="TritonTrace"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.TritonTrace">[docs]</a><span class="k">class</span> <span class="nc">TritonTrace</span><span class="p">(</span><span class="n">Trace</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TritonTrace">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.TritonTrace">[docs]</a>
+<span class="k">class</span> <span class="nc">TritonTrace</span><span class="p">(</span><span class="n">Trace</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="TritonTrace.run"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.TritonTrace.run">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="TritonTrace.run">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.TritonTrace.run">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">strategy</span><span class="p">:</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="n">binary_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dump_trace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">stdin_file</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># Override stdin with the input file.</span>
         <span class="k">if</span> <span class="n">stdin_file</span><span class="p">:</span>
@@ -202,19 +221,26 @@
 
         <span class="n">trace</span> <span class="o">=</span> <span class="n">TritonTrace</span><span class="p">()</span>
         <span class="n">trace</span><span class="o">.</span><span class="n">_coverage</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">coverage</span></div>
+
         <span class="c1"># FIXME: Writing the coverage to a file</span>
 
-<div class="viewcode-block" id="TritonTrace.from_file"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.TritonTrace.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="TritonTrace.from_file">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.TritonTrace.from_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;QBDITrace&#39;</span><span class="p">:</span>
         <span class="c1"># FIXME: Reading coverage file from a file</span>
         <span class="k">return</span> <span class="n">trace</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoverageSingleRun</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coverage</span></div>
 
 
-<div class="viewcode-block" id="QBDITrace"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.QBDITrace">[docs]</a><span class="k">class</span> <span class="nc">QBDITrace</span><span class="p">(</span><span class="n">Trace</span><span class="p">):</span>
+
+<div class="viewcode-block" id="QBDITrace">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.QBDITrace">[docs]</a>
+<span class="k">class</span> <span class="nc">QBDITrace</span><span class="p">(</span><span class="n">Trace</span><span class="p">):</span>
 
     <span class="n">QBDI_SCRIPT_FILEPATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tritondse</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;qbdi_trace.py&#39;</span>
 
@@ -224,7 +250,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_trace</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modules</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="QBDITrace.run"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.QBDITrace.run">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="QBDITrace.run">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.QBDITrace.run">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">strategy</span><span class="p">:</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="n">binary_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dump_trace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">stdin_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">binary_path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">()</span>
@@ -275,7 +303,10 @@
 
         <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="QBDITrace.from_file"><a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.QBDITrace.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="QBDITrace.from_file">
+<a class="viewcode-back" href="../../api/tracing.html#tritondse.trace.QBDITrace.from_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">coverage_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;QBDITrace&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load coverage from a file.</span>
 
@@ -303,6 +334,7 @@
 
         <span class="k">return</span> <span class="n">trace</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CoverageSingleRun</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -323,6 +355,7 @@
 <span class="sd">        :return: list of addresses</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trace</span></div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

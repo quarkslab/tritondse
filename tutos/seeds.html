@@ -12,11 +12,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -113,7 +113,7 @@
            <div itemprop="articleBody">
              
   <section id="Managing-Seeds">
-<h1>Managing Seeds<a class="headerlink" href="#Managing-Seeds" title="Permalink to this heading"></a></h1>
+<h1>Managing Seeds<a class="headerlink" href="#Managing-Seeds" title="Link to this heading"></a></h1>
 <p>This tutorial explains how to deal with input files manipulated and generated during the execution. Let’s reuse the following base snippet. The only difference here is that we are going to change the coverage strategy to <code class="docutils literal notranslate"><span class="pre">PATH_COVERAGE</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[80]:
@@ -168,7 +168,7 @@ seed:dc1d802d1c2796a1a21d96827ce1cae7 ([b&#39;./crackme&#39;, b&#39;eliteAAAAAAA
 </div>
 <p>Just by exploring all possible paths we managed to solve the challenge. Let’s play with the corpus.</p>
 <section id="Initial-Corpus">
-<h2>Initial Corpus<a class="headerlink" href="#Initial-Corpus" title="Permalink to this heading"></a></h2>
+<h2>Initial Corpus<a class="headerlink" href="#Initial-Corpus" title="Link to this heading"></a></h2>
 <p>There are two ways to provide an initial corpus:</p>
 <ul class="simple">
 <li><p>providing in existing workspace directory and putting manually files in the <em>worklist</em> directory</p></li>
@@ -176,7 +176,7 @@ seed:dc1d802d1c2796a1a21d96827ce1cae7 ([b&#39;./crackme&#39;, b&#39;eliteAAAAAAA
 </ul>
 </section>
 <section id="Managing-generated-corpus">
-<h2>Managing generated corpus<a class="headerlink" href="#Managing-generated-corpus" title="Permalink to this heading"></a></h2>
+<h2>Managing generated corpus<a class="headerlink" href="#Managing-generated-corpus" title="Link to this heading"></a></h2>
 <p><strong>SymbolicExecutor</strong>: This class is solely meant to execute a single seed, not to produce new ones <em>(that is the purpose of the explorator)</em>. However if a one wants to generate a new input to process in a callback, it is possible with the method <code class="docutils literal notranslate"><span class="pre">enqueue_seed</span></code>. That method will just fill a list that will later be picked-up by the <code class="docutils literal notranslate"><span class="pre">SymbolicExplorator</span></code> instance.</p>
 <p>Here is a dummy hook function that manually negates a branching condition to generate a new input file:</p>
 <div class="nbinput nblast docutils container">
@@ -228,7 +228,7 @@ cab6e4b729327d1e088c9d459e0340eb.00000064.tritondse.cov
 </div>
 </section>
 <section id="Setting-seed-status">
-<h2>Setting seed status<a class="headerlink" href="#Setting-seed-status" title="Permalink to this heading"></a></h2>
+<h2>Setting seed status<a class="headerlink" href="#Setting-seed-status" title="Link to this heading"></a></h2>
 <p>During the execution one, can assign a status to the seed currently being executed in any callback. <em>(Make sure not to override a status previously set by another callback)</em>. At the end of an execution if no status has been assigned, the seed is automatically assigned <code class="docutils literal notranslate"><span class="pre">OK_DONE</span></code>.</p>
 <p>## Seed Formats</p>
 <p>In TritonDSE, a seed contains the user input that will be processed by the target program.</p>
@@ -281,7 +281,7 @@ dse_using_composite_seeds = SymbolicExplorator(Config(seed_format=SeedFormat.COM
 </div>
 </section>
 <section id="How-to-inject-arbitrary-variables">
-<h2>How to inject arbitrary variables<a class="headerlink" href="#How-to-inject-arbitrary-variables" title="Permalink to this heading"></a></h2>
+<h2>How to inject arbitrary variables<a class="headerlink" href="#How-to-inject-arbitrary-variables" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">variables</span></code> field of <code class="docutils literal notranslate"><span class="pre">CompositeData</span></code> is never injected by the framework. It is the user’s responsability to inject it in the appropriate places with <code class="docutils literal notranslate"><span class="pre">inject_symbolic_variable_memory</span></code> or <code class="docutils literal notranslate"><span class="pre">inject_symbolic_variable_register</span></code>.</p>
 <p>Let’s see an example. Say the target application contains the following function that we want to explore:</p>
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">parse_buffer</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">);</span>

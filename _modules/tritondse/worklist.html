@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -114,7 +114,9 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;seedmanager&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="SeedScheduler"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler">[docs]</a><span class="k">class</span> <span class="nc">SeedScheduler</span><span class="p">:</span>
+<div class="viewcode-block" id="SeedScheduler">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler">[docs]</a>
+<span class="k">class</span> <span class="nc">SeedScheduler</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class for all seed selection strategies.</span>
 <span class="sd">    This class provides the base methods that all</span>
@@ -122,7 +124,9 @@
 <span class="sd">    the interface.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SeedScheduler.has_seed_remaining"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.has_seed_remaining">[docs]</a>    <span class="k">def</span> <span class="nf">has_seed_remaining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="SeedScheduler.has_seed_remaining">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.has_seed_remaining">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_seed_remaining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns true if there are still seeds to be processed in the scheduler</span>
 
@@ -130,7 +134,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="SeedScheduler.add"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SeedScheduler.add">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.add">[docs]</a>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a new seed in the scheduler</span>
 
@@ -139,7 +146,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="SeedScheduler.update_worklist"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.update_worklist">[docs]</a>    <span class="k">def</span> <span class="nf">update_worklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SeedScheduler.update_worklist">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.update_worklist">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_worklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Call after every execution.</span>
 <span class="sd">        That function might help the scheduler with some of its internal states.</span>
@@ -151,7 +161,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="SeedScheduler.can_solve_models"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.can_solve_models">[docs]</a>    <span class="k">def</span> <span class="nf">can_solve_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SeedScheduler.can_solve_models">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.can_solve_models">[docs]</a>
+    <span class="k">def</span> <span class="nf">can_solve_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function called by the seed manager to know if it can</span>
 <span class="sd">        start negating branches to discover new paths. Some seed</span>
@@ -162,7 +175,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="SeedScheduler.pick"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.pick">[docs]</a>    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Seed</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="SeedScheduler.pick">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.pick">[docs]</a>
+    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Seed</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the next seed to execute.</span>
 
@@ -171,22 +187,32 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="SeedScheduler.post_execution"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.post_execution">[docs]</a>    <span class="k">def</span> <span class="nf">post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SeedScheduler.post_execution">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.post_execution">[docs]</a>
+    <span class="k">def</span> <span class="nf">post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called at the end of each execution after the generation of new seeds through SMT.</span>
 <span class="sd">        Last thing called before starting the next iteration.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="SeedScheduler.post_exploration"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.post_exploration">[docs]</a>    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="n">Workspace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SeedScheduler.post_exploration">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.SeedScheduler.post_exploration">[docs]</a>
+    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="n">Workspace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Called at the end of the exploration to perform</span>
 <span class="sd">        some clean-up or anything else.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">pass</span></div></div>
+        <span class="k">pass</span></div>
+</div>
 
 
-<div class="viewcode-block" id="WorklistAddressToSet"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet">[docs]</a><span class="k">class</span> <span class="nc">WorklistAddressToSet</span><span class="p">(</span><span class="n">SeedScheduler</span><span class="p">):</span>
+
+<div class="viewcode-block" id="WorklistAddressToSet">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet">[docs]</a>
+<span class="k">class</span> <span class="nc">WorklistAddressToSet</span><span class="p">(</span><span class="n">SeedScheduler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This worklist classifies seeds by addresses. We map a seed X to an</span>
 <span class="sd">    address Y, if the seed X has been generated to reach the address Y.</span>
@@ -198,7 +224,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cov</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span> <span class="c1"># {CovItem: set(Seed)}</span>
 
-<div class="viewcode-block" id="WorklistAddressToSet.__len__"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="WorklistAddressToSet.__len__">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.__len__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Number of pending seeds to execute &quot;&quot;&quot;</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="p">):</span>  <span class="c1"># Copy in list to avoid race-condition</span>
@@ -206,11 +234,17 @@
             <span class="n">count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">count</span></div>
 
-<div class="viewcode-block" id="WorklistAddressToSet.has_seed_remaining"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.has_seed_remaining">[docs]</a>    <span class="k">def</span> <span class="nf">has_seed_remaining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="WorklistAddressToSet.has_seed_remaining">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.has_seed_remaining">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_seed_remaining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns true if there are still seeds in the worklist &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span></div>
 
-<div class="viewcode-block" id="WorklistAddressToSet.add"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="WorklistAddressToSet.add">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.add">[docs]</a>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add a seed to the worklist &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">seed</span><span class="o">.</span><span class="n">coverage_objectives</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="p">:</span>
@@ -218,11 +252,17 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">seed</span><span class="p">}</span></div>
 
-<div class="viewcode-block" id="WorklistAddressToSet.update_worklist"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.update_worklist">[docs]</a>    <span class="k">def</span> <span class="nf">update_worklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="WorklistAddressToSet.update_worklist">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.update_worklist">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_worklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Update the coverage state of the woklist with the global one &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cov</span> <span class="o">=</span> <span class="n">coverage</span></div>
 
-<div class="viewcode-block" id="WorklistAddressToSet.can_solve_models"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.can_solve_models">[docs]</a>    <span class="k">def</span> <span class="nf">can_solve_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="WorklistAddressToSet.can_solve_models">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.can_solve_models">[docs]</a>
+    <span class="k">def</span> <span class="nf">can_solve_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Always true.</span>
 <span class="sd">        This strategy always allows solving branches. As a consequence</span>
@@ -233,7 +273,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="WorklistAddressToSet.pick"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.pick">[docs]</a>    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Seed</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="WorklistAddressToSet.pick">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistAddressToSet.pick">[docs]</a>
+    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Seed</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the next seed to execute</span>
 
 <span class="sd">        :returns: next seed to execute (first one covering new addresses, otherwise any other)</span>
@@ -283,10 +326,14 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">seed_picked</span></div></div>
+        <span class="k">return</span> <span class="n">seed_picked</span></div>
+</div>
 
 
-<div class="viewcode-block" id="WorklistRand"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand">[docs]</a><span class="k">class</span> <span class="nc">WorklistRand</span><span class="p">(</span><span class="n">SeedScheduler</span><span class="p">):</span>
+
+<div class="viewcode-block" id="WorklistRand">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand">[docs]</a>
+<span class="k">class</span> <span class="nc">WorklistRand</span><span class="p">(</span><span class="n">SeedScheduler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Trivial strategy that returns any Seed without any classification.</span>
 <span class="sd">    It uses a Set for insertion and pop (which is random) for picking seeds.</span>
@@ -294,15 +341,23 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">manager</span><span class="p">:</span> <span class="s1">&#39;SeedManager&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c1"># set(Seed)</span>
 
-<div class="viewcode-block" id="WorklistRand.__len__"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="WorklistRand.__len__">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.__len__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Number of pending seeds to execute &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WorklistRand.has_seed_remaining"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.has_seed_remaining">[docs]</a>    <span class="k">def</span> <span class="nf">has_seed_remaining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="WorklistRand.has_seed_remaining">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.has_seed_remaining">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_seed_remaining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns true if there are still seeds in the worklist &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span></div>
 
-<div class="viewcode-block" id="WorklistRand.add"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="WorklistRand.add">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.add">[docs]</a>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add a seed to the worklist</span>
 
 <span class="sd">        :param seed: Seed to add to this rand scheduler</span>
@@ -310,15 +365,24 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WorklistRand.update_worklist"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.update_worklist">[docs]</a>    <span class="k">def</span> <span class="nf">update_worklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="WorklistRand.update_worklist">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.update_worklist">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_worklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Update the coverage state of the worklist with the global one &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cov</span> <span class="o">=</span> <span class="n">coverage</span></div>
 
-<div class="viewcode-block" id="WorklistRand.can_solve_models"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.can_solve_models">[docs]</a>    <span class="k">def</span> <span class="nf">can_solve_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="WorklistRand.can_solve_models">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.can_solve_models">[docs]</a>
+    <span class="k">def</span> <span class="nf">can_solve_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Always true &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="WorklistRand.pick"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.pick">[docs]</a>    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Seed</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="WorklistRand.pick">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.WorklistRand.pick">[docs]</a>
+    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Seed</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the next seed to execute. The method pop() removes a random element</span>
 <span class="sd">        from the set and returns the removed element. Unlike, a stack a</span>
@@ -327,10 +391,14 @@
 <span class="sd">        :returns: next seed to executre</span>
 <span class="sd">        :rtype: Seed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span> <span class="k">else</span> <span class="kc">None</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span> <span class="k">else</span> <span class="kc">None</span></div>
+</div>
 
 
-<div class="viewcode-block" id="FreshSeedPrioritizerWorklist"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist">[docs]</a><span class="k">class</span> <span class="nc">FreshSeedPrioritizerWorklist</span><span class="p">(</span><span class="n">SeedScheduler</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FreshSeedPrioritizerWorklist">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist">[docs]</a>
+<span class="k">class</span> <span class="nc">FreshSeedPrioritizerWorklist</span><span class="p">(</span><span class="n">SeedScheduler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Strategy that first execute all seeds without negating branches</span>
 <span class="sd">    in order to get the most updated coverage and which then re-run</span>
@@ -346,18 +414,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fresh</span> <span class="o">=</span> <span class="p">[]</span>       <span class="c1"># Seed never processed (list to make sure we can pop first one received)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span> <span class="c1"># CovItem -&gt; set(Seed)</span>
 
-<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.__len__"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.__len__">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.__len__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Number of pending seeds to execute &quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">seeds</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
             <span class="n">s</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">seeds</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fresh</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.has_seed_remaining"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.has_seed_remaining">[docs]</a>    <span class="k">def</span> <span class="nf">has_seed_remaining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.has_seed_remaining">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.has_seed_remaining">[docs]</a>
+    <span class="k">def</span> <span class="nf">has_seed_remaining</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns true if there are still seeds in the worklist &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span></div>
 
-<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.add"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.add">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.add">[docs]</a>
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add a seed to the worklist</span>
 
 <span class="sd">        :param seed: seed to add to the scheduler</span>
@@ -373,7 +449,10 @@
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># Otherwise it is fresh</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">fresh</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.update_worklist"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.update_worklist">[docs]</a>    <span class="k">def</span> <span class="nf">update_worklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.update_worklist">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.update_worklist">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_worklist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Update the coverage state of the worklist with the global one &quot;&quot;&quot;</span>
         <span class="c1"># Iterate the worklist to see if some items have now been covered</span>
         <span class="c1"># and are thus not interesting anymore</span>
@@ -385,7 +464,10 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">seed</span><span class="o">.</span><span class="n">coverage_objectives</span><span class="p">:</span>  <span class="c1"># The seed cannot improve the coverage of anything</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">drop_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.can_solve_models"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.can_solve_models">[docs]</a>    <span class="k">def</span> <span class="nf">can_solve_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.can_solve_models">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.can_solve_models">[docs]</a>
+    <span class="k">def</span> <span class="nf">can_solve_models</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns True if there are no &quot;fresh&quot; seeds to execute.</span>
 
@@ -393,7 +475,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fresh</span></div>
 
-<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.pick"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.pick">[docs]</a>    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Seed</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.pick">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.pick">[docs]</a>
+    <span class="k">def</span> <span class="nf">pick</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Seed</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the next seed to execute &quot;&quot;&quot;</span>
         <span class="c1"># Pop first fresh seed</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fresh</span><span class="p">:</span>
@@ -419,18 +504,26 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">seed</span></div>
 
-<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.post_execution"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.post_execution">[docs]</a>    <span class="k">def</span> <span class="nf">post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.post_execution">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.post_execution">[docs]</a>
+    <span class="k">def</span> <span class="nf">post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solely used to show intermediate statistics</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Seed Scheduler: worklist:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> Coverage objectives:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="p">)</span><span class="si">}</span><span class="s2">  (fresh:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fresh</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.post_exploration"><a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.post_exploration">[docs]</a>    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="n">Workspace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="FreshSeedPrioritizerWorklist.post_exploration">
+<a class="viewcode-back" href="../../dev_doc/seedscheduling.html#tritondse.worklist.FreshSeedPrioritizerWorklist.post_exploration">[docs]</a>
+    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="n">Workspace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        At the end of the execution, print the worklist to know</span>
 <span class="sd">        its state before exit.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">workspace</span><span class="o">.</span><span class="n">save_metadata_file</span><span class="p">(</span><span class="s2">&quot;coverage_objectives.json&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span></div></div>
+        <span class="n">workspace</span><span class="o">.</span><span class="n">save_metadata_file</span><span class="p">(</span><span class="s2">&quot;coverage_objectives.json&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">worklist</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span></div>
+</div>
+
 </pre></div>
 
            </div>

@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -130,7 +130,9 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;executor&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="SymbolicExecutor"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor">[docs]</a><span class="k">class</span> <span class="nc">SymbolicExecutor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="SymbolicExecutor">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor">[docs]</a>
+<span class="k">class</span> <span class="nc">SymbolicExecutor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Single Program Execution Class.</span>
 <span class="sd">    That module, is in charge of performing the process loading from the given</span>
@@ -204,7 +206,9 @@
             <span class="n">variables</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">seed</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
             <span class="k">return</span> <span class="n">CompositeData</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SymbolicExecutor.load"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="p">:</span> <span class="n">Loader</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="SymbolicExecutor.load">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.load">[docs]</a>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loader</span><span class="p">:</span> <span class="n">Loader</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Use the given loader to initialize the ProcessState.</span>
 <span class="sd">        It overrides the current ProcessState if any.</span>
@@ -220,7 +224,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_map_dynamic_symbols</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_seed_process_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.load_process"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.load_process">[docs]</a>    <span class="k">def</span> <span class="nf">load_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.load_process">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.load_process">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load the given process state. Do nothing but</span>
 <span class="sd">        setting the internal ProcessState.</span>
@@ -229,6 +236,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span> <span class="o">=</span> <span class="n">pstate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_seed_process_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span></div>
+
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_load_seed_process_state</span><span class="p">(</span><span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -265,7 +273,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending_seeds</span>
 
-<div class="viewcode-block" id="SymbolicExecutor.enqueue_seed"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.enqueue_seed">[docs]</a>    <span class="k">def</span> <span class="nf">enqueue_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="SymbolicExecutor.enqueue_seed">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.enqueue_seed">[docs]</a>
+    <span class="k">def</span> <span class="nf">enqueue_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a seed to the queue of seed to be executed in later iterations.</span>
 <span class="sd">        This function is meant to be used by user callbacks.</span>
@@ -275,6 +285,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pending_seeds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">callback_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackManager</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -283,7 +294,9 @@
 <span class="sd">        :rtype: CallbackManager&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cbm</span>
 
-<div class="viewcode-block" id="SymbolicExecutor.is_seed_injected"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.is_seed_injected">[docs]</a>    <span class="k">def</span> <span class="nf">is_seed_injected</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="SymbolicExecutor.is_seed_injected">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.is_seed_injected">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_seed_injected</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get whether or not the seed has been injected.</span>
 
@@ -296,6 +309,7 @@
             <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_symbolic_seed</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">files</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_symbolic_seed</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="kc">False</span></div>
+
 
     <span class="k">def</span> <span class="nf">_configure_pstate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1">#for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:</span>
@@ -359,7 +373,9 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;symbolic </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"> at 0x</span><span class="si">{</span><span class="n">pc</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">: target: 0x</span><span class="si">{</span><span class="n">tgt_addr</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">lea_ast</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">push_constraint</span><span class="p">(</span><span class="n">lea_ast</span> <span class="o">==</span> <span class="n">tgt_addr</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sym-</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">trace_offset</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">pc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="SymbolicExecutor.emulate"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.emulate">[docs]</a>    <span class="k">def</span> <span class="nf">emulate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="SymbolicExecutor.emulate">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.emulate">[docs]</a>
+    <span class="k">def</span> <span class="nf">emulate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">stop</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">threads</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">():</span>
                 <span class="k">break</span>
@@ -368,7 +384,10 @@
         <span class="k">return</span></div>
 
 
-<div class="viewcode-block" id="SymbolicExecutor.step"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.step">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.step">[docs]</a>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform a single instruction step. Returns whether the emulation can</span>
 <span class="sd">        continue or we have to stop.</span>
@@ -522,6 +541,7 @@
             <span class="k">return</span> <span class="kc">False</span></div>
 
 
+
     <span class="k">def</span> <span class="nf">__handle_external_return</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routine_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ret_val</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Expression</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Symbolize or concretize return values of external functions &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">ret_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -630,7 +650,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">abort</span><span class="p">()</span>
 
-<div class="viewcode-block" id="SymbolicExecutor.abort"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.abort">[docs]</a>    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+<div class="viewcode-block" id="SymbolicExecutor.abort">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.abort">[docs]</a>
+    <span class="k">def</span> <span class="nf">abort</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Abort the current execution. It works by raising</span>
 <span class="sd">        an exception which is caught by the emulation function</span>
@@ -640,7 +662,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="n">AbortExecutionException</span><span class="p">(</span><span class="s1">&#39;Execution aborted&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.skip_instruction"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.skip_instruction">[docs]</a>    <span class="k">def</span> <span class="nf">skip_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.skip_instruction">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.skip_instruction">[docs]</a>
+    <span class="k">def</span> <span class="nf">skip_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Skip the current instruction before it gets executed. It is only</span>
 <span class="sd">        relevant to call it from pre-inst or pre-addr callbacks.</span>
@@ -649,7 +674,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="n">SkipInstructionException</span><span class="p">(</span><span class="s2">&quot;Skip instruction&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.stop_exploration"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.stop_exploration">[docs]</a>    <span class="k">def</span> <span class="nf">stop_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.stop_exploration">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.stop_exploration">[docs]</a>
+    <span class="k">def</span> <span class="nf">stop_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function to call to stop the whole exploration of</span>
 <span class="sd">        the program. It raises an exception which is caught by SymbolicExplorator.</span>
@@ -658,7 +686,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="n">StopExplorationException</span><span class="p">(</span><span class="s2">&quot;Stop exploration&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.emulation_init"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.emulation_init">[docs]</a>    <span class="k">def</span> <span class="nf">emulation_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.emulation_init">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.emulation_init">[docs]</a>
+    <span class="k">def</span> <span class="nf">emulation_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ProcessState is None (have you called </span><span class="se">\&quot;</span><span class="s2">load</span><span class="se">\&quot;</span><span class="s2">?&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -693,7 +724,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_configure_pstate</span><span class="p">()</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.run"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop_at</span><span class="p">:</span> <span class="n">Addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.run">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stop_at</span><span class="p">:</span> <span class="n">Addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Execute the program.</span>
 
@@ -716,7 +750,10 @@
         <span class="c1"># Call termination steps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">emulation_deinit</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.emulation_deinit"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.emulation_deinit">[docs]</a>    <span class="k">def</span> <span class="nf">emulation_deinit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.emulation_deinit">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.emulation_deinit">[docs]</a>
+    <span class="k">def</span> <span class="nf">emulation_deinit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">post_cb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cbm</span><span class="o">.</span><span class="n">get_execution_callbacks</span><span class="p">()</span>
         <span class="c1"># Iterate through post exec callbacks</span>
         <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="n">post_cb</span><span class="p">:</span>
@@ -747,6 +784,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Instructions executed: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">coverage</span><span class="o">.</span><span class="n">total_instruction_executed</span><span class="si">}</span><span class="s2">  symbolic branches: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">path_predicate_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Memory usage: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mem_usage_str</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="nf">_mem_accesses_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">ps</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">mem</span><span class="p">:</span> <span class="n">MemoryAccess</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This callback is used to ensure memory accesses performed by side-effect of instructions</span>
@@ -772,7 +810,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">return_register</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
 
-<div class="viewcode-block" id="SymbolicExecutor.mem_usage_str"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.mem_usage_str">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="SymbolicExecutor.mem_usage_str">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.mem_usage_str">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">mem_usage_str</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; debug function to track memory consumption of an execution &quot;&quot;&quot;</span>
         <span class="n">size</span><span class="p">,</span> <span class="n">resident</span><span class="p">,</span> <span class="n">shared</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/proc/</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span><span class="si">}</span><span class="s2">/statm&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">))</span>
@@ -785,7 +825,10 @@
                 <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%.2f%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">resident</span><span class="o">/</span><span class="n">unit</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">B&quot;</span> <span class="o">%</span> <span class="n">resident</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.mk_new_seed_from_model"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.mk_new_seed_from_model">[docs]</a>    <span class="k">def</span> <span class="nf">mk_new_seed_from_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Seed</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.mk_new_seed_from_model">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.mk_new_seed_from_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">mk_new_seed_from_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Seed</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Creates a new seed from the given SMT model.</span>
 
@@ -843,7 +886,10 @@
         <span class="c1"># Return the</span>
         <span class="k">return</span> <span class="n">new_seed</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_argv_memory"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_argv_memory">[docs]</a>    <span class="k">def</span> <span class="nf">inject_symbolic_argv_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_argv_memory">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_argv_memory">[docs]</a>
+    <span class="k">def</span> <span class="nf">inject_symbolic_argv_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inject the ith item of argv in memory.</span>
 <span class="sd">        To be used only with composite seeds and only if seed have a symbolic argv</span>
@@ -856,7 +902,10 @@
         <span class="n">sym_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">symbolize_memory_bytes</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;argv[</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span> <span class="c1"># Symbolize bytes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_symbolic_seed</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">sym_vars</span> <span class="c1"># Add symbolic variables to symbolic seed</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_file_memory"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_file_memory">[docs]</a>    <span class="k">def</span> <span class="nf">inject_symbolic_file_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_file_memory">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_file_memory">[docs]</a>
+    <span class="k">def</span> <span class="nf">inject_symbolic_file_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inject a symbolic file (or part of it) in memory.</span>
 
@@ -869,9 +918,12 @@
         <span class="n">sym_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">symbolize_memory_bytes</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">name</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span> <span class="c1"># Symbolize bytes</span>
         <span class="n">sym_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symbolic_seed</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_composite</span><span class="p">()</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symbolic_seed</span>
         <span class="n">sym_seed</span><span class="p">[</span><span class="n">offset</span><span class="p">:</span><span class="n">offset</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sym_vars</span> <span class="c1"># Add symbolic variables to symbolic seed</span></div>
+
         <span class="c1"># FIXME: Handle if reading twice same input bytes !</span>
 
-<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_variable_memory"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_variable_memory">[docs]</a>    <span class="k">def</span> <span class="nf">inject_symbolic_variable_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_variable_memory">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_variable_memory">[docs]</a>
+    <span class="k">def</span> <span class="nf">inject_symbolic_variable_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inject a symbolic variable in memory.</span>
 
@@ -884,9 +936,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>  <span class="c1"># Write concrete bytes in memory</span>
         <span class="n">sym_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">symbolize_memory_bytes</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">name</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>  <span class="c1"># Symbolize bytes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_symbolic_seed</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">offset</span><span class="p">:</span><span class="n">offset</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">sym_vars</span> <span class="c1"># Add symbolic variables to symbolic seed</span></div>
+
         <span class="c1"># FIXME: Handle if reading twice same input bytes !</span>
 
-<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_file_register"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_file_register">[docs]</a>    <span class="k">def</span> <span class="nf">inject_symbolic_file_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_file_register">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_file_register">[docs]</a>
+    <span class="k">def</span> <span class="nf">inject_symbolic_file_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inject a symbolic file (or part of it) into a register.</span>
 <span class="sd">        The value has to be an integer.</span>
@@ -904,7 +959,10 @@
         <span class="n">sym_seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symbolic_seed</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_composite</span><span class="p">()</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_symbolic_seed</span>
         <span class="n">sym_seed</span><span class="p">[</span><span class="n">offset</span><span class="p">]</span> <span class="o">=</span> <span class="n">sym_vars</span>  <span class="c1"># Add symbolic variables to symbolic seed</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_variable_register"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_variable_register">[docs]</a>    <span class="k">def</span> <span class="nf">inject_symbolic_variable_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_variable_register">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_variable_register">[docs]</a>
+    <span class="k">def</span> <span class="nf">inject_symbolic_variable_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reg</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inject a symbolic variable (or part of it) in a register.</span>
 <span class="sd">        The value has to be an integer.</span>
@@ -924,7 +982,10 @@
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># meant to be bytes</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;variable injected in registers have to be integer values&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_raw_input"><a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_raw_input">[docs]</a>    <span class="k">def</span> <span class="nf">inject_symbolic_raw_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="SymbolicExecutor.inject_symbolic_raw_input">
+<a class="viewcode-back" href="../../api/executor.html#tritondse.SymbolicExecutor.inject_symbolic_raw_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">inject_symbolic_raw_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inject the input in memory. This injection method should</span>
 <span class="sd">        be used for RAW seed type.</span>
@@ -936,7 +997,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_composite</span><span class="p">():</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;inject_symbolic_memory must not be used with composite seeds !&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inject_symbolic_file_memory</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inject_symbolic_file_memory</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
            </div>

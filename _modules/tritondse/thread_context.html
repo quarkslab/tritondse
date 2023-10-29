@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -114,7 +114,9 @@
     <span class="n">LOCKED</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>   <span class="c1"># doc: State after a pthread_lock &amp; co</span>
 
 
-<div class="viewcode-block" id="ThreadContext"><a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext">[docs]</a><span class="k">class</span> <span class="nc">ThreadContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ThreadContext">
+<a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext">[docs]</a>
+<span class="k">class</span> <span class="nc">ThreadContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Thread data structure holding all information related to it.</span>
 <span class="sd">    Purposely used to save registers and to restore them in a</span>
@@ -133,7 +135,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ThreadState</span><span class="o">.</span><span class="n">RUNNING</span>
         <span class="c1"># FIXME: Keep the thread_scheduling and automated the reset on restore</span>
 
-<div class="viewcode-block" id="ThreadContext.save"><a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tt_ctx</span><span class="p">:</span> <span class="n">TritonContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="ThreadContext.save">
+<a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tt_ctx</span><span class="p">:</span> <span class="n">TritonContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the current thread state from the current execution.</span>
 <span class="sd">        That implies keeping a reference on symbolic and concrete</span>
@@ -148,7 +152,10 @@
         <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">tt_ctx</span><span class="o">.</span><span class="n">getParentRegisters</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cregs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">r</span><span class="o">.</span><span class="n">getId</span><span class="p">():</span> <span class="n">tt_ctx</span><span class="o">.</span><span class="n">getConcreteRegisterValue</span><span class="p">(</span><span class="n">r</span><span class="p">)})</span></div>
 
-<div class="viewcode-block" id="ThreadContext.restore"><a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.restore">[docs]</a>    <span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tt_ctx</span><span class="p">:</span> <span class="n">TritonContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ThreadContext.restore">
+<a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.restore">[docs]</a>
+    <span class="k">def</span> <span class="nf">restore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tt_ctx</span><span class="p">:</span> <span class="n">TritonContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Restore a thread state in the given TritonContext</span>
 
@@ -162,7 +169,10 @@
         <span class="k">for</span> <span class="n">rid</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sregs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">tt_ctx</span><span class="o">.</span><span class="n">assignSymbolicExpressionToRegister</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">tt_ctx</span><span class="o">.</span><span class="n">getRegister</span><span class="p">(</span><span class="n">rid</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="ThreadContext.kill"><a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.kill">[docs]</a>    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ThreadContext.kill">
+<a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.kill">[docs]</a>
+    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Kill the current thread. Called when exiting the thread.</span>
 
@@ -170,7 +180,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ThreadState</span><span class="o">.</span><span class="n">DEAD</span></div>
 
-<div class="viewcode-block" id="ThreadContext.is_dead"><a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.is_dead">[docs]</a>    <span class="k">def</span> <span class="nf">is_dead</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ThreadContext.is_dead">
+<a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.is_dead">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_dead</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns whether the thread is killed or not</span>
 
@@ -178,7 +191,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">ThreadState</span><span class="o">.</span><span class="n">DEAD</span></div>
 
-<div class="viewcode-block" id="ThreadContext.join_thread"><a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.join_thread">[docs]</a>    <span class="k">def</span> <span class="nf">join_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">th_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ThreadContext.join_thread">
+<a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.join_thread">[docs]</a>
+    <span class="k">def</span> <span class="nf">join_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">th_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Put the thread in a join state where waits for</span>
 <span class="sd">        another thread.</span>
@@ -189,7 +205,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_join_th_id</span> <span class="o">=</span> <span class="n">th_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ThreadState</span><span class="o">.</span><span class="n">JOINING</span></div>
 
-<div class="viewcode-block" id="ThreadContext.is_waiting_to_join"><a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.is_waiting_to_join">[docs]</a>    <span class="k">def</span> <span class="nf">is_waiting_to_join</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ThreadContext.is_waiting_to_join">
+<a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.is_waiting_to_join">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_waiting_to_join</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks whether the thread is waiting to join</span>
 <span class="sd">        another one.</span>
@@ -198,7 +217,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">ThreadState</span><span class="o">.</span><span class="n">JOINING</span></div>
 
-<div class="viewcode-block" id="ThreadContext.cancel_join"><a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.cancel_join">[docs]</a>    <span class="k">def</span> <span class="nf">cancel_join</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ThreadContext.cancel_join">
+<a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.cancel_join">[docs]</a>
+    <span class="k">def</span> <span class="nf">cancel_join</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Cancel a join operation.</span>
 
@@ -207,7 +229,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_join_th_id</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">ThreadState</span><span class="o">.</span><span class="n">RUNNING</span></div>
 
-<div class="viewcode-block" id="ThreadContext.is_main_thread"><a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.is_main_thread">[docs]</a>    <span class="k">def</span> <span class="nf">is_main_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ThreadContext.is_main_thread">
+<a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.is_main_thread">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_main_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns whether or not it is the main thread</span>
 <span class="sd">        (namely its id is 0)</span>
@@ -216,13 +241,18 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tid</span> <span class="o">==</span> <span class="mi">0</span></div>
 
-<div class="viewcode-block" id="ThreadContext.is_running"><a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.is_running">[docs]</a>    <span class="k">def</span> <span class="nf">is_running</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ThreadContext.is_running">
+<a class="viewcode-back" href="../../api/process.html#tritondse.thread_context.ThreadContext.is_running">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_running</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return if the thread is properly running or not.</span>
 
 <span class="sd">        :return: True if the thread is running</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">ThreadState</span><span class="o">.</span><span class="n">RUNNING</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">ThreadState</span><span class="o">.</span><span class="n">RUNNING</span></div>
+</div>
+
 </pre></div>
 
            </div>

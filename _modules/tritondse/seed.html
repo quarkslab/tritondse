@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -112,7 +112,9 @@
 <span class="kn">import</span> <span class="nn">enum_tools.documentation</span>
 
 
-<div class="viewcode-block" id="SeedStatus"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.SeedStatus">[docs]</a><span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
+<div class="viewcode-block" id="SeedStatus">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.SeedStatus">[docs]</a>
+<span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
 <span class="k">class</span> <span class="nc">SeedStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Seed status enum.</span>
@@ -126,7 +128,10 @@
     <span class="n">HANG</span> <span class="o">=</span> <span class="mi">3</span>     <span class="c1"># doc: The input seed made the program to hang</span></div>
 
 
-<div class="viewcode-block" id="SeedFormat"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.SeedFormat">[docs]</a><span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
+
+<div class="viewcode-block" id="SeedFormat">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.SeedFormat">[docs]</a>
+<span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
 <span class="k">class</span> <span class="nc">SeedFormat</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Seed format enum</span>
@@ -137,7 +142,10 @@
     <span class="n">COMPOSITE</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># doc: complex input object</span></div>
 
 
-<div class="viewcode-block" id="CompositeData"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.CompositeData">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CompositeData">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.CompositeData">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">CompositeData</span><span class="p">:</span>
     <span class="n">argv</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
     <span class="s2">&quot;list of argv values&quot;</span>
@@ -154,7 +162,9 @@
         <span class="p">}</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-<div class="viewcode-block" id="CompositeData.__bytes__"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.CompositeData.__bytes__">[docs]</a>    <span class="k">def</span> <span class="fm">__bytes__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<div class="viewcode-block" id="CompositeData.__bytes__">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.CompositeData.__bytes__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__bytes__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serialize data into a json string.</span>
 
@@ -162,7 +172,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_json</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="CompositeData.from_dict"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.CompositeData.from_dict">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="CompositeData.from_dict">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.CompositeData.from_dict">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="n">json_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;CompositeData&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert dict data into a :py:obj:`CompositeData` object.</span>
@@ -175,17 +188,26 @@
         <span class="n">variables</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">(</span><span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;variables&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">CompositeData</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CompositeData.__hash__"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.CompositeData.__hash__">[docs]</a>    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div></div>
+
+<div class="viewcode-block" id="CompositeData.__hash__">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.CompositeData.__hash__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Seed"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed">[docs]</a><span class="k">class</span> <span class="nc">Seed</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Seed">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed">[docs]</a>
+<span class="k">class</span> <span class="nc">Seed</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Seed input.</span>
 <span class="sd">    Holds the bytes buffer of the content a status after execution</span>
 <span class="sd">    but also some metadata of code portions it is meant to cover.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="Seed.__init__"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">CompositeData</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(),</span> <span class="n">status</span><span class="o">=</span><span class="n">SeedStatus</span><span class="o">.</span><span class="n">NEW</span><span class="p">):</span>
+<div class="viewcode-block" id="Seed.__init__">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">CompositeData</span><span class="p">]</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(),</span> <span class="n">status</span><span class="o">=</span><span class="n">SeedStatus</span><span class="o">.</span><span class="n">NEW</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param content: content of the input. By default is b&quot;&quot; *(and is thus considered as a bootstrap seed)*</span>
 <span class="sd">        :type content: bytes</span>
@@ -199,15 +221,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">status</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">CompositeData</span><span class="p">)</span> <span class="k">else</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">RAW</span></div>
 
-<div class="viewcode-block" id="Seed.is_composite"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_composite">[docs]</a>    <span class="k">def</span> <span class="nf">is_composite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Seed.is_composite">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_composite">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_composite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns wether the seed is a composite seed or not. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span></div>
 
-<div class="viewcode-block" id="Seed.is_raw"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_raw">[docs]</a>    <span class="k">def</span> <span class="nf">is_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Seed.is_raw">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_raw">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns wether the seed is a raw seed or not. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">RAW</span></div>
 
-<div class="viewcode-block" id="Seed.is_bootstrap_seed"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_bootstrap_seed">[docs]</a>    <span class="k">def</span> <span class="nf">is_bootstrap_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Seed.is_bootstrap_seed">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_bootstrap_seed">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_bootstrap_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A bootstrap seed is an empty seed (b&quot;&quot;). It will received a</span>
 <span class="sd">        specific processing in the engine as its size will be automatically</span>
@@ -217,7 +248,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="Seed.is_fresh"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_fresh">[docs]</a>    <span class="k">def</span> <span class="nf">is_fresh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Seed.is_fresh">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_fresh">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_fresh</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        A fresh seed is never been executed. Its is recognizable</span>
 <span class="sd">        as it does not contain any coverage objectives.</span>
@@ -225,6 +259,7 @@
 <span class="sd">        :return: True if the seed has never been executed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage_objectives</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeedStatus</span><span class="p">:</span>
@@ -249,11 +284,16 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Sets the status of the seed &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="Seed.is_status_set"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_status_set">[docs]</a>    <span class="k">def</span> <span class="nf">is_status_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="Seed.is_status_set">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_status_set">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_status_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Checks whether a status has already been assigned to the seed. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">NEW</span></div>
 
-<div class="viewcode-block" id="Seed.__len__"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.__len__">[docs]</a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Seed.__len__">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.__len__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Size of the content of the seed.</span>
 
@@ -261,17 +301,26 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Seed.__eq__"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.__eq__">[docs]</a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Seed.__eq__">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.__eq__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Equality check based on content.</span>
 
 <span class="sd">        :returns: true if content of both seeds are equal &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">content</span></div>
 
-<div class="viewcode-block" id="Seed.bytes"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.bytes">[docs]</a>    <span class="k">def</span> <span class="nf">bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Seed.bytes">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.bytes">[docs]</a>
+    <span class="k">def</span> <span class="nf">bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Seed.__bytes__"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.__bytes__">[docs]</a>    <span class="k">def</span> <span class="fm">__bytes__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Seed.__bytes__">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.__bytes__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__bytes__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a representation of the seed&#39;s content in bytes.</span>
 
@@ -279,7 +328,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Seed.__hash__"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.__hash__">[docs]</a>    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Seed.__hash__">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.__hash__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Seed hash function overriden to base itself on content.</span>
 <span class="sd">        That enable storing seed in dictionnaries directly based</span>
@@ -288,6 +340,7 @@
 <span class="sd">        :rtype: int</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">hash</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -319,7 +372,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hash</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="si">:</span><span class="s2">04x</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">meta_fname</span><span class="p">)</span><span class="si">}</span><span class="s2">.tritondse.cov&quot;</span>
 
-<div class="viewcode-block" id="Seed.from_bytes"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.from_bytes">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Seed.from_bytes">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.from_bytes">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_bytes</span><span class="p">(</span><span class="n">raw_seed</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">SeedStatus</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">NEW</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Seed&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parse a seed from its byte representation. If its a composite one</span>
@@ -345,7 +400,10 @@
         <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">Seed</span><span class="p">(</span><span class="n">raw_seed</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Seed.from_file"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.from_file">[docs]</a>    <span class="nd">@staticmethod</span>
+
+<div class="viewcode-block" id="Seed.from_file">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.from_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">SeedStatus</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">NEW</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Seed&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read a seed from a file. The status can optionally given</span>
@@ -373,14 +431,20 @@
 
         <span class="k">return</span> <span class="n">seed</span></div>
 
+
     <span class="c1"># Utility function for composite seeds</span>
-<div class="viewcode-block" id="Seed.is_file_defined"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_file_defined">[docs]</a>    <span class="k">def</span> <span class="nf">is_file_defined</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="Seed.is_file_defined">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_file_defined">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_file_defined</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_composite</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">files</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="Seed.get_file_input"><a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.get_file_input">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+
+<div class="viewcode-block" id="Seed.get_file_input">
+<a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.get_file_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_file_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the bytes associated to a given file within</span>
 <span class="sd">        a composite seed.</span>
@@ -389,7 +453,9 @@
 <span class="sd">        :param name: name of the file to retrieve</span>
 <span class="sd">        :return: bytes of the file content</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">name</span><span class="p">]</span></div>
+</div>
+
 </pre></div>
 
            </div>

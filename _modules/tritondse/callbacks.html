@@ -10,11 +10,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -120,14 +120,19 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>  <span class="c1"># get root tritondse logger</span>
 
 
-<div class="viewcode-block" id="CbPos"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CbPos">[docs]</a><span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
+<div class="viewcode-block" id="CbPos">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CbPos">[docs]</a>
+<span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
 <span class="k">class</span> <span class="nc">CbPos</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Enmus representing callback position &quot;&quot;&quot;</span>
     <span class="n">BEFORE</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># doc: Callback should be executed before the hook location interpretation</span>
     <span class="n">AFTER</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>   <span class="c1"># doc: Callback should be executed after the hook location interpreation</span></div>
 
 
-<div class="viewcode-block" id="CbType"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CbType">[docs]</a><span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
+
+<div class="viewcode-block" id="CbType">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CbType">[docs]</a>
+<span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
 <span class="k">class</span> <span class="nc">CbType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Enmus representing all kind of callbacks &quot;&quot;&quot;</span>
     <span class="n">CTX_SWITCH</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>     <span class="c1"># doc: context-switch callback</span>
@@ -154,6 +159,7 @@
     <span class="n">MEM_VIOLATION</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># doc: A memory violation occured</span></div>
 
 
+
 <span class="n">AddrCallback</span>            <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
 <span class="n">ExplorationStepCallback</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;SymbolicExplorator&#39;</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
 <span class="n">InstrCallback</span>           <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">Instruction</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
@@ -172,7 +178,9 @@
 <span class="n">MemoryViolationCallback</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">MemoryAccessViolation</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="ProbeInterface"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.ProbeInterface">[docs]</a><span class="k">class</span> <span class="nc">ProbeInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="ProbeInterface">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.ProbeInterface">[docs]</a>
+<span class="k">class</span> <span class="nc">ProbeInterface</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; The Probe interface &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cbs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">CbType</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1">#: list of callback infos</span>
@@ -186,7 +194,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_cbs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">typ</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">arg</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager">[docs]</a><span class="k">class</span> <span class="nc">CallbackManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="CallbackManager">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager">[docs]</a>
+<span class="k">class</span> <span class="nc">CallbackManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class used to aggregate all callbacks that can be plugged</span>
 <span class="sd">    inside a SymbolicExecutor running session. The internal</span>
@@ -225,7 +236,9 @@
         <span class="c1"># Temporary mapping of function name to register</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func_to_register</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="CallbackManager.is_empty"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="CallbackManager.is_empty">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.is_empty">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether a callback has alreday been registered or not</span>
 
@@ -234,13 +247,17 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.is_binded"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.is_binded">[docs]</a>    <span class="k">def</span> <span class="nf">is_binded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.is_binded">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.is_binded">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_binded</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the callback manager has already been binded on a given process state.</span>
 
 <span class="sd">        :return: True if callbacks are binded on a process state</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_se</span><span class="p">)</span> <span class="c1"># and self._se.uid == se.uid)</span></div>
+
 
 
     <span class="k">def</span> <span class="nf">_trampoline_mem_read_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">mem</span><span class="p">):</span>
@@ -294,7 +311,9 @@
         <span class="k">for</span> <span class="n">cb</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reg_write_cbs</span><span class="p">:</span>
             <span class="n">cb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_se</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_se</span><span class="o">.</span><span class="n">pstate</span><span class="p">,</span> <span class="n">reg</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
-<div class="viewcode-block" id="CallbackManager.unbind"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.unbind">[docs]</a>    <span class="k">def</span> <span class="nf">unbind</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="CallbackManager.unbind">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.unbind">[docs]</a>
+    <span class="k">def</span> <span class="nf">unbind</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Unbind callbacks from the current process state as well as from</span>
 <span class="sd">        the Triton Context object.</span>
@@ -303,7 +322,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_se</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">clear_triton_callbacks</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_se</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="CallbackManager.bind_to"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.bind_to">[docs]</a>    <span class="k">def</span> <span class="nf">bind_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.bind_to">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.bind_to">[docs]</a>
+    <span class="k">def</span> <span class="nf">bind_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Bind callbacks on the given process state. That step is required</span>
 <span class="sd">        to register callbacks on the Triton Context object. This is also</span>
@@ -355,7 +377,10 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;function callback to resolve but no program provided&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_addr_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_addr_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_addr_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">CbPos</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">AddrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_addr_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_addr_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_addr_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">CbPos</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">AddrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback function on a given address before or after the execution</span>
 <span class="sd">        of the associated instruction.</span>
@@ -374,7 +399,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_pre_addr_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_addr_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_pre_addr_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">AddrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_pre_addr_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_addr_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_pre_addr_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">AddrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register pre address callback</span>
 
@@ -386,7 +414,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_addr_callback</span><span class="p">(</span><span class="n">CbPos</span><span class="o">.</span><span class="n">BEFORE</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_post_addr_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_addr_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_post_addr_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">AddrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_post_addr_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_addr_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_post_addr_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">AddrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register post-address callback. Equivalent to register a pre-address on the</span>
 <span class="sd">        return site. *(assume the function returns)*</span>
@@ -399,7 +430,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_addr_callback</span><span class="p">(</span><span class="n">CbPos</span><span class="o">.</span><span class="n">AFTER</span><span class="p">,</span> <span class="n">addr</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.get_address_callbacks"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_address_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">get_address_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AddrCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">AddrCallback</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_address_callbacks">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_address_callbacks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_address_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AddrCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">AddrCallback</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all the pre/post callbacks for a given address.</span>
 
@@ -414,7 +448,10 @@
             <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_opcode_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_opcode_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_opcode_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">CbPos</span><span class="p">,</span> <span class="n">opcode</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OpcodeCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_opcode_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_opcode_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_opcode_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">CbPos</span><span class="p">,</span> <span class="n">opcode</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OpcodeCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback function on a given opcode before or after the execution</span>
 <span class="sd">        of the associated instruction.</span>
@@ -433,7 +470,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_pre_opcode_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_opcode_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_pre_opcode_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opcode</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OpcodeCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_pre_opcode_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_opcode_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_pre_opcode_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opcode</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OpcodeCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register pre-opcode callback.</span>
 
@@ -445,7 +485,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_opcode_callback</span><span class="p">(</span><span class="n">CbPos</span><span class="o">.</span><span class="n">BEFORE</span><span class="p">,</span> <span class="n">opcode</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_post_opcode_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_opcode_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_post_opcode_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opcode</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OpcodeCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_post_opcode_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_opcode_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_post_opcode_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opcode</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">OpcodeCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register post-opcode callback.</span>
 
@@ -457,7 +500,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_opcode_callback</span><span class="p">(</span><span class="n">CbPos</span><span class="o">.</span><span class="n">AFTER</span><span class="p">,</span> <span class="n">opcode</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.get_opcode_callbacks"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_opcode_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">get_opcode_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opcode</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">OpcodeCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">OpcodeCallback</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_opcode_callbacks">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_opcode_callbacks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_opcode_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opcode</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">OpcodeCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">OpcodeCallback</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all the pre/post callbacks for a given opcode.</span>
 
@@ -472,7 +518,10 @@
             <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_mnemonic_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_mnemonic_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_mnemonic_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">CbPos</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">:</span> <span class="n">OPCODE</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MnemonicCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_mnemonic_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_mnemonic_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_mnemonic_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">CbPos</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">:</span> <span class="n">OPCODE</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MnemonicCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback function on a given mnemonic before or after the execution</span>
 <span class="sd">        of the associated instruction.</span>
@@ -491,7 +540,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_pre_mnemonic_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_mnemonic_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_pre_mnemonic_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">:</span> <span class="n">OPCODE</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MnemonicCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_pre_mnemonic_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_mnemonic_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_pre_mnemonic_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">:</span> <span class="n">OPCODE</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MnemonicCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register pre-mnemonic callback.</span>
 
@@ -503,7 +555,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_mnemonic_callback</span><span class="p">(</span><span class="n">CbPos</span><span class="o">.</span><span class="n">BEFORE</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_post_mnemonic_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_mnemonic_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_post_mnemonic_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">:</span> <span class="n">OPCODE</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MnemonicCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_post_mnemonic_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_mnemonic_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_post_mnemonic_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">:</span> <span class="n">OPCODE</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MnemonicCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register post-mnemonic callback.</span>
 
@@ -515,7 +570,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_mnemonic_callback</span><span class="p">(</span><span class="n">CbPos</span><span class="o">.</span><span class="n">AFTER</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.get_mnemonic_callbacks"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_mnemonic_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">get_mnemonic_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">:</span> <span class="n">OPCODE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">MnemonicCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">MnemonicCallback</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_mnemonic_callbacks">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_mnemonic_callbacks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_mnemonic_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mnemonic</span><span class="p">:</span> <span class="n">OPCODE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">MnemonicCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">MnemonicCallback</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all the pre/post callbacks for a given mnemonic.</span>
 
@@ -530,7 +588,10 @@
             <span class="k">return</span> <span class="p">[],</span> <span class="p">[]</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_function_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_function_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_function_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">AddrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_function_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_function_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_function_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">AddrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback on the address of the given function name.</span>
 <span class="sd">        The function name is only resolve when the callback manager is binded</span>
@@ -547,7 +608,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_func_to_register</span><span class="p">[</span><span class="n">func_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">callback</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_instruction_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_instruction_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_instruction_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">CbPos</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">InstrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_instruction_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_instruction_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_instruction_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">CbPos</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">InstrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback triggered on each instruction executed, before or after its</span>
 <span class="sd">        side effects have been applied to ProcessState.</span>
@@ -561,7 +625,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_pre_instruction_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_instruction_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_pre_instruction_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">InstrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_pre_instruction_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_instruction_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_pre_instruction_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">InstrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a pre-execution callback on all instruction executed by the engine.</span>
 
@@ -571,7 +638,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_instruction_callback</span><span class="p">(</span><span class="n">CbPos</span><span class="o">.</span><span class="n">BEFORE</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_post_instruction_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_instruction_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_post_instruction_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">InstrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_post_instruction_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_instruction_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_post_instruction_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">InstrCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a post-execution callback on all instruction executed by the engine.</span>
 
@@ -581,7 +651,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_instruction_callback</span><span class="p">(</span><span class="n">CbPos</span><span class="o">.</span><span class="n">AFTER</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.get_instruction_callbacks"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_instruction_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">get_instruction_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">InstrCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">InstrCallback</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_instruction_callbacks">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_instruction_callbacks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_instruction_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">InstrCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">InstrCallback</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all the pre/post callbacks for instructions.</span>
 
@@ -590,7 +663,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instr_cbs</span><span class="p">[</span><span class="n">CbPos</span><span class="o">.</span><span class="n">BEFORE</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instr_cbs</span><span class="p">[</span><span class="n">CbPos</span><span class="o">.</span><span class="n">AFTER</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_pre_execution_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_execution_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_pre_execution_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">SymExCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_pre_execution_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_execution_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_pre_execution_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">SymExCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback executed after program loading, registers and memory</span>
 <span class="sd">        initialization. Thus this callback is called just before executing the</span>
@@ -603,7 +679,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_post_execution_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_execution_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_post_execution_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">SymExCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_post_execution_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_execution_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_post_execution_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">SymExCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback executed after program loading, registers and memory</span>
 <span class="sd">        initialization. Thus this callback is called after executing upon program</span>
@@ -616,7 +695,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_exploration_step_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_exploration_step_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_exploration_step_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ExplorationStepCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_exploration_step_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_exploration_step_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_exploration_step_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ExplorationStepCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback executed before each exploration step. The object</span>
 <span class="sd">        given in parameter is the SymbolicExplorator itself.</span>
@@ -625,9 +707,12 @@
 <span class="sd">        :type callback: :py:obj:`tritondse.callbacks.ExplorationStepCallback`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_step_cbs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span></div>
+
         <span class="c1"># self._empty = False  # Does not impact the emptiness of the callbackmanager</span>
 
-<div class="viewcode-block" id="CallbackManager.get_execution_callbacks"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_execution_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">get_execution_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SymExCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">SymExCallback</span><span class="p">]]:</span>
+<div class="viewcode-block" id="CallbackManager.get_execution_callbacks">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_execution_callbacks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_execution_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SymExCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">SymExCallback</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all the pre/post callbacks for the current symbolic execution.</span>
 
@@ -636,7 +721,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pre_exec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_post_exec</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_memory_read_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_memory_read_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_memory_read_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MemReadCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_memory_read_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_memory_read_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_memory_read_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MemReadCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback that will be triggered by any read in the concrete</span>
 <span class="sd">        memory of the process state.</span>
@@ -648,7 +736,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_memory_write_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_memory_write_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_memory_write_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MemWriteCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_memory_write_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_memory_write_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_memory_write_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MemWriteCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback called on each write in the concrete memory state</span>
 <span class="sd">        of the process.</span>
@@ -660,7 +751,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_register_read_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_register_read_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_register_read_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">RegReadCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_register_read_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_register_read_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_register_read_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">RegReadCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback on each register read during the symbolic execution.</span>
 
@@ -671,7 +765,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_register_write_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_register_write_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_register_write_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">RegWriteCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_register_write_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_register_write_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_register_write_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">RegWriteCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback on each register write during the symbolic execution.</span>
 
@@ -682,7 +779,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_thread_context_switch_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_thread_context_switch_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_thread_context_switch_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ThreadCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_thread_context_switch_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_thread_context_switch_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_thread_context_switch_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">ThreadCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback triggered upon each thread context switch during the execution.</span>
 
@@ -693,7 +793,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.get_context_switch_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_context_switch_callback">[docs]</a>    <span class="k">def</span> <span class="nf">get_context_switch_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ThreadCallback</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_context_switch_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_context_switch_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_context_switch_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ThreadCallback</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the list of all function callback to call when thread is being scheduled.</span>
 
@@ -702,7 +805,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx_switch</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_new_input_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_new_input_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_new_input_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">NewInputCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_new_input_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_new_input_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_new_input_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">NewInputCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback function called when the SMT solver find a new model namely</span>
 <span class="sd">        a new input. This callback is called before any treatment on the input (worklist, etc.).</span>
@@ -715,7 +821,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.get_new_input_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_new_input_callback">[docs]</a>    <span class="k">def</span> <span class="nf">get_new_input_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NewInputCallback</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_new_input_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_new_input_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_new_input_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NewInputCallback</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the list of all function callback to call when an a new</span>
 <span class="sd">        input is generated by SMT.</span>
@@ -724,7 +833,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_input_cbs</span></div>
 
-<div class="viewcode-block" id="CallbackManager.register_on_solving_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_on_solving_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_on_solving_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">SymExSolvingCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_on_solving_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_on_solving_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_on_solving_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">SymExSolvingCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback function called when a branch is about to</span>
 <span class="sd">        be solved. This callback is called before the branch is solved and will</span>
@@ -736,7 +848,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_branch_solving_cbs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="CallbackManager.get_on_solving_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_on_solving_callback">[docs]</a>    <span class="k">def</span> <span class="nf">get_on_solving_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SymExSolvingCallback</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_on_solving_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_on_solving_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_on_solving_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SymExSolvingCallback</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the list of all function callbacks to call when a branch is about</span>
 <span class="sd">        to be solved.</span>
@@ -745,7 +860,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_branch_solving_cbs</span></div>
 
-<div class="viewcode-block" id="CallbackManager.register_on_branch_covered_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_on_branch_covered_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_on_branch_covered_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">BranchCoveredCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_on_branch_covered_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_on_branch_covered_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_on_branch_covered_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">BranchCoveredCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback function called when a branch covered. This callback</span>
 <span class="sd">        is called after the branch is solved.</span>
@@ -757,7 +875,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.get_on_branch_covered_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_on_branch_covered_callback">[docs]</a>    <span class="k">def</span> <span class="nf">get_on_branch_covered_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BranchCoveredCallback</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_on_branch_covered_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_on_branch_covered_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_on_branch_covered_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">BranchCoveredCallback</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the list of all function callbacks to call when a branch is about</span>
 <span class="sd">        to be solved.</span>
@@ -767,7 +888,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_branch_covered_cbs</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_memory_violation_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_memory_violation_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_memory_violation_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MemoryViolationCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_memory_violation_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_memory_violation_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_memory_violation_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">MemoryViolationCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback function called when a memory violation occured during the</span>
 <span class="sd">        emulation.</span>
@@ -778,7 +902,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_mem_violation_cbs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="CallbackManager.get_memory_violation_callbacks"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_memory_violation_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">get_memory_violation_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">MemoryViolationCallback</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_memory_violation_callbacks">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_memory_violation_callbacks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_memory_violation_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">MemoryViolationCallback</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all memory violation callbacks.</span>
 
@@ -787,7 +914,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mem_violation_cbs</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.get_exploration_step_callbacks"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_exploration_step_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">get_exploration_step_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ExplorationStepCallback</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_exploration_step_callbacks">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_exploration_step_callbacks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_exploration_step_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ExplorationStepCallback</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get all the exploration step callbacks</span>
 
@@ -795,7 +925,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step_cbs</span></div>
 
-<div class="viewcode-block" id="CallbackManager.register_pre_imported_routine_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_imported_routine_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_pre_imported_routine_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routine_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">RtnCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_pre_imported_routine_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_pre_imported_routine_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_pre_imported_routine_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routine_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">RtnCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback before call to an imported routines</span>
 
@@ -810,7 +943,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_post_imported_routine_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_imported_routine_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_post_imported_routine_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routine_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">RtnCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_post_imported_routine_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_post_imported_routine_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_post_imported_routine_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routine_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">RtnCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a callback, called after the call to imported routines.</span>
 
@@ -825,7 +961,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.get_imported_routine_callbacks"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_imported_routine_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">get_imported_routine_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routine_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">RtnCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">RtnCallback</span><span class="p">]]:</span>
+
+<div class="viewcode-block" id="CallbackManager.get_imported_routine_callbacks">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.get_imported_routine_callbacks">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_imported_routine_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">routine_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">RtnCallback</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">RtnCallback</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the list of all callbacks for an imported routine</span>
 
@@ -837,7 +976,10 @@
         <span class="k">return</span> <span class="n">pre_ret</span><span class="p">,</span> <span class="n">post_ret</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.register_probe"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_probe">[docs]</a>    <span class="k">def</span> <span class="nf">register_probe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probe</span><span class="p">:</span> <span class="n">ProbeInterface</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.register_probe">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.register_probe">[docs]</a>
+    <span class="k">def</span> <span class="nf">register_probe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probe</span><span class="p">:</span> <span class="n">ProbeInterface</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register a probe. That function will iterate the ``cbs`` attribute</span>
 <span class="sd">        of the object, and will register each entries in self.</span>
@@ -880,7 +1022,10 @@
                 <span class="n">mapping</span><span class="p">[</span><span class="n">kind</span><span class="p">](</span><span class="n">cb</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="CallbackManager.fork"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.fork">[docs]</a>    <span class="k">def</span> <span class="nf">fork</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;CallbackManager&#39;</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.fork">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.fork">[docs]</a>
+    <span class="k">def</span> <span class="nf">fork</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;CallbackManager&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fork the current CallbackManager in a new object instance</span>
 <span class="sd">        (that will be unbinded). That method is used by the SymbolicExplorator</span>
@@ -917,7 +1062,10 @@
 
         <span class="k">return</span> <span class="n">cbs</span></div>
 
-<div class="viewcode-block" id="CallbackManager.unregister_callback"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.unregister_callback">[docs]</a>    <span class="k">def</span> <span class="nf">unregister_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.unregister_callback">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.unregister_callback">[docs]</a>
+    <span class="k">def</span> <span class="nf">unregister_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Unregister the given callback from the manager.</span>
 
@@ -953,7 +1101,10 @@
                 <span class="k">if</span> <span class="n">callback</span> <span class="ow">in</span> <span class="n">cb_list</span><span class="p">:</span>
                     <span class="n">cb_list</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="CallbackManager.reset"><a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+<div class="viewcode-block" id="CallbackManager.reset">
+<a class="viewcode-back" href="../../api/callbacks.html#tritondse.callbacks.CallbackManager.reset">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reset all callbacks</span>
 <span class="sd">        :return:</span>
@@ -981,7 +1132,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_mem_write_cbs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># memory writes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reg_read_cbs</span>  <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># register reads</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reg_write_cbs</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># register writes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span>         <span class="o">=</span> <span class="kc">True</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_empty</span>         <span class="o">=</span> <span class="kc">True</span></div>
+</div>
+
 </pre></div>
 
            </div>

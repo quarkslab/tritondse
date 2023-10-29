@@ -12,11 +12,11 @@
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -121,7 +121,7 @@
            <div itemprop="articleBody">
              
   <section id="Getting-Started">
-<h1>Getting Started<a class="headerlink" href="#Getting-Started" title="Permalink to this heading"></a></h1>
+<h1>Getting Started<a class="headerlink" href="#Getting-Started" title="Link to this heading"></a></h1>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This library is experimental. Most code has been writing toward satisfying PASTIS objectives. Thus it lacks many
@@ -134,7 +134,7 @@ features and the API is subject to changes.</p>
 <li><p>TritonDSE have the same weaknesses than Triton in model floating point, or some specific instruction sets.</p></li>
 </ul>
 <section id="I.-Program">
-<h2>I. Program<a class="headerlink" href="#I.-Program" title="Permalink to this heading"></a></h2>
+<h2>I. Program<a class="headerlink" href="#I.-Program" title="Link to this heading"></a></h2>
 <p>For this tutorial the following crackme is going to be used:</p>
 <div style="text-align: center;"><a href="../_static/crackme_xor"><i class="fa fa-download fa-lg"></i><br/>binary</a></div><br/><p>We first need to create a <code class="docutils literal notranslate"><span class="pre">Program</span></code> object which is a thin wrapper on <a class="reference external" href="https://lief.quarkslab.com">LIEF</a>.</p>
 <div class="nbinput docutils container">
@@ -200,7 +200,7 @@ Architecture.X86_64 ENDIANNESS.LITTLE
 </div>
 </section>
 <section id="II.-Single-Execution">
-<h2>II. Single Execution<a class="headerlink" href="#II.-Single-Execution" title="Permalink to this heading"></a></h2>
+<h2>II. Single Execution<a class="headerlink" href="#II.-Single-Execution" title="Link to this heading"></a></h2>
 <p>Now we need to load the program in the TritonDSE context representing containing both the concrete and the symbolic state. A context is a <code class="docutils literal notranslate"><span class="pre">ProcessState</span></code> object. It provides all primitives to read or write both registers and memory in a concrete or symbolic manner.</p>
 <p>Thus, we need to load the program in such context and then starting the symbolic emulation at its entrypoint by providing it a concrete input. Hopefully the loading and execution steps are done transparently by the <code class="docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> object.</p>
 <div class="nbinput docutils container">
@@ -282,7 +282,7 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 </div>
 </section>
 <section id="III.-Concrete-State-Manipulation">
-<h2>III. Concrete State Manipulation<a class="headerlink" href="#III.-Concrete-State-Manipulation" title="Permalink to this heading"></a></h2>
+<h2>III. Concrete State Manipulation<a class="headerlink" href="#III.-Concrete-State-Manipulation" title="Link to this heading"></a></h2>
 <p>Both the concrete state and symbolic state can be modified at any time during the execution.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[127]:
@@ -310,7 +310,7 @@ arch: X86_64  ptrsize:64
 </pre></div></div>
 </div>
 <section id="a.-Reading,-writing-registers-(function-API)">
-<h3>a. Reading, writing registers (function API)<a class="headerlink" href="#a.-Reading,-writing-registers-(function-API)" title="Permalink to this heading"></a></h3>
+<h3>a. Reading, writing registers (function API)<a class="headerlink" href="#a.-Reading,-writing-registers-(function-API)" title="Link to this heading"></a></h3>
 <p>Most of the API enables addressing register either by an enum identifier <em>(triton one)</em> or directly with theirs string.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[129]:
@@ -372,7 +372,7 @@ hex(pstate.read_register(pstate.registers.rax))
 </div>
 </section>
 <section id="b.-Reading,-writing-registers-(Pythonic-API)">
-<h3>b. Reading, writing registers (Pythonic API)<a class="headerlink" href="#b.-Reading,-writing-registers-(Pythonic-API)" title="Permalink to this heading"></a></h3>
+<h3>b. Reading, writing registers (Pythonic API)<a class="headerlink" href="#b.-Reading,-writing-registers-(Pythonic-API)" title="Link to this heading"></a></h3>
 <p>To ease manipulation of the registers concrete values, the <code class="docutils literal notranslate"><span class="pre">ProcessState</span></code> introduces a <code class="docutils literal notranslate"><span class="pre">cpu</span></code> attributes that transparently updates the underlying triton context.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[132]:
@@ -428,7 +428,7 @@ RIP: 0x400489
 </div>
 </section>
 <section id="c.-Reading,-writing-memory">
-<h3>c. Reading, writing memory<a class="headerlink" href="#c.-Reading,-writing-memory" title="Permalink to this heading"></a></h3>
+<h3>c. Reading, writing memory<a class="headerlink" href="#c.-Reading,-writing-memory" title="Link to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">memory</span></code> field of a <code class="docutils literal notranslate"><span class="pre">ProcessState</span></code> allows reading and writing memory. <code class="docutils literal notranslate"><span class="pre">pstate.memory.read</span></code> returns bytes and all the other return an int. <code class="docutils literal notranslate"><span class="pre">pstate.memory.read_int</span></code> and the others return an integer and take endianness into account.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[135]:
@@ -493,7 +493,7 @@ b&#39;1\xedI\x89\xd1^H\x89\xe2H&#39;
 </section>
 </section>
 <section id="IV.-Manipulating-symbolic-state">
-<h2>IV. Manipulating symbolic state<a class="headerlink" href="#IV.-Manipulating-symbolic-state" title="Permalink to this heading"></a></h2>
+<h2>IV. Manipulating symbolic state<a class="headerlink" href="#IV.-Manipulating-symbolic-state" title="Link to this heading"></a></h2>
 <p>Both symbolic registers and symbolic memory can be manipulated in a similar fashion than the concrete state.</p>
 <p>One should be cautious when manipulating the symbolic state to keep it consistent with the concrete state.</p>
 <p>Symbolic values can be read written with a similar API than concrete state.</p>
@@ -545,7 +545,7 @@ pstate.push_constraint(constraint)
 </div>
 </section>
 <section id="V.-Configuration">
-<h2>V. Configuration<a class="headerlink" href="#V.-Configuration" title="Permalink to this heading"></a></h2>
+<h2>V. Configuration<a class="headerlink" href="#V.-Configuration" title="Link to this heading"></a></h2>
 <p>As seen before, a <code class="docutils literal notranslate"><span class="pre">SymbolicExecutor</span></code> takes a a <code class="docutils literal notranslate"><span class="pre">Config</span></code> object as input. It tunes multiple parameters that will be used during execution and exploration. These parameters are the following:</p>
 <ul class="simple">
 <li><p>seed_format (SeedFormat) : Indicates whether to use <code class="docutils literal notranslate"><span class="pre">RAW</span></code> or <code class="docutils literal notranslate"><span class="pre">COMPOSITE</span></code> seeds (see the <code class="docutils literal notranslate"><span class="pre">seeds</span></code> tutorial for more detail). For now, just note that to provide <code class="docutils literal notranslate"><span class="pre">stdin</span></code> input, a <code class="docutils literal notranslate"><span class="pre">RAW</span></code> seed can be used, for anything else (<code class="docutils literal notranslate"><span class="pre">argv</span></code>, file content etc.), a <code class="docutils literal notranslate"><span class="pre">COMPOSITE</span></code> seed is needed.</p></li>
@@ -576,7 +576,7 @@ c.seed_format=SeedFormat.COMPOSITE
 </div>
 </section>
 <section id="VI.-Exploration">
-<h2>VI. Exploration<a class="headerlink" href="#VI.-Exploration" title="Permalink to this heading"></a></h2>
+<h2>VI. Exploration<a class="headerlink" href="#VI.-Exploration" title="Link to this heading"></a></h2>
 <p>Now that we performed a single run, lets try to explore the program by symbolizing <code class="docutils literal notranslate"><span class="pre">argv</span></code> to see how many different paths can be taken.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[141]:
@@ -649,7 +649,7 @@ fail
 <p><strong>Question</strong>: Find the appropriate configuration parameter that enables solving automatically the challenge.</p>
 </section>
 <section id="VII.-Workspace-&amp;-Corpus">
-<h2>VII. Workspace &amp; Corpus<a class="headerlink" href="#VII.-Workspace-&-Corpus" title="Permalink to this heading"></a></h2>
+<h2>VII. Workspace &amp; Corpus<a class="headerlink" href="#VII.-Workspace-&-Corpus" title="Link to this heading"></a></h2>
 <p>All inputs, crashes and various metadata are stored in a workspace. Unless explicitely specified the workspace is created in <em>/tmp/triton_workspace/[timestamp]</em>. If a workspace directory is given via the <code class="docutils literal notranslate"><span class="pre">Config</span></code> this one is loaded <em>(which enables restarting an interrupted run)</em>.</p>
 <p>The whole corpus and crashes generated shall now be available in this directory.</p>
 </section>

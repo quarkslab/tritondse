@@ -10,11 +10,11 @@
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -130,7 +130,9 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="CleLoader"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader">[docs]</a><span class="k">class</span> <span class="nc">CleLoader</span><span class="p">(</span><span class="n">Loader</span><span class="p">):</span>
+<div class="viewcode-block" id="CleLoader">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader">[docs]</a>
+<span class="k">class</span> <span class="nc">CleLoader</span><span class="p">(</span><span class="n">Loader</span><span class="p">):</span>
     <span class="n">EXTERN_SYM_BASE</span> <span class="o">=</span> <span class="mh">0x0f001000</span>
     <span class="n">EXTERN_SYM_SIZE</span> <span class="o">=</span> <span class="mh">0x1000</span>
 
@@ -181,7 +183,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">main_object</span><span class="o">.</span><span class="n">entry</span>
 
-<div class="viewcode-block" id="CleLoader.memory_segments"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.memory_segments">[docs]</a>    <span class="k">def</span> <span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<div class="viewcode-block" id="CleLoader.memory_segments">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.memory_segments">[docs]</a>
+    <span class="k">def</span> <span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :return: Generator of tuples addrs and content</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -202,6 +206,7 @@
         <span class="c1"># FIXME. Temporary solution to prevent crashes on access to the TLB e.g fs:28</span>
         <span class="k">yield</span> <span class="n">LoadableSegment</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0x2000</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span> <span class="o">|</span> <span class="n">Perm</span><span class="o">.</span><span class="n">W</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;[fs]&quot;</span><span class="p">)</span></div>
 
+
     <span class="c1"># FIXME. Temporary solution to prevent crashes on access to the TLB e.g fs:28</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cpustate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -218,7 +223,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_plfm_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">main_object</span><span class="o">.</span><span class="n">os</span><span class="p">]</span>
 
-<div class="viewcode-block" id="CleLoader.imported_functions_relocations"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.imported_functions_relocations">[docs]</a>    <span class="k">def</span> <span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<div class="viewcode-block" id="CleLoader.imported_functions_relocations">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.imported_functions_relocations">[docs]</a>
+    <span class="k">def</span> <span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Iterate over all imported functions by the program. This function</span>
 <span class="sd">        is a generator of tuples associating the function and its relocation</span>
@@ -254,7 +261,10 @@
                 <span class="k">if</span> <span class="n">fun</span> <span class="ow">in</span> <span class="n">SUPPORTED_ROUTINES</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="n">fun</span><span class="p">,</span> <span class="n">got_slot</span></div>
 
-<div class="viewcode-block" id="CleLoader.imported_variable_symbols_relocations"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.imported_variable_symbols_relocations">[docs]</a>    <span class="k">def</span> <span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CleLoader.imported_variable_symbols_relocations">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.imported_variable_symbols_relocations">[docs]</a>
+    <span class="k">def</span> <span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Iterate over all imported variable symbols. Yield for each of them the name and</span>
 <span class="sd">        the relocation address in the binary.</span>
@@ -268,7 +278,10 @@
                 <span class="n">s_addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">relative_addr</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">main_object</span><span class="o">.</span><span class="n">mapped_base</span>
                 <span class="k">yield</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">s_addr</span></div>
 
-<div class="viewcode-block" id="CleLoader.find_function_addr"><a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.find_function_addr">[docs]</a>    <span class="k">def</span> <span class="nf">find_function_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Addr</span><span class="p">]:</span>
+
+<div class="viewcode-block" id="CleLoader.find_function_addr">
+<a class="viewcode-back" href="../../../api/loaders.html#tritondse.CleLoader.find_function_addr">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_function_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Addr</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Search for the function name in fonctions of the binary.</span>
 
@@ -278,7 +291,9 @@
 <span class="sd">        :rtype: Addr</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ld</span><span class="o">.</span><span class="n">find_all_symbols</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">is_function</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rebased_addr</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span>  <span class="c1"># if multiple elements return the first</span></div></div>
+        <span class="k">return</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rebased_addr</span> <span class="k">if</span> <span class="n">res</span> <span class="k">else</span> <span class="kc">None</span>  <span class="c1"># if multiple elements return the first</span></div>
+</div>
+
 </pre></div>
 
            </div>
