@@ -21,6 +21,7 @@ class SeedStatus(Enum):
     OK_DONE = 1  # doc: The input seed has been executed and terminated correctly
     CRASH = 2    # doc: The input seed crashed in some ways
     HANG = 3     # doc: The input seed made the program to hang
+    FAIL = 4     # doc: The input seed made the symbolic executor to raise an exception
 
 
 @enum_tools.documentation.document_enum

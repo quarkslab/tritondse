@@ -5,6 +5,7 @@ from tritondse.callbacks import CbType, ProbeInterface
 from tritondse.seed import Seed, SeedStatus
 from tritondse.types import Architecture, Addr, Tuple, SolverStatus
 from tritondse import SymbolicExecutor, ProcessState
+from tritondse.exception import ProbeException
 import tritondse.logging
 
 logger = tritondse.logging.get("sanitizers")
@@ -129,8 +130,11 @@ class NullDerefSanitizer(ProbeInterface):
             if description:
                 logger.critical(description)
             se.seed.status = SeedStatus.CRASH
-            pstate.stop = True
-            return True
+
+            # An exception is needed here to break execution on the first
+            # invalid memory access. Otherwise, the memory access callback
+            # will report on all bytes.
+            raise ProbeException(description)
 
         return False
 

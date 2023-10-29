@@ -23,7 +23,7 @@ from tritondse.callbacks import CallbackManager
 from tritondse.workspace import Workspace
 from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
-from tritondse.exception import AbortExecutionException, SkipInstructionException, StopExplorationException
+from tritondse.exception import AbortExecutionException, SkipInstructionException, StopExplorationException, ProbeException
 from tritondse.memory import MemoryAccessViolation, Perm
 import tritondse.logging
 
@@ -408,14 +408,20 @@ class SymbolicExecutor(object):
                 self.seed.status = SeedStatus.HANG
                 return False
             return True
-        except AbortExecutionException as e:
-            return False
-        except MemoryAccessViolation as e:
-            logger.warning(f"Memory violation: {str(e)}")
 
             # Call all the callbacks on the memory violations
             for cb in self.callback_manager.get_memory_violation_callbacks():
                 cb(self, self.pstate, e)
+        except AbortExecutionException as e:
+            return False
+        except MemoryAccessViolation as e:
+            logger.warning(f"Memory violation: {str(e)}")
+        except ProbeException:
+            return False
+        except Exception as e:
+            logger.warning(f"Execution interrupted: {e}")
+            self.seed.status = SeedStatus.FAIL
+            return False
 
             # Assign the seed the status of crash
             if not self.seed.is_status_set():
