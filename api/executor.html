@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SymbolicExecutor &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -92,6 +94,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.start_time"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.start_time</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.step"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.step()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.stop_exploration"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.stop_exploration()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.symbolic_seed"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.symbolic_seed</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.trace_offset"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.trace_offset</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.uid"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.uid</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.SymbolicExecutor.workspace"><code class="docutils literal notranslate"><span class="pre">SymbolicExecutor.workspace</span></code></a></li>
@@ -415,7 +418,8 @@ setting the internal ProcessState.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.SymbolicExecutor.mem_usage_str">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mem_usage_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/tritondse/symbolic_executor.html#SymbolicExecutor.mem_usage_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.SymbolicExecutor.mem_usage_str" title="Link to this definition"></a></dt>
-<dd><p>debug function to track memory consumption of an execution</p>
+<dd><p>Debug function to track memory consumption of an execution (not
+implemented on Windows).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -519,6 +523,12 @@ the program. It raises an exception which is caught by SymbolicExplorator.</p>
 <dd class="field-odd"><p><a class="reference internal" href="exception.html#tritondse.exception.StopExplorationException" title="tritondse.exception.StopExplorationException"><strong>StopExplorationException</strong></a> – to stop the exploration</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.SymbolicExecutor.symbolic_seed">
+<span class="sig-name descname"><span class="pre">symbolic_seed</span></span><a class="headerlink" href="#tritondse.SymbolicExecutor.symbolic_seed" title="Link to this definition"></a></dt>
+<dd><p>symbolic seed (same structure than Seed but with symbols)</p>
 </dd></dl>
 
 <dl class="py attribute">

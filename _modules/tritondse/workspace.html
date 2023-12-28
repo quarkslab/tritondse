@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.workspace &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -130,6 +132,7 @@
     <span class="n">CORPUS_DIR</span> <span class="o">=</span> <span class="s2">&quot;corpus&quot;</span>
     <span class="n">CRASH_DIR</span> <span class="o">=</span> <span class="s2">&quot;crashes&quot;</span>
     <span class="n">HANG_DIR</span> <span class="o">=</span> <span class="s2">&quot;hangs&quot;</span>
+    <span class="n">FAIL_DIR</span> <span class="o">=</span> <span class="s2">&quot;fails&quot;</span>
     <span class="n">WORKLIST_DIR</span> <span class="o">=</span> <span class="s2">&quot;worklist&quot;</span>
     <span class="n">METADATA_DIR</span> <span class="o">=</span> <span class="s2">&quot;metadata&quot;</span>
     <span class="n">BIN_DIR</span> <span class="o">=</span> <span class="s2">&quot;bin&quot;</span>
@@ -161,7 +164,7 @@
 <span class="sd">        :type flush: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">CORPUS_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CRASH_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">HANG_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">WORKLIST_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">METADATA_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BIN_DIR</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">CORPUS_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CRASH_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">HANG_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">WORKLIST_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">METADATA_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BIN_DIR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">FAIL_DIR</span><span class="p">]):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating the </span><span class="si">{</span><span class="nb">dir</span><span class="si">}</span><span class="s2"> directory&quot;</span><span class="p">)</span>
                 <span class="nb">dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -293,6 +296,18 @@
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_seeds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WORKLIST_DIR</span><span class="p">,</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">NEW</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="Workspace.iter_fails">
+<a class="viewcode-back" href="../../api/workspace.html#tritondse.workspace.Workspace.iter_fails">[docs]</a>
+    <span class="k">def</span> <span class="nf">iter_fails</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Seed</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over the fail files as Seed object.</span>
+
+<span class="sd">        :returns: generator of Seed object</span>
+<span class="sd">        :rtype: Generator[Seed, None, None]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_seeds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FAIL_DIR</span><span class="p">,</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">FAIL</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="Workspace.save_seed">
 <a class="viewcode-back" href="../../api/workspace.html#tritondse.workspace.Workspace.save_seed">[docs]</a>
     <span class="k">def</span> <span class="nf">save_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -305,7 +320,8 @@
         <span class="n">mapper</span> <span class="o">=</span> <span class="p">{</span><span class="n">SeedStatus</span><span class="o">.</span><span class="n">NEW</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">WORKLIST_DIR</span><span class="p">,</span>
                   <span class="n">SeedStatus</span><span class="o">.</span><span class="n">OK_DONE</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CORPUS_DIR</span><span class="p">,</span>
                   <span class="n">SeedStatus</span><span class="o">.</span><span class="n">HANG</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">HANG_DIR</span><span class="p">,</span>
-                  <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CRASH_DIR</span><span class="p">}</span>
+                  <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">CRASH_DIR</span><span class="p">,</span>
+                  <span class="n">SeedStatus</span><span class="o">.</span><span class="n">FAIL</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">FAIL_DIR</span><span class="p">}</span>
         <span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">mapper</span><span class="p">[</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span><span class="p">])</span> <span class="o">/</span> <span class="n">seed</span><span class="o">.</span><span class="n">filename</span>
         <span class="n">p</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span></div>
 

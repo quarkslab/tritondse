@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.sanitizers &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -108,6 +110,7 @@
 <span class="kn">from</span> <span class="nn">tritondse.seed</span> <span class="kn">import</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">SeedStatus</span>
 <span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">SolverStatus</span>
 <span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">ProcessState</span>
+<span class="kn">from</span> <span class="nn">tritondse.exception</span> <span class="kn">import</span> <span class="n">ProbeException</span>
 <span class="kn">import</span> <span class="nn">tritondse.logging</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sanitizers&quot;</span><span class="p">)</span>
@@ -242,8 +245,11 @@
             <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
             <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span>
-            <span class="n">pstate</span><span class="o">.</span><span class="n">stop</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="c1"># An exception is needed here to break execution on the first</span>
+            <span class="c1"># invalid memory access. Otherwise, the memory access callback</span>
+            <span class="c1"># will report on all bytes.</span>
+            <span class="k">raise</span> <span class="n">ProbeException</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="kc">False</span></div>
 

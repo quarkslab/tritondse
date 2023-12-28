@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Workspace &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -71,6 +73,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.CORPUS_DIR"><code class="docutils literal notranslate"><span class="pre">Workspace.CORPUS_DIR</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.CRASH_DIR"><code class="docutils literal notranslate"><span class="pre">Workspace.CRASH_DIR</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.DEFAULT_WORKSPACE"><code class="docutils literal notranslate"><span class="pre">Workspace.DEFAULT_WORKSPACE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.FAIL_DIR"><code class="docutils literal notranslate"><span class="pre">Workspace.FAIL_DIR</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.HANG_DIR"><code class="docutils literal notranslate"><span class="pre">Workspace.HANG_DIR</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.LOG_FILE"><code class="docutils literal notranslate"><span class="pre">Workspace.LOG_FILE</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.METADATA_DIR"><code class="docutils literal notranslate"><span class="pre">Workspace.METADATA_DIR</span></code></a></li>
@@ -81,6 +84,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.initialize"><code class="docutils literal notranslate"><span class="pre">Workspace.initialize()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.iter_corpus"><code class="docutils literal notranslate"><span class="pre">Workspace.iter_corpus()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.iter_crashes"><code class="docutils literal notranslate"><span class="pre">Workspace.iter_crashes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.iter_fails"><code class="docutils literal notranslate"><span class="pre">Workspace.iter_fails()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.iter_hangs"><code class="docutils literal notranslate"><span class="pre">Workspace.iter_hangs()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.iter_worklist"><code class="docutils literal notranslate"><span class="pre">Workspace.iter_worklist()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.workspace.Workspace.logfile_path"><code class="docutils literal notranslate"><span class="pre">Workspace.logfile_path</span></code></a></li>
@@ -162,6 +166,11 @@ location of it.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tritondse.workspace.Workspace.DEFAULT_WORKSPACE">
 <span class="sig-name descname"><span class="pre">DEFAULT_WORKSPACE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'/tmp/triton_workspace'</span></em><a class="headerlink" href="#tritondse.workspace.Workspace.DEFAULT_WORKSPACE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.workspace.Workspace.FAIL_DIR">
+<span class="sig-name descname"><span class="pre">FAIL_DIR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'fails'</span></em><a class="headerlink" href="#tritondse.workspace.Workspace.FAIL_DIR" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -257,6 +266,20 @@ if not already existing.</p>
 <dt class="sig sig-object py" id="tritondse.workspace.Workspace.iter_crashes">
 <span class="sig-name descname"><span class="pre">iter_crashes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.12)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/workspace.html#Workspace.iter_crashes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.workspace.Workspace.iter_crashes" title="Link to this definition"></a></dt>
 <dd><p>Iterate over the crashes files as Seed object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>generator of Seed object</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Generator[<a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed">Seed</a>, None, None]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tritondse.workspace.Workspace.iter_fails">
+<span class="sig-name descname"><span class="pre">iter_fails</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generator" title="(in Python v3.12)"><span class="pre">Generator</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="seeds.html#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/workspace.html#Workspace.iter_fails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.workspace.Workspace.iter_fails" title="Link to this definition"></a></dt>
+<dd><p>Iterate over the fail files as Seed object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>generator of Seed object</p>
