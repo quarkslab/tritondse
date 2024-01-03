@@ -1142,8 +1142,8 @@ def rtn_printf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     arg0f = pstate.get_format_string(arg0)
     nbArgs = arg0f.count("{")
-    args = pstate.get_format_arguments(arg0, [pstate.get_argument_value(x) for x in range(1, nbArgs+1)])
     try:
+        args = pstate.get_format_arguments(arg0, [pstate.get_argument_value(x) for x in range(1, nbArgs+1)])
         s = arg0f.format(*args)
     except:
         # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
