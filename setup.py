@@ -34,7 +34,7 @@ setup(
         "enum_tools"
     ],
     tests_require=[],
-    license="AGPL-3.0",
+    license="Apache License Version 2.0",
     author="Quarkslab",
     classifiers=[
         'Topic :: Security',
