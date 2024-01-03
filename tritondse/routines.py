@@ -1666,24 +1666,14 @@ def rtn_strcmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     s1 = pstate.get_argument_value(0)
     s2 = pstate.get_argument_value(1)
     size = min(len(pstate.memory.read_string(s1)), len(pstate.memory.read_string(s2))) + 1
-    
-    #s = s1 if len(pstate.memory.read_string(s1)) <= len(pstate.memory.read_string(s2)) else s2
-    #for i in range(size):
-    #    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
-    #    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
-    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
-    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(pstate.memory.read_string(s1)), CPUSIZE.BYTE)) == 0x00)
-    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(pstate.memory.read_string(s2)), CPUSIZE.BYTE)) == 0x00)
-
-    # FIXME: Il y a des truc chelou avec le +1 et le logic ci-dessous
 
     ptr_bit_size = pstate.ptr_bit_size
     ast = pstate.actx
     res = ast.bv(0, ptr_bit_size)
-    for index in range(size):
-        cells1 = pstate.read_symbolic_memory_byte(s1 + index).getAst()
-        cells2 = pstate.read_symbolic_memory_byte(s2 + index).getAst()
-        res = res + ast.ite(cells1 == cells2, ast.bv(0, ptr_bit_size), ast.bv(1, ptr_bit_size))
+    for index in range(size, -1, -1):
+        c1 = pstate.read_symbolic_memory_byte(s1 + index).getAst()
+        c2 = pstate.read_symbolic_memory_byte(s2 + index).getAst()
+        res = ast.ite(ast.lor([c1 == 0, c1 != c2]), ast.sx(ptr_bit_size - 8, c1 - c2), res)
 
     return res
 
