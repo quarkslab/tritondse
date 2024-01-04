@@ -407,27 +407,29 @@ class SymbolicExecutor(object):
                 logger.info('Timeout of an execution reached')
                 self.seed.status = SeedStatus.HANG
                 return False
-            return True
 
-            # Call all the callbacks on the memory violations
-            for cb in self.callback_manager.get_memory_violation_callbacks():
-                cb(self, self.pstate, e)
+            return True
         except AbortExecutionException as e:
             return False
         except MemoryAccessViolation as e:
             logger.warning(f"Memory violation: {str(e)}")
+
+            # Call all the callbacks on the memory violations
+            for cb in self.callback_manager.get_memory_violation_callbacks():
+                cb(self, self.pstate, e)
+
+            # Assign the seed the status of crash
+            if not self.seed.is_status_set():
+                self.seed.status = SeedStatus.CRASH
+
+            return False
         except ProbeException:
             return False
         except Exception as e:
             logger.warning(f"Execution interrupted: {e}")
             self.seed.status = SeedStatus.FAIL
-            return False
 
-            # Assign the seed the status of crash
-            if not self.seed.is_status_set():
-                self.seed.status = SeedStatus.CRASH
             return False
-
 
     def __handle_external_return(self, routine_name: str, ret_val: Optional[Union[int, Expression]]) -> None:
         """ Symbolize or concretize return values of external functions """
