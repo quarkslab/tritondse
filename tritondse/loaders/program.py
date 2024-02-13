@@ -7,6 +7,10 @@ from collections import namedtuple
 
 # third party
 import lief
+try:
+    import lief.EXE_FORMATS as EXE_FORMATS
+except ImportError:  #
+    import lief.Binary.FORMATS as EXE_FORMATS
 
 # local imports
 from tritondse.types import PathLike, Addr, Architecture, Platform, ArchMode, Perm, Endian
@@ -22,9 +26,9 @@ _arch_mapper = {
 }
 
 _plfm_mapper = {
-    lief.EXE_FORMATS.ELF: Platform.LINUX,
-    lief.EXE_FORMATS.PE: Platform.WINDOWS,
-    lief.EXE_FORMATS.MACHO: Platform.MACOS
+    EXE_FORMATS.ELF: Platform.LINUX,
+    EXE_FORMATS.PE: Platform.WINDOWS,
+    EXE_FORMATS.MACHO: Platform.MACOS
 }
 
 
@@ -109,11 +113,11 @@ class Program(Loader):
         return self._plfm
 
     @property
-    def format(self) -> lief.EXE_FORMATS:
+    def format(self) -> EXE_FORMATS:
         """
         Binary format. Supported formats by lief are: ELF, PE, MachO
 
-        :rtype: lief.EXE_FORMATS
+        :rtype: lief.EXE_FORMATS / lief.Binary.FORMATS
         """
         return self._binary.format
 
@@ -173,7 +177,7 @@ class Program(Loader):
         :return: Generator of tuples addrs and content
         :raise NotImplementedError: if the binary format cannot be loaded
         """
-        if self.format == lief.EXE_FORMATS.ELF:
+        if self.format == EXE_FORMATS.ELF:
             for i, seg in enumerate(self._binary.concrete.segments):
                 if seg.type == lief.ELF.SEGMENT_TYPES.LOAD:
                     content = bytearray(seg.content)
@@ -195,7 +199,7 @@ class Program(Loader):
 
         :return: Generator of tuples function name and relocation address
         """
-        if self.format == lief.EXE_FORMATS.ELF:
+        if self.format == EXE_FORMATS.ELF:
             try:
                 # Iterate functions imported through PLT
                 for rel in self._binary.concrete.pltgot_relocations:
@@ -218,7 +222,7 @@ class Program(Loader):
 
         :return: Generator of tuples with symbol name, relocation address
         """
-        if self.format == lief.EXE_FORMATS.ELF:
+        if self.format == EXE_FORMATS.ELF:
             rel_enum = self.relocation_enum
             # Iterate imported symbols
             for rel in self._binary.dynamic_relocations:

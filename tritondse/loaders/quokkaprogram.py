@@ -5,7 +5,10 @@ from typing import Union, Generator, Tuple, Optional, Any, List
 # third-party imports
 import quokka
 import networkx
-import lief
+try:
+    import lief.EXE_FORMATS as EXE_FORMATS
+except ImportError:  #
+    import lief.Binary.FORMATS as EXE_FORMATS
 
 # local imports
 from tritondse.loaders import Program, LoadableSegment
@@ -101,7 +104,7 @@ class QuokkaProgram(quokka.Program):
         return self.program.endianness
 
     @property
-    def format(self) -> lief.EXE_FORMATS:
+    def format(self) -> EXE_FORMATS:
         return self.program.format
 
     @property
