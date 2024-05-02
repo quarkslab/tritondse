@@ -1,9 +1,10 @@
+# local imports
 from tritondse.types import Addr, ByteSize, Perm
 from tritondse.memory import Memory
 from tritondse.exception import AllocatorException
 import tritondse.logging
 
-logger = tritondse.logging.get()
+logger = tritondse.logging.get('heapallocator')
 
 
 class HeapAllocator(object):
@@ -13,7 +14,7 @@ class HeapAllocator(object):
     a pointer is allocated freed etc.
 
     .. warning:: This allocator is very simple and does not perform any
-                 coalescing of freed memory areas. Thus it may not correctly
+                 coalescing of freed memory areas. Thus, it may not correctly
                  model the behavior of libc allocator.
     """
 
@@ -21,9 +22,9 @@ class HeapAllocator(object):
         """
         Class constructor. Takes heap bounds as parameter.
 
-        :param start Addr: Where the heap area can start
+        :param start: Where the heap area can start
         :type start: :py:obj:`tritondse.types.Addr`
-        :param end Addr: Where the heap area must be end
+        :param end: Where the heap area must end
         :type start: :py:obj:`tritondse.types.Addr`
         :param memory: Memory: Memory object on which to perform allocations
         """
@@ -38,8 +39,8 @@ class HeapAllocator(object):
         self._memory = memory
 
         # Pools memory
-        self.alloc_pool = dict() # {ptr: MemMap}
-        self.free_pool = dict() # {size: set(MemMap ...)}
+        self.alloc_pool = dict()    # {ptr: MemMap}
+        self.free_pool = dict()     # {size: set(MemMap ...)}
 
         # TODO: For a to-the-moon allocator, we could merge freed chunks. Like 4 chunks of 1 byte into one chunk of 4 bytes.
         # TODO: For a to-the-moon allocator, we could split a big chunk into two chunks when asking an allocation.
@@ -69,13 +70,13 @@ class HeapAllocator(object):
                 del self.free_pool[sz]
             break
 
-        if ptr is None: # We did not found reusable freed ptr
+        if ptr is None:     # We did not find reusable freed ptr
             ptr = self._curr_offset
             self._curr_offset += size
 
         # Now we can allocate the chunk
-        map = self._memory.map(ptr, size, Perm.R | Perm.W, 'heap')
-        self.alloc_pool.update({ptr: map})
+        mmap = self._memory.map(ptr, size, Perm.R | Perm.W, 'heap')
+        self.alloc_pool.update({ptr: mmap})
 
         return ptr
 

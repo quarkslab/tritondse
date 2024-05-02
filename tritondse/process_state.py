@@ -1,14 +1,12 @@
-# built-ins
+# built-ins imports
 from __future__ import annotations
-
 import io
 import struct
 import sys
 import time
 from typing import Union, Callable, Tuple, Optional, List, Dict
 
-
-# third-party
+# third-party imports
 # import z3  # For direct value enumeration
 from triton import TritonContext, MemoryAccess, CALLBACK, CPUSIZE, Instruction, MODE, AST_NODE, SOLVER, EXCEPTION
 
@@ -18,11 +16,11 @@ from tritondse.heap_allocator import HeapAllocator
 from tritondse.types import Architecture, Addr, ByteSize, BitSize, PathConstraint, Register, Expression, \
                             AstNode, Registers, SolverStatus, Model, SymbolicVariable, ArchMode, Perm, FileDesc, Endian
 from tritondse.arch import ARCHS, CpuState
-from tritondse.loaders import Loader
+from tritondse.loaders.loader import Loader
 from tritondse.memory import Memory, MemoryAccessViolation
 import tritondse.logging
 
-logger = tritondse.logging.get()
+logger = tritondse.logging.get('processstate')
 
 
 class ProcessState(object):
@@ -62,7 +60,7 @@ class ProcessState(object):
         """
 
         # Cpu object wrapping registers values
-        self.cpu: CpuState = None  #: CpuState holding concrete values of registers *(initialized when calling load)*
+        self.cpu: Optional[CpuState] = None  #: CpuState holding concrete values of registers *(initialized when calling load)*
         self._archinfo = None
 
         # Memory object
@@ -73,11 +71,11 @@ class ProcessState(object):
         self.stop = False
 
         # Signals table used by raise(), signal(), etc.
-        #self.signals_table = dict()
+        # self.signals_table = dict()
 
         # Dynamic symbols name -> addr (where they are mapped)
         self.dynamic_symbol_table: Dict[str, Tuple[Addr, bool]] = {}
-        """Dictionnary of dynamic symbols as retrieved during the loading"""
+        """Dictionary of dynamic symbols as retrieved during the loading"""
 
         # File descriptors table used by fopen(), fprintf(), etc.
         self._fd_table = {
@@ -110,7 +108,7 @@ class ProcessState(object):
         self.mutex_locked = False
         self.semaphore_locked = False
 
-        # The time when the ProcessState is instancied.
+        # The time when the ProcessState is instantiated.
         # It's used to provide a deterministic behavior when calling functions
         # like gettimeofday(), clock_gettime(), etc.
         self.time = time.time()
@@ -222,7 +220,7 @@ class ProcessState(object):
         be switched during execution, but at initialization this method enable
         activating it / disabling it. (Disabled be default)
 
-        :param enable: bool: Wether or not to active thumb
+        :param enable: bool: Whether to active thumb
         """
         self.tt_ctx.setThumb(enable)
 
@@ -267,35 +265,35 @@ class ProcessState(object):
         self._fd_table[new_fd_id] = filedesc
         return filedesc
 
-    def close_file_descriptor(self, id: int) -> None:
+    def close_file_descriptor(self, fd_id: int) -> None:
         """
         Close the given file descriptor id.
 
-        :param id: id of the file descriptor
+        :param fd_id: id of the file descriptor
         :return: None
         """
-        filedesc = self._fd_table.pop(id)
+        filedesc = self._fd_table.pop(fd_id)
         if isinstance(filedesc.fd, io.IOBase):
             filedesc.fd.close()
 
-    def get_file_descriptor(self, id: int) -> FileDesc:
+    def get_file_descriptor(self, id_: int) -> FileDesc:
         """
         Get the given file descriptor.
 
         :raise KeyError: if the file descriptor is not found
-        :param id: id of the file descriptor
+        :param id_: id of the file descriptor
         :return: FileDesc object
         """
-        return self._fd_table[id]
+        return self._fd_table[id_]
 
-    def file_descriptor_exists(self, id: int) -> bool:
+    def file_descriptor_exists(self, id_: int) -> bool:
         """
         Returns whether the file descriptor has been defined or not.
 
-        :param id: id of the file descriptor
+        :param id_: id of the file descriptor
         :return: True if the id is found
         """
-        return bool(id in self._fd_table)
+        return bool(id_ in self._fd_table)
 
     @property
     def architecture(self) -> Architecture:
@@ -436,7 +434,7 @@ class ProcessState(object):
         Unpack the given bytes into into integer value respecting
         size given and endianness.
 
-        :param data: bytes data to unpack
+        :param value: bytes data to unpack
         :param size: size in bits of data to unpack
         :return: integer value packed as bytes
         """
@@ -499,7 +497,7 @@ class ProcessState(object):
 
     def is_syscall(self) -> bool:
         """
-        Check whether the current instrution fetched is a syscall or not.
+        Check whether the current instruction fetched is a syscall or not.
         """
         return bool(self.current_instruction.getType() in self._archinfo.syscall_inst)
 
@@ -525,11 +523,11 @@ class ProcessState(object):
                                     # otherwise, i.getSize() will always be 16
 
         if self.memory.segmentation_enabled:
-            map = self.memory.get_map(address, i.getSize())
-            if map is None:
+            mmap = self.memory.get_map(address, i.getSize())
+            if mmap is None:
                 raise MemoryAccessViolation(address, Perm.X, memory_not_mapped=True)
-            if Perm.X not in map.perm:  # Note: in this model we can execute code in non-readable pages
-                raise MemoryAccessViolation(address, Perm.X, map_perm=map.perm, perm_error=True)
+            if Perm.X not in mmap.perm:  # Note: in this model we can execute code in non-readable pages
+                raise MemoryAccessViolation(address, Perm.X, map_perm=mmap.perm, perm_error=True)
         if set_as_current:
             self.__current_inst = i
         return i
@@ -545,7 +543,7 @@ class ProcessState(object):
         self.__pcs_updated = False
         __len_pcs = self.tt_ctx.getPathPredicateSize()
 
-        if not instruction.getDisassembly():  # If the insrtuction has not been disassembled
+        if not instruction.getDisassembly():  # If the instruction has not been disassembled
             self.tt_ctx.disassembly(instruction)
 
         self.__current_inst = instruction
@@ -565,15 +563,15 @@ class ProcessState(object):
     @property
     def path_predicate_size(self) -> int:
         """
-        Get the size of the path predicate (conjonction
-        of all branches and additionnals constraints added)
+        Get the size of the path predicate (conjunction
+        of all branches and additional constraints added)
 
         :return: size of the predicate
         """
         return self.tt_ctx.getPathPredicateSize()
 
     def is_path_predicate_updated(self) -> bool:
-        """ Return whether or not the path predicate has been updated """
+        """ Return whether the path predicate has been updated """
         return self.__pcs_updated
 
     @property
@@ -627,7 +625,7 @@ class ProcessState(object):
 
     def write_symbolic_register(self, register: Union[str, Register], expr: Union[AstNode, Expression], comment: str = "") -> None:
         """
-        Assign the given symbolic expression to the register. The given expression can either be a SMT AST node
+        Assign the given symbolic expression to the register. The given expression can either be an SMT AST node
         or directly an Expression (SymbolicExpression).
 
         :param register: register identifier (str or Register)
@@ -651,7 +649,7 @@ class ProcessState(object):
         :type addr: :py:obj:`tritondse.types.Addr`
         :param size: memory size in bytes
         :type size: :py:obj:`tritondse.types.ByteSize`
-        :raise RuntimeError: If the size if not aligned
+        :raise RuntimeError: If the size is not aligned
         :return: Symbolic Expression associated with the memory
         :rtype: `SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_
         """
@@ -708,7 +706,7 @@ class ProcessState(object):
         :type size: :py:obj:`tritondse.types.ByteSize`
         :param expr: expression to assign (`AstNode <https://triton.quarkslab.com/documentation/doxygen/py_AstNode_page.html>`_
                      or `SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_)
-        :raise RuntimeError: if the size if not aligned
+        :raise RuntimeError: if the size is not aligned
         """
         expr = expr if hasattr(expr, "getAst") else self.tt_ctx.newSymbolicExpression(expr, f"assign memory")
         if size in [1, 2, 4, 8, 16, 32, 64]:
@@ -738,7 +736,7 @@ class ProcessState(object):
 
     def is_memory_symbolic(self, addr: Addr, size: ByteSize) -> bool:
         """
-        Iterate the symbolic memory and returns whether or not at least one byte of the buffer
+        Iterate the symbolic memory and returns whether at least one byte of the buffer
         is symbolic
 
         :param addr: Memory address
@@ -933,8 +931,8 @@ class ProcessState(object):
         """
         # FIXME: Modifies inplace args (which is not very nice)
         s_str = self.memory.read_string(fmt_addr)
-        postString = [i for i, x in enumerate([i for i, c in enumerate(s_str) if c == '%']) if s_str[x+1] == "s"]
-        for p in postString:
+        post_string = [i for i, x in enumerate([i for i, c in enumerate(s_str) if c == '%']) if s_str[x+1] == "s"]
+        for p in post_string:
             args[p] = self.memory.read_string(args[p])
             args[p] = args[p].encode("latin-1").decode()
         return args
@@ -985,7 +983,7 @@ class ProcessState(object):
 
     def push_stack_value(self, value: int) -> None:
         """
-        Push a stack value. It then decreement the stack pointer value.
+        Push a stack value. It then decreases the stack pointer value.
 
         :param value: The value to push
         """
@@ -994,7 +992,7 @@ class ProcessState(object):
 
     def is_halt_instruction(self) -> bool:
         """
-        Check if the the current instruction is corresponding to an 'halt' instruction
+        Check if the current instruction is corresponding to an 'halt' instruction
         in the target architecture.
 
         :returns: Return true if on halt instruction architecture independent
@@ -1079,6 +1077,8 @@ class ProcessState(object):
         :type size: :py:obj:`tritondse.types.ByteSize`
         :param alias_prefix: prefix name to give the variable
         :type alias_prefix: str
+        :param offset: offset of the alias prefix
+        :type offset: int
         :return: list of Symbolic variables created
         :rtype: List[:py:obj:`tritondse.types.SymbolicVariable`]
         """
@@ -1094,7 +1094,7 @@ class ProcessState(object):
 
         :param exp: Symbolic Expression to look into
         :param model: Model generated by the solver
-        :return: dictionnary of symbolic variables and their associated value (as int)
+        :return: dictionary of symbolic variables and their associated value (as int)
         """
         ast = exp.getAst() if hasattr(exp, "getAst") else exp
         ast_vars = self.actx.search(ast, AST_NODE.VARIABLE)
@@ -1118,14 +1118,14 @@ class ProcessState(object):
         """
         ast = exp.getAst() if hasattr(exp, "getAst") else exp
 
-        vars = self.get_expression_variable_values_model(ast, model)
+        variables = self.get_expression_variable_values_model(ast, model)
 
         backup = {}
-        for var, value in vars.items():
+        for var, value in variables.items():
             backup[var] = self.tt_ctx.getConcreteVariableValue(var)
             self.tt_ctx.setConcreteVariableValue(var, value)
         final_value = ast.evaluate()
-        for var in vars.keys():
+        for var in variables.keys():
             self.tt_ctx.setConcreteVariableValue(var, backup[var])
         return final_value
 
@@ -1174,7 +1174,7 @@ class ProcessState(object):
     def from_loader(loader: Loader) -> 'ProcessState':
         pstate = ProcessState(loader.endianness)
 
-        # Initialize the architecture of the processstate
+        # Initialize the architecture of the process state
         pstate.initialize_context(loader.architecture)
 
         # Set the program counter to points to entrypoint
@@ -1205,7 +1205,7 @@ class ProcessState(object):
                 # If we already linked this function (because another library uses it) we reuse the same
                 # linkage address.
                 if fname in pstate.dynamic_symbol_table:
-                    (linkage_address, _) = pstate.dynamic_symbol_table[fname] 
+                    (linkage_address, _) = pstate.dynamic_symbol_table[fname]
                     logger.debug(f"Already added. {fname} at {rel_addr:#x} linkage_addr={linkage_address:#x}")
                     pstate.memory.write_ptr(rel_addr, linkage_address)
 
@@ -1223,7 +1223,7 @@ class ProcessState(object):
         try:
             stack = pstate.memory.map_from_name(pstate.STACK_SEG)
             alloc = 1 * pstate.ptr_size
-            pstate.write_register(pstate.base_pointer_register, stack.start+stack.size-alloc) # Pointing right-out of the stack
+            pstate.write_register(pstate.base_pointer_register, stack.start+stack.size-alloc)   # Pointing right-out of the stack
             pstate.write_register(pstate.stack_pointer_register, stack.start+stack.size-alloc)
         except AssertionError:
             logger.warning("no stack segment has been created by the loader")
@@ -1240,7 +1240,7 @@ class ProcessState(object):
                 if pstate.architecture == Architecture.X86_64:  # HACK: Keep rel_addr to directly write symbol on it
                     # Add symbol in dynamic_symbol_table
                     pstate.dynamic_symbol_table[sname] = (rel_addr, False)
-                    #pstate.memory.write_ptr(rel_addr, cur_linkage_address)  # Do not write anything as symbolic executor will do it
+                    # pstate.memory.write_ptr(rel_addr, cur_linkage_address)  # Do not write anything as symbolic executor will do it
                 else:
                     # Add symbol in dynamic_symbol_table
                     pstate.dynamic_symbol_table[sname] = (symb_base, False)
@@ -1252,7 +1252,7 @@ class ProcessState(object):
             if reg_name in loader.cpustate:
                 setattr(pstate.cpu, reg_name, loader.cpustate[reg_name])
 
-        if loader.arch_mode: # If the processor's mode is provided
+        if loader.arch_mode:    # If the processor's mode is provided
             if loader.arch_mode == ArchMode.THUMB:
                 pstate.set_thumb(True)
         return pstate

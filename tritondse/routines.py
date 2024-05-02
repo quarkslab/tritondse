@@ -1,3 +1,4 @@
+# built-in imports
 import io
 import logging
 import os
@@ -6,14 +7,14 @@ import re
 import sys
 import time
 
-from tritondse.types import Architecture, FileDesc
-from tritondse.seed import SeedFormat, SeedStatus, Seed
+# local imports
+from tritondse.types import Architecture
+from tritondse.seed import SeedStatus
 import tritondse.logging
 
 logger = tritondse.logging.get("routines")
 
 NULL_PTR = 0
-
 
 
 def rtn_ctype_b_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
@@ -76,8 +77,9 @@ def rtn_ctype_b_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     return base_ctype
 
+
 def rtn_ctype_toupper_loc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
-    # FIXME: Not sure about the array and where to place the pointer 
+    # FIXME: Not sure about the array and where to place the pointer
     # https://codebrowser.dev/glibc/glibc/locale/C-ctype.c.html
     """
     The __ctype_toupper_loc behavior.
@@ -131,13 +133,13 @@ def rtn_errno_location(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     logger.debug('__errno_location hooked')
 
-    # Errno is a int* ptr, initialize it to zero
+    # Errno is an int* ptr, initialize it to zero
     # We consider it is located in the [extern] segment
     # Thus the process must have one of this map
     segs = pstate.memory.find_map(pstate.EXTERN_SEG)
     if segs:
-        map = segs[0]
-        ERRNO = map.start + map.size - 4  # Point is last int of the mapping
+        mmap = segs[0]
+        ERRNO = mmap.start + mmap.size - 4  # Point is last int of the mapping
     else:
         assert False
     pstate.memory.write_dword(ERRNO, 0)
@@ -168,7 +170,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     if se.config.is_format_raw():
         # Cannot provide argv in RAW seeds
         argc = len(se.config.program_argv)
-    else: # SeedFormat.COMPOSITE
+    else:   # SeedFormat.COMPOSITE
         argc = len(se.seed.content.argv) if se.seed.content.argv else len(se.config.program_argv)
 
     if pstate.architecture == Architecture.X86:
@@ -182,7 +184,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # Define argv
     addrs = list()
 
-    if se.config.is_format_composite() and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
+    if se.config.is_format_composite() and se.seed.content.argv:    # Use the seed provided (and ignore config.program_argv !!)
         argvs = se.seed.content.argv
         src = 'seed'
     else:  # use the config argv
@@ -191,7 +193,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Compute the allocation size: size of strings, + all \x00 + all pointers
     size = sum(len(x) for x in argvs)+len(argvs)+len(argvs)*pstate.ptr_size
-    if size == 0:  # Falback on a single pointer that will hold not even be initialized
+    if size == 0:  # Fallback on a single pointer that will hold not even be initialized
         size = pstate.ptr_size
 
     # We put the ARGV stuff on the heap even though its normally on stack
@@ -201,14 +203,13 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         addrs.append(base)
         pstate.memory.write(base, arg + b'\x00')
 
-        if se.config.is_format_composite() and se.seed.content.argv: # Use the seed provided (and ignore config.program_argv !!)
+        if se.config.is_format_composite() and se.seed.content.argv:    # Use the seed provided (and ignore config.program_argv !!)
             # Symbolize the argv string
             se.inject_symbolic_argv_memory(base, i, arg)
             # FIXME: Shall add a constraint on every char to be != \x00
 
         logger.debug(f"({src}) argv[{i}] = {repr(pstate.memory.read(base, len(arg)))}")
         base += len(arg) + 1
-
 
     # NOTE: the array of pointers will be after the string themselves
     b_argv = base
@@ -452,7 +453,7 @@ def rtn_fclose(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logger.debug('fclose hooked')
 
     # Get arguments
-    arg0 = pstate.get_argument_value(0) # fd
+    arg0 = pstate.get_argument_value(0)     # fd
 
     # We use fd as concret value
     pstate.concretize_argument(0)
@@ -471,9 +472,9 @@ def rtn_fseek(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     The fseek behavior.
     """
 
-    #define SEEK_SET    0   /* set file offset to offset */
-    #define SEEK_CUR    1   /* set file offset to current plus offset */
-    #define SEEK_END    2   /* set file offset to EOF plus offset */
+    # define SEEK_SET    0   /* set file offset to offset */
+    # define SEEK_CUR    1   /* set file offset to current plus offset */
+    # define SEEK_END    2   /* set file offset to EOF plus offset */
     logger.debug('fseek hooked')
 
     # Get arguments
@@ -538,7 +539,7 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         data = filedesc.fgets(size)
         data_no_trail = data[:-1]  # not \x00 terminated
 
-        if filedesc.is_input_fd(): # Reading into input
+        if filedesc.is_input_fd():  # Reading into input
             # if we started from empty seed simulate reading `size` amount of data
             if se.seed.is_raw() and se.seed.is_bootstrap_seed() and not data_no_trail:
                 data = b'\x00' * size
@@ -693,7 +694,6 @@ def rtn_fputc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         return 0
 
 
-
 def rtn_fputs(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The fputs behavior.
@@ -739,10 +739,10 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logger.debug('fread hooked')
 
     # Get arguments
-    ptr = pstate.get_argument_value(0) # ptr
-    size_t, size_ast = pstate.get_full_argument(1) # size
-    nmemb = pstate.get_argument_value(2) # nmemb
-    fd = pstate.get_argument_value(3) # stream
+    ptr = pstate.get_argument_value(0)              # ptr
+    size_t, size_ast = pstate.get_full_argument(1)  # size
+    nmemb = pstate.get_argument_value(2)            # nmemb
+    fd = pstate.get_argument_value(3)               # stream
     size = size_t * nmemb
 
     # FIXME: pushPathConstraint
@@ -752,7 +752,7 @@ def rtn_fread(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         offset = filedesc.offset
         data = filedesc.read(size)
 
-        if filedesc.is_input_fd(): # Reading into input
+        if filedesc.is_input_fd():  # Reading into input
             # if we started from empty seed simulate reading `size` amount of data
             if se.seed.is_raw() and se.seed.is_bootstrap_seed() and not data:
                 data = b'\x00' * size
@@ -780,7 +780,7 @@ def rtn_free(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Get arguments
     ptr = pstate.get_argument_value(0)
-    if ptr == 0: # free(NULL) is a nop
+    if ptr == 0:    # free(NULL) is a nop
         return None
     pstate.heap_allocator.free(ptr)
 
@@ -915,16 +915,16 @@ def rtn_open(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Use the flags to open the file in the write mode.
     mode = ""
-    if (flags & 0xFF) == 0x00:   # O_RDONLY
+    if (flags & 0xFF) == 0x00:      # O_RDONLY
         mode = "r"
-    elif (flags & 0xFF) == 0x01: # O_WRONLY
+    elif (flags & 0xFF) == 0x01:    # O_WRONLY
         mode = "w"
-    elif (flags & 0xFF) == 0x02: # O_RDWR
+    elif (flags & 0xFF) == 0x02:    # O_RDWR
         mode = "r+"
 
-    if flags & 0x0100: # O_CREAT
+    if flags & 0x0100:  # O_CREAT
         mode += "x"
-    if flags & 0x0200: # O_APPEND
+    if flags & 0x0200:  # O_APPEND
         mode = "a"  # replace completely value
 
     # enforce using binary mode for open
@@ -946,6 +946,7 @@ def rtn_open(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             logger.debug(f"Failed to open {arg0s} {e}")
             return pstate.minus_one
 
+
 def rtn_realloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The realloc behavior.
@@ -962,18 +963,19 @@ def rtn_realloc(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         return ptr
 
     ptr = pstate.heap_allocator.alloc(size)
-    if ptr == 0: return ptr
+    if ptr == 0:
+        return ptr
 
     if ptr not in pstate.heap_allocator.alloc_pool:
         logger.warning("Invalid ptr passed to realloc")
-        pstate.heap_allocator.free(ptr) # This will raise an error
+        pstate.heap_allocator.free(ptr)     # This will raise an error
 
     old_memmap = pstate.heap_allocator.alloc_pool[oldptr]
     old_size = old_memmap.size
     size_to_copy = min(size, old_size)
 
-    #data = pstate.memory.read(oldptr, size_to_copy)
-    #pstate.memory.write(ptr, data)
+    # data = pstate.memory.read(oldptr, size_to_copy)
+    # pstate.memory.write(ptr, data)
 
     # Copy bytes symbolically
     for index in range(size_to_copy):
@@ -1063,17 +1065,17 @@ def rtn_memmem(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     logger.debug('memmem hooked')
 
-    haystack    = pstate.get_argument_value(0)  # const void*
-    haystacklen = pstate.get_argument_value(1)  # size_t
-    needle      = pstate.get_argument_value(2)  # const void *
-    needlelen   = pstate.get_argument_value(3)  # size_t
+    haystack    = pstate.get_argument_value(0)      # const void*
+    haystacklen = pstate.get_argument_value(1)      # size_t
+    needle      = pstate.get_argument_value(2)      # const void *
+    needlelen   = pstate.get_argument_value(3)      # size_t
 
     s1 = pstate.memory.read(haystack, haystacklen)  # haystack
     s2 = pstate.memory.read(needle, needlelen)      # needle
 
     offset = s1.find(s2)
     if offset == -1:
-        #FIXME: faut s'assurer que le marquer dans le string
+        # FIXME: faut s'assurer que le marquer dans le string
         return NULL_PTR
 
     for i, c in enumerate(s2):
@@ -1166,10 +1168,10 @@ def rtn_pthread_create(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logger.debug('pthread_create hooked')
 
     # Get arguments
-    arg0 = pstate.get_argument_value(0) # pthread_t *thread
-    arg1 = pstate.get_argument_value(1) # const pthread_attr_t *attr
-    arg2 = pstate.get_argument_value(2) # void *(*start_routine) (void *)
-    arg3 = pstate.get_argument_value(3) # void *arg
+    arg0 = pstate.get_argument_value(0)     # pthread_t *thread
+    arg1 = pstate.get_argument_value(1)     # const pthread_attr_t *attr
+    arg2 = pstate.get_argument_value(2)     # void *(*start_routine) (void *)
+    arg3 = pstate.get_argument_value(3)     # void *arg
 
     th = pstate.spawn_new_thread(arg2, arg3)
 
@@ -1241,7 +1243,7 @@ def rtn_pthread_mutex_init(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
     # Get arguments
     arg0 = pstate.get_argument_value(0)  # pthread_mutex_t *restrict mutex
-    arg1 = pstate.get_argument_value(1)  # const pthread_mutexattr_t *restrict attr)
+    arg1 = pstate.get_argument_value(1)  # const pthread_mutexattr_t *restrict attr
 
     pstate.memory.write_ptr(arg0, pstate.PTHREAD_MUTEX_INIT_MAGIC)
 
@@ -1263,7 +1265,7 @@ def rtn_pthread_mutex_lock(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         logger.debug('mutex unlocked')
         pstate.memory.write_ptr(arg0, pstate.current_thread.tid)
 
-    # The mutex is locked and we are not allowed to continue the execution
+    # The mutex is locked, and we are not allowed to continue the execution
     elif mutex != pstate.current_thread.tid:
         logger.debug('mutex locked')
         pstate.mutex_locked = True
@@ -1333,7 +1335,7 @@ def rtn_read(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         offset = filedesc.offset
         data = filedesc.read(size)
 
-        if filedesc.is_input_fd(): # Reading into input
+        if filedesc.is_input_fd():  # Reading into input
             # if we started from empty seed simulate reading `size` amount of data
             if se.seed.is_raw() and se.seed.is_bootstrap_seed() and not data:
                 data = b'\x00' * size
@@ -1360,13 +1362,13 @@ def rtn_getchar(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logger.debug('getchar hooked')
 
     # Get arguments
-    filedesc = pstate.get_file_descriptor(0) # stdin
+    filedesc = pstate.get_file_descriptor(0)    # stdin
     offset = filedesc.offset
 
     data = filedesc.read(1)
     if data:
         if filedesc.is_input_fd():  # Reading into input
-            data = ord(data) # convert to integer
+            data = ord(data)    # convert to integer
             se.inject_symbolic_file_register(pstate.return_register, filedesc.name, data, offset)
             logger.debug(f"read in {filedesc.name} = {repr(data)}")
         return data
@@ -1507,8 +1509,8 @@ def rtn_sem_trywait(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         # Setting errno to EAGAIN (3406)
         segs = pstate.memory.find_map(pstate.EXTERN_SEG)
         if segs:
-            map = segs[0]
-            ERRNO = map.start + map.size - 4  # Point is last int of the mapping
+            mmap = segs[0]
+            ERRNO = mmap.start + mmap.size - 4  # Point is last int of the mapping
             pstate.memory.write_dword(ERRNO, 3406)
         else:
             assert False
@@ -1606,13 +1608,13 @@ def rtn_strcasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     s2 = pstate.get_argument_value(1)
     size = min(len(pstate.memory.read_string(s1)), len(pstate.memory.read_string(s2)) + 1)
 
-    #s = s1 if len(pstate.memory.read_string(s1)) < len(pstate.memory.read_string(s2)) else s2
-    #for i in range(size):
-    #    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
-    #    pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
-    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
-    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(pstate.memory.read_string(s1)), CPUSIZE.BYTE)) == 0x00)
-    #pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(pstate.memory.read_string(s2)), CPUSIZE.BYTE)) == 0x00)
+    # s = s1 if len(pstate.memory.read_string(s1)) < len(pstate.memory.read_string(s2)) else s2
+    # for i in range(size):
+    #     pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + i, CPUSIZE.BYTE)) != 0x00)
+    #     pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + i, CPUSIZE.BYTE)) != 0x00)
+    # pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s + size, CPUSIZE.BYTE)) == 0x00)
+    # pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s1 + len(pstate.memory.read_string(s1)), CPUSIZE.BYTE)) == 0x00)
+    # pstate.tt_ctx.pushPathConstraint(pstate.tt_ctx.getMemoryAst(MemoryAccess(s2 + len(pstate.memory.read_string(s2)), CPUSIZE.BYTE)) == 0x00)
 
     # FIXME: Il y a des truc chelou avec le +1 et le logic ci-dessous
 
@@ -1622,8 +1624,8 @@ def rtn_strcasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     for index in range(size):
         cells1 = pstate.read_symbolic_memory_byte(s1 + index).getAst()
         cells2 = pstate.read_symbolic_memory_byte(s2 + index).getAst()
-        cells1 = ast.ite(ast.land([cells1 >= ord('a'), cells1 <= ord('z')]), cells1 - 32, cells1) # upper case
-        cells2 = ast.ite(ast.land([cells2 >= ord('a'), cells2 <= ord('z')]), cells2 - 32, cells2) # upper case
+        cells1 = ast.ite(ast.land([cells1 >= ord('a'), cells1 <= ord('z')]), cells1 - 32, cells1)   # upper case
+        cells2 = ast.ite(ast.land([cells2 >= ord('a'), cells2 <= ord('z')]), cells2 - 32, cells2)   # upper case
         res = res + ast.ite(cells1 == cells2, ast.bv(0, ptr_bit_size), ast.bv(1, ptr_bit_size))
 
     return res
@@ -1712,13 +1714,12 @@ def rtn_strdup(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     s_str = pstate.memory.read_string(s)
     size = len(s_str)
 
-    #print(f"strdup s={s:#x} s_str={s_str} size={size}")
+    # print(f"strdup s={s:#x} s_str={s_str} size={size}")
 
     # constrain src buff to be != \00 and last one to be \00 (indirectly concretize length)
     for i, c in enumerate(s_str):
         pstate.push_constraint(pstate.read_symbolic_memory_byte(s + i).getAst() != 0x00)
     pstate.push_constraint(pstate.read_symbolic_memory_byte(s + size).getAst() == 0x00)
-
 
     # Malloc a chunk
     ptr = pstate.heap_allocator.alloc(size + 1)
@@ -1879,16 +1880,16 @@ def rtn_strerror(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # Get arguments
     errnum = pstate.get_argument_value(0)
     try:
-        str = sys_errlist[errnum]
+        string = sys_errlist[errnum]
     except:
         # invalid errnum
-        str = b'Error'
+        string = b'Error'
 
     # TODO: We allocate the string at every hit of this function with a
     # potential memory leak. We should allocate the sys_errlist only once
     # and then refer to this table instead of allocate string.
-    ptr = pstate.heap_allocator.alloc(len(str) + 1)
-    pstate.memory.write(ptr, str + b'\0')
+    ptr = pstate.heap_allocator.alloc(len(string) + 1)
+    pstate.memory.write(ptr, string + b'\0')
 
     return ptr
 
@@ -1945,8 +1946,8 @@ def rtn_strncasecmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     for index in range(maxlen):
         cells1 = pstate.read_symbolic_memory_byte(s1 + index).getAst()
         cells2 = pstate.read_symbolic_memory_byte(s2 + index).getAst()
-        cells1 = ast.ite(ast.land([cells1 >= ord('a'), cells1 <= ord('z')]), cells1 - 32, cells1) # upper case
-        cells2 = ast.ite(ast.land([cells2 >= ord('a'), cells2 <= ord('z')]), cells2 - 32, cells2) # upper case
+        cells1 = ast.ite(ast.land([cells1 >= ord('a'), cells1 <= ord('z')]), cells1 - 32, cells1)   # upper case
+        cells2 = ast.ite(ast.land([cells2 >= ord('a'), cells2 <= ord('z')]), cells2 - 32, cells2)   # upper case
         res = res + ast.ite(cells1 == cells2, ast.bv(0, ptr_bit_size), ast.bv(1, ptr_bit_size))
 
     return res
@@ -2083,7 +2084,7 @@ def rtn_getenv(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return host_env_val if host_env_val is not None else 0
 
 
-#def rtn_tolower(se: 'SymbolicExecutor', pstate: 'ProcessState'):
+# def rtn_tolower(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 #    # TODO
 #    """
 #    The tolower behavior.
@@ -2106,7 +2107,7 @@ def rtn_isspace(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     exp = ast.lor([exp, arg_sym.getAst() == 0x9])
     exp = ast.lor([exp, arg_sym.getAst() == 0xc])
     exp = ast.lor([exp, arg_sym.getAst() == 0xd])
-    res =  ast.ite(exp, ast.bv(0, ptr_bit_size), ast.bv(1, ptr_bit_size))
+    res = ast.ite(exp, ast.bv(0, ptr_bit_size), ast.bv(1, ptr_bit_size))
     return res
 
 
@@ -2123,6 +2124,7 @@ def rtn_assert_fail(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     pstate.write_register(pstate.return_register, 1)
     se.abort()
 
+
 def rtn_setlocale(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
     The setlocale behavior.
@@ -2136,11 +2138,11 @@ def rtn_setlocale(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         logger.warning(f"Attempt to modify Locale. Currently not supported.")
         return 0
 
-    # This is a bit hacky but we just store the LOCALEs in the [extern] segment
+    # This is a bit hacky, but we just store the LOCALEs in the [extern] segment
     segs = pstate.memory.find_map(pstate.EXTERN_SEG)
     if segs:
-        map = segs[0]
-        LC_ALL = map.start + map.size - 0x20 # Point to the end of seg. But keep in mind LC_ALL is at end - 4.
+        mmap = segs[0]
+        LC_ALL = mmap.start + mmap.size - 0x20    # Point to the end of seg. But keep in mind LC_ALL is at end - 4.
     else:
         assert False
     print(f"selocale writing at {LC_ALL:#x}")
@@ -2155,7 +2157,7 @@ def rtn_setlocale(se: 'SymbolicExecutor', pstate: 'ProcessState'):
 
 def rtn__setjmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     """
-    The _setjmp behavior. 
+    The _setjmp behavior.
     """
     # TODO
     logger.warning("hooked _setjmp")
@@ -2167,10 +2169,11 @@ def rtn_longjmp(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     The longjmp behavior.
     """
     # NOTE All the programs tested so far used `longjmp` as an error handling mechanism, right
-    # before exiting. This is why, `longjmp` is currently considered an exit condition. 
+    # before exiting. This is why, `longjmp` is currently considered an exit condition.
     # TODO Real implementation
     logger.debug('longjmp hooked')
     pstate.stop = True
+
 
 def rtn_atexit(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     return 0
@@ -2259,7 +2262,7 @@ SUPPORTED_ROUTINES = {
     'getchar':                 rtn_getchar,
 
     'isspace':                 rtn_isspace,
-    #'tolower':                 rtn_tolower,
+    # 'tolower':                 rtn_tolower,
 }
 
 

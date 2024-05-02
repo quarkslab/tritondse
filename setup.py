@@ -26,12 +26,13 @@ setup(
     },
     setup_requires=[],
     install_requires=[
-        "triton-library",
-        "lief",
-        "pyQBDI",
         "cle",
+        "enum_tools",
+        "lief",
+        "networkx",
+        "pyQBDI",
         "quokka-project",
-        "enum_tools"
+        "triton-library",
     ],
     tests_require=[],
     license="Apache License Version 2.0",

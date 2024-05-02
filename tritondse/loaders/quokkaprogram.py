@@ -10,7 +10,7 @@ import lief
 # local imports
 from tritondse.loaders import Program, LoadableSegment
 from tritondse.coverage import CoverageSingleRun
-from tritondse.types import PathLike, Addr, Architecture, Platform, Endian
+from tritondse.types import Addr, Architecture, Platform, Endian
 
 
 class QuokkaProgram(quokka.Program):
@@ -74,8 +74,7 @@ class QuokkaProgram(quokka.Program):
             caller_instructions.append(inst.address)
         return caller_instructions
 
-
-    # ============== Methods for interroperability with Program object ==============
+    # ============== Methods for interoperability with Program object ==============
     @property
     def path(self) -> Path:
         return self.program.path

@@ -1,5 +1,8 @@
+# built-in imports
 from enum import Enum, auto
 import enum_tools.documentation
+
+# third-party imports
 from triton import TritonContext
 
 
@@ -106,7 +109,7 @@ class ThreadContext(object):
 
     def is_main_thread(self) -> bool:
         """
-        Returns whether or not it is the main thread
+        Returns whether it is the main thread
         (namely its id is 0)
 
         :return: bool

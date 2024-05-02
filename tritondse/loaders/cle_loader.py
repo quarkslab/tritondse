@@ -1,11 +1,12 @@
+# built-in imports
 from typing import Generator, Optional, Tuple
 from pathlib import Path
 import logging
 
-# Third-party imports
+# third-party imports
 import cle
 
-# Local imports
+# local imports
 from tritondse.loaders import Loader, LoadableSegment
 from tritondse.types import Addr, Architecture, PathLike, Platform, Perm, Endian
 from tritondse.routines import SUPPORTED_ROUTINES
@@ -66,7 +67,7 @@ class CleLoader(Loader):
 
     @property
     def endianness(self) -> Endian:
-        # FIXME: Depending on architecture returning good endianess
+        # FIXME: Depending on architecture returning good endianness
         return Endian.LITTLE
 
     @property
@@ -87,7 +88,7 @@ class CleLoader(Loader):
             for seg in obj.segments:
                 segdata = self.ld.memory.load(seg.vaddr, seg.memsize)
                 assert len(segdata) == seg.memsize
-                perms = (Perm.R if seg.is_readable else 0) | (Perm.W if seg.is_writable else 0) | (Perm.X if seg.is_executable else 0) 
+                perms = (Perm.R if seg.is_readable else 0) | (Perm.W if seg.is_writable else 0) | (Perm.X if seg.is_executable else 0)
                 if seg.__class__.__name__ != "ExternSegment":
                     # The format string in CLE is broken if the filesize is 0. This is a workaround.
                     logger.debug(f"Loading segment {seg} - perms:{perms}")
@@ -103,7 +104,7 @@ class CleLoader(Loader):
     @property
     def cpustate(self):
         # NOTE: in Triton, the segment selector is used as the segment base and not as a selector into GDT.
-        # i.e directly store the segment base into fs
+        # i.e. directly store the segment base into fs
         return {"fs": 0x1000}
 
     @property
@@ -127,17 +128,16 @@ class CleLoader(Loader):
         # For example if a library calls a libc function, we probably need to patch the library's GOT
         for obj in self.ld.all_objects:
             for fun in obj.imports:
-                rtn_name = f"rtn_{fun}"
                 if fun in SUPPORTED_ROUTINES:
                     reloc = obj.imports[fun]
                     got_entry_addr = reloc.relative_addr + obj.mapped_base
                     yield fun, got_entry_addr
 
         # Handle indirect functions.
-        # Currently we only support indirect functions if there exists a stub for them in `routines.py`
+        # Currently, we only support indirect functions if there exists a stub for them in `routines.py`
         # Otherwise the program will crash because CLE doesn't perform the relocation for indirect functions.
-        
-        # We could perform the relocation ourself by writing to the got slot but we need a way to figure out 
+
+        # We could perform the relocation ourselves by writing to the got slot, but we need a way to figure out
         # the correct fptr to use.
         # In other words we should execute `resolver_fun` or parse it in some way to get the correct function ptr
         # to write to got_slot (write with self.ld.memory.pack_word(got_slot, func_ptr))
@@ -167,7 +167,7 @@ class CleLoader(Loader):
 
     def find_function_addr(self, name: str) -> Optional[Addr]:
         """
-        Search for the function name in fonctions of the binary.
+        Search for the function name in functions of the binary.
 
         :param name: Function name
         :type name: str

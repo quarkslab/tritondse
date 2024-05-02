@@ -1,6 +1,10 @@
+# build-in imports
 from __future__ import annotations
 
+# third-party imports
 from triton import Instruction
+
+# local imports
 from tritondse.callbacks import CbType, ProbeInterface
 from tritondse.seed import Seed, SeedStatus
 from tritondse.types import Architecture, Addr, Tuple, SolverStatus
@@ -11,10 +15,9 @@ import tritondse.logging
 logger = tritondse.logging.get("sanitizers")
 
 
-
 def mk_new_crashing_seed(se, model) -> Seed:
     """
-    This function is used by every sanitizers to dump the model found in order
+    This function is used by every sanitizer to dump the model found in order
     to trigger a bug into the crash directory.
 
     :return: A fresh Seed
@@ -105,12 +108,12 @@ class NullDerefSanitizer(ProbeInterface):
         :return: True if the bug is present
         """
 
-         # The execution has not started yet
+        # The execution has not started yet
         if pstate.current_instruction is None:
             return False
 
         # FIXME: Takes so much time...
-        #if access_ast is not None and access_ast.isSymbolized():
+        # if access_ast is not None and access_ast.isSymbolized():
         #    model = pstate.tt_ctx.getModel(access_ast == 0)
         #    if model:
         #        logging.warning(f'Potential null deref when reading at {mem}')
@@ -118,7 +121,7 @@ class NullDerefSanitizer(ProbeInterface):
         #        se.workspace.save_seed(crash_seed)
         #        se.seed.status = SeedStatus.OK_DONE
         #        # Do not abort, just continue the execution
-        #if access_ast is not None and access_ast.evaluate() == 0:
+        # if access_ast is not None and access_ast.evaluate() == 0:
 
         # FIXME: Ici on rajoute 16 car nous avons un problème si une instruction se situe
         # en fin de page mappée. Lors du fetching des opcodes, nous fetchons 16 bytes car
@@ -153,7 +156,7 @@ class FormatStringSanitizer(ProbeInterface):
     This probes hooks standard libc functions like 'printf', 'fprintf', 'sprintf',
     'dprintf', 'snprintf' and if one of them is triggered it checks the format string.
     If the format string is symbolic then it is user controlled. A warning is shown
-    but the execution not interrupted. However the sanitizer tries through SMT to
+    but the execution not interrupted. However, the sanitizer tries through SMT to
     generate format strings with many '%s'. If satisfiable a new input is generated
     which will then be added to inputs to process. That subsequent input might lead
     to a crash.
@@ -179,7 +182,7 @@ class FormatStringSanitizer(ProbeInterface):
         :type pstate: ProcessState
         :param fmt_ptr: pointer address to check
         :type fmt_ptr: :py:obj:`tritondse.types.Addr`
-        :param extra_data: additionnal infos given by the callbacks on routines (indicating function address)
+        :param extra_data: additional info given by the callbacks on routines (indicating function address)
         :type extra_data: Tuple[str, :py:obj:`tritondse.types.Addr`]
         :return: True if the bug is present
         """
@@ -243,7 +246,7 @@ class FormatStringSanitizer(ProbeInterface):
 class IntegerOverflowSanitizer(ProbeInterface):
     """
     Integer Overflow Sanitizer.
-    This probe checks on every instructions that the overflow
+    This probe checks on every instruction that the overflow
     flag is not set. If so mark the input as a crashing input.
     If not, but the value is symbolic, via SMT solving to make
     it to be set (and thus to overflow). If possible generates
@@ -267,7 +270,7 @@ class IntegerOverflowSanitizer(ProbeInterface):
         :return: True if the bug is present
         """
         # This probe is only available for X86_64 and AARCH64
-        assert(pstate.architecture == Architecture.X86_64 or pstate.architecture == Architecture.AARCH64)
+        assert (pstate.architecture == Architecture.X86_64 or pstate.architecture == Architecture.AARCH64)
 
         rf = (pstate.registers.of if pstate.architecture == Architecture.X86_64 else pstate.registers.v)
 

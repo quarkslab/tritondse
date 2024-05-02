@@ -2,16 +2,14 @@ import time
 import threading
 import gc
 from enum import Enum
-from typing import Union, Type
-from pathlib import Path
+from typing import Union, Type, Optional
 import stat
 import enum_tools.documentation
 
 from tritondse.config            import Config
 from tritondse.process_state     import ProcessState
-from tritondse.loaders           import Loader
+from tritondse.loaders.loader    import Loader
 from tritondse.seed              import Seed
-from tritondse.seed              import SeedStatus
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.workspace         import Workspace
 from tritondse.coverage          import GlobalCoverage
@@ -47,7 +45,7 @@ class SymbolicExplorator(object):
         self.config: Config = config  #: Configuration file
         self.cbm: CallbackManager = CallbackManager()  #: CallbackManager to register callbacks
         self._stop = False
-        self.ts: int = time.time()  #: Timestamp (object instanciation)
+        self.ts: float = time.time()  #: Timestamp (object instantiation)
         self.uid_counter: int = 0
         self.status: ExplorationStatus = ExplorationStatus.NOT_RUNNING  #: status of the execution
         self._executor_stop_at = executor_stop_at
@@ -88,7 +86,7 @@ class SymbolicExplorator(object):
         """ Manager of seed, holding all seeds related data and various statistics """
 
         # running executors (for debugging purposes)
-        self.current_executor: SymbolicExecutor = None  #: last symbolic executor executed
+        self.current_executor: Optional[SymbolicExecutor] = None  #: last symbolic executor executed
 
         # General purpose attributes
         self._exec_count = 0
@@ -96,7 +94,7 @@ class SymbolicExplorator(object):
 
     @property
     def total_emulation_time(self) -> float:
-        """ Represent total emulation time. This include all callbacks execution
+        """ Represent total emulation time. This includes all callbacks execution
         but not the SMT solving time (performed at the end). """
         return self._total_emulation_time
 

@@ -1,12 +1,12 @@
-# built-in modules
+# built-in imports
 import platform
 from collections import namedtuple
 
-# third-party module
+# third-party imports
 from triton import OPCODE, TritonContext
 
 # local imports
-from tritondse.types import Architecture, Addr
+from tritondse.types import Architecture
 
 Arch = namedtuple("Arch", "ret_reg pc_reg bp_reg sp_reg sys_reg reg_args halt_inst syscall_inst")
 
@@ -34,7 +34,7 @@ class CpuState(dict):
     """
     Thin wrapper on a TritonContext, to allow accessing
     and modifying registers in a Pythonic way. It also
-    abstract base, stack, and program counter for architecture
+    abstracts base, stack, and program counter for architecture
     agnostic operations. This class performs all actions
     on the TritonContext, and does not hold any information.
     It is just acting as a proxy

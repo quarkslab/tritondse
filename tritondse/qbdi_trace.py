@@ -1,14 +1,13 @@
 # This script is used by pyqbdipreload to generate a json file that can be parsed with CoverageSingleRun.from_json
-# This needs to be fast which is why we cannot import tritondse and generate the CoverageSingleRun directly 
+# This needs to be fast which is why we cannot import tritondse and generate the CoverageSingleRun directly
 # (`import tritondse` adds ~0.3 s to the execution time of the script in my experience).
 
-# built-in modules
+# built-in imports
 import atexit
 import bisect
 import ctypes
 import ctypes.util
 import json
-import lief
 import os
 import sys
 import time
@@ -17,7 +16,8 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Dict
 
-# Third-party modules
+# Third-party imports
+import lief
 import pyqbdi
 
 

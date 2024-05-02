@@ -2,7 +2,7 @@ class SkipInstructionException(Exception):
     """
     Exception to raise in a PRE callback to skip the evaluation
     of the current instruction. It will thus force a SymbolicExecutor
-    to fetch the next instruction. Thus the user have to update the
+    to fetch the next instruction. Thus, the user have to update the
     RIP of the ProcessState currently being executed.
     """
     pass
@@ -27,7 +27,7 @@ class StopExplorationException(Exception):
 
 class AllocatorException(Exception):
     """
-    Class used to represent an heap allocator exception.
+    Class used to represent a heap allocator exception.
     This exception can be raised in the following conditions:
 
     * trying to allocate data which overflow heap size
