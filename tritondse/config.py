@@ -37,6 +37,7 @@ class Config(object):
                  coverage_strategy: CoverageStrategy = CoverageStrategy.BLOCK,
                  branch_solving_strategy: BranchSolvingStrategy = BranchSolvingStrategy.FIRST_LAST_NOT_COVERED,
                  workspace: str = "",
+                 workspace_reset = False,
                  program_argv: List[str] = None,
                  time_inc_coefficient: float = 0.00001,
                  skip_unsupported_import: bool = False,
@@ -94,6 +95,9 @@ class Config(object):
 
         self.workspace: str = workspace
         """ Workspace directory to use. *(default: 'workspace')* """
+
+        self.workspace_reset: bool = workspace_reset
+        """ If True overwrites the existing workspace. """
 
         self.program_argv: List[str] = [] if program_argv is None else program_argv
         """ Concrete program argument as given on the command line."""

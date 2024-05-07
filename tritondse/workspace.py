@@ -61,6 +61,7 @@ class Workspace(object):
                 directory.mkdir(parents=True)
             else:
                 if flush:
+                    logger.info(f"Resetting the {directory} directory")
                     shutil.rmtree(directory)
                     directory.mkdir()
 

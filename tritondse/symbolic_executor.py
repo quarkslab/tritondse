@@ -55,9 +55,12 @@ class SymbolicExecutor(object):
 
         self.pstate: Optional[ProcessState] = None  #: ProcessState
 
-        self.workspace: Workspace = workspace  #: Current workspace
-        if self.workspace is None:
-            self.workspace = Workspace(config.workspace)
+        # Initialize the workspace
+        if workspace:
+            self.workspace: Workspace = workspace  #: exploration workspace
+        else:
+            self.workspace: Workspace = Workspace(self.config.workspace)  #: workspace object
+            self.workspace.initialize(flush=self.config.workspace_reset)
 
         self.seed: Seed = seed  #: The current seed used for the execution
 
