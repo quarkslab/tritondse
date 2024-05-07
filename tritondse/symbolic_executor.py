@@ -807,15 +807,17 @@ class SymbolicExecutor(object):
         """
         Inject a symbolic file (or part of it) into a register.
         The value has to be an integer.
+        The caller has add constraints to the associated symbolic
+        expression so when a model is obtained the resulting value fits
+        in a byte.
 
         :param reg: register identifier
         :param name: name of the file in the composite seed
         :param value: integer value
         :param offset: offset within the file
         """
-        if reg.getSize != 1:
-            logger.error("can't call inject_symbolic_file_register with register larger than 1!")
-            return
+        if isinstance(reg, str):
+            reg = self.pstate.tt_ctx.getRegister(reg)
         self.pstate.write_register(reg, value)  # Write concrete value in register
         sym_vars = self.pstate.symbolize_register(reg, f"{name}[{offset}]")  # Symbolize bytes
         sym_seed = self.symbolic_seed.files[name] if self.seed.is_composite() else self.symbolic_seed

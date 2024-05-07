@@ -1367,8 +1367,9 @@ def rtn_getchar(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     data = filedesc.read(1)
     if data:
         if filedesc.is_input_fd():  # Reading into input
-            data = ord(data)    # convert to integer
-            se.inject_symbolic_file_register(pstate.return_register, filedesc.name, data, offset)
+            se.inject_symbolic_file_register(pstate.return_register, filedesc.name, ord(data), offset)
+            data = pstate.read_symbolic_register(pstate.return_register).getAst()
+            pstate.push_constraint(pstate.actx.land([0 <= data, data <= 255]))
             logger.debug(f"read in {filedesc.name} = {repr(data)}")
         return data
     else:
