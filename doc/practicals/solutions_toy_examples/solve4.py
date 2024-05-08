@@ -1,63 +1,101 @@
-from tritondse import ProbeInterface, SymbolicExecutor, Config, Program, SymbolicExplorator, ProcessState, CbType, SeedStatus, Seed, SeedFormat, CompositeData
-from tritondse.types import Addr, SolverStatus, Architecture
-from tritondse.sanitizers import NullDerefSanitizer
+import logging
+
 from triton import Instruction
+
+from tritondse.config import Config
+from tritondse.loaders.program import Program
+from tritondse.process_state import ProcessState
+from tritondse.sanitizers import NullDerefSanitizer
+from tritondse.seed import CompositeData
+from tritondse.seed import Seed
+from tritondse.seed import SeedFormat
+from tritondse.symbolic_executor import SymbolicExecutor
+from tritondse.symbolic_explorator import SymbolicExplorator
+from tritondse.types import Addr
+from tritondse.types import SolverStatus
+import tritondse.logging
+
+
+logging.basicConfig(level=logging.DEBUG)
+tritondse.logging.enable(level=logging.DEBUG)
 
 once_flag = False
 
-def trace_inst(exec: SymbolicExecutor, pstate: ProcessState, inst: Instruction):
-    print(f"[tid:{inst.getThreadId()}] 0x{inst.getAddress():x}: {inst.getDisassembly()}")
 
-def post_exec_hook(se: SymbolicExecutor, state: ProcessState):
-    print(f"seed:{se.seed.hash} ({repr(se.seed.content)})   [exitcode:{se.exitcode}]")
+def trace_inst(se: SymbolicExecutor, pstate: ProcessState, inst: Instruction):
+    logging.debug(f"[tid:{inst.getThreadId()}] 0x{inst.getAddress():x}: {inst.getDisassembly()}")
 
-def hook_strlen(se: SymbolicExecutor, pstate: ProcessState, routine: str, addr: int):
+
+def post_exec_hook(se: SymbolicExecutor, pstate: ProcessState):
+    logging.debug(f"seed:{se.seed.hash} ({repr(se.seed.content)})   [exitcode:{se.exitcode}]")
+
+
+def hook_strlen(se: SymbolicExecutor, pstate: ProcessState, rtn_name: str, address: Addr):
     global once_flag
-    if once_flag: return
 
-    # Get arguments
+    if once_flag:
+        return
+
+    # Get argument.
     s = pstate.get_argument_value(0)
+
     ast = pstate.actx
 
-    def rec(res, s, deep, maxdeep):
-        if deep == maxdeep:
+    def rec(res, s, depth, max_depth):
+        if depth == max_depth:
             return res
-        cell = pstate.read_symbolic_memory_byte(s+deep).getAst()
-        res  = ast.ite(cell == 0x00, ast.bv(deep, 64), rec(res, s, deep + 1, maxdeep))
+        byte_ast = pstate.read_symbolic_memory_byte(s + depth).getAst()
+        res = ast.ite(byte_ast == 0x00, ast.bv(depth, 64), rec(res, s, depth + 1, max_depth))
         return res
 
-    sze = 20
-    res = ast.bv(sze, 64)
-    res = rec(res, s, 0, sze)
+    length = len(pstate.memory.read_string(s))
+    length_ast = ast.bv(length, 64)
+    length_ast = rec(length_ast, s, 0, length)
 
-    pstate.push_constraint(pstate.read_symbolic_memory_byte(s+sze).getAst() == 0x00)
+    pstate.push_constraint(pstate.read_symbolic_memory_byte(s + length).getAst() == 0x00)
 
-    # Manual state coverage of strlen(s) 
-    exp = res != sze
-    status, model = pstate.solve(exp)
+    # Generate models to get strings with increasing length up to the length of
+    # the current input.
+    constraint = length_ast != length
+    status, model = pstate.solve(constraint)
+
     while status == SolverStatus.SAT:
-        sze = pstate.evaluate_expression_model(res, model)
-        new_seed = se.mk_new_seed_from_model(model)
-        print(f"new_seed : {new_seed.content}")
+        # Get length of the generated string.
+        length = pstate.evaluate_expression_model(length_ast, model)
 
+        # Generate new seed from model.
+        new_seed = se.mk_new_seed_from_model(model)
+
+        logging.debug(f'new_seed: {new_seed.content} len = {length:x}')
+
+        # Enqueue seed.
         se.enqueue_seed(new_seed)
-        var_values = pstate.get_expression_variable_values_model(res, model)
-        exp = pstate.actx.land([exp, res != sze])
-        status, model = pstate.solve(exp)
+
+        # Add newly generated length to the constraints in order to
+        # generate a string with a different length for the next
+        # iteration.
+        constraint = pstate.actx.land([constraint, length_ast != length])
+
+        # Generate new model.
+        status, model = pstate.solve(constraint)
 
     once_flag = True
-    return res
+
+    return length_ast
 
 
-p = Program("./4")
-dse = SymbolicExplorator(Config(skip_unsupported_import=True,\
-        seed_format=SeedFormat.COMPOSITE), p)
+prog = Program("./bin/4")
 
-dse.add_input_seed(Seed(CompositeData(argv=[b"./4", b"AAAAAA"])))
+config = Config(skip_unsupported_import=True,
+                seed_format=SeedFormat.COMPOSITE)
+
+dse = SymbolicExplorator(config, prog)
+
+dse.add_input_seed(Seed(CompositeData(argv=[b"./bin/4", b"AAAAAA"])))
 
 dse.callback_manager.register_probe(NullDerefSanitizer())
 dse.callback_manager.register_post_execution_callback(post_exec_hook)
 dse.callback_manager.register_pre_imported_routine_callback("strlen", hook_strlen)
-#dse.callback_manager.register_post_instruction_callback(trace_inst)
+# dse.callback_manager.register_post_instruction_callback(trace_inst)
 
 dse.explore()
