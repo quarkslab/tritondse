@@ -1140,15 +1140,14 @@ def rtn_printf(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     logger.debug('printf hooked')
 
     # Get arguments
-    arg0 = pstate.get_argument_value(0)
-
-    arg0f = pstate.get_format_string(arg0)
-    nbArgs = arg0f.count("{")
+    fmt_addr = pstate.get_argument_value(0)
+    fmt_str = pstate.get_format_string(fmt_addr)
+    arg_count = fmt_str.count("{")
+    arg_values = [pstate.get_argument_value(x) for x in range(1, arg_count + 1)]
+    arg_formatted = pstate.get_format_arguments(fmt_addr, arg_values)
     try:
-        args = pstate.get_format_arguments(arg0, [pstate.get_argument_value(x) for x in range(1, nbArgs+1)])
-        s = arg0f.format(*args)
+        s = fmt_str.format(*arg_formatted)
     except:
-        # FIXME: Les chars UTF8 peuvent foutre le bordel. Voir avec ground-truth/07.input
         logger.warning('Something wrong, probably UTF-8 string')
         s = ""
 

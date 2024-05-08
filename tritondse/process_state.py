@@ -934,7 +934,7 @@ class ProcessState(object):
         post_string = [i for i, x in enumerate([i for i, c in enumerate(s_str) if c == '%']) if s_str[x+1] == "s"]
         for p in post_string:
             args[p] = self.memory.read_string(args[p])
-            args[p] = args[p].encode("latin-1").decode()
+            args[p] = args[p].encode("latin-1").decode(errors='replace')
         return args
 
     def get_stack_value(self, index: int, offset: int = 0) -> int:
