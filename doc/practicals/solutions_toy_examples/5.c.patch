@@ -1,0 +1,22 @@
+diff --git a/doc/practicals/solutions_toy_examples/src/5.c b/doc/practicals/solutions_toy_examples/src/5.c
+index 785d00b..972134c 100644
+--- a/doc/practicals/solutions_toy_examples/src/5.c
++++ b/doc/practicals/solutions_toy_examples/src/5.c
+@@ -2,10 +2,17 @@
+ #include <string.h>
+ #include <stdlib.h>
+ 
++int __alert_placeholder(int id, const char* fmt, ...){
++    printf("REACHED ID %d\n", id);
++    return id;
++}
++
+ int entry(char* symvar) {
+     int flag = 0x12345678;
+     int var = flag;
+     char buf[8];
++    // Added intrinsic function to retrieve buffer size in DSE.
++    __alert_placeholder(0, "FMTSTR_GENERIC", 8, &buf);
+     strncpy(buf, (char*)(symvar), 9);
+     return 0;
+ }
