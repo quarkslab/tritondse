@@ -16,7 +16,7 @@ from triton import AST_NODE
 from tritondse.types import Addr, PathConstraint, PathBranch, SolverStatus, PathHash, Edge, SymExType
 import tritondse.logging
 
-logger = tritondse.logging.get()
+logger = tritondse.logging.get('coverage')
 
 CovItem = Union[Addr, Edge, PathHash, Tuple[PathHash, Edge]]
 """
@@ -29,6 +29,7 @@ It can be:
 * a tuple of both a Pathhash and an edge
 """
 
+
 @enum_tools.documentation.document_enum
 class CoverageStrategy(str, Enum):
     """
@@ -40,7 +41,7 @@ class CoverageStrategy(str, Enum):
     BLOCK = "block"   # doc: block coverage, only tracks new basic blocks covered
     EDGE = "edge"     # doc: edge coverage, tracks CFGs edges covered
     PATH = "path"     # doc: tracks any new path covered
-    PREFIXED_EDGE = "PREFIXED_EDGE"  # doc: edge coverage but also taking in account path prefix)
+    PREFIXED_EDGE = "PREFIXED_EDGE"  # doc: edge coverage but also taking in account path prefix
 
 
 @enum_tools.documentation.document_enum
@@ -51,11 +52,11 @@ class BranchSolvingStrategy(IntFlag):
     on a single trace, namely a :py:obj:`CoverageSingleRun`. For a
     given branch that has not been covered strategies are:
 
-    * ``ALL_NOT_COVERED``: check by SMT all occurences
-    * ``FIRST_LAST_NOT_COVERED``: check only the first and last occurence in the trace
+    * ``ALL_NOT_COVERED``: check by SMT all occurrences
+    * ``FIRST_LAST_NOT_COVERED``: check only the first and last occurrence in the trace
     """
-    ALL_NOT_COVERED = auto()         # doc: check by SMT all occurences of a given branch (true by default)
-    FIRST_LAST_NOT_COVERED = auto()  # doc: check by SMT the first and last occurence of a given branch
+    ALL_NOT_COVERED = auto()         # doc: check by SMT all occurrences of a given branch (true by default)
+    FIRST_LAST_NOT_COVERED = auto()  # doc: check by SMT the first and last occurrence of a given branch
     UNSAT_ONCE = auto()              # doc: if a branch is UNSAT do not try solving it again
     TIMEOUT_ONCE = auto()            # doc: if a branch is TIMEOUT do not try solving it again
     TIMEOUT_ALWAYS = auto()          # doc: always try solving again a TIMEOUT branch (incompatible with :py:enum:mem:`TIMEOUT_ONCE`
@@ -117,7 +118,7 @@ class CoverageSingleRun(object):
         :return:
         """
         if self.strategy == CoverageStrategy.BLOCK:
-            pass # Target address will be covered anyway
+            pass    # Target address will be covered anyway
 
         if self.strategy == CoverageStrategy.EDGE:
             self.covered_items[(source, target)] += 1
@@ -226,8 +227,8 @@ class CoverageSingleRun(object):
     def post_execution(self) -> None:
         """
         Function is called after each execution
-        for post processing or clean-up. *(Not
-        doing anythin at the moment)*
+        for post-processing or clean-up. *(Not
+        doing anything at the moment)*
         """
         pass
 
@@ -299,7 +300,7 @@ class GlobalCoverage(CoverageSingleRun):
         # Keep pending items to be covered (code, edge, path)
         self.pending_coverage: Set[CovItem] = set()
         """ Set of pending coverage items. These are items for which a branch
-        as already been solved and 
+        as already been solved and
         """
 
         self.uncoverable_items: Dict[CovItem, SolverStatus] = {}
@@ -329,10 +330,10 @@ class GlobalCoverage(CoverageSingleRun):
         current_hash = hashlib.md5()  # Current path hash for PATH coverage
 
         # NOTE: When we arrive here the CoverageSingleRun associated with the path_constraints
-        # has already been merge. Thus covered, pending etc do include ones of the CoverageSingleRuns
+        # has already been merge. Thus covered, pending etc. do include ones of the CoverageSingleRuns
 
-        not_covered_items = self._get_items_trace(path_constraints)  # Map of CovItem -> [idx1, idx2, ..., .] (occurence in list)
-        # is_ok_with_branch_strategy = lambda covitem, idx: True if self.strategy == CoverageStrategy.PATH else (idx in occurence_map[covitem])
+        not_covered_items = self._get_items_trace(path_constraints)  # Map of CovItem -> [idx1, idx2, ..., .] (occurrence in list)
+        # is_ok_with_branch_strategy = lambda covitem, idx: True if self.strategy == CoverageStrategy.PATH else (idx in occurrence_map[covitem])
 
         # Re-iterate through all path constraints to solve them concretely (with knowledge of what is beyond in the trace)
         for i, pc in enumerate(path_constraints):
@@ -342,7 +343,7 @@ class GlobalCoverage(CoverageSingleRun):
                     if not branch['isTaken']:
                         covitem = self._get_covitem(current_hash, branch)
                         generic_covitem = ('', covitem[1]) if self.strategy == CoverageStrategy.PREFIXED_EDGE else covitem
-                        #print(f"Covitem: {covitem}: {covitem not in self.covered_items} | {covitem not in self.pending_coverage} | {covitem not in self.uncoverable_items} | {i in not_covered_items.get(covitem, [])} | {i} | {not_covered_items.get(covitem)}")
+                        # print(f"Covitem: {covitem}: {covitem not in self.covered_items} | {covitem not in self.pending_coverage} | {covitem not in self.uncoverable_items} | {i in not_covered_items.get(covitem, [])} | {i} | {not_covered_items.get(covitem)}")
 
                         # Not covered in: previous runs | yet to be covered by a seed already SAT | not uncoverable | parts of items to solve
                         if generic_covitem not in self.covered_items and \
@@ -370,7 +371,7 @@ class GlobalCoverage(CoverageSingleRun):
                             elif res == SolverStatus.UNKNOWN:
                                 pass
 
-                            else: # status == None
+                            else:   # status == None
                                 logger.debug(f'Branch skipped!')
 
                             pending_csts = []  # reset pending constraint added
@@ -398,7 +399,7 @@ class GlobalCoverage(CoverageSingleRun):
                             if p2.getType() == AST_NODE.BV:
                                 logger.info(f"Try to enumerate value {offset}:0x{addr:02x}: {p1}")
                                 res = yield typ, pending_csts, p1, (addr, p2.evaluate()), i
-                                self.covered_symbolic_pointers.add(addr)  # add the pointer in covered regardless of result
+                                self.covered_symbolic_pointers.add(addr)    # add the pointer in covered regardless of result
                             else:
                                 logger.warning(f"memory constraint unexpected pattern: {pred}")
                         else:
@@ -414,7 +415,7 @@ class GlobalCoverage(CoverageSingleRun):
     def _get_covitem(self, path_hash, branch: PathBranch) -> CovItem:
         src, dst = branch['srcAddr'], branch['dstAddr']
 
-        # Check if the target is new with regards to the strategy
+        # Check if the target is new with regard to the strategy
         if self.strategy == CoverageStrategy.BLOCK:
             return dst
         elif self.strategy == CoverageStrategy.EDGE:
@@ -431,8 +432,8 @@ class GlobalCoverage(CoverageSingleRun):
 
     def _get_items_trace(self, path_constraints: List[PathConstraint]) -> Dict[CovItem, List[int]]:
         """
-        Iterate the all trace and retrieve all covered and not covered CovItem. For non covered one
-        it filter instances to check.
+        Iterate the all trace and retrieve all covered and not covered CovItem. For non-covered one
+        it filters instances to check.
         """
         not_covered = {}
         current_hash = hashlib.md5()  # Current path hash for PATH coverage
@@ -454,9 +455,9 @@ class GlobalCoverage(CoverageSingleRun):
             if self.strategy == CoverageStrategy.PREFIXED_EDGE:
                 # Black magic
                 m = {("", e): [] for h, e in not_covered.keys()}  # Map: ("", edge) -> []
-                for (h, e), v in not_covered.items():          # fill map with all occurences edges regardless of path
+                for (h, e), v in not_covered.items():          # fill map with all occurrences edges regardless of path
                     m[("", e)].extend(v)
-                for k in m.keys():                             # iterate the result and only keep min and max occurence
+                for k in m.keys():                             # iterate the result and only keep min and max occurrence
                     idxs = m[k]
                     if len(idxs) > 2:
                         m[k] = [min(idxs), max(idxs)]
@@ -465,13 +466,12 @@ class GlobalCoverage(CoverageSingleRun):
 
             else:  # Straightforward
                 for k in not_covered.keys():
-                    l = not_covered[k]
-                    if len(l) > 2:
-                        not_covered[k] = [l[0], l[-1]]  # Only keep first and last iteration
-        else: # ALL_NOT_COVERED
-            pass  # Keep all occurences
+                    lst = not_covered[k]
+                    if len(lst) > 2:
+                        not_covered[k] = [lst[0], lst[-1]]  # Only keep first and last iteration
+        else:   # ALL_NOT_COVERED
+            pass  # Keep all occurrences
         return not_covered
-
 
     def merge(self, other: CoverageSingleRun) -> None:
         """
@@ -511,9 +511,8 @@ class GlobalCoverage(CoverageSingleRun):
                     else:
                         self._not_covered_items_mirror[edge].append(prefix)
 
-        else: # Straightfoward set difference
+        else:   # Straightforward set difference
             self.not_covered_items.update(other.not_covered_items - self.covered_items.keys())
-
 
     def can_improve_coverage(self, other: CoverageSingleRun) -> bool:
         """
@@ -525,16 +524,15 @@ class GlobalCoverage(CoverageSingleRun):
         """
         return bool(self.new_items_to_cover(other))
 
-
     def can_cover_symbolic_pointers(self, execution: 'SymbolicExecutor') -> bool:
         """
         Determines if this execution has symbolic memory accesses to enumerate. If so we may want
-        to enumerate them even though 
+        to enumerate them even though
         """
         path_constraints = execution.pstate.get_path_constraints()
 
         for pc in path_constraints:
-            if not pc.isMultipleBranches():     # If there isn't a condition i.e it's a sym ptr access
+            if not pc.isMultipleBranches():     # If there isn't a condition i.e. it's a sym ptr access
                 cmt = pc.getComment()
 
                 if (cmt.startswith("dyn-jmp") and BranchSolvingStrategy.COVER_SYM_DYNJUMP in self.branch_strategy) or \
@@ -547,17 +545,16 @@ class GlobalCoverage(CoverageSingleRun):
                         return True
         return False
 
-
     def new_items_to_cover(self, other: CoverageSingleRun) -> Set[CovItem]:
         """
-        Return all coverage items (addreses, edges, paths) that the given CoverageSingleRun
+        Return all coverage items (addresses, edges, paths) that the given CoverageSingleRun
         can cover if it is possible to negate their branches
 
         :param other: The CoverageSingleRun to check with our global coverage state
         :return: A set of CovItem
         """
         assert self.strategy == other.strategy
-        # Take not covered_items (potential candidates) substract already covered items, uncoverable and pending ones.
+        # Take not covered_items (potential candidates) subtract already covered items, uncoverable and pending ones.
         # Resulting covitem are really new ones that the trace brings
         return other.not_covered_items - self.covered_items.keys() - self.uncoverable_items.keys() - self.pending_coverage
 
@@ -584,7 +581,6 @@ class GlobalCoverage(CoverageSingleRun):
         with open(file, "wb") as f:
             pickle.dump(self, f)
         self._current_path_hash = copy
-
 
     def post_exploration(self, workspace: 'Workspace') -> None:
         """ Function called at the very end of the exploration.

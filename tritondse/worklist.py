@@ -40,7 +40,7 @@ class SeedScheduler:
         """
         Call after every execution.
         That function might help the scheduler with some of its internal states.
-        For instance the scheduler is keep somes seed meant to cover an address
+        For instance the scheduler keep some seeds meant to cover an address
         which is now covered, it can just drop these seeds.
 
         :param coverage: global coverage of the exploration
@@ -88,12 +88,12 @@ class WorklistAddressToSet(SeedScheduler):
     This worklist classifies seeds by addresses. We map a seed X to an
     address Y, if the seed X has been generated to reach the address Y.
     When the method pick() is called, seeds covering a new address 'Y'
-    are selected first. Otherwise anyone is taken.
+    are selected first. Otherwise, anyone is taken.
     """
     def __init__(self, manager: 'SeedManager'):
         self.manager = manager
         self.cov = None
-        self.worklist = dict() # {CovItem: set(Seed)}
+        self.worklist = dict()  # {CovItem: set(Seed)}
 
     def __len__(self) -> int:
         """ Number of pending seeds to execute """
@@ -154,7 +154,7 @@ class WorklistAddressToSet(SeedScheduler):
                     to_remove.add(k)
                 break
 
-        # If all adresses has been executed, just pick a random seed
+        # If all addresses have been executed, just pick a random seed
         if not seed_picked:
             for k, v in self.worklist.items():
                 if v:
@@ -171,7 +171,7 @@ class WorklistAddressToSet(SeedScheduler):
         # Pop the seed from all worklist[X] where it is
         for obj in seed_picked.coverage_objectives:
             if obj != item_picked:   # already poped it from item_picked thus only pop the other
-                if obj in self.worklist and seed_picked in self.worklist[obj]: 
+                if obj in self.worklist and seed_picked in self.worklist[obj]:
                     self.worklist[obj].remove(seed_picked)
                     if not self.worklist[obj]:
                         to_remove.add(obj)
@@ -189,7 +189,8 @@ class WorklistRand(SeedScheduler):
     It uses a Set for insertion and pop (which is random) for picking seeds.
     """
     def __init__(self, manager: 'SeedManager'):
-        self.worklist = set() # set(Seed)
+        self.worklist = set()   # set(Seed)
+        self.cov = None
 
     def __len__(self) -> int:
         """ Number of pending seeds to execute """
@@ -221,7 +222,7 @@ class WorklistRand(SeedScheduler):
         from the set and returns the removed element. Unlike, a stack a
         random element is popped off the set.
 
-        :returns: next seed to executre
+        :returns: next seed to execute
         :rtype: Seed
         """
         return self.worklist.pop() if self.worklist else None
@@ -233,15 +234,15 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
     in order to get the most updated coverage and which then re-run
     all relevant seeds to negate their branches.
 
-    This worklist works as follow:
+    This worklist works as follows:
         - return first fresh seeds first to get them executed (to improve coverage)
-        - keep the seed in the worklist up until it gets dropped or thoroughtly processed
+        - keep the seed in the worklist up until it gets dropped or thoroughly processed
         - if no fresh seed is available, iterates seed that will generate coverage
     """
     def __init__(self, manager: 'SeedManager'):
         self.manager = manager
-        self.fresh = []       # Seed never processed (list to make sure we can pop first one received)
-        self.worklist = dict() # CovItem -> set(Seed)
+        self.fresh = []         # Seed never processed (list to make sure we can pop first one received)
+        self.worklist = dict()  # CovItem -> set(Seed)
 
     def __len__(self) -> int:
         """ Number of pending seeds to execute """
@@ -307,12 +308,12 @@ class FreshSeedPrioritizerWorklist(SeedScheduler):
             return None
 
         # Then pop traditional coverage seeds
-        k = list(self.worklist.keys())[0]      # arbitrary covitem
-        seed = self.worklist[k].pop()          # remove first seed inside
-        for it in seed.coverage_objectives:    # Remove the seed from all worklist[x]
-            if it != k:                        # we already popped the item from k
-                self.worklist[it].remove(seed) # remove the seed from that covitem set
-            if not self.worklist[it]:          # remove the whole covitem if empty
+        k = list(self.worklist.keys())[0]       # arbitrary covitem
+        seed = self.worklist[k].pop()           # remove first seed inside
+        for it in seed.coverage_objectives:     # Remove the seed from all worklist[x]
+            if it != k:                         # we already popped the item from k
+                self.worklist[it].remove(seed)  # remove the seed from that covitem set
+            if not self.worklist[it]:           # remove the whole covitem if empty
                 self.worklist.pop(it)
         return seed
 

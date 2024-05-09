@@ -1,10 +1,11 @@
+# built-in imports
 import logging
 
 '''
 Loggers hierarchy is the following:
 
 - tritondse.
-    - 
+    -
 
 '''
 
@@ -13,6 +14,7 @@ logger = logging.getLogger('tritondse')
 logger.propagate = False  # Do not propagate logs by default
 color_enabled = True
 _loggers = {}
+
 
 def get(name: str = "") -> logging.Logger:
     """

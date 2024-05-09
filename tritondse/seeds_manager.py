@@ -7,8 +7,8 @@ from collections import Counter
 # local imports
 from tritondse.seed              import Seed, SeedStatus
 from tritondse.callbacks         import CallbackManager
-from tritondse.coverage          import GlobalCoverage, CovItem, CoverageStrategy
-from tritondse.worklist          import WorklistAddressToSet, FreshSeedPrioritizerWorklist, SeedScheduler
+from tritondse.coverage          import GlobalCoverage, CovItem
+from tritondse.worklist          import FreshSeedPrioritizerWorklist, SeedScheduler
 from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.types             import SolverStatus, SymExType
@@ -21,7 +21,7 @@ class SeedManager:
     """
     Seed Manager.
     This class is in charge of providing the next seed to execute by prioritizing
-    them. It also holds various sets of pending seeds, corpus, crashes etc and
+    them. It also holds various sets of pending seeds, corpus, crashes etc. and
     manages them in the workspace.
 
     It contains basically 2 types of seeds which are:
@@ -39,8 +39,8 @@ class SeedManager:
         :type workspace: Workspace
         :param smt_queries_limit: maximum number of queries for  a given execution
         :type smt_queries_limit: int
-        :param scheduler: seed scheduler object to use as scheduling strategy
-        :type scheduler: SeedScheduler
+        :param seed_scheduler_class: seed scheduler class to use as scheduling strategy
+        :type seed_scheduler_class: SeedScheduler
         """
         self.smt_queries_limit = smt_queries_limit
         self.workspace = workspace
@@ -102,7 +102,7 @@ class SeedManager:
 
     def add_seed_queue(self, seed: Seed) -> None:
         """
-        Add a seed to to appropriate internal queue depending
+        Add a seed to the appropriate internal queue depending
         on its status. If it is new it is added in pending seed,
         if OK, HANG or CRASH it the appropriate set.
         **Note that the seed is not written in the workspace**
@@ -134,7 +134,7 @@ class SeedManager:
         :type execution: SymbolicExecutor
         :param seed: The seed of the execution
         :type seed: Seed
-        :param solve_new_path: Whether or not to solve constraint to find new paths
+        :param solve_new_path: Whether to solve constraint to find new paths
         :type solve_new_path: bool
         :return: Total SMT solving time
         """
@@ -329,7 +329,7 @@ class SeedManager:
 
     def seeds_available(self) -> bool:
         """
-        Checks whether or not there is still pending seeds to process.
+        Checks whether there is still pending seeds to process.
 
         :returns: True if seeds are still pending
         """
@@ -384,7 +384,7 @@ class SeedManager:
 
     def post_exploration(self) -> None:
         """
-        Function called at the end of exploration. It perform
+        Function called at the end of exploration. It performs
         some stats printing, but would also perform any clean
         up tasks. *(not meant to be called by the user)*
         """
@@ -393,8 +393,8 @@ class SeedManager:
         stats = {
             "total_solving_time": self._solv_time_sum,
             "total_solving_attempt": self._solv_count,
-            "branch_reverted": {str(k): v for k, v in self._stat_branch_reverted.items()}, # convert covitem to str whatever it is
-            "branch_not_solved": {str(k): v for k, v in self._stat_branch_fail.items()},  # convert covitem to str whatever it is
+            "branch_reverted": {str(k): v for k, v in self._stat_branch_reverted.items()},  # convert covitem to str whatever it is
+            "branch_not_solved": {str(k): v for k, v in self._stat_branch_fail.items()},    # convert covitem to str whatever it is
             "UNSAT": self._solv_status[SolverStatus.UNSAT],
             "SAT": self._solv_status[SolverStatus.SAT],
             "TIMEOUT": self._solv_status[SolverStatus.TIMEOUT]
@@ -415,8 +415,10 @@ class SeedManager:
             pp_item = self.coverage.pp_item(covitem)
         else:
             pp_item = f"({covitem[0]:#08x}:@[{covitem[1]:#08x}])"
-        map = {SymExType.CONDITIONAL_JMP: "CC",
-               SymExType.SYMBOLIC_READ: "SR",
-               SymExType.SYMBOLIC_WRITE: "SW",
-               SymExType.DYNAMIC_JMP: "DYN"}
-        return f"{map[typ]}_{pp_item}"
+        mapping = {
+            SymExType.CONDITIONAL_JMP: "CC",
+            SymExType.SYMBOLIC_READ: "SR",
+            SymExType.SYMBOLIC_WRITE: "SW",
+            SymExType.DYNAMIC_JMP: "DYN"
+        }
+        return f"{mapping[typ]}_{pp_item}"

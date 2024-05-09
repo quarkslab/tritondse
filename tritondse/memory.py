@@ -1,10 +1,14 @@
-from triton import TritonContext
+# built-in imports
 import bisect
 from typing import Optional, Union, Generator, List
 from collections import namedtuple
 import struct
 from contextlib import contextmanager
 
+# third-party imports
+from triton import TritonContext
+
+# local imports
 from tritondse.types import Perm, Addr, ByteSize, Endian
 
 MemMap = namedtuple('Map', "start size perm name")
@@ -25,7 +29,7 @@ class MemoryAccessViolation(Exception):
     """
     def __init__(self, addr: Addr, access: Perm, map_perm: Perm = None, memory_not_mapped: bool = False, perm_error: bool = False):
         """
-        :param addr: address where the violation occured
+        :param addr: address where the violation occurred
         :param access: type of access performed
         :param map_perm: permission of the memory page of `address`
         :param memory_not_mapped: whether the address was mapped or not
@@ -47,7 +51,7 @@ class MemoryAccessViolation(Exception):
 
     def is_memory_unmapped_error(self) -> bool:
         """
-        Return true if the exception was raised due to an access
+        Return true if the exception was raised due to a memory access
         to an area not mapped
         """
         return self._is_mem_unmapped
@@ -85,7 +89,7 @@ class Memory(object):
     It wraps all interaction with Triton's memory context to provide high-level
     function. It adds a segmentation and memory permission model at the top
     of Triton. It also overrides __getitem__ and the slice mechanism to be able
-    read and write concrete memory values in a Pythonic manner.
+    to read and write concrete memory values in a Pythonic manner.
     """
 
     def __init__(self, ctx: TritonContext, endianness: Endian = Endian.LITTLE):
@@ -102,12 +106,12 @@ class Memory(object):
         self._mem_cbs_enabled = True
         # self._maps = {}  # Addr: -> Map
 
-    def set_endianess(self, en: Endian) -> None:
+    def set_endianness(self, en: Endian) -> None:
         """
         Set the endianness of memory accesses. By default,
-        endianess is little.
+        endianness is little.
 
-        :param en: Endian: Endianess to use.
+        :param en: Endian: Endianness to use.
         :return: None
         """
         self._endian = en
@@ -189,12 +193,12 @@ class Memory(object):
         :param name: name to given to the memory region
         :return: MemMap freshly mapped
         """
-        def _map_idx(idx):
-            self._linear_map_addr.insert(idx, start + size - 1)  # end address is included
-            self._linear_map_addr.insert(idx, start)
-            self._linear_map_map.insert(idx, None)
+        def _map_idx(index):
+            self._linear_map_addr.insert(index, start + size - 1)  # end address is included
+            self._linear_map_addr.insert(index, start)
+            self._linear_map_map.insert(index, None)
             memmap = MemMap(start, size, perm, name)
-            self._linear_map_map.insert(idx, memmap)
+            self._linear_map_map.insert(index, memmap)
             return memmap
 
         if not self._linear_map_addr:  # Nothing mapped yet
@@ -224,11 +228,11 @@ class Memory(object):
         :param addr: address to unmap
         :return: None
         """
-        def _unmap_idx(idx):
-            self._linear_map_addr.pop(idx) # Pop the start
-            self._linear_map_addr.pop(idx) # Pop the end
-            self._linear_map_map.pop(idx)  # Pop the object
-            self._linear_map_map.pop(idx)  # Pop the None padding
+        def _unmap_idx(index):
+            self._linear_map_addr.pop(index)  # Pop the start
+            self._linear_map_addr.pop(index)  # Pop the end
+            self._linear_map_map.pop(index)   # Pop the object
+            self._linear_map_map.pop(index)   # Pop the None padding
 
         idx = bisect.bisect_left(self._linear_map_addr, addr)
         try:
@@ -254,11 +258,11 @@ class Memory(object):
         idx = bisect.bisect_left(self._linear_map_addr, addr)
         try:
             if (idx % 2) == 0:  # We are on a start address (meaning we should be exactly on map start other unmapped)
-                map = self._linear_map_map[idx]
-                self._linear_map_map[idx] = MemMap(map.start, map.size, perm, map.name)  # replace map with new perms
+                mmap = self._linear_map_map[idx]
+                self._linear_map_map[idx] = MemMap(mmap.start, mmap.size, perm, mmap.name)  # replace map with new perms
             else:  # We are on an end address
-                map = self._linear_map_map[idx-1]
-                self._linear_map_map[idx-1] = MemMap(map.start, map.size, perm, map.name)  # replace map with new perms
+                mmap = self._linear_map_map[idx-1]
+                self._linear_map_map[idx-1] = MemMap(mmap.start, mmap.size, perm, mmap.name)  # replace map with new perms
         except IndexError:
             raise MemoryAccessViolation(addr, Perm(0), memory_not_mapped=True)
 
@@ -301,11 +305,11 @@ class Memory(object):
         :return: None
         """
         if self._segment_enabled:
-            map = self._get_map(addr, len(data))
-            if map is None:
+            mmap = self._get_map(addr, len(data))
+            if mmap is None:
                 raise MemoryAccessViolation(addr, Perm.W, memory_not_mapped=True)
-            if Perm.W not in map.perm:
-                raise MemoryAccessViolation(addr, Perm.W, map_perm=map.perm, perm_error=True)
+            if Perm.W not in mmap.perm:
+                raise MemoryAccessViolation(addr, Perm.W, map_perm=mmap.perm, perm_error=True)
         return self.ctx.setConcreteMemoryAreaValue(addr, data)
 
     def read(self, addr: Addr, size: ByteSize) -> bytes:
@@ -317,11 +321,11 @@ class Memory(object):
         :return: bytes read
         """
         if self._segment_enabled:
-            map = self._get_map(addr, size)
-            if map is None:
+            mmap = self._get_map(addr, size)
+            if mmap is None:
                 raise MemoryAccessViolation(addr, Perm.R, memory_not_mapped=True)
-            if Perm.R not in map.perm:
-                raise MemoryAccessViolation(addr, Perm.R, map_perm=map.perm, perm_error=True)
+            if Perm.R not in mmap.perm:
+                raise MemoryAccessViolation(addr, Perm.R, map_perm=mmap.perm, perm_error=True)
         return self.ctx.getConcreteMemoryAreaValue(addr, size)
 
     def _get_map(self, ptr: Addr, size: ByteSize) -> Optional[MemMap]:
@@ -365,11 +369,11 @@ class Memory(object):
         :param name: Map name
         :return: MemMap if found
         """
-        l = []
-        for map in (x for x in self._linear_map_map if x):
-            if map.name == name:
-                l.append(map)
-        return l
+        mmaps = []
+        for mmap in (x for x in self._linear_map_map if x):
+            if mmap.name == name:
+                mmaps.append(mmap)
+        return mmaps
 
     def map_from_name(self, name: str) -> MemMap:
         """
@@ -380,9 +384,9 @@ class Memory(object):
         :param name: Map name
         :return: MemMap
         """
-        for map in (x for x in self._linear_map_map if x):
-            if map.name == name:
-                return map
+        for mmap in (x for x in self._linear_map_map if x):
+            if mmap.name == name:
+                return mmap
         assert False
 
     def is_mapped(self, ptr: Addr, size: ByteSize = 1) -> bool:
@@ -450,7 +454,7 @@ class Memory(object):
 
     def read_char(self, addr: Addr) -> int:
         """
-        Read a char in memory (1-byte) following endianess.
+        Read a char in memory (1-byte) following endianness.
 
         :param addr: address to read
         :return: char value as int
@@ -541,7 +545,7 @@ class Memory(object):
     def read_string(self, addr: Addr) -> str:
         """ Read a string in process memory at the given address
 
-        .. warning:: The memory read is unbounded. Thus the memory is iterated up until
+        .. warning:: The memory read is unbounded. Thus, the memory is iterated up until
                      finding a 0x0.
 
         :returns: the string read in memory
@@ -593,7 +597,7 @@ class Memory(object):
 
     def write_word(self, addr: Addr, value: int) -> None:
         """
-        Write the word (2-byte) in memory following endianess.
+        Write the word (2-byte) in memory following endianness.
 
         :param addr: address to write
         :param value: integer value
@@ -603,7 +607,7 @@ class Memory(object):
 
     def write_dword(self, addr: Addr, value: int) -> None:
         """
-        Write the word (4-byte) in memory following endianess.
+        Write the word (4-byte) in memory following endianness.
 
         :param addr: address to write
         :param value: integer value
@@ -613,7 +617,7 @@ class Memory(object):
 
     def write_qword(self, addr: Addr, value: int) -> None:
         """
-        Write the qword (8-byte) in memory following endianess.
+        Write the qword (8-byte) in memory following endianness.
 
         :param addr: address to write
         :param value: integer value
@@ -623,7 +627,7 @@ class Memory(object):
 
     def write_long(self, addr: Addr, value: int) -> None:
         """
-        Write a "C style" long (4-byte) in memory following endianess.
+        Write a "C style" long (4-byte) in memory following endianness.
 
         :param addr: address to write
         :param value: integer value
@@ -633,7 +637,7 @@ class Memory(object):
 
     def write_long_long(self, addr: Addr, value: int) -> None:
         """
-        Write the "C style" long long (8-byte) in memory following endianess.
+        Write the "C style" long long (8-byte) in memory following endianness.
 
         :param addr: address to write
         :param value: integer value

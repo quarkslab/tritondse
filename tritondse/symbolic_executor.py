@@ -6,18 +6,18 @@ import os
 if os.name == 'posix':
     import resource
 
-from typing import Optional, Union, List, NoReturn, Dict, Type
+from typing import Optional, Union, List, NoReturn, Type
 
 # third party imports
-from triton import MODE, Instruction, CPUSIZE, MemoryAccess, CALLBACK
+from triton import MODE, Instruction, CPUSIZE, MemoryAccess
 
 # local imports
 from tritondse.config import Config
 from tritondse.coverage import CoverageSingleRun, BranchSolvingStrategy
 from tritondse.process_state import ProcessState
-from tritondse.loaders import Loader
-from tritondse.seed import Seed, SeedStatus, SeedFormat, CompositeData
-from tritondse.types import Expression, Architecture, Addr, Model, SymbolicVariable, Register
+from tritondse.loaders.loader import Loader
+from tritondse.seed import Seed, SeedStatus, CompositeData
+from tritondse.types import Expression, Architecture, Addr, Model, Register
 from tritondse.routines import SUPPORTED_ROUTINES, SUPORTED_GVARIABLES
 from tritondse.callbacks import CallbackManager
 from tritondse.workspace import Workspace
@@ -43,7 +43,7 @@ class SymbolicExecutor(object):
         :type config: Config
         :param seed: input file to inject either in stdin or argv (optional)
         :type seed: Seed
-        :param workspace: Workspace to use. If None it will be instanciated
+        :param workspace: Workspace to use. If None it will be instantiated
         :type workspace: Optional[Workspace]
         :param uid: Unique ID. Given by :py:obj:`SymbolicExplorator` to identify uniquely executions
         :type uid: int
@@ -51,9 +51,9 @@ class SymbolicExecutor(object):
         :type callbacks: CallbackManager
         """
         self.config: Config = config      #: Configuration file used
-        self.loader: Type[Loader] = None  #: Loader used to run the code
+        self.loader: Optional[Type[Loader]] = None  #: Loader used to run the code
 
-        self.pstate: ProcessState = None  #: ProcessState
+        self.pstate: Optional[ProcessState] = None  #: ProcessState
 
         self.workspace: Workspace = workspace  #: Current workspace
         if self.workspace is None:
@@ -66,7 +66,7 @@ class SymbolicExecutor(object):
             logger.warning(f"seed format {seed.format} mismatch config {config.seed_format} (override config)")
             self.config.seed_format = seed.format
 
-        self.symbolic_seed = self._init_symbolic_seed(seed) #: symbolic seed (same structure than Seed but with symbols)
+        self.symbolic_seed = self._init_symbolic_seed(seed)     #: symbolic seed (same structure than Seed but with symbols)
 
         self.coverage: CoverageSingleRun = CoverageSingleRun(self.config.coverage_strategy)  #: Coverage of the execution
         self.rtn_table = dict()   # Addr -> Tuple[fname, routine]
@@ -125,7 +125,7 @@ class SymbolicExecutor(object):
         Load the given process state. Do nothing but
         setting the internal ProcessState.
 
-        :param pstate: PrcoessState to set
+        :param pstate: ProcessState to set
         """
         self.pstate = pstate
         self._load_seed_process_state(self.pstate, self.seed)
@@ -185,7 +185,7 @@ class SymbolicExecutor(object):
 
     def is_seed_injected(self) -> bool:
         """
-        Get whether or not the seed has been injected.
+        Get whether the seed has been injected.
 
         :return: True if the seed has already been inserted
         """
@@ -193,12 +193,12 @@ class SymbolicExecutor(object):
             return bool(self.symbolic_seed)
         elif self.config.is_format_composite():
             # Namely has one of the various input been injected or not
-            return bool(self.symbolic_seed.content.files) or bool(self.symbolic_seed.content.variables)
+            return bool(self.symbolic_seed.files) or bool(self.symbolic_seed.variables)
         else:
             assert False
 
     def _configure_pstate(self) -> None:
-        #for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:
+        # for mode in [MODE.ALIGNED_MEMORY, MODE.AST_OPTIMIZATIONS, MODE.CONSTANT_FOLDING, MODE.ONLY_ON_SYMBOLIZED]:
         for mode in [MODE.ONLY_ON_SYMBOLIZED]:
             self.pstate.set_triton_mode(mode, True)
         logger.info(f"configure pstate: time_inc:{self.config.time_inc_coefficient}  solver:{self.config.smt_solver.name}  timeout:{self.config.smt_timeout}")
@@ -245,10 +245,10 @@ class SymbolicExecutor(object):
                 self.pstate.current_thread.count = 0  # Reset its counter
 
         else:
-            # Increment the instruction counter of the thread (a bit in advance but it does not matter)
+            # Increment the instruction counter of the thread (a bit in advance, but it does not matter)
             self.pstate.current_thread.count += 1
 
-    def _symbolic_mem_callback(self, se: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
+    def _symbolic_mem_callback(self, _: 'SymbolicExecutor', __: ProcessState, mem: MemoryAccess, *args):
         tgt_addr = mem.getAddress()
         lea_ast = mem.getLeaAst()
         if lea_ast is None:
@@ -266,7 +266,6 @@ class SymbolicExecutor(object):
         if not self.seed.is_status_set():  # Set a status if it has not already been done
             self.seed.status = SeedStatus.OK_DONE
         return
-
 
     def step(self) -> bool:
         """
@@ -336,7 +335,7 @@ class SymbolicExecutor(object):
                 else:
                     logger.error('Instruction not supported: %s' % (str(instruction)))
                     if self.config.skip_unsupported_instruction:
-                        self.pstate.cpu.program_counter += instruction.getSize() # try to jump over the instruction
+                        self.pstate.cpu.program_counter += instruction.getSize()    # try to jump over the instruction
                     else:
                         return False  # stop emulation
 
@@ -371,7 +370,7 @@ class SymbolicExecutor(object):
                     cmt = path_constraint.getComment()
                     if cmt.startswith("sym-read") or cmt.startswith("sym-write"):
                         pass
-                        # NOTE: At the moment it does not seems suitable to count r/w pointers
+                        # NOTE: At the moment it does not seem suitable to count r/w pointers
                         # as part of the coverage. So does not have an influence on covered/not_covered.
                     else:
                         logger.warning(f"New dynamic jump covered at: {self.previous_pc:08x}")
@@ -409,7 +408,7 @@ class SymbolicExecutor(object):
                 return False
 
             return True
-        except AbortExecutionException as e:
+        except AbortExecutionException:
             return False
         except MemoryAccessViolation as e:
             logger.warning(f"Memory violation: {str(e)}")
@@ -435,7 +434,7 @@ class SymbolicExecutor(object):
         """ Symbolize or concretize return values of external functions """
         if ret_val is not None:
             reg = self.pstate.return_register
-            if isinstance(ret_val, int): # Write its concrete value
+            if isinstance(ret_val, int):    # Write its concrete value
                 self.pstate.write_register(reg, ret_val)
             else:  # It should be a logic expression
                 self.pstate.write_symbolic_register(reg, ret_val, f"(routine {routine_name}")
@@ -443,7 +442,7 @@ class SymbolicExecutor(object):
     def _routines_handler(self, instruction: Instruction):
         """
         This function handle external routines calls. When the .plt jmp on an external
-        address, we call the appropriate Python routine and setup the returned value
+        address, we call the appropriate Python routine and set up the returned value
         which may be concrete or symbolic.
 
         :param instruction: The current instruction executed
@@ -529,9 +528,9 @@ class SymbolicExecutor(object):
                     # Add link to a default stub function
                     self.rtn_table[addr] = (symbol, self.__default_stub)
                 else:
-                    pass # do nothing on unsupported symbols
+                    pass    # do nothing on unsupported symbols
 
-    def __default_stub(self, se: 'SymbolicExecutor', pstate: ProcessState):
+    def __default_stub(self, _: 'SymbolicExecutor', pstate: ProcessState):
         rtn_name, _ = self.rtn_table[pstate.cpu.program_counter]
         logger.warning(f"calling {rtn_name} which is unsupported")
         if self.config.skip_unsupported_import:
@@ -598,7 +597,7 @@ class SymbolicExecutor(object):
         for cb in pre_cb:
             cb(self, self.pstate)
 
-        # Call it here to make sure in case of "load_process" the use has properly instanciated the architecture
+        # Call it here to make sure in case of "load_process" the use has properly instantiated the architecture
         self._configure_pstate()
         return True
 
@@ -656,22 +655,22 @@ class SymbolicExecutor(object):
         logger.info(f"Instructions executed: {self.coverage.total_instruction_executed}  symbolic branches: {self.pstate.path_predicate_size}")
         logger.info(f"Memory usage: {self.mem_usage_str()}")
 
-    def _mem_accesses_callback(self, se: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
+    def _mem_accesses_callback(self, _: 'SymbolicExecutor', ps: ProcessState, mem: MemoryAccess, *args):
         """
         This callback is used to ensure memory accesses performed by side-effect of instructions
-        semantic correctly checks memory segmentation. Thus we only do the check during the processing
+        semantic correctly checks memory segmentation. Thus, we only do the check during the processing
         of an instruction.
         """
         if ps.memory.segmentation_enabled and self._in_processing:
             perm = Perm.W if bool(args) else Perm.R
             addr = mem.getAddress()
             size = mem.getSize()
-            map = ps.memory.get_map(addr, size)  # It raises
-            if map is None:
+            mmap = ps.memory.get_map(addr, size)  # It raises
+            if mmap is None:
                 raise MemoryAccessViolation(addr, perm, memory_not_mapped=True)
             else:
-                if perm not in map.perm:
-                    raise MemoryAccessViolation(addr, perm, map_perm=map.perm, perm_error=True)
+                if perm not in mmap.perm:
+                    raise MemoryAccessViolation(addr, perm, map_perm=mmap.perm, perm_error=True)
 
     @property
     def exitcode(self) -> int:
@@ -690,7 +689,7 @@ class SymbolicExecutor(object):
         if os.name == "posix":
             size, resident, shared, _, _, _, _ = (int(x) for x in open(f"/proc/{os.getpid()}/statm").read().split(" "))
             resident = resident * resource.getpagesize()
-            units = [(float(1024), "Kb"), (float(1024 **2), "Mb"), (float(1024 **3), "Gb")]
+            units = [(float(1024), "Kb"), (float(1024 ** 2), "Mb"), (float(1024 ** 3), "Gb")]
             for unit, s in units[::-1]:
                 if resident / unit < 1:
                     continue
@@ -698,7 +697,7 @@ class SymbolicExecutor(object):
                     return "%.2f%s" % (resident/unit, s)
             return "%dB" % resident
         else:
-          return "N/A"
+            return "N/A"
 
     def mk_new_seed_from_model(self, model: Model) -> Seed:
         """
@@ -708,19 +707,18 @@ class SymbolicExecutor(object):
         :return: new seed object
         """
         def repl_bytearray(concrete, symbolic):
-            for i, sv in enumerate(symbolic):  # Enumerate symvars associated with each bytes
+            for i, sv in enumerate(symbolic):   # Enumerate symvars associated with each byte
                 if sv is not None:
-                    if sv.getId() in model:  # If solver provided a new value for the symvar
+                    if sv.getId() in model:     # If solver provided a new value for the symvar
                         value = model[sv.getId()].getValue()
-                        concrete[i] = value # Replace it in the bytearray
+                        concrete[i] = value     # Replace it in the bytearray
             return concrete
 
-        if self.config.is_format_raw(): # RAW seed. => symbolize_stdin
+        if self.config.is_format_raw():     # RAW seed. => symbolize_stdin
             content = bytes(repl_bytearray(bytearray(self.seed.content), self.symbolic_seed))
 
         elif self.config.is_format_composite():
             # NOTE will have to update this if more things are added to CompositeData
-            new_files, new_vars = {}, {}
 
             # Handle argv (its meant to be here)
             args = [bytearray(x) for x in self.seed.content.argv]
@@ -769,8 +767,8 @@ class SymbolicExecutor(object):
         :param value: value of the item
         """
         self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
-        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), f"argv[{index}]") # Symbolize bytes
-        self.symbolic_seed.argv[index] = sym_vars # Add symbolic variables to symbolic seed
+        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), f"argv[{index}]")   # Symbolize bytes
+        self.symbolic_seed.argv[index] = sym_vars   # Add symbolic variables to symbolic seed
 
     def inject_symbolic_file_memory(self, addr: Addr, name: str, value: bytes, offset: int = 0) -> None:
         """
@@ -782,9 +780,9 @@ class SymbolicExecutor(object):
         :param offset: offset within the file (for partial file injection)
         """
         self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
-        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset) # Symbolize bytes
+        sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset)   # Symbolize bytes
         sym_seed = self.symbolic_seed.files[name] if self.seed.is_composite() else self.symbolic_seed
-        sym_seed[offset:offset+len(value)] = sym_vars # Add symbolic variables to symbolic seed
+        sym_seed[offset:offset+len(value)] = sym_vars   # Add symbolic variables to symbolic seed
         # FIXME: Handle if reading twice same input bytes !
 
     def inject_symbolic_variable_memory(self, addr: Addr, name: str, value: bytes, offset: int = 0) -> None:
@@ -799,7 +797,7 @@ class SymbolicExecutor(object):
         """
         self.pstate.memory.write(addr, value)  # Write concrete bytes in memory
         sym_vars = self.pstate.symbolize_memory_bytes(addr, len(value), name, offset)  # Symbolize bytes
-        self.symbolic_seed.variables[name][offset:offset+len(value)-1] = sym_vars # Add symbolic variables to symbolic seed
+        self.symbolic_seed.variables[name][offset:offset+len(value)-1] = sym_vars   # Add symbolic variables to symbolic seed
         # FIXME: Handle if reading twice same input bytes !
 
     def inject_symbolic_file_register(self, reg: Union[str, Register], name: str, value: int, offset: int = 0) -> None:
@@ -813,7 +811,7 @@ class SymbolicExecutor(object):
         :param offset: offset within the file
         """
         if reg.getSize != 1:
-            logger.error("can't call inject_symbolic_file_register with regsiter larger than 1!")
+            logger.error("can't call inject_symbolic_file_register with register larger than 1!")
             return
         self.pstate.write_register(reg, value)  # Write concrete value in register
         sym_vars = self.pstate.symbolize_register(reg, f"{name}[{offset}]")  # Symbolize bytes
@@ -836,7 +834,7 @@ class SymbolicExecutor(object):
         if isinstance(value, int):
             self.pstate.write_register(reg, value)                         # write concrete value in register
             sym_var = self.pstate.symbolize_register(reg, f"{name}[{0}]")  # symbolize value
-            self.symbolic_seed.variables[name][0] = sym_var               # add the symbolic variables to symbolic seed
+            self.symbolic_seed.variables[name] = sym_var               # add the symbolic variables to symbolic seed
         else:  # meant to be bytes
             logger.warning("variable injected in registers have to be integer values")
 

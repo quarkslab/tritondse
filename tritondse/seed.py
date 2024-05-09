@@ -1,12 +1,15 @@
+# built-in imports
 import hashlib
 import base64
 import json
 from enum import Enum
 from pathlib import Path
-from tritondse.types import PathLike, SymExType
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Union
 from dataclasses import dataclass, field
 import enum_tools.documentation
+
+# local imports
+from tritondse.types import PathLike
 
 
 @enum_tools.documentation.document_enum
@@ -29,7 +32,7 @@ class SeedFormat(Enum):
     """
     Seed format enum
     Raw seeds are just bytes Seed(b"AAAAA\x00BBBBB")
-    Composite can describe how to inject the input more precisely 
+    Composite can describe how to inject the input more precisely
     """
     RAW = 0        # doc: plain bytes input seed
     COMPOSITE = 1  # doc: complex input object
@@ -40,7 +43,7 @@ class CompositeData:
     argv: List[bytes] = field(default_factory=list)
     "list of argv values"
     files: Dict[str, bytes] = field(default_factory=dict)
-    "dictionnary of files and the associated content (stdin is one of them)"
+    "dictionary of files and the associated content (stdin is one of them)"
     variables: Dict[str, bytes] = field(default_factory=dict)
     "user defined variables, that the use must take care to inject at right location"
 
@@ -52,7 +55,7 @@ class CompositeData:
         }
         return json.dumps(data, indent=2)
 
-    def __bytes__(self) -> str:
+    def __bytes__(self) -> bytes:
         """
         Serialize data into a json string.
 
@@ -98,16 +101,16 @@ class Seed(object):
         self._type = SeedFormat.COMPOSITE if isinstance(content, CompositeData) else SeedFormat.RAW
 
     def is_composite(self) -> bool:
-        """Returns wether the seed is a composite seed or not. """
+        """Returns whether the seed is a composite seed or not. """
         return self._type == SeedFormat.COMPOSITE
 
     def is_raw(self) -> bool:
-        """Returns wether the seed is a raw seed or not. """
+        """Returns whether the seed is a raw seed or not. """
         return self._type == SeedFormat.RAW
 
     def is_bootstrap_seed(self) -> bool:
         """
-        A bootstrap seed is an empty seed (b""). It will received a
+        A bootstrap seed is an empty seed (b""). It will receive a
         specific processing in the engine as its size will be automatically
         adapted to the size read (in stdin for instance)
 
@@ -180,7 +183,7 @@ class Seed(object):
     def __hash__(self):
         """
         Seed hash function overriden to base itself on content.
-        That enable storing seed in dictionnaries directly based
+        That enable storing seed in dictionaries directly based
         on their content to discriminate them.
 
         :rtype: int
@@ -220,7 +223,7 @@ class Seed(object):
     @staticmethod
     def from_bytes(raw_seed: bytes, status: SeedStatus = SeedStatus.NEW) -> 'Seed':
         """
-        Parse a seed from its byte representation. If its a composite one
+        Parse a seed from its byte representation. If it's a composite one
         it will parse the bytes as JSON and create the CompositeData accordingly.
 
         :param raw_seed: bytes: raw bytes of the seed
@@ -246,7 +249,7 @@ class Seed(object):
     @staticmethod
     def from_file(path: PathLike, status: SeedStatus = SeedStatus.NEW) -> 'Seed':
         """
-        Read a seed from a file. The status can optionally given
+        Read a seed from a file. The status can optionally be given
         as it cannot be determined from the file.
 
         :param path: seed path

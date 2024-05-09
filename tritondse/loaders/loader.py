@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 # built-in imports
+from __future__ import annotations
 from pathlib import Path
 from typing import Optional, Generator, Tuple, Dict, List
 from dataclasses import dataclass
@@ -23,7 +22,7 @@ class LoadableSegment:
     """ Virtual address where to load the segment """
     size: int = 0
     """ Size of the segment. If content is present use len(content)"""
-    perms: Perm = Perm.R|Perm.W|Perm.X
+    perms: Perm = Perm.R | Perm.W | Perm.X
     """ Permissions to assign the segment """
     content: Optional[bytes] = None
     """ Content of the segment """
@@ -68,7 +67,7 @@ class Loader(object):
     @property
     def arch_mode(self) -> Optional[ArchMode]:
         """
-        ArchMode enum representing the starting mode (e.g Thumb for ARM).
+        ArchMode enum representing the starting mode (e.g. Thumb for ARM).
         if None, the default mode of the architecture will be used.
 
         :rtype: Optional[ArchMode]
@@ -87,7 +86,7 @@ class Loader(object):
     @property
     def endianness(self) -> Endian:
         """
-        Endianess of the loaded program
+        Endianness of the loaded program
 
         :return: Endianness
         """
@@ -131,7 +130,7 @@ class Loader(object):
 
     def find_function_addr(self, name: str) -> Optional[Addr]:
         """
-        Search for the function name in fonctions of the binary.
+        Search for the function name in functions of the binary.
 
         :param name: Function name
         :type name: str
@@ -153,7 +152,7 @@ class MonolithicLoader(Loader):
                  maps: List[LoadableSegment] = None,
                  set_thumb: bool = False,
                  platform: Platform = None,
-                 endianess: Endian = Endian.LITTLE):
+                 endianness: Endian = Endian.LITTLE):
         super(MonolithicLoader, self).__init__("")
 
         self._architecture = architecture
@@ -161,12 +160,12 @@ class MonolithicLoader(Loader):
         self._cpustate = cpustate if cpustate else {}
         self.maps = maps
         self._arch_mode = ArchMode.THUMB if set_thumb else None
-        self._endian = endianess
+        self._endian = endianness
         if self._platform and (self._architecture, self._platform) in ARCHS:
             self._archinfo = ARCHS[(self._architecture, self._platform)]
         elif self._architecture in ARCHS:
             self._archinfo = ARCHS[self._architecture]
-        else: 
+        else:
             logger.error("Unknown architecture")
             assert False
 
@@ -187,7 +186,7 @@ class MonolithicLoader(Loader):
     @property
     def arch_mode(self) -> ArchMode:
         """
-        ArchMode enum representing the starting mode (e.g Thumb for ARM).
+        ArchMode enum representing the starting mode (e.g. Thumb for ARM).
 
         :rtype: ArchMode
         """
@@ -231,7 +230,7 @@ class MonolithicLoader(Loader):
     @property
     def endianness(self) -> Endian:
         """
-        Endianess of the monolithic loader.
+        Endianness of the monolithic loader.
         (default is LITTLE)
         """
         return self._endian

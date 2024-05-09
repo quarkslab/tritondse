@@ -1,3 +1,4 @@
+# built-in imports
 import logging
 import json
 from enum import Enum, IntFlag
@@ -5,10 +6,13 @@ from pathlib import Path
 from typing import List
 from functools import reduce
 
-# triton-based libraries
+# local imports
 from tritondse.coverage import CoverageStrategy, BranchSolvingStrategy
 from tritondse.types import SmtSolver
 from tritondse.seed import SeedFormat
+import tritondse.logging
+
+logger = tritondse.logging.get('config')  # get root tritondse logger
 
 
 class Config(object):
@@ -43,7 +47,7 @@ class Config(object):
         """ Seed type is either Raw (raw bytes) or Composite (more expressive).
             See seeds.py for more information on each format.
         """
-        
+
         self.pipe_stdout: bool = pipe_stdout
         """ Pipe the program stdout to Python's stdout. *(default: False)*"""
 
@@ -84,7 +88,7 @@ class Config(object):
 
         self.branch_solving_strategy: BranchSolvingStrategy = branch_solving_strategy
         """ Branch solving strategy to apply for a single execution. For a given non-covered
-        branch allows changing whether we try to solve it at all occurences or more seldomly.
+        branch allows changing whether we try to solve it at all occurrences or more seldomly.
         default: :py:obj:`BranchSolvingStrategy.FIRST_LAST_NOT_COVERED`
         """
 

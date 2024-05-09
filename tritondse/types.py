@@ -1,13 +1,16 @@
+# built-in imports
 from __future__ import annotations
-
 import sys
 from enum import IntEnum, Enum, auto, IntFlag
 from pathlib import Path
-from triton import ARCH, SOLVER_STATE, SOLVER
-from typing import Union, TypeVar, Tuple, Type
+from typing import Union, TypeVar, Tuple
 import io
 import enum_tools.documentation
 from dataclasses import dataclass
+
+# third-party imports
+from triton import ARCH, SOLVER_STATE, SOLVER
+
 
 PathLike = Union[str, Path]
 """Type representing file either as a file, either as a Path object"""
@@ -58,7 +61,7 @@ PathHash = str
 @enum_tools.documentation.document_enum
 class SymExType(str, Enum):
     """
-    Symobolic Expression type enum. (internal usage only)
+    Symbolic Expression type enum. (internal usage only)
     """
 
     CONDITIONAL_JMP = 'cond-jcc'  # doc: symbolic expression is a conditional jump
@@ -72,7 +75,7 @@ if sys.version_info.minor >= 8:
 
     class PathBranch(TypedDict):
         """
-        Typed dictionnary describing the branch information
+        Typed dictionary describing the branch information
         returned by Triton (with getBranchConstraints())
         """
         isTaken: bool
@@ -82,7 +85,7 @@ if sys.version_info.minor >= 8:
 else:
     PathBranch = TypeVar('PathBranch')
     """ PathBranchobject as returned by Triton.
-    Thus it is a dictionnary with the keys:
+    Thus it is a dictionary with the keys:
     """
 
 
@@ -97,11 +100,12 @@ class Architecture(IntEnum):
     X86 = ARCH.X86          # doc: x86 architecture (32 bits)
     X86_64 = ARCH.X86_64    # doc: x86-64 architecture (64 bits)
 
+
 @enum_tools.documentation.document_enum
 class ArchMode(IntFlag):
     """
-    Various architecture specific modes that can be enabled or disabledd.
-    (meant to be fullfilled)
+    Various architecture specific modes that can be enabled or disabled.
+    (meant to be fulfilled)
     """
     THUMB = 1   # doc: set thumb mode for ARM32 architecture
 
@@ -116,6 +120,7 @@ class Platform(IntEnum):
     MACOS = auto()    # doc: Mac OS platform
     ANDROID = auto()  # doc: Android platform
     IOS = auto()      # doc: IOS platform
+
 
 @enum_tools.documentation.document_enum
 class SmtSolver(IntEnum):
@@ -151,7 +156,7 @@ class Perm(IntFlag):
 @enum_tools.documentation.document_enum
 class Endian(IntEnum):
     """
-    Endianess of the binary.
+    Endianness of the binary.
     """
     LITTLE = 1  # doc: Little-endian
     BIG = 2     # doc: Big-endian

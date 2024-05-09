@@ -1,16 +1,14 @@
-from __future__ import annotations
-
 # built-in imports
+from __future__ import annotations
 from pathlib import Path
 from typing import Optional, Generator, Tuple
-from collections import namedtuple
 
-# third party
+# third-party imports
 import lief
 
 # local imports
 from tritondse.types import PathLike, Addr, Architecture, Platform, ArchMode, Perm, Endian
-from tritondse.loaders import Loader, LoadableSegment
+from tritondse.loaders.loader import Loader, LoadableSegment
 import tritondse.logging
 
 logger = tritondse.logging.get("loader")
@@ -40,7 +38,7 @@ class Program(Loader):
     EXTERN_SYM_SIZE = 0x1000
 
     BASE_STACK = 0xf0000000
-    END_STACK  = 0x70000000 # This is inclusive
+    END_STACK  = 0x70000000     # This is inclusive
 
     def __init__(self, path: PathLike):
         """
@@ -101,7 +99,7 @@ class Program(Loader):
     @property
     def platform(self) -> Optional[Platform]:
         """
-        Platform of the binary. Its solely based on the format
+        Platform of the binary. It's solely based on the format
         of the file ELF, PE etc..
 
         :return: Platform
@@ -223,7 +221,7 @@ class Program(Loader):
             # Iterate imported symbols
             for rel in self._binary.dynamic_relocations:
                 if rel.has_symbol:
-                #if rel_enum(rel.type) == rel_enum.COPY and rel.has_symbol:
+                # if rel_enum(rel.type) == rel_enum.COPY and rel.has_symbol:
                     if rel.symbol.is_variable:
                         yield rel.symbol.name, rel.address
         else:
@@ -231,7 +229,7 @@ class Program(Loader):
 
     def find_function_addr(self, name: str) -> Optional[Addr]:
         """
-        Search for the function name in fonctions of the binary.
+        Search for the function name in functions of the binary.
 
         :param name: Function name
         :type name: str

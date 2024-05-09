@@ -10,7 +10,7 @@ from tritondse.types import PathLike
 from tritondse.seed import Seed, SeedStatus
 import tritondse.logging
 
-logger = tritondse.logging.get()
+logger = tritondse.logging.get('workspace')
 
 
 class Workspace(object):
@@ -48,27 +48,27 @@ class Workspace(object):
 
     def initialize(self, flush: bool = False) -> None:
         """
-        Initialize the workspace by creating all required subfolders
+        Initialize the workspace by creating all required sub-folders
         if not already existing.
 
         :param flush: if True deletes all files contained in the workspace
         :type flush: bool
         """
 
-        for dir in (self.root_dir / x for x in [self.CORPUS_DIR, self.CRASH_DIR, self.HANG_DIR, self.WORKLIST_DIR, self.METADATA_DIR, self.BIN_DIR, self.FAIL_DIR]):
-            if not dir.exists():
-                logger.debug(f"Creating the {dir} directory")
-                dir.mkdir(parents=True)
+        for directory in (self.root_dir / x for x in [self.CORPUS_DIR, self.CRASH_DIR, self.HANG_DIR, self.WORKLIST_DIR, self.METADATA_DIR, self.BIN_DIR, self.FAIL_DIR]):
+            if not directory.exists():
+                logger.debug(f"Creating the {directory} directory")
+                directory.mkdir(parents=True)
             else:
                 if flush:
-                    shutil.rmtree(dir)
-                    dir.mkdir()
+                    shutil.rmtree(directory)
+                    directory.mkdir()
 
     def get_metadata_file(self, name: str) -> Optional[str]:
         """
         Read a metadata file from the workspace on disk.
         Data is read as a string. If the given file does not
-        exists, None is returned
+        exist, None is returned
 
         :param name: file name (can also be a path)
         :type name: str
@@ -205,7 +205,7 @@ class Workspace(object):
 
     def save_file(self, rel_path: PathLike, content: Union[str, bytes], override: bool = False):
         """
-        Save a, arbitrary file in the workspace by providing the relative path
+        Save an arbitrary file in the workspace by providing the relative path
         of the file. If ``override`` is True, erase the previous file if any.
 
         :param rel_path: relative path of the file

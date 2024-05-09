@@ -1,4 +1,5 @@
-from tritondse import ProbeInterface, CbType, SymbolicExecutor, ProcessState, SymbolicExplorator
+# local imports
+from tritondse import ProbeInterface, CbType, SymbolicExecutor, ProcessState
 import tritondse.logging
 
 logger = tritondse.logging.get("probe.basictrace")
@@ -15,9 +16,8 @@ class BasicDebugTrace(ProbeInterface):
         super(BasicDebugTrace, self).__init__()
         self._add_callback(CbType.PRE_INST, self.trace_debug)
 
-    def trace_debug(self, exec: SymbolicExecutor, __: ProcessState, ins: 'Instruction'):
-        logger.debug(f"[tid:{ins.getThreadId()}] {exec.trace_offset} [0x{ins.getAddress():x}]: {ins.getDisassembly()}")
-
+    def trace_debug(self, se: SymbolicExecutor, __: ProcessState, ins: 'Instruction'):
+        logger.debug(f"[tid:{ins.getThreadId()}] {se.trace_offset} [0x{ins.getAddress():x}]: {ins.getDisassembly()}")
 
 
 class BasicTextTrace(ProbeInterface):
@@ -42,16 +42,16 @@ class BasicTextTrace(ProbeInterface):
         file = executor.workspace.get_metadata_file_path(f"{self.NAME}/{name}")
         self._file = open(file, "w")
 
-    def post_execution(self, executor: SymbolicExecutor, _: ProcessState):
+    def post_execution(self, _: SymbolicExecutor, __: ProcessState):
         self._file.close()
 
-    def trace_debug(self, exec: SymbolicExecutor, __: ProcessState, ins: 'Instruction'):
+    def trace_debug(self, se: SymbolicExecutor, __: ProcessState, ins: 'Instruction'):
         """
         This function is mainly used for debug.
 
-        :param _: The current symbolic executor
-        :param __: The current processus state of the execution
+        :param se: The current symbolic executor
+        :param __: The current process state of the execution
         :param ins: The current instruction executed
         :return: None
         """
-        self._file.write(f"[tid:{ins.getThreadId()}] {exec.trace_offset} [0x{ins.getAddress():x}]: {ins.getDisassembly()}\n")
+        self._file.write(f"[tid:{ins.getThreadId()}] {se.trace_offset} [0x{ins.getAddress():x}]: {ins.getDisassembly()}\n")

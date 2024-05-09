@@ -3,17 +3,15 @@ import json
 import os
 import subprocess
 from pathlib import Path
-import time
-from typing import List, Optional, Union
+from typing import List, Union
 from collections import Counter
 
-
 # local imports
-import tritondse # NOTE We need this import so we can use it to determine the path of this file.
+import tritondse    # NOTE We need this import so we can use it to determine the path of this file.
 from tritondse import Config, Program, SymbolicExecutor, CoverageStrategy, CoverageSingleRun
 import tritondse.logging
 
-logger = tritondse.logging.get("tracer")
+logger = tritondse.logging.get("trace")
 
 
 class TraceException(Exception):
@@ -100,11 +98,12 @@ class TritonTrace(Trace):
         trace = TritonTrace()
         trace._coverage = se.coverage
         # FIXME: Writing the coverage to a file
+        return True
 
     @staticmethod
     def from_file(file: Union[str, Path]) -> 'QBDITrace':
         # FIXME: Reading coverage file from a file
-        return trace
+        pass
 
     @property
     def coverage(self) -> CoverageSingleRun:
