@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Configuration &mdash; TritonDSE 0.1 documentation</title>
@@ -16,7 +16,7 @@
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../_static/documentation_options.js?v=2709fde1"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -56,39 +56,7 @@
 <p class="caption" role="heading"><span class="caption-text">Python API</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="callbacks.html">Callback Mechanism</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#tritondse.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.branch_solving_strategy"><code class="docutils literal notranslate"><span class="pre">Config.branch_solving_strategy</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.coverage_strategy"><code class="docutils literal notranslate"><span class="pre">Config.coverage_strategy</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.custom"><code class="docutils literal notranslate"><span class="pre">Config.custom</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.execution_timeout"><code class="docutils literal notranslate"><span class="pre">Config.execution_timeout</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.exploration_limit"><code class="docutils literal notranslate"><span class="pre">Config.exploration_limit</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.exploration_timeout"><code class="docutils literal notranslate"><span class="pre">Config.exploration_timeout</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.from_file"><code class="docutils literal notranslate"><span class="pre">Config.from_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.from_json"><code class="docutils literal notranslate"><span class="pre">Config.from_json()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.is_format_composite"><code class="docutils literal notranslate"><span class="pre">Config.is_format_composite()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.is_format_raw"><code class="docutils literal notranslate"><span class="pre">Config.is_format_raw()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.memory_segmentation"><code class="docutils literal notranslate"><span class="pre">Config.memory_segmentation</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.pipe_stderr"><code class="docutils literal notranslate"><span class="pre">Config.pipe_stderr</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.pipe_stdout"><code class="docutils literal notranslate"><span class="pre">Config.pipe_stdout</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.program_argv"><code class="docutils literal notranslate"><span class="pre">Config.program_argv</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.seed_format"><code class="docutils literal notranslate"><span class="pre">Config.seed_format</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.skip_sleep_routine"><code class="docutils literal notranslate"><span class="pre">Config.skip_sleep_routine</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.skip_unsupported_import"><code class="docutils literal notranslate"><span class="pre">Config.skip_unsupported_import</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.skip_unsupported_instruction"><code class="docutils literal notranslate"><span class="pre">Config.skip_unsupported_instruction</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.smt_enumeration_limit"><code class="docutils literal notranslate"><span class="pre">Config.smt_enumeration_limit</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.smt_queries_limit"><code class="docutils literal notranslate"><span class="pre">Config.smt_queries_limit</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.smt_solver"><code class="docutils literal notranslate"><span class="pre">Config.smt_solver</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.smt_timeout"><code class="docutils literal notranslate"><span class="pre">Config.smt_timeout</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.thread_scheduling"><code class="docutils literal notranslate"><span class="pre">Config.thread_scheduling</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.time_inc_coefficient"><code class="docutils literal notranslate"><span class="pre">Config.time_inc_coefficient</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.to_file"><code class="docutils literal notranslate"><span class="pre">Config.to_file()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.to_json"><code class="docutils literal notranslate"><span class="pre">Config.to_json()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.Config.workspace"><code class="docutils literal notranslate"><span class="pre">Config.workspace</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="coverage.html">Coverage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="executor.html">SymbolicExecutor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="explorator.html">SymbolicExplorator</a></li>
@@ -139,212 +107,6 @@
              
   <section id="configuration">
 <span id="label-configuration"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="tritondse.Config">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="seeds.html#tritondse.seed.SeedFormat" title="tritondse.seed.SeedFormat"><span class="pre">SeedFormat</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SeedFormat.RAW</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_stdout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipe_stderr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_sleep_routine</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smt_solver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="types.html#tritondse.types.SmtSolver" title="tritondse.types.SmtSolver"><span class="pre">SmtSolver</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SmtSolver.Z3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smt_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exploration_timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exploration_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thread_scheduling</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smt_queries_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smt_enumeration_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="coverage.html#tritondse.coverage.CoverageStrategy" title="tritondse.coverage.CoverageStrategy"><span class="pre">CoverageStrategy</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">CoverageStrategy.BLOCK</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch_solving_strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="coverage.html#tritondse.coverage.BranchSolvingStrategy" title="tritondse.coverage.BranchSolvingStrategy"><span class="pre">BranchSolvingStrategy</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">BranchSolvingStrategy.FIRST_LAST_NOT_COVERED</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workspace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">program_argv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_inc_coefficient</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_unsupported_import</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_unsupported_instruction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory_segmentation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/config.html#Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Config" title="Link to this definition"></a></dt>
-<dd><p>Data class holding tritondse configuration
-parameter</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.branch_solving_strategy">
-<span class="sig-name descname"><span class="pre">branch_solving_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="coverage.html#tritondse.coverage.BranchSolvingStrategy" title="tritondse.coverage.BranchSolvingStrategy"><span class="pre">BranchSolvingStrategy</span></a></em><a class="headerlink" href="#tritondse.Config.branch_solving_strategy" title="Link to this definition"></a></dt>
-<dd><p>Branch solving strategy to apply for a single execution. For a given non-covered
-branch allows changing whether we try to solve it at all occurences or more seldomly.
-default: <code class="xref py py-obj docutils literal notranslate"><span class="pre">BranchSolvingStrategy.FIRST_LAST_NOT_COVERED</span></code></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.coverage_strategy">
-<span class="sig-name descname"><span class="pre">coverage_strategy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="coverage.html#tritondse.coverage.CoverageStrategy" title="tritondse.coverage.CoverageStrategy"><span class="pre">CoverageStrategy</span></a></em><a class="headerlink" href="#tritondse.Config.coverage_strategy" title="Link to this definition"></a></dt>
-<dd><p>Coverage strategy to apply for the whole exploration, default: <a class="reference internal" href="coverage.html#tritondse.CoverageStrategy.BLOCK" title="tritondse.CoverageStrategy.BLOCK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoverageStrategy.BLOCK</span></code></a></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.custom">
-<span class="sig-name descname"><span class="pre">custom</span></span><a class="headerlink" href="#tritondse.Config.custom" title="Link to this definition"></a></dt>
-<dd><p>Custom carrier field enabling user to add parameters of their own.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.execution_timeout">
-<span class="sig-name descname"><span class="pre">execution_timeout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.Config.execution_timeout" title="Link to this definition"></a></dt>
-<dd><p>Timeout of a single execution. If it is triggered the associated
-input file is marked as ‘hanging’. In seconds, 0 means unlimited <em>(default: 0)</em></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.exploration_limit">
-<span class="sig-name descname"><span class="pre">exploration_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.Config.exploration_limit" title="Link to this definition"></a></dt>
-<dd><p>Number of execution iterations. 0 means unlimited <em>(default: 0)</em></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.exploration_timeout">
-<span class="sig-name descname"><span class="pre">exploration_timeout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.Config.exploration_timeout" title="Link to this definition"></a></dt>
-<dd><p>Overall timeout of the exploration in seconds. 0 means unlimited <em>(default: 0)</em></p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.Config.from_file">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tritondse.Config" title="tritondse.config.Config"><span class="pre">Config</span></a></span></span><a class="reference internal" href="../_modules/tritondse/config.html#Config.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Config.from_file" title="Link to this definition"></a></dt>
-<dd><p>Load a configuration from a file to a new instance of Config</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>file</strong> – The path name</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A fresh instance of Config</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.Config.from_json">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tritondse.Config" title="tritondse.config.Config"><span class="pre">Config</span></a></span></span><a class="reference internal" href="../_modules/tritondse/config.html#Config.from_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Config.from_json" title="Link to this definition"></a></dt>
-<dd><p>Load a configuration from a json input to a new instance of Config</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>s</strong> – The JSON text</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A fresh instance of Config</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.Config.is_format_composite">
-<span class="sig-name descname"><span class="pre">is_format_composite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/config.html#Config.is_format_composite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Config.is_format_composite" title="Link to this definition"></a></dt>
-<dd><p>Return true if the seed format is composite</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.Config.is_format_raw">
-<span class="sig-name descname"><span class="pre">is_format_raw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/config.html#Config.is_format_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Config.is_format_raw" title="Link to this definition"></a></dt>
-<dd><p>Return true if the seed format is raw</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.memory_segmentation">
-<span class="sig-name descname"><span class="pre">memory_segmentation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#tritondse.Config.memory_segmentation" title="Link to this definition"></a></dt>
-<dd><p>This option defines whether or not memory segmentation is enforced.
-If activated all memory accesses must belong to a mapped memory area.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.pipe_stderr">
-<span class="sig-name descname"><span class="pre">pipe_stderr</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#tritondse.Config.pipe_stderr" title="Link to this definition"></a></dt>
-<dd><p>Pipe the program stderr to Python’s stderr <em>(default: False)</em></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.pipe_stdout">
-<span class="sig-name descname"><span class="pre">pipe_stdout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#tritondse.Config.pipe_stdout" title="Link to this definition"></a></dt>
-<dd><p>Pipe the program stdout to Python’s stdout. <em>(default: False)</em></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.program_argv">
-<span class="sig-name descname"><span class="pre">program_argv</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.Config.program_argv" title="Link to this definition"></a></dt>
-<dd><p>Concrete program argument as given on the command line.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.seed_format">
-<span class="sig-name descname"><span class="pre">seed_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="seeds.html#tritondse.seed.SeedFormat" title="tritondse.seed.SeedFormat"><span class="pre">SeedFormat</span></a></em><a class="headerlink" href="#tritondse.Config.seed_format" title="Link to this definition"></a></dt>
-<dd><p>Seed type is either Raw (raw bytes) or Composite (more expressive).
-See seeds.py for more information on each format.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.skip_sleep_routine">
-<span class="sig-name descname"><span class="pre">skip_sleep_routine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#tritondse.Config.skip_sleep_routine" title="Link to this definition"></a></dt>
-<dd><p>Whether to emulate sleeps routine or not <em>(default: False)</em></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.skip_unsupported_import">
-<span class="sig-name descname"><span class="pre">skip_unsupported_import</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#tritondse.Config.skip_unsupported_import" title="Link to this definition"></a></dt>
-<dd><p>Whether or not to stop the emulation when hitting a external
-call to a function that is not supported.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.skip_unsupported_instruction">
-<span class="sig-name descname"><span class="pre">skip_unsupported_instruction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></em><a class="headerlink" href="#tritondse.Config.skip_unsupported_instruction" title="Link to this definition"></a></dt>
-<dd><p>Whether or not to stop the emulation when hitting an instruction
-for which the semantic is not defined.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.smt_enumeration_limit">
-<span class="sig-name descname"><span class="pre">smt_enumeration_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.Config.smt_enumeration_limit" title="Link to this definition"></a></dt>
-<dd><p>Limit of model values retrieved when enumerating a dynamic jump or symbolic memory accesses</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.smt_queries_limit">
-<span class="sig-name descname"><span class="pre">smt_queries_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.Config.smt_queries_limit" title="Link to this definition"></a></dt>
-<dd><p>Limit of SMT queries to perform for a single execution <em>(default: 1200)</em></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.smt_solver">
-<span class="sig-name descname"><span class="pre">smt_solver</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="types.html#tritondse.types.SmtSolver" title="tritondse.types.SmtSolver"><span class="pre">SmtSolver</span></a></em><a class="headerlink" href="#tritondse.Config.smt_solver" title="Link to this definition"></a></dt>
-<dd><p>SMT solver to perform queries solving</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.smt_timeout">
-<span class="sig-name descname"><span class="pre">smt_timeout</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.Config.smt_timeout" title="Link to this definition"></a></dt>
-<dd><p>Timeout for a single SMT query in milliseconds <em>(default: 10)</em></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.thread_scheduling">
-<span class="sig-name descname"><span class="pre">thread_scheduling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></em><a class="headerlink" href="#tritondse.Config.thread_scheduling" title="Link to this definition"></a></dt>
-<dd><p>Number of instructions to execute before switching to the next thread.
-At the moment all threads are scheduled in a round-robin manner <em>(default: 200)</em></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.time_inc_coefficient">
-<span class="sig-name descname"><span class="pre">time_inc_coefficient</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a></em><a class="headerlink" href="#tritondse.Config.time_inc_coefficient" title="Link to this definition"></a></dt>
-<dd><p>Time increment coefficient at each instruction to provide a deterministic
-behavior when calling time functions (e.g gettimeofday(), clock_gettime(), …).
-For example, if 0.0001 is defined, each instruction will increment the time representation
-of the execution by 100us. <em>(default: 0.00001)</em></p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.Config.to_file">
-<span class="sig-name descname"><span class="pre">to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/config.html#Config.to_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Config.to_file" title="Link to this definition"></a></dt>
-<dd><p>Save the current configuration to a file</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>file</strong> – The path name</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.Config.to_json">
-<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/tritondse/config.html#Config.to_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.Config.to_json" title="Link to this definition"></a></dt>
-<dd><p>Convert the current configuration to a json output</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>JSON text</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="tritondse.Config.workspace">
-<span class="sig-name descname"><span class="pre">workspace</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></em><a class="headerlink" href="#tritondse.Config.workspace" title="Link to this definition"></a></dt>
-<dd><p>Workspace directory to use. <em>(default: ‘workspace’)</em></p>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
 

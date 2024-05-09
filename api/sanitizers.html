@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sanitizers &mdash; TritonDSE 0.1 documentation</title>
@@ -16,7 +16,7 @@
         <script src="../_static/jquery.js?v=5d32c60e"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="../_static/documentation_options.js?v=2709fde1"></script>
-        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -63,29 +63,7 @@
 <li class="toctree-l1"><a class="reference internal" href="exception.html">Exception</a></li>
 <li class="toctree-l1"><a class="reference internal" href="loaders.html">Loaders</a></li>
 <li class="toctree-l1"><a class="reference internal" href="process.html">Context</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Sanitizers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#tritondse.sanitizers.FormatStringSanitizer"><code class="docutils literal notranslate"><span class="pre">FormatStringSanitizer</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.sanitizers.FormatStringSanitizer.callbacks"><code class="docutils literal notranslate"><span class="pre">FormatStringSanitizer.callbacks</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.sanitizers.FormatStringSanitizer.check"><code class="docutils literal notranslate"><span class="pre">FormatStringSanitizer.check()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#tritondse.sanitizers.IntegerOverflowSanitizer"><code class="docutils literal notranslate"><span class="pre">IntegerOverflowSanitizer</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.sanitizers.IntegerOverflowSanitizer.callbacks"><code class="docutils literal notranslate"><span class="pre">IntegerOverflowSanitizer.callbacks</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.sanitizers.IntegerOverflowSanitizer.check"><code class="docutils literal notranslate"><span class="pre">IntegerOverflowSanitizer.check()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#tritondse.sanitizers.NullDerefSanitizer"><code class="docutils literal notranslate"><span class="pre">NullDerefSanitizer</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.sanitizers.NullDerefSanitizer.callbacks"><code class="docutils literal notranslate"><span class="pre">NullDerefSanitizer.callbacks</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.sanitizers.NullDerefSanitizer.check"><code class="docutils literal notranslate"><span class="pre">NullDerefSanitizer.check()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#tritondse.sanitizers.UAFSanitizer"><code class="docutils literal notranslate"><span class="pre">UAFSanitizer</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.sanitizers.UAFSanitizer.callbacks"><code class="docutils literal notranslate"><span class="pre">UAFSanitizer.callbacks</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tritondse.sanitizers.UAFSanitizer.check"><code class="docutils literal notranslate"><span class="pre">UAFSanitizer.check()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sanitizers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seeds.html">Seed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tracing.html">Trace</a></li>
 <li class="toctree-l1"><a class="reference internal" href="types.html">Types</a></li>
@@ -127,152 +105,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-tritondse.sanitizers">
-<span id="sanitizers"></span><h1>Sanitizers<a class="headerlink" href="#module-tritondse.sanitizers" title="Link to this heading"></a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="tritondse.sanitizers.FormatStringSanitizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.sanitizers.</span></span><span class="sig-name descname"><span class="pre">FormatStringSanitizer</span></span><a class="reference internal" href="../_modules/tritondse/sanitizers.html#FormatStringSanitizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.sanitizers.FormatStringSanitizer" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="callbacks.html#tritondse.callbacks.ProbeInterface" title="tritondse.callbacks.ProbeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProbeInterface</span></code></a></p>
-<p>Format String Sanitizer.
-This probes hooks standard libc functions like ‘printf’, ‘fprintf’, ‘sprintf’,
-‘dprintf’, ‘snprintf’ and if one of them is triggered it checks the format string.
-If the format string is symbolic then it is user controlled. A warning is shown
-but the execution not interrupted. However the sanitizer tries through SMT to
-generate format strings with many ‘%s’. If satisfiable a new input is generated
-which will then be added to inputs to process. That subsequent input might lead
-to a crash.</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="tritondse.sanitizers.FormatStringSanitizer.callbacks">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">callbacks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="callbacks.html#tritondse.callbacks.CbType" title="tritondse.callbacks.CbType"><span class="pre">CbType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.sanitizers.FormatStringSanitizer.callbacks" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.sanitizers.FormatStringSanitizer.check">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt_ptr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tritondse.types.Addr</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/sanitizers.html#FormatStringSanitizer.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.sanitizers.FormatStringSanitizer.check" title="Link to this definition"></a></dt>
-<dd><p>Checks that the format string at <code class="docutils literal notranslate"><span class="pre">fmt_ptr</span></code> does not contain
-symbolic bytes. If so shows an alert and tries to generate new
-inputs with as many ‘%s’ as possible.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>se</strong> (<a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><em>SymbolicExecutor</em></a>) – symbolic executor</p></li>
-<li><p><strong>pstate</strong> (<a class="reference internal" href="process.html#tritondse.ProcessState" title="tritondse.ProcessState"><em>ProcessState</em></a>) – process state</p></li>
-<li><p><strong>fmt_ptr</strong> (<a class="reference internal" href="types.html#tritondse.types.Addr" title="tritondse.types.Addr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.types.Addr</span></code></a>) – pointer address to check</p></li>
-<li><p><strong>extra_data</strong> (Tuple[str, <a class="reference internal" href="types.html#tritondse.types.Addr" title="tritondse.types.Addr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.types.Addr</span></code></a>]) – additionnal infos given by the callbacks on routines (indicating function address)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if the bug is present</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="tritondse.sanitizers.IntegerOverflowSanitizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.sanitizers.</span></span><span class="sig-name descname"><span class="pre">IntegerOverflowSanitizer</span></span><a class="reference internal" href="../_modules/tritondse/sanitizers.html#IntegerOverflowSanitizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.sanitizers.IntegerOverflowSanitizer" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="callbacks.html#tritondse.callbacks.ProbeInterface" title="tritondse.callbacks.ProbeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProbeInterface</span></code></a></p>
-<p>Integer Overflow Sanitizer.
-This probe checks on every instructions that the overflow
-flag is not set. If so mark the input as a crashing input.
-If not, but the value is symbolic, via SMT solving to make
-it to be set (and thus to overflow). If possible generates
-a new input to be executed.</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="tritondse.sanitizers.IntegerOverflowSanitizer.callbacks">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">callbacks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="callbacks.html#tritondse.callbacks.CbType" title="tritondse.callbacks.CbType"><span class="pre">CbType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.sanitizers.IntegerOverflowSanitizer.callbacks" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.sanitizers.IntegerOverflowSanitizer.check">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.symbolic_executor.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="process.html#tritondse.ProcessState" title="tritondse.process_state.ProcessState"><span class="pre">ProcessState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">instruction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Instruction</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/sanitizers.html#IntegerOverflowSanitizer.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.sanitizers.IntegerOverflowSanitizer.check" title="Link to this definition"></a></dt>
-<dd><p>The entry point of the sanitizer. This function check if a bug is present</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>se</strong> (<a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><em>SymbolicExecutor</em></a>) – symbolic executor</p></li>
-<li><p><strong>pstate</strong> (<a class="reference internal" href="process.html#tritondse.ProcessState" title="tritondse.ProcessState"><em>ProcessState</em></a>) – process state</p></li>
-<li><p><strong>instruction</strong> (<a class="reference external" href="https://triton.quarkslab.com/documentation/doxygen/py_Instruction_page.html">Instruction</a>) – Instruction that has just been executed</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if the bug is present</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="tritondse.sanitizers.NullDerefSanitizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.sanitizers.</span></span><span class="sig-name descname"><span class="pre">NullDerefSanitizer</span></span><a class="reference internal" href="../_modules/tritondse/sanitizers.html#NullDerefSanitizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.sanitizers.NullDerefSanitizer" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="callbacks.html#tritondse.callbacks.ProbeInterface" title="tritondse.callbacks.ProbeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProbeInterface</span></code></a></p>
-<p>Null Dereference Sanitizer.
-Simply checks if any memory read or write is performed at address 0.
-If so an error is raised.</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="tritondse.sanitizers.NullDerefSanitizer.callbacks">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">callbacks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="callbacks.html#tritondse.callbacks.CbType" title="tritondse.callbacks.CbType"><span class="pre">CbType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.sanitizers.NullDerefSanitizer.callbacks" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.sanitizers.NullDerefSanitizer.check">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.symbolic_executor.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="process.html#tritondse.ProcessState" title="tritondse.process_state.ProcessState"><span class="pre">ProcessState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tritondse.types.Addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/sanitizers.html#NullDerefSanitizer.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.sanitizers.NullDerefSanitizer.check" title="Link to this definition"></a></dt>
-<dd><p>Checks that the <code class="docutils literal notranslate"><span class="pre">ptr</span></code> given is basically not 0.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>se</strong> (<a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><em>SymbolicExecutor</em></a>) – symbolic executor</p></li>
-<li><p><strong>pstate</strong> (<a class="reference internal" href="process.html#tritondse.ProcessState" title="tritondse.ProcessState"><em>ProcessState</em></a>) – process state</p></li>
-<li><p><strong>ptr</strong> (<a class="reference internal" href="types.html#tritondse.types.Addr" title="tritondse.types.Addr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.types.Addr</span></code></a>) – pointer address to check</p></li>
-<li><p><strong>description</strong> – description string printed in logger if an issue is detected</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if the bug is present</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="tritondse.sanitizers.UAFSanitizer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.sanitizers.</span></span><span class="sig-name descname"><span class="pre">UAFSanitizer</span></span><a class="reference internal" href="../_modules/tritondse/sanitizers.html#UAFSanitizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.sanitizers.UAFSanitizer" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="callbacks.html#tritondse.callbacks.ProbeInterface" title="tritondse.callbacks.ProbeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProbeInterface</span></code></a></p>
-<p>Use-After-Free Sanitizer.
-It is able to detect UaF and double-free. It works by hooking
-all memory read/write if it points to the heap in a freed area
-then the Use-After-Free is detected. It also hooks the free
-routine to detect double-free.</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="tritondse.sanitizers.UAFSanitizer.callbacks">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">callbacks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="callbacks.html#tritondse.callbacks.CbType" title="tritondse.callbacks.CbType"><span class="pre">CbType</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.12)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.sanitizers.UAFSanitizer.callbacks" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="tritondse.sanitizers.UAFSanitizer.check">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">se</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.symbolic_executor.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pstate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="process.html#tritondse.ProcessState" title="tritondse.process_state.ProcessState"><span class="pre">ProcessState</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tritondse.types.Addr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/sanitizers.html#UAFSanitizer.check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.sanitizers.UAFSanitizer.check" title="Link to this definition"></a></dt>
-<dd><p>Checks whether the given <code class="docutils literal notranslate"><span class="pre">ptr</span></code> is symptomatic of a Use-After-Free by querying
-various methods of <a class="reference internal" href="process.html#tritondse.heap_allocator.HeapAllocator" title="tritondse.heap_allocator.HeapAllocator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.heap_allocator.HeapAllocator</span></code></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>se</strong> (<a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><em>SymbolicExecutor</em></a>) – symbolic executor</p></li>
-<li><p><strong>pstate</strong> (<a class="reference internal" href="process.html#tritondse.ProcessState" title="tritondse.ProcessState"><em>ProcessState</em></a>) – process state</p></li>
-<li><p><strong>ptr</strong> (<a class="reference internal" href="types.html#tritondse.types.Addr" title="tritondse.types.Addr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tritondse.types.Addr</span></code></a>) – pointer address to check</p></li>
-<li><p><strong>description</strong> – description string printed in logger if an issue is detected</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if the bug is present</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+  <section id="sanitizers">
+<h1>Sanitizers<a class="headerlink" href="#sanitizers" title="Link to this heading"></a></h1>
 </section>
 
 
