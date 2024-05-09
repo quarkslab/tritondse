@@ -55,7 +55,7 @@ class SymbolicExplorator(object):
             self.workspace: Workspace = workspace  #: exploration workspace
         else:
             self.workspace: Workspace = Workspace(self.config.workspace)  #: workspace object
-            self.workspace.initialize(flush=False)
+            self.workspace.initialize(flush=self.config.workspace_reset)
 
         # Save the configuration in the workspace
         self.workspace.save_file("config.json", self.config.to_json())
