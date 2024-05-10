@@ -798,7 +798,11 @@ class ProcessState(object):
         """
         data = self.memory.read(addr, size)
         if self.is_memory_symbolic(addr, size):
-            self.push_constraint(self.read_symbolic_memory_bytes(addr, size).getAst() == data)
+            if isinstance(data, bytes):
+                data_ast = self.actx.concat([self.actx.bv(b, 8) for b in data])
+                self.push_constraint(self.read_symbolic_memory_bytes(addr, size).getAst() == data_ast)
+            else:
+                self.push_constraint(self.read_symbolic_memory_bytes(addr, size).getAst() == data)
         # else do not even push the constraint
 
     def concretize_memory_int(self, addr: Addr, size: ByteSize) -> None:
