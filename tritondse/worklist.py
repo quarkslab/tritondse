@@ -8,7 +8,7 @@ from tritondse.coverage import GlobalCoverage
 from tritondse.workspace import Workspace
 import tritondse.logging
 
-logger = tritondse.logging.get("seedmanager")
+logger = tritondse.logging.get("seedscheduler")
 
 
 class SeedScheduler:
