@@ -59,7 +59,7 @@ class BranchSolvingStrategy(IntFlag):
     FIRST_LAST_NOT_COVERED = auto()  # doc: check by SMT the first and last occurrence of a given branch
     UNSAT_ONCE = auto()              # doc: if a branch is UNSAT do not try solving it again
     TIMEOUT_ONCE = auto()            # doc: if a branch is TIMEOUT do not try solving it again
-    TIMEOUT_ALWAYS = auto()          # doc: always try solving again a TIMEOUT branch (incompatible with :py:enum:mem:`TIMEOUT_ONCE`
+    TIMEOUT_ALWAYS = auto()          # doc: always try solving again a TIMEOUT branch (incompatible with :py:enum:mem:`TIMEOUT_ONCE`)
     COVER_SYM_DYNJUMP = auto()       # doc: try covering dynamic jumps on a symbolic register or memory value
     COVER_SYM_READ = auto()          # doc: try enumerating values for symbolic reads
     COVER_SYM_WRITE = auto()         # doc: try enumerating values for symbolic writes

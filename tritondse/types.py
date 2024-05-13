@@ -49,7 +49,7 @@ Expression = TypeVar('Expression')
 """ Symbolic Expression as returned by Triton (`SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html>`_) """
 
 SymbolicVariable = TypeVar('SymbolicVariable')
-""" Symbolic Variable as returned by Triton (`SymbolicExpression <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicVariable_page.html>`_) """
+""" Symbolic Variable as returned by Triton (`SymbolicVariable <https://triton.quarkslab.com/documentation/doxygen/py_SymbolicVariable_page.html>`_) """
 
 Edge = Tuple[Addr, Addr]
 """ Type representing a edge in the program """
