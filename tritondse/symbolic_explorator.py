@@ -162,11 +162,6 @@ class SymbolicExplorator(object):
 
         logger.info(f"Emulation: {self._fmt_secs(expl_ts)} | Solving: {self._fmt_secs(solve_time)} | Elapsed: {self._fmt_secs(self.__time_delta())}\n")
 
-        self.current_executor = None
-        del execution.rtn_table
-        del cbs
-        # del execution
-
     def step(self) -> None:
         """
         Perform a single exploration step. That means it execute
@@ -213,7 +208,7 @@ class SymbolicExplorator(object):
 
         try:
             while self.seeds_manager.seeds_available() and not self._stop:
-                # gc.collect()
+                gc.collect()
                 self.step()
 
             if self.status == ExplorationStatus.RUNNING:
