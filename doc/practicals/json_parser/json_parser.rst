@@ -12,7 +12,7 @@ The goal is exploring the implementation with TritonDSE to try finding vulnerabi
 
 .. raw:: html
 
-    <div style="text-align: center;"><a href="../_static/bugged_json_parser.bin"><i class="fa fa-download fa-lg"></i><br/>binary</a></div><br/>
+    <div style="text-align: center;"><a href="../../_static/bugged_json_parser.bin"><i class="fa fa-download fa-lg"></i><br/>binary</a></div><br/>
 
 
 Practical information
@@ -20,7 +20,7 @@ Practical information
 
 * The code is ARM Thumb-2
 * Base address is: 0x08000000
-* Entrypoint is: 0x81dc46e | 1 
+* Entrypoint is: 0x81dc46e | 1
 * Exit point: (can be set to instruction just after)
 
 The entrypoint is a call on the function parsing the JSON input.
