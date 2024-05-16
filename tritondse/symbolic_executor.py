@@ -511,6 +511,14 @@ class SymbolicExecutor(object):
         .. FIXME: This function does not apply all possible relocations
         :return: None
         """
+        def default_stub(se: 'SymbolicExecutor', pstate: ProcessState):
+            rtn_name, _ = se.rtn_table[pstate.cpu.program_counter]
+            logger.warning(f"calling {rtn_name} which is unsupported")
+            if se.config.skip_unsupported_import:
+                return None  # Like if function did nothing
+            else:
+                raise AbortExecutionException('Execution aborted')
+
         for symbol, (addr, is_func) in self.pstate.dynamic_symbol_table.items():
 
             if symbol in SUPPORTED_ROUTINES:  # if the routine name is supported
@@ -529,17 +537,9 @@ class SymbolicExecutor(object):
                     logger.warning(f"symbol {symbol} imported but unsupported")
                 if is_func:
                     # Add link to a default stub function
-                    self.rtn_table[addr] = (symbol, self.__default_stub)
+                    self.rtn_table[addr] = (symbol, default_stub)
                 else:
                     pass    # do nothing on unsupported symbols
-
-    def __default_stub(self, _: 'SymbolicExecutor', pstate: ProcessState):
-        rtn_name, _ = self.rtn_table[pstate.cpu.program_counter]
-        logger.warning(f"calling {rtn_name} which is unsupported")
-        if self.config.skip_unsupported_import:
-            return None  # Like if function did nothing
-        else:
-            self.abort()
 
     def abort(self) -> NoReturn:
         """
