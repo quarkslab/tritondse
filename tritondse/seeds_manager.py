@@ -307,7 +307,7 @@ class SeedManager:
         self._solv_time_sum += solving_time
         self._current_solv_time += solving_time
         self._solv_status[status] += count
-        logger.debug(f'Solve stats: solve_count={self._solv_count} solving_time={solving_time} solve_time_sum={self._solv_time_sum} current_solve_time={self._current_solv_time} solv_status={status} / {self._solv_status[status]}')
+        logger.debug(f'Solve stats: solve_count={self._solv_count} solving_time={solving_time:.3f} solve_time_sum={self._solv_time_sum:.3f} current_solve_time={self._current_solv_time:.3f} solv_status={status}/{self._solv_status[status]}')
 
         if covitem:
             if status == SolverStatus.SAT:
