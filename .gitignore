@@ -12,3 +12,5 @@ tritondse.egg-info/
 workspace
 www
 .idea/
+_build
+bin
