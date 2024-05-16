@@ -11,7 +11,7 @@ The goal is to trigger them using the tritondse exploration.
 TritonDSE supports injecting input on multiple locations. Use a `COMPOSITE` seed to inject
 `stdin` and `argv` and explore the program to trigger the crash.
 
-.. literalinclude:: solutions_toy_examples/src/0.c
+.. literalinclude:: src/0.c
    :language: c
 
 
@@ -25,7 +25,7 @@ the emulation yourself.
 Hint: In this case, `sscanf` behaves similarly to `atoi`. Check out the emulatoin of
 `atoi` in `tritondse/routines.py`.
 
-.. literalinclude:: solutions_toy_examples/src/1.c
+.. literalinclude:: src/1.c
    :language: c
 
 
@@ -37,7 +37,7 @@ state coverage on pointer values *(as it raises a lot of test-cases potentially
 not interesting)*. The goal here is to perform manual state coverage on pointer
 values.
 
-.. literalinclude:: solutions_toy_examples/src/2.c
+.. literalinclude:: src/2.c
    :language: c
 
 
@@ -47,7 +47,7 @@ values.
 Same principle here, except that triggering the bug require resolving some
 kind of a pointer aliasing issue.
 
-.. literalinclude:: solutions_toy_examples/src/3.c
+.. literalinclude:: src/3.c
    :language: c
 
 
@@ -58,7 +58,7 @@ Symbolic execution hardly infers 'meta-properties' of data. For a string its len
 is a meta-property that the symbolic executor does not know how to mutate. It can
 be an issue when performing coverage.
 
-.. literalinclude:: solutions_toy_examples/src/4.c
+.. literalinclude:: src/4.c
    :language: c
 
 
@@ -69,6 +69,6 @@ Write a simple intrinsic function to obtain the stack buffer size
 during exploration, and write a simple sanitizer for `strncpy` that
 checks that no buffer overflow is taking place.
 
-.. literalinclude:: solutions_toy_examples/src/5.c
+.. literalinclude:: src/5.c
    :language: c
 

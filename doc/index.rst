@@ -78,9 +78,9 @@ Installing is as simple as:
     :maxdepth: 1
     :hidden:
 
-    practicals/toy_example
-    practicals/json_parser
-    practicals/crackme
+    practicals/toy_example/toy_example
+    practicals/json_parser/json_parser
+    practicals/crackme/crackme
 
 .. toctree::
     :caption: Advanced API
