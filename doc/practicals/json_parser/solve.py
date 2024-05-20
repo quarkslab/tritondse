@@ -7,7 +7,7 @@ from triton import Instruction
 from tritondse.arch import Architecture
 from tritondse.config import Config
 from tritondse.loaders.loader import LoadableSegment
-from tritondse.loaders.loader import MonolithicLoader
+from tritondse.loaders.loader import RawBinaryLoader
 from tritondse.process_state import ProcessState
 from tritondse.seed import CompositeData
 from tritondse.seed import Seed
@@ -78,17 +78,17 @@ conf = Config(seed_format=SeedFormat.COMPOSITE,
 
 raw_firmware = Path("./bugged_json_parser.bin").read_bytes()
 
-ldr = MonolithicLoader(Architecture.ARM32,
-                       cpustate={"pc": ENTRY_POINT,
+ldr = RawBinaryLoader(Architecture.ARM32,
+                      cpustate={"pc": ENTRY_POINT,
                                  "r0": BUFFER_ADDR,
                                  "r2": STRUC_ADDR,
                                  "sp": STACK_ADDR+STACK_SIZE},
-                       set_thumb=True,
-                       maps=[LoadableSegment(BASE_ADDRESS, len(raw_firmware), Perm.R | Perm.X, content=raw_firmware, name="bugged_json_parser"),
-                             LoadableSegment(BUFFER_ADDR, 40, Perm.R | Perm.W, name="input"),
-                             LoadableSegment(STRUC_ADDR, 512, Perm.R | Perm.W, name="JSON_ctx"),
-                             LoadableSegment(USER_CB, 1000, Perm.R | Perm.X, name="user_cb"),
-                             LoadableSegment(STACK_ADDR, STACK_SIZE, Perm.R | Perm.W, name="[stack]")])
+                      set_thumb=True,
+                      maps=[LoadableSegment(BASE_ADDRESS, len(raw_firmware), Perm.R | Perm.X, content=raw_firmware, name="bugged_json_parser"),
+                            LoadableSegment(BUFFER_ADDR, 40, Perm.R | Perm.W, name="input"),
+                            LoadableSegment(STRUC_ADDR, 512, Perm.R | Perm.W, name="JSON_ctx"),
+                            LoadableSegment(USER_CB, 1000, Perm.R | Perm.X, name="user_cb"),
+                            LoadableSegment(STACK_ADDR, STACK_SIZE, Perm.R | Perm.W, name="[stack]")])
 
 dse = SymbolicExplorator(conf, ldr, executor_stop_at=EXIT_POINT)
 

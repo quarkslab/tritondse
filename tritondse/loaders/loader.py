@@ -140,7 +140,7 @@ class Loader(object):
         return None
 
 
-class MonolithicLoader(Loader):
+class RawBinaryLoader(Loader):
     """
     Monolithic loader. It helps loading raw firmware at a given address
     in DSE memory space, with the various attributes like architecture etc.
@@ -153,7 +153,7 @@ class MonolithicLoader(Loader):
                  set_thumb: bool = False,
                  platform: Platform = None,
                  endianness: Endian = Endian.LITTLE):
-        super(MonolithicLoader, self).__init__("")
+        super(RawBinaryLoader, self).__init__("")
 
         self._architecture = architecture
         self._platform = platform if platform else None
