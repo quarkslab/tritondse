@@ -199,13 +199,13 @@ list(ps.memory.get_maps())
 </div></section>
 <section id="Firmware-Loading">
 <h2>Firmware Loading<a class="headerlink" href="#Firmware-Loading" title="Link to this heading"></a></h2>
-<p>Performing symbolic execution on low-level firmware requires a specific loader. TritonDSE provides the <code class="docutils literal notranslate"><span class="pre">MonolithicLoader</span></code> that enables loading monolithic firmware by defining the memory segments manually.</p>
+<p>Performing symbolic execution on low-level firmware requires a specific loader. TritonDSE provides the <code class="docutils literal notranslate"><span class="pre">RawBinaryLoader</span></code> that enables loading monolithic firmware by defining the memory segments manually.</p>
 <p>The following example shows how to load a small firmware:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import Architecture, MonolithicLoader, LoadableSegment
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import Architecture, RawBinaryLoader, LoadableSegment
 
 BASE_ADDRESS= 0x8000000
 ENTRY_POINT = 0x81dc46e
@@ -214,7 +214,7 @@ STACK_SIZE  = 1024*6
 
 raw_f = Path(&quot;./bugged_json_parser.bin&quot;).read_bytes()
 
-ldr = MonolithicLoader(Architecture.ARM32,
+ldr = RawBinaryLoader(Architecture.ARM32,
                        cpustate = {&quot;pc&quot;: ENTRY_POINT,
                                    &quot;sp&quot;: STACK_ADDR+STACK_SIZE},
                        set_thumb=True,

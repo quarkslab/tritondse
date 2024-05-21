@@ -153,7 +153,7 @@
     "## Firmware Loading\n",
     "\n",
     "Performing symbolic execution on low-level firmware requires a specific loader.\n",
-    "TritonDSE provides the ``MonolithicLoader`` that enables loading monolithic firmware by defining the memory segments manually.\n",
+    "TritonDSE provides the ``RawBinaryLoader`` that enables loading monolithic firmware by defining the memory segments manually.\n",
     "\n",
     "The following example shows how to load a small firmware:"
    ]
@@ -165,7 +165,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "from tritondse import Architecture, MonolithicLoader, LoadableSegment\n",
+    "from tritondse import Architecture, RawBinaryLoader, LoadableSegment\n",
     "\n",
     "BASE_ADDRESS= 0x8000000\n",
     "ENTRY_POINT = 0x81dc46e\n",
@@ -174,7 +174,7 @@
     "\n",
     "raw_f = Path(\"./bugged_json_parser.bin\").read_bytes()\n",
     "\n",
-    "ldr = MonolithicLoader(Architecture.ARM32,\n",
+    "ldr = RawBinaryLoader(Architecture.ARM32,\n",
     "                       cpustate = {\"pc\": ENTRY_POINT, \n",
     "                                   \"sp\": STACK_ADDR+STACK_SIZE},\n",
     "                       set_thumb=True,\n",
