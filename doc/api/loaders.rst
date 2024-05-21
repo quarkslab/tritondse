@@ -30,10 +30,10 @@ QuokkaProgram
     :undoc-members:
     :exclude-members:
 
-MonolithicLoader
+RawBinaryLoader
 ----------------
 
-.. autoclass:: tritondse.MonolithicLoader
+.. autoclass:: tritondse.RawBinaryLoader
     :members:
     :inherited-members:
     :undoc-members:

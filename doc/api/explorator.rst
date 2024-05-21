@@ -17,7 +17,7 @@ SymbolicExplorator
 SeedManager
 -----------
 
-.. autoclass:: tritondse.seeds_manager.SeedManager
+.. autoclass:: tritondse.seed_manager.SeedManager
     :members:
     :undoc-members:
     :exclude-members:

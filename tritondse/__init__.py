@@ -2,7 +2,7 @@ from .config                import Config
 from .loaders.program       import Program
 from .loaders.quokkaprogram import QuokkaProgram
 from .loaders.cle_loader    import CleLoader
-from .loaders.loader        import Loader, MonolithicLoader, LoadableSegment
+from .loaders.loader        import Loader, RawBinaryLoader, LoadableSegment
 from .process_state         import ProcessState
 from .coverage              import CoverageStrategy, BranchSolvingStrategy, CoverageSingleRun, GlobalCoverage
 from .symbolic_executor     import SymbolicExecutor

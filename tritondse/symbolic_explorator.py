@@ -15,8 +15,8 @@ from tritondse.workspace         import Workspace
 from tritondse.coverage          import GlobalCoverage
 from tritondse.types             import Addr
 from tritondse.exception         import StopExplorationException
-from tritondse.seeds_manager import SeedManager
-from tritondse.worklist import SeedScheduler
+from tritondse.seed_manager import SeedManager
+from tritondse.seed_scheduler import SeedScheduler
 from tritondse.callbacks import CallbackManager
 import tritondse.logging
 

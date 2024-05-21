@@ -8,7 +8,7 @@ from collections import Counter
 from tritondse.seed              import Seed, SeedStatus
 from tritondse.callbacks         import CallbackManager
 from tritondse.coverage          import GlobalCoverage, CovItem
-from tritondse.worklist          import FreshSeedPrioritizerWorklist, SeedScheduler
+from tritondse.seed_scheduler    import FreshSeedPrioritizerWorklist, SeedScheduler
 from tritondse.workspace         import Workspace
 from tritondse.symbolic_executor import SymbolicExecutor
 from tritondse.types             import SolverStatus, SymExType
