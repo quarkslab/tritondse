@@ -121,20 +121,20 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[80]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExecutor, Config, Seed, Program, ProcessState, SymbolicExplorator, CoverageStrategy, SeedFormat, CompositeData
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">SymbolicExplorator</span><span class="p">,</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="n">SeedFormat</span><span class="p">,</span> <span class="n">CompositeData</span>
 
-config = Config(pipe_stdout=False, coverage_strategy=CoverageStrategy.PATH, seed_format=SeedFormat.COMPOSITE)
+<span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">pipe_stdout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">coverage_strategy</span><span class="o">=</span><span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">PATH</span><span class="p">,</span> <span class="n">seed_format</span><span class="o">=</span><span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span><span class="p">)</span>
 
-def post_exec_hook(se: SymbolicExecutor, state: ProcessState):
-    print(f&quot;seed:{se.seed.hash} ({repr(se.seed.content.argv)})   [exitcode:{se.exitcode}]&quot;)
+<span class="k">def</span> <span class="nf">post_exec_hook</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;seed:</span><span class="si">{</span><span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">hash</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span><span class="si">}</span><span class="s2">)   [exitcode:</span><span class="si">{</span><span class="n">se</span><span class="o">.</span><span class="n">exitcode</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
 
-dse = SymbolicExplorator(config, Program(&quot;crackme_xor&quot;))
+<span class="n">dse</span> <span class="o">=</span> <span class="n">SymbolicExplorator</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">Program</span><span class="p">(</span><span class="s2">&quot;crackme_xor&quot;</span><span class="p">))</span>
 
-dse.add_input_seed(Seed(CompositeData(argv=[b&quot;./crackme&quot;, b&quot;AAAAAAAAAAAAAAA&quot;])))
+<span class="n">dse</span><span class="o">.</span><span class="n">add_input_seed</span><span class="p">(</span><span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="sa">b</span><span class="s2">&quot;./crackme&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;AAAAAAAAAAAAAAA&quot;</span><span class="p">])))</span>
 
-dse.callback_manager.register_post_execution_callback(post_exec_hook)
+<span class="n">dse</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">register_post_execution_callback</span><span class="p">(</span><span class="n">post_exec_hook</span><span class="p">)</span>
 
-dse.explore()
+<span class="n">dse</span><span class="o">.</span><span class="n">explore</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -185,16 +185,16 @@ seed:dc1d802d1c2796a1a21d96827ce1cae7 ([b&#39;./crackme&#39;, b&#39;eliteAAAAAAA
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[81]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def hook_cmp(se: SymbolicExecutor, pstate: ProcessState, addr: int):
-    zf = pstate.cpu.zf  # concrete value
-    sym_zf = pstate.read_symbolic_register(pstate.registers.zf)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">hook_cmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">zf</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">zf</span>  <span class="c1"># concrete value</span>
+    <span class="n">sym_zf</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">read_symbolic_register</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">zf</span><span class="p">)</span>
 
-    # Revert the current value of zf to &quot;negate&quot; condition
-    status, model = pstate.solve(sym_zf.getAst() != zf)
+    <span class="c1"># Revert the current value of zf to &quot;negate&quot; condition</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sym_zf</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="o">!=</span> <span class="n">zf</span><span class="p">)</span>
 
-    if status == SolverStatus.SAT:
-        new_seed = se.mk_new_seed_from_model(model)
-        se.enqueue_seed(new_seed)
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">SolverStatus</span><span class="o">.</span><span class="n">SAT</span><span class="p">:</span>
+        <span class="n">new_seed</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">mk_new_seed_from_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">se</span><span class="o">.</span><span class="n">enqueue_seed</span><span class="p">(</span><span class="n">new_seed</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -204,11 +204,11 @@ seed:dc1d802d1c2796a1a21d96827ce1cae7 ([b&#39;./crackme&#39;, b&#39;eliteAAAAAAA
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[82]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(&quot;seed to process:&quot;, len(list(dse.workspace.iter_worklist())))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;seed to process:&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">dse</span><span class="o">.</span><span class="n">workspace</span><span class="o">.</span><span class="n">iter_worklist</span><span class="p">())))</span>
 
-print(&quot;\nCorpus:&quot;)
-for seed in dse.workspace.iter_corpus():
-      print(seed.filename)
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Corpus:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="n">dse</span><span class="o">.</span><span class="n">workspace</span><span class="o">.</span><span class="n">iter_corpus</span><span class="p">():</span>
+      <span class="nb">print</span><span class="p">(</span><span class="n">seed</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -265,8 +265,8 @@ cab6e4b729327d1e088c9d459e0340eb.00000064.tritondse.cov
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[83]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>composite_seed_1 = Seed(CompositeData(argv=[b&quot;this&quot;, b&quot;will&quot;, b&quot;injected&quot;, b&quot;into&quot;, b&quot;argv&quot;]))
-composite_seed_2 = Seed(CompositeData(files={&quot;stdin&quot;: b&quot;This will be injected when the program reads from stdin&quot;}))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">composite_seed_1</span> <span class="o">=</span> <span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="sa">b</span><span class="s2">&quot;this&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;will&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;injected&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;into&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;argv&quot;</span><span class="p">]))</span>
+<span class="n">composite_seed_2</span> <span class="o">=</span> <span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="p">(</span><span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;stdin&quot;</span><span class="p">:</span> <span class="sa">b</span><span class="s2">&quot;This will be injected when the program reads from stdin&quot;</span><span class="p">}))</span>
 </pre></div>
 </div>
 </div>
@@ -275,9 +275,9 @@ composite_seed_2 = Seed(CompositeData(files={&quot;stdin&quot;: b&quot;This will
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[84]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExplorator, Config, SeedFormat, Program
-dse_using_raw_seeds = SymbolicExplorator(Config(), Program(&quot;crackme_xor&quot;))
-dse_using_composite_seeds = SymbolicExplorator(Config(seed_format=SeedFormat.COMPOSITE), Program(&quot;crackme_xor&quot;))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExplorator</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">SeedFormat</span><span class="p">,</span> <span class="n">Program</span>
+<span class="n">dse_using_raw_seeds</span> <span class="o">=</span> <span class="n">SymbolicExplorator</span><span class="p">(</span><span class="n">Config</span><span class="p">(),</span> <span class="n">Program</span><span class="p">(</span><span class="s2">&quot;crackme_xor&quot;</span><span class="p">))</span>
+<span class="n">dse_using_composite_seeds</span> <span class="o">=</span> <span class="n">SymbolicExplorator</span><span class="p">(</span><span class="n">Config</span><span class="p">(</span><span class="n">seed_format</span><span class="o">=</span><span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span><span class="p">),</span> <span class="n">Program</span><span class="p">(</span><span class="s2">&quot;crackme_xor&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>

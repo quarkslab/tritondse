@@ -134,15 +134,15 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from triton import Instruction
-from tritondse import SymbolicExecutor, Config, Seed, Program, ProcessState, SeedFormat, CompositeData
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">triton</span> <span class="kn">import</span> <span class="n">Instruction</span>
+<span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">SeedFormat</span><span class="p">,</span> <span class="n">CompositeData</span>
 
-p = Program(&quot;crackme_xor&quot;)
-config = Config(pipe_stdout=False, seed_format=SeedFormat.COMPOSITE)
-seed = Seed(CompositeData(argv=[b&quot;./crackme_xor&quot;, b&quot;AAAAAAAAAAAA&quot;]))
+<span class="n">p</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="s2">&quot;crackme_xor&quot;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">pipe_stdout</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed_format</span><span class="o">=</span><span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span><span class="p">)</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="sa">b</span><span class="s2">&quot;./crackme_xor&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;AAAAAAAAAAAA&quot;</span><span class="p">]))</span>
 
-executor = SymbolicExecutor(config, seed)
-executor.load(p)
+<span class="n">executor</span> <span class="o">=</span> <span class="n">SymbolicExecutor</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+<span class="n">executor</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -166,10 +166,10 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def trace_inst(se: SymbolicExecutor, pstate: ProcessState, inst: Instruction):
-    print(f&quot;[tid:{inst.getThreadId()}] 0x{inst.getAddress():x}: {inst.getDisassembly()}&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">trace_inst</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">inst</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[tid:</span><span class="si">{</span><span class="n">inst</span><span class="o">.</span><span class="n">getThreadId</span><span class="p">()</span><span class="si">}</span><span class="s2">] 0x</span><span class="si">{</span><span class="n">inst</span><span class="o">.</span><span class="n">getAddress</span><span class="p">()</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">inst</span><span class="o">.</span><span class="n">getDisassembly</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-executor.callback_manager.register_post_instruction_callback(trace_inst)
+<span class="n">executor</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">register_post_instruction_callback</span><span class="p">(</span><span class="n">trace_inst</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -177,7 +177,7 @@ executor.callback_manager.register_post_instruction_callback(trace_inst)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.run()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">executor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -266,14 +266,14 @@ executor.callback_manager.register_post_instruction_callback(trace_inst)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def hook_cmp(se: SymbolicExecutor, pstate: ProcessState, addr: int):
-    print(f&quot;{pstate.cpu.al} - {pstate.cpu.cl}&quot;)
-    pstate.cpu.zf = 1
-    #exec.abort()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">hook_cmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">al</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">cl</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">zf</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1">#exec.abort()</span>
 
-def hook_puts(se: SymbolicExecutor, pstate: ProcessState, routine: str, addr: int):
-    s = pstate.memory.read_string(pstate.get_argument_value(0))
-    print(f&quot;puts: {s}&quot;)
+<span class="k">def</span> <span class="nf">hook_puts</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">routine</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_string</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;puts: </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -281,13 +281,13 @@ def hook_puts(se: SymbolicExecutor, pstate: ProcessState, routine: str, addr: in
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor = SymbolicExecutor(config, seed)
-executor.load(p)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">executor</span> <span class="o">=</span> <span class="n">SymbolicExecutor</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+<span class="n">executor</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
-# Remove trace printing callback
-executor.callback_manager.reset()
-executor.callback_manager.register_post_addr_callback(0x0400597, hook_cmp)
-executor.callback_manager.register_post_imported_routine_callback(&quot;puts&quot;, hook_puts)
+<span class="c1"># Remove trace printing callback</span>
+<span class="n">executor</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">executor</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">register_post_addr_callback</span><span class="p">(</span><span class="mh">0x0400597</span><span class="p">,</span> <span class="n">hook_cmp</span><span class="p">)</span>
+<span class="n">executor</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">register_post_imported_routine_callback</span><span class="p">(</span><span class="s2">&quot;puts&quot;</span><span class="p">,</span> <span class="n">hook_puts</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -303,7 +303,7 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.run()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">executor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -329,28 +329,28 @@ puts: Win
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse.types import SolverStatus
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">SolverStatus</span>
 
-def hook_cmp2(se: SymbolicExecutor, pstate: ProcessState, addr: int):
-    # CL contains the input of the user (hashed)
+<span class="k">def</span> <span class="nf">hook_cmp2</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="c1"># CL contains the input of the user (hashed)</span>
 
-    # retrieve the symbolic value of both characters
-    sym_al = pstate.read_symbolic_register(pstate.registers.al)
-    sym_cl = pstate.read_symbolic_register(pstate.registers.cl)
+    <span class="c1"># retrieve the symbolic value of both characters</span>
+    <span class="n">sym_al</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">read_symbolic_register</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">al</span><span class="p">)</span>
+    <span class="n">sym_cl</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">read_symbolic_register</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">cl</span><span class="p">)</span>
 
-    # Solve the constraint such that one match the other
-    status, model = pstate.solve(sym_al.getAst() == sym_cl.getAst())
+    <span class="c1"># Solve the constraint such that one match the other</span>
+    <span class="n">status</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">sym_al</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="o">==</span> <span class="n">sym_cl</span><span class="o">.</span><span class="n">getAst</span><span class="p">())</span>
 
-    # If formula is SAT retrieve input values
-    if status == SolverStatus.SAT:
-        # Retrieve value of the input variable involved in the cl value here (shall be only one here)
-        var_values = pstate.get_expression_variable_values_model(sym_cl, model)
-        for var, value in var_values.items():
-            print(f&quot;{var}: {chr(value)}&quot;)
-    else:
-        print(status.name)
+    <span class="c1"># If formula is SAT retrieve input values</span>
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">SolverStatus</span><span class="o">.</span><span class="n">SAT</span><span class="p">:</span>
+        <span class="c1"># Retrieve value of the input variable involved in the cl value here (shall be only one here)</span>
+        <span class="n">var_values</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_expression_variable_values_model</span><span class="p">(</span><span class="n">sym_cl</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">var</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">var_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">chr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-    pstate.cpu.zf = 1
+    <span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">zf</span> <span class="o">=</span> <span class="mi">1</span>
 </pre></div>
 </div>
 </div>
@@ -358,11 +358,11 @@ def hook_cmp2(se: SymbolicExecutor, pstate: ProcessState, addr: int):
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor = SymbolicExecutor(config, seed)
-executor.load(p)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">executor</span> <span class="o">=</span> <span class="n">SymbolicExecutor</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+<span class="n">executor</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
-executor.callback_manager.reset()
-executor.callback_manager.register_post_addr_callback(0x0400597, hook_cmp2)
+<span class="n">executor</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="n">executor</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">register_post_addr_callback</span><span class="p">(</span><span class="mh">0x0400597</span><span class="p">,</span> <span class="n">hook_cmp2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -378,7 +378,7 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.run()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">executor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -402,21 +402,21 @@ argv[1][4]:8: e
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExplorator, Config, Seed, Program, ProcessState, SeedFormat, CompositeData
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExplorator</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">SeedFormat</span><span class="p">,</span> <span class="n">CompositeData</span>
 
-def pre_exec_hook(se: SymbolicExecutor, state: ProcessState):
-    print(f&quot;input: {se.seed.hash} {se.seed.content.argv} &quot;, end=&quot;&quot;)
+<span class="k">def</span> <span class="nf">pre_exec_hook</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input: </span><span class="si">{</span><span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">hash</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">argv</span><span class="si">}</span><span class="s2"> &quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 
-def post_exec_hook(se: SymbolicExecutor, state: ProcessState):
-    print(f&quot;status:{se.seed.status.name}   [exitcode:{se.exitcode}]&quot;)
+<span class="k">def</span> <span class="nf">post_exec_hook</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;status:</span><span class="si">{</span><span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">   [exitcode:</span><span class="si">{</span><span class="n">se</span><span class="o">.</span><span class="n">exitcode</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
 
-dse = SymbolicExplorator(Config(seed_format=SeedFormat.COMPOSITE), p)
-dse.add_input_seed(Seed(CompositeData(argv=[b&quot;./crackme_xor&quot;, b&quot;AAAAAAAAAAAA&quot;])))
+<span class="n">dse</span> <span class="o">=</span> <span class="n">SymbolicExplorator</span><span class="p">(</span><span class="n">Config</span><span class="p">(</span><span class="n">seed_format</span><span class="o">=</span><span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
+<span class="n">dse</span><span class="o">.</span><span class="n">add_input_seed</span><span class="p">(</span><span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="sa">b</span><span class="s2">&quot;./crackme_xor&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;AAAAAAAAAAAA&quot;</span><span class="p">])))</span>
 
-dse.callback_manager.register_pre_execution_callback(pre_exec_hook)
-dse.callback_manager.register_post_execution_callback(post_exec_hook)
+<span class="n">dse</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">register_pre_execution_callback</span><span class="p">(</span><span class="n">pre_exec_hook</span><span class="p">)</span>
+<span class="n">dse</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">register_post_execution_callback</span><span class="p">(</span><span class="n">post_exec_hook</span><span class="p">)</span>
 
-dse.explore()
+<span class="n">dse</span><span class="o">.</span><span class="n">explore</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>

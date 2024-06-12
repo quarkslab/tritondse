@@ -143,12 +143,12 @@ features and the API is subject to changes.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[119]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import Program
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">Program</span>
 
-p = Program(&quot;crackme_xor&quot;)
+<span class="n">p</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="s2">&quot;crackme_xor&quot;</span><span class="p">)</span>
 
-print(p.architecture, p.endianness)
-print(hex(p.entry_point))
+<span class="nb">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">architecture</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">endianness</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -169,7 +169,7 @@ Architecture.X86_64 ENDIANNESS.LITTLE
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[120]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>p.find_function_addr(&quot;main&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">p</span><span class="o">.</span><span class="n">find_function_addr</span><span class="p">(</span><span class="s2">&quot;main&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -186,8 +186,8 @@ Architecture.X86_64 ENDIANNESS.LITTLE
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[121]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>for seg in p.memory_segments():
-    print(f&quot;0x{seg.address:x} size:{len(seg.content)}&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">memory_segments</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;0x</span><span class="si">{</span><span class="n">seg</span><span class="o">.</span><span class="n">address</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2"> size:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">content</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -209,13 +209,13 @@ Architecture.X86_64 ENDIANNESS.LITTLE
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[123]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExecutor, Config, Seed, CompositeData
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">CompositeData</span>
 
-config = Config()
-seed = Seed(CompositeData(argv=[b&quot;Hello&quot;, b&quot;world&quot;]))
+<span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="sa">b</span><span class="s2">&quot;Hello&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;world&quot;</span><span class="p">]))</span>
 
-executor = SymbolicExecutor(config, seed)
-executor.load(p)
+<span class="n">executor</span> <span class="o">=</span> <span class="n">SymbolicExecutor</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+<span class="n">executor</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -233,7 +233,7 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[124]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.run()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">executor</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -243,7 +243,7 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate = executor.pstate  # ProcessState object
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pstate</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="n">pstate</span>  <span class="c1"># ProcessState object</span>
 </pre></div>
 </div>
 </div>
@@ -252,7 +252,7 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[125]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.coverage.total_instruction_executed
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">executor</span><span class="o">.</span><span class="n">coverage</span><span class="o">.</span><span class="n">total_instruction_executed</span>
 </pre></div>
 </div>
 </div>
@@ -269,7 +269,7 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[126]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>executor.exitcode
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">executor</span><span class="o">.</span><span class="n">exitcode</span>
 </pre></div>
 </div>
 </div>
@@ -290,7 +290,7 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[127]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse.types import Architecture
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Architecture</span>
 </pre></div>
 </div>
 </div>
@@ -298,8 +298,8 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[128]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate = executor.pstate
-print(f&quot;arch: {pstate.architecture.name}  ptrsize:{pstate.ptr_bit_size}&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pstate</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="n">pstate</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;arch: </span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">architecture</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">  ptrsize:</span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">ptr_bit_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -318,7 +318,7 @@ arch: X86_64  ptrsize:64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[129]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.registers.rax
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">rax</span>
 </pre></div>
 </div>
 </div>
@@ -336,10 +336,10 @@ rax:64 bv[63..0]
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[130]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.program_counter_register, \
-pstate.base_pointer_register, \
-pstate.stack_pointer_register, \
-pstate.return_register
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pstate</span><span class="o">.</span><span class="n">program_counter_register</span><span class="p">,</span> \
+<span class="n">pstate</span><span class="o">.</span><span class="n">base_pointer_register</span><span class="p">,</span> \
+<span class="n">pstate</span><span class="o">.</span><span class="n">stack_pointer_register</span><span class="p">,</span> \
+<span class="n">pstate</span><span class="o">.</span><span class="n">return_register</span>
 </pre></div>
 </div>
 </div>
@@ -357,9 +357,9 @@ pstate.return_register
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[131]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.write_register(pstate.registers.rax, 0xdeadbeef)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pstate</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">rax</span><span class="p">,</span> <span class="mh">0xdeadbeef</span><span class="p">)</span>
 
-hex(pstate.read_register(pstate.registers.rax))
+<span class="nb">hex</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">rax</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -380,7 +380,7 @@ hex(pstate.read_register(pstate.registers.rax))
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[132]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.cpu.rax
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">rax</span>
 </pre></div>
 </div>
 </div>
@@ -397,9 +397,9 @@ hex(pstate.read_register(pstate.registers.rax))
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[133]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.cpu.rax += 4
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">rax</span> <span class="o">+=</span> <span class="mi">4</span>
 
-pstate.cpu.rax
+<span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">rax</span>
 </pre></div>
 </div>
 </div>
@@ -416,7 +416,7 @@ pstate.cpu.rax
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[134]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(f&quot;RIP: 0x{pstate.cpu.program_counter:x}&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RIP: 0x</span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">program_counter</span><span class="si">:</span><span class="s2">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -436,15 +436,15 @@ RIP: 0x400489
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[135]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>print(pstate.memory.read(p.entry_point, 10))  # Reads 10 bytes
-print(hex(pstate.memory.read_ptr(p.entry_point)))  # Reads a pointer size
-print(pstate.memory.read_int(p.entry_point))  # Reads a 4 bytes signed int
-print(pstate.memory.read_uint(p.entry_point))  # Reads a 4 bytes unsigned int
-print(pstate.memory.read_char(p.entry_point))  # Reads a 1 bytes signed char
-print(pstate.memory.read_uchar(p.entry_point))  # Reads a 1 bytes unsigned char
-print(pstate.memory.read_word(p.entry_point))  # Reads a 2 bytes unsigned integer
-print(pstate.memory.read_dword(p.entry_point))  # Reads a 4 bytes unsigned integer
-print(pstate.memory.read_qword(p.entry_point))  # Reads a 8 bytes unsigned integer
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>  <span class="c1"># Reads 10 bytes</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_ptr</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">)))</span>  <span class="c1"># Reads a pointer size</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">))</span>  <span class="c1"># Reads a 4 bytes signed int</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_uint</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">))</span>  <span class="c1"># Reads a 4 bytes unsigned int</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_char</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">))</span>  <span class="c1"># Reads a 1 bytes signed char</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_uchar</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">))</span>  <span class="c1"># Reads a 1 bytes unsigned char</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_word</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">))</span>  <span class="c1"># Reads a 2 bytes unsigned integer</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_dword</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">))</span>  <span class="c1"># Reads a 4 bytes unsigned integer</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">read_qword</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">))</span>  <span class="c1"># Reads a 8 bytes unsigned integer</span>
 </pre></div>
 </div>
 </div>
@@ -470,7 +470,7 @@ b&#39;1\xedI\x89\xd1^H\x89\xe2H&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = pstate.memory[p.entry_point:10]   # Read 10 bytes in memory
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>   <span class="c1"># Read 10 bytes in memory</span>
 </pre></div>
 </div>
 </div>
@@ -479,7 +479,7 @@ b&#39;1\xedI\x89\xd1^H\x89\xe2H&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[136]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pstate.memory.is_mapped(p.entry_point), pstate.memory.is_mapped(0)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">is_mapped</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">entry_point</span><span class="p">),</span> <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">is_mapped</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -503,11 +503,11 @@ b&#39;1\xedI\x89\xd1^H\x89\xe2H&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[137]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>new_sym = pstate.actx.bv(32, 64)  # new symbolic expression representing a constant
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_sym</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">actx</span><span class="o">.</span><span class="n">bv</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>  <span class="c1"># new symbolic expression representing a constant</span>
 
-pstate.write_symbolic_register(pstate.registers.rax, new_sym)  # the expression can either be a AstNode or SymbolicExpression triton object
+<span class="n">pstate</span><span class="o">.</span><span class="n">write_symbolic_register</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">rax</span><span class="p">,</span> <span class="n">new_sym</span><span class="p">)</span>  <span class="c1"># the expression can either be a AstNode or SymbolicExpression triton object</span>
 
-pstate.read_symbolic_register(pstate.registers.rax)
+<span class="n">pstate</span><span class="o">.</span><span class="n">read_symbolic_register</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">rax</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -528,12 +528,12 @@ pstate.read_symbolic_register(pstate.registers.rax)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[139]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>sym_rax = pstate.read_symbolic_register(pstate.registers.rax)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sym_rax</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">read_symbolic_register</span><span class="p">(</span><span class="n">pstate</span><span class="o">.</span><span class="n">registers</span><span class="o">.</span><span class="n">rax</span><span class="p">)</span>
 
-constraint = sym_rax.getAst() == 4
-print(constraint)
+<span class="n">constraint</span> <span class="o">=</span> <span class="n">sym_rax</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="o">==</span> <span class="mi">4</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span>
 
-pstate.push_constraint(constraint)
+<span class="n">pstate</span><span class="o">.</span><span class="n">push_constraint</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -570,9 +570,9 @@ pstate.push_constraint(constraint)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[140]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SeedFormat
-c = Config()
-c.seed_format=SeedFormat.COMPOSITE
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SeedFormat</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">seed_format</span><span class="o">=</span><span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span>
 </pre></div>
 </div>
 </div>
@@ -584,23 +584,23 @@ c.seed_format=SeedFormat.COMPOSITE
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[141]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExplorator, SymbolicExecutor, ProcessState, Seed, Config, CoverageStrategy, Program, SeedFormat, CompositeData
-import tritondse.logging
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExplorator</span><span class="p">,</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">SeedFormat</span><span class="p">,</span> <span class="n">CompositeData</span>
+<span class="kn">import</span> <span class="nn">tritondse.logging</span>
 
-import logging
-logging.basicConfig(level=logging.DEBUG)
-tritondse.logging.enable() # enable tritondse to print log info
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span> <span class="c1"># enable tritondse to print log info</span>
 
-# Load the program
-p = Program(&quot;crackme_xor&quot;)
+<span class="c1"># Load the program</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="s2">&quot;crackme_xor&quot;</span><span class="p">)</span>
 
-dse = SymbolicExplorator(Config(pipe_stdout=True, seed_format=SeedFormat.COMPOSITE), p)
+<span class="n">dse</span> <span class="o">=</span> <span class="n">SymbolicExplorator</span><span class="p">(</span><span class="n">Config</span><span class="p">(</span><span class="n">pipe_stdout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed_format</span><span class="o">=</span><span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span><span class="p">),</span> <span class="n">p</span><span class="p">)</span>
 
-# create a dummy seed representing argv and add it to inputs
-seed = Seed(CompositeData(argv=[b&quot;./crackme&quot;, b&quot;AAAAAAAAAAAAAAA&quot;]))
-dse.add_input_seed(seed)
+<span class="c1"># create a dummy seed representing argv and add it to inputs</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="sa">b</span><span class="s2">&quot;./crackme&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;AAAAAAAAAAAAAAA&quot;</span><span class="p">]))</span>
+<span class="n">dse</span><span class="o">.</span><span class="n">add_input_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 
-dse.explore()
+<span class="n">dse</span><span class="o">.</span><span class="n">explore</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -634,7 +634,7 @@ fail
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[142]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dse.execution_count
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dse</span><span class="o">.</span><span class="n">execution_count</span>
 </pre></div>
 </div>
 </div>

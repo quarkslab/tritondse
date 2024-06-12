@@ -148,12 +148,12 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import SymbolicExecutor, Config, Seed, Program, ProcessState, SymbolicExplorator, CoverageStrategy
-from tritondse.sanitizers import NullDerefSanitizer
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">SymbolicExplorator</span><span class="p">,</span> <span class="n">CoverageStrategy</span>
+<span class="kn">from</span> <span class="nn">tritondse.sanitizers</span> <span class="kn">import</span> <span class="n">NullDerefSanitizer</span>
 
-dse = SymbolicExplorator(Config(), Program(&quot;crackme_xor&quot;))
+<span class="n">dse</span> <span class="o">=</span> <span class="n">SymbolicExplorator</span><span class="p">(</span><span class="n">Config</span><span class="p">(),</span> <span class="n">Program</span><span class="p">(</span><span class="s2">&quot;crackme_xor&quot;</span><span class="p">))</span>
 
-dse.callback_manager.register_probe(NullDerefSanitizer())
+<span class="n">dse</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">register_probe</span><span class="p">(</span><span class="n">NullDerefSanitizer</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -166,40 +166,40 @@ dse.callback_manager.register_probe(NullDerefSanitizer())
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import ProbeInterface, SymbolicExecutor, ProcessState, CbType, SeedStatus
-from tritondse.types import Addr, SolverStatus
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">ProbeInterface</span><span class="p">,</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">CbType</span><span class="p">,</span> <span class="n">SeedStatus</span>
+<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">SolverStatus</span>
 
-class OpenSanitizer(ProbeInterface):
+<span class="k">class</span> <span class="nc">OpenSanitizer</span><span class="p">(</span><span class="n">ProbeInterface</span><span class="p">):</span>
 
-    PASSWD_FILE = &quot;/etc/passwd&quot;
+    <span class="n">PASSWD_FILE</span> <span class="o">=</span> <span class="s2">&quot;/etc/passwd&quot;</span>
 
-    def __init__(self):
-        super(OpenSanitizer, self).__init__()
-        self._add_callback(CbType.PRE_RTN, self.fopen_check, &#39;fopen&#39;)
-        self._add_callback(CbType.PRE_RTN, self.fopen_check, &#39;freopen&#39;)
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">OpenSanitizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_callback</span><span class="p">(</span><span class="n">CbType</span><span class="o">.</span><span class="n">PRE_RTN</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fopen_check</span><span class="p">,</span> <span class="s1">&#39;fopen&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_callback</span><span class="p">(</span><span class="n">CbType</span><span class="o">.</span><span class="n">PRE_RTN</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fopen_check</span><span class="p">,</span> <span class="s1">&#39;freopen&#39;</span><span class="p">)</span>
 
-    def fopen_check(self, se: SymbolicExecutor, pstate: ProcessState, rtn_name: str, addr: Addr):
-        # the filepath is located in arg0 (ptr to a string)
-        string_ptr = se.pstate.get_argument_value(0)
+    <span class="k">def</span> <span class="nf">fopen_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">se</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">rtn_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">):</span>
+        <span class="c1"># the filepath is located in arg0 (ptr to a string)</span>
+        <span class="n">string_ptr</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-        symbolic = True
-        cur_ptr = string_ptr
-        while pstate.read_memory_int(cur_ptr, 1):        # while different from 0
-            if not se.pstate.is_memory_symbolic(cur_ptr, 1): # check that the byte is symbolic
-                symbolic = False
-            cur_ptr += 1
+        <span class="n">symbolic</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">cur_ptr</span> <span class="o">=</span> <span class="n">string_ptr</span>
+        <span class="k">while</span> <span class="n">pstate</span><span class="o">.</span><span class="n">read_memory_int</span><span class="p">(</span><span class="n">cur_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>        <span class="c1"># while different from 0</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">se</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">is_memory_symbolic</span><span class="p">(</span><span class="n">cur_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="c1"># check that the byte is symbolic</span>
+                <span class="n">symbolic</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">cur_ptr</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        # if all memory bytes are symbolic and we have enough place to fit our string
-        if symbolic and (cur_ptr - string_ptr) &gt; len(self.PASSWD_FILE):
+        <span class="c1"># if all memory bytes are symbolic and we have enough place to fit our string</span>
+        <span class="k">if</span> <span class="n">symbolic</span> <span class="ow">and</span> <span class="p">(</span><span class="n">cur_ptr</span> <span class="o">-</span> <span class="n">string_ptr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PASSWD_FILE</span><span class="p">):</span>
 
-            # Try to solve by SMT that the filepath string is /etc/passwd
-            constraints = [pstate.read_symbolic_memory_byte(string_ptr+i).getAst() == ord(pwd_byte) for i, pwd_byte in enumerate(self.PASSWD_FILE)]
-            st, model = pstate.solve(constraints)
+            <span class="c1"># Try to solve by SMT that the filepath string is /etc/passwd</span>
+            <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span><span class="n">pstate</span><span class="o">.</span><span class="n">read_symbolic_memory_byte</span><span class="p">(</span><span class="n">string_ptr</span><span class="o">+</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="n">pwd_byte</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pwd_byte</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PASSWD_FILE</span><span class="p">)]</span>
+            <span class="n">st</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">constraints</span><span class="p">)</span>
 
-            if st == SolverStatus.SAT:                          # if formula satisfiable
-                new_seed = se.mk_new_seed_from_model(model)  # create a new input from the model
-                new_seed.status = SeedStatus.CRASH           # mark it as crash
-                se.enqueue_seed(new_seed)                    # enqueue it *(so that it will put in the workspace..)*
+            <span class="k">if</span> <span class="n">st</span> <span class="o">==</span> <span class="n">SolverStatus</span><span class="o">.</span><span class="n">SAT</span><span class="p">:</span>                          <span class="c1"># if formula satisfiable</span>
+                <span class="n">new_seed</span> <span class="o">=</span> <span class="n">se</span><span class="o">.</span><span class="n">mk_new_seed_from_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>  <span class="c1"># create a new input from the model</span>
+                <span class="n">new_seed</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">CRASH</span>           <span class="c1"># mark it as crash</span>
+                <span class="n">se</span><span class="o">.</span><span class="n">enqueue_seed</span><span class="p">(</span><span class="n">new_seed</span><span class="p">)</span>                    <span class="c1"># enqueue it *(so that it will put in the workspace..)*</span>
 <br/></pre></div>
 </div>
 </div>
@@ -208,7 +208,7 @@ class OpenSanitizer(ProbeInterface):
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>dse.callback_manager.register_probe(OpenSanitizer())
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dse</span><span class="o">.</span><span class="n">callback_manager</span><span class="o">.</span><span class="n">register_probe</span><span class="p">(</span><span class="n">OpenSanitizer</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>

@@ -124,13 +124,13 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import ProcessState, Program
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">Program</span>
 
-p = Program(&quot;crackme_xor&quot;)
+<span class="n">p</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="s2">&quot;crackme_xor&quot;</span><span class="p">)</span>
 
-ps = ProcessState.from_loader(p)
+<span class="n">ps</span> <span class="o">=</span> <span class="n">ProcessState</span><span class="o">.</span><span class="n">from_loader</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
-list(ps.memory.get_maps())
+<span class="nb">list</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">get_maps</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -155,13 +155,13 @@ list(ps.memory.get_maps())
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import ProcessState, CleLoader
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">CleLoader</span>
 
-p = CleLoader(&quot;crackme_xor&quot;)
+<span class="n">p</span> <span class="o">=</span> <span class="n">CleLoader</span><span class="p">(</span><span class="s2">&quot;crackme_xor&quot;</span><span class="p">)</span>
 
-ps = ProcessState.from_loader(p)
+<span class="n">ps</span> <span class="o">=</span> <span class="n">ProcessState</span><span class="o">.</span><span class="n">from_loader</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
-list(ps.memory.get_maps())
+<span class="nb">list</span><span class="p">(</span><span class="n">ps</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">get_maps</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -205,21 +205,21 @@ list(ps.memory.get_maps())
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from tritondse import Architecture, RawBinaryLoader, LoadableSegment
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">RawBinaryLoader</span><span class="p">,</span> <span class="n">LoadableSegment</span>
 
-BASE_ADDRESS= 0x8000000
-ENTRY_POINT = 0x81dc46e
-STACK_ADDR  = 0x1000000
-STACK_SIZE  = 1024*6
+<span class="n">BASE_ADDRESS</span><span class="o">=</span> <span class="mh">0x8000000</span>
+<span class="n">ENTRY_POINT</span> <span class="o">=</span> <span class="mh">0x81dc46e</span>
+<span class="n">STACK_ADDR</span>  <span class="o">=</span> <span class="mh">0x1000000</span>
+<span class="n">STACK_SIZE</span>  <span class="o">=</span> <span class="mi">1024</span><span class="o">*</span><span class="mi">6</span>
 
-raw_f = Path(&quot;./bugged_json_parser.bin&quot;).read_bytes()
+<span class="n">raw_f</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./bugged_json_parser.bin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
 
-ldr = RawBinaryLoader(Architecture.ARM32,
-                       cpustate = {&quot;pc&quot;: ENTRY_POINT,
-                                   &quot;sp&quot;: STACK_ADDR+STACK_SIZE},
-                       set_thumb=True,
-                       maps = [LoadableSegment(BASE_ADDRESS, len(raw_f), Perm.R|Perm.X, raw_f, name=&quot;bugged_json_parser&quot;),
-                               LoadableSegment(STACK_ADDR, STACK_SIZE, Perm.R|Perm.W, name=&quot;[stack]&quot;)])
+<span class="n">ldr</span> <span class="o">=</span> <span class="n">RawBinaryLoader</span><span class="p">(</span><span class="n">Architecture</span><span class="o">.</span><span class="n">ARM32</span><span class="p">,</span>
+                       <span class="n">cpustate</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;pc&quot;</span><span class="p">:</span> <span class="n">ENTRY_POINT</span><span class="p">,</span>
+                                   <span class="s2">&quot;sp&quot;</span><span class="p">:</span> <span class="n">STACK_ADDR</span><span class="o">+</span><span class="n">STACK_SIZE</span><span class="p">},</span>
+                       <span class="n">set_thumb</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">maps</span> <span class="o">=</span> <span class="p">[</span><span class="n">LoadableSegment</span><span class="p">(</span><span class="n">BASE_ADDRESS</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw_f</span><span class="p">),</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span><span class="o">|</span><span class="n">Perm</span><span class="o">.</span><span class="n">X</span><span class="p">,</span> <span class="n">raw_f</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bugged_json_parser&quot;</span><span class="p">),</span>
+                               <span class="n">LoadableSegment</span><span class="p">(</span><span class="n">STACK_ADDR</span><span class="p">,</span> <span class="n">STACK_SIZE</span><span class="p">,</span> <span class="n">Perm</span><span class="o">.</span><span class="n">R</span><span class="o">|</span><span class="n">Perm</span><span class="o">.</span><span class="n">W</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;[stack]&quot;</span><span class="p">)])</span>
 <br/></pre></div>
 </div>
 </div>
@@ -232,46 +232,46 @@ ldr = RawBinaryLoader(Architecture.ARM32,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>class Loader(object):
-    def __init__(self, path: str):
-        self.bin_path = Path(path)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Loader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bin_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-    @property
-    def name(self) -&gt; str:
-        raise NotImplementedError()
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    @property
-    def entry_point(self) -&gt; Addr:
-        raise NotImplementedError()
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    @property
-    def architecture(self) -&gt; Architecture:
-        raise NotImplementedError()
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Architecture</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    @property
-    def arch_mode(self) -&gt; Optional[ArchMode]:
-        return None
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">arch_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ArchMode</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
-    @property
-    def platform(self) -&gt; Optional[Platform]:
-        return None
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">platform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Platform</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
-    def memory_segments(self) -&gt; Generator[LoadableSegment, None, None]:
-        raise NotImplementedError()
+    <span class="k">def</span> <span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
-    @property
-    def cpustate(self) -&gt; Dict[str, int]:
-        return {}
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cpustate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{}</span>
 
 
-    def imported_functions_relocations(self) -&gt; Generator[Tuple[str, Addr], None, None]:
-        yield from ()
+    <span class="k">def</span> <span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">yield from</span> <span class="p">()</span>
 
-    def imported_variable_symbols_relocations(self) -&gt; Generator[Tuple[str, Addr], None, None]:
-        yield from ()
+    <span class="k">def</span> <span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">yield from</span> <span class="p">()</span>
 
-    def find_function_addr(self, name: str) -&gt; Optional[Addr]:
-        return None
+    <span class="k">def</span> <span class="nf">find_function_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Addr</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 </div>
 </div>
