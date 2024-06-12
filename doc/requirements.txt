@@ -4,6 +4,7 @@ breathe
 sphinx-intl
 nbsphinx
 enum-tools[sphinx]
+ipython
 
 # tritondse for autodoc
 tritondse
