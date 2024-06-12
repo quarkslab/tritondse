@@ -183,6 +183,13 @@
 <li class="toctree-l3"><a class="reference internal" href="#tritondse.coverage.GlobalCoverage.unique_instruction_covered"><code class="docutils literal notranslate"><span class="pre">GlobalCoverage.unique_instruction_covered</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#tritondse.CoverageStrategy"><code class="docutils literal notranslate"><span class="pre">CoverageStrategy</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.CoverageStrategy.BLOCK"><code class="docutils literal notranslate"><span class="pre">CoverageStrategy.BLOCK</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.CoverageStrategy.EDGE"><code class="docutils literal notranslate"><span class="pre">CoverageStrategy.EDGE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.CoverageStrategy.PATH"><code class="docutils literal notranslate"><span class="pre">CoverageStrategy.PATH</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tritondse.CoverageStrategy.PREFIXED_EDGE"><code class="docutils literal notranslate"><span class="pre">CoverageStrategy.PREFIXED_EDGE</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="executor.html">SymbolicExecutor</a></li>
@@ -243,8 +250,8 @@ It defines the manner with which branches are checked with SMT
 on a single trace, namely a <a class="reference internal" href="#tritondse.coverage.CoverageSingleRun" title="tritondse.coverage.CoverageSingleRun"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoverageSingleRun</span></code></a>. For a
 given branch that has not been covered strategies are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">ALL_NOT_COVERED</span></code>: check by SMT all occurences</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">FIRST_LAST_NOT_COVERED</span></code>: check only the first and last occurence in the trace</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ALL_NOT_COVERED</span></code>: check by SMT all occurrences</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FIRST_LAST_NOT_COVERED</span></code>: check only the first and last occurrence in the trace</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Member Type<span class="colon">:</span></dt>
@@ -255,13 +262,13 @@ given branch that has not been covered strategies are:</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tritondse.coverage.BranchSolvingStrategy.ALL_NOT_COVERED">
 <span class="sig-name descname"><span class="pre">ALL_NOT_COVERED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;BranchSolvingStrategy.ALL_NOT_COVERED:</span> <span class="pre">1&gt;</span></em><a class="headerlink" href="#tritondse.coverage.BranchSolvingStrategy.ALL_NOT_COVERED" title="Link to this definition"></a></dt>
-<dd><p>check by SMT all occurences of a given branch (true by default)</p>
+<dd><p>check by SMT all occurrences of a given branch (true by default)</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tritondse.coverage.BranchSolvingStrategy.FIRST_LAST_NOT_COVERED">
 <span class="sig-name descname"><span class="pre">FIRST_LAST_NOT_COVERED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;BranchSolvingStrategy.FIRST_LAST_NOT_COVERED:</span> <span class="pre">2&gt;</span></em><a class="headerlink" href="#tritondse.coverage.BranchSolvingStrategy.FIRST_LAST_NOT_COVERED" title="Link to this definition"></a></dt>
-<dd><p>check by SMT the first and last occurence of a given branch</p>
+<dd><p>check by SMT the first and last occurrence of a given branch</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -279,7 +286,7 @@ given branch that has not been covered strategies are:</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tritondse.coverage.BranchSolvingStrategy.TIMEOUT_ALWAYS">
 <span class="sig-name descname"><span class="pre">TIMEOUT_ALWAYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;BranchSolvingStrategy.TIMEOUT_ALWAYS:</span> <span class="pre">16&gt;</span></em><a class="headerlink" href="#tritondse.coverage.BranchSolvingStrategy.TIMEOUT_ALWAYS" title="Link to this definition"></a></dt>
-<dd><p>always try solving again a TIMEOUT branch (incompatible with <a class="reference internal" href="#tritondse.coverage.BranchSolvingStrategy.TIMEOUT_ONCE" title="tritondse.coverage.BranchSolvingStrategy.TIMEOUT_ONCE"><code class="xref py py-enum:mem docutils literal notranslate"><span class="pre">TIMEOUT_ONCE</span></code></a></p>
+<dd><p>always try solving again a TIMEOUT branch (incompatible with <a class="reference internal" href="#tritondse.coverage.BranchSolvingStrategy.TIMEOUT_ONCE" title="tritondse.coverage.BranchSolvingStrategy.TIMEOUT_ONCE"><code class="xref py py-enum:mem docutils literal notranslate"><span class="pre">TIMEOUT_ONCE</span></code></a>)</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -541,8 +548,8 @@ coverage strategy.</p>
 <dt class="sig sig-object py" id="tritondse.coverage.CoverageSingleRun.post_execution">
 <span class="sig-name descname"><span class="pre">post_execution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/coverage.html#CoverageSingleRun.post_execution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.coverage.CoverageSingleRun.post_execution" title="Link to this definition"></a></dt>
 <dd><p>Function is called after each execution
-for post processing or clean-up. <em>(Not
-doing anythin at the moment)</em></p>
+for post-processing or clean-up. <em>(Not
+doing anything at the moment)</em></p>
 </dd></dl>
 
 <dl class="py method">
@@ -631,7 +638,7 @@ to be solved or not.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tritondse.coverage.CoverageStrategy.PREFIXED_EDGE">
 <span class="sig-name descname"><span class="pre">PREFIXED_EDGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CoverageStrategy.PREFIXED_EDGE:</span> <span class="pre">'PREFIXED_EDGE'&gt;</span></em><a class="headerlink" href="#tritondse.coverage.CoverageStrategy.PREFIXED_EDGE" title="Link to this definition"></a></dt>
-<dd><p>edge coverage but also taking in account path prefix)</p>
+<dd><p>edge coverage but also taking in account path prefix</p>
 </dd></dl>
 
 <p>The <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a> and its members also have the following methods:</p>
@@ -1136,7 +1143,7 @@ coverage strategy.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.coverage.GlobalCoverage.can_cover_symbolic_pointers">
-<span class="sig-name descname"><span class="pre">can_cover_symbolic_pointers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SymbolicExecutor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/coverage.html#GlobalCoverage.can_cover_symbolic_pointers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.coverage.GlobalCoverage.can_cover_symbolic_pointers" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">can_cover_symbolic_pointers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="executor.html#tritondse.SymbolicExecutor" title="tritondse.SymbolicExecutor"><span class="pre">SymbolicExecutor</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/coverage.html#GlobalCoverage.can_cover_symbolic_pointers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.coverage.GlobalCoverage.can_cover_symbolic_pointers" title="Link to this definition"></a></dt>
 <dd><p>Determines if this execution has symbolic memory accesses to enumerate. If so we may want
 to enumerate them even though</p>
 </dd></dl>
@@ -1254,7 +1261,7 @@ is the branch to solve (but not to keep in path predicate)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.coverage.GlobalCoverage.new_items_to_cover">
 <span class="sig-name descname"><span class="pre">new_items_to_cover</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tritondse.coverage.CoverageSingleRun" title="tritondse.coverage.CoverageSingleRun"><span class="pre">CoverageSingleRun</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Set" title="(in Python v3.12)"><span class="pre">Set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/tritondse/coverage.html#GlobalCoverage.new_items_to_cover"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.coverage.GlobalCoverage.new_items_to_cover" title="Link to this definition"></a></dt>
-<dd><p>Return all coverage items (addreses, edges, paths) that the given CoverageSingleRun
+<dd><p>Return all coverage items (addresses, edges, paths) that the given CoverageSingleRun
 can cover if it is possible to negate their branches</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1282,18 +1289,18 @@ as already been solved and</p>
 <dt class="sig sig-object py" id="tritondse.coverage.GlobalCoverage.post_execution">
 <span class="sig-name descname"><span class="pre">post_execution</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#tritondse.coverage.GlobalCoverage.post_execution" title="Link to this definition"></a></dt>
 <dd><p>Function is called after each execution
-for post processing or clean-up. <em>(Not
-doing anythin at the moment)</em></p>
+for post-processing or clean-up. <em>(Not
+doing anything at the moment)</em></p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.coverage.GlobalCoverage.post_exploration">
-<span class="sig-name descname"><span class="pre">post_exploration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workspace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Workspace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/coverage.html#GlobalCoverage.post_exploration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.coverage.GlobalCoverage.post_exploration" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">post_exploration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">workspace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="workspace.html#tritondse.workspace.Workspace" title="tritondse.workspace.Workspace"><span class="pre">Workspace</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/tritondse/coverage.html#GlobalCoverage.post_exploration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.coverage.GlobalCoverage.post_exploration" title="Link to this definition"></a></dt>
 <dd><p>Function called at the very end of the exploration.
 It saves the coverage in the workspace.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>workspace</strong> (<em>Workspace</em>) – Workspace in which to save coverage</p>
+<dd class="field-odd"><p><strong>workspace</strong> (<a class="reference internal" href="workspace.html#tritondse.workspace.Workspace" title="tritondse.workspace.Workspace"><em>Workspace</em></a>) – Workspace in which to save coverage</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1357,6 +1364,44 @@ It saves the coverage in the workspace.</p>
 <dd class="field-odd"><p>The number of unique instructions covered</p>
 </dd>
 </dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class enum">
+<dt class="sig sig-object py" id="tritondse.CoverageStrategy">
+<em class="property"><span class="pre">enum</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.</span></span><span class="sig-name descname"><span class="pre">CoverageStrategy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/coverage.html#CoverageStrategy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.CoverageStrategy" title="Link to this definition"></a></dt>
+<dd><p>Coverage strategy (metric) enum.
+This enum will change whether a given branch have
+to be solved or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Member Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
+<p>Valid values are as follows:</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.CoverageStrategy.BLOCK">
+<span class="sig-name descname"><span class="pre">BLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CoverageStrategy.BLOCK:</span> <span class="pre">'block'&gt;</span></em><a class="headerlink" href="#tritondse.CoverageStrategy.BLOCK" title="Link to this definition"></a></dt>
+<dd><p>block coverage, only tracks new basic blocks covered</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.CoverageStrategy.EDGE">
+<span class="sig-name descname"><span class="pre">EDGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CoverageStrategy.EDGE:</span> <span class="pre">'edge'&gt;</span></em><a class="headerlink" href="#tritondse.CoverageStrategy.EDGE" title="Link to this definition"></a></dt>
+<dd><p>edge coverage, tracks CFGs edges covered</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.CoverageStrategy.PATH">
+<span class="sig-name descname"><span class="pre">PATH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CoverageStrategy.PATH:</span> <span class="pre">'path'&gt;</span></em><a class="headerlink" href="#tritondse.CoverageStrategy.PATH" title="Link to this definition"></a></dt>
+<dd><p>tracks any new path covered</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="tritondse.CoverageStrategy.PREFIXED_EDGE">
+<span class="sig-name descname"><span class="pre">PREFIXED_EDGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;CoverageStrategy.PREFIXED_EDGE:</span> <span class="pre">'PREFIXED_EDGE'&gt;</span></em><a class="headerlink" href="#tritondse.CoverageStrategy.PREFIXED_EDGE" title="Link to this definition"></a></dt>
+<dd><p>edge coverage but also taking in account path prefix</p>
 </dd></dl>
 
 </dd></dl>

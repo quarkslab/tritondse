@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tritondse.config &mdash; TritonDSE 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            TritonDSE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutos/starting.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutos/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutos/seeds.html">Seeds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutos/sanitizers.html">Sanitizers &amp; Probes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutos/loaders.html">Loaders</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Python API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/callbacks.html">Callback Mechanism</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/configuration.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/coverage.html">Coverage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/executor.html">SymbolicExecutor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/explorator.html">SymbolicExplorator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/exception.html">Exception</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/loaders.html">Loaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/process.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/sanitizers.html">Sanitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/seeds.html">Seed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/tracing.html">Trace</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/types.html">Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/workspace.html">Workspace</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Practicals</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../practicals/toy_example/toy_example.html">Toy Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../practicals/json_parser/json_parser.html">JSON Parser</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../practicals/crackme/crackme.html">Crackme</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_doc/routines.html">Supported Routines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_doc/seedscheduling.html">Seed Scheduling</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TritonDSE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">tritondse.config</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for tritondse.config</h1><div class="highlight"><pre>
+<span></span><span class="c1"># built-in imports</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">IntFlag</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+
+<span class="c1"># local imports</span>
+<span class="kn">from</span> <span class="nn">tritondse.coverage</span> <span class="kn">import</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="n">BranchSolvingStrategy</span>
+<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">SmtSolver</span>
+<span class="kn">from</span> <span class="nn">tritondse.seed</span> <span class="kn">import</span> <span class="n">SeedFormat</span>
+<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">)</span>  <span class="c1"># get root tritondse logger</span>
+
+
+<div class="viewcode-block" id="Config">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config">[docs]</a>
+<span class="k">class</span> <span class="nc">Config</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Data class holding tritondse configuration</span>
+<span class="sd">    parameter</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">seed_format</span><span class="p">:</span> <span class="n">SeedFormat</span> <span class="o">=</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">RAW</span><span class="p">,</span>
+                 <span class="n">pipe_stdout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">pipe_stderr</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">skip_sleep_routine</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">smt_solver</span><span class="p">:</span> <span class="n">SmtSolver</span> <span class="o">=</span> <span class="n">SmtSolver</span><span class="o">.</span><span class="n">Z3</span><span class="p">,</span>
+                 <span class="n">smt_timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span>
+                 <span class="n">execution_timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">exploration_timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">exploration_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">thread_scheduling</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                 <span class="n">smt_queries_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1200</span><span class="p">,</span>
+                 <span class="n">smt_enumeration_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">40</span><span class="p">,</span>
+                 <span class="n">coverage_strategy</span><span class="p">:</span> <span class="n">CoverageStrategy</span> <span class="o">=</span> <span class="n">CoverageStrategy</span><span class="o">.</span><span class="n">BLOCK</span><span class="p">,</span>
+                 <span class="n">branch_solving_strategy</span><span class="p">:</span> <span class="n">BranchSolvingStrategy</span> <span class="o">=</span> <span class="n">BranchSolvingStrategy</span><span class="o">.</span><span class="n">FIRST_LAST_NOT_COVERED</span><span class="p">,</span>
+                 <span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                 <span class="n">workspace_reset</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">program_argv</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">time_inc_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.00001</span><span class="p">,</span>
+                 <span class="n">skip_unsupported_import</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">skip_unsupported_instruction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">memory_segmentation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed_format</span><span class="p">:</span> <span class="n">SeedFormat</span> <span class="o">=</span> <span class="n">seed_format</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Seed type is either Raw (raw bytes) or Composite (more expressive).</span>
+<span class="sd">            See seeds.py for more information on each format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipe_stdout</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">pipe_stdout</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Pipe the program stdout to Python&#39;s stdout. *(default: False)*&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipe_stderr</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">pipe_stderr</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Pipe the program stderr to Python&#39;s stderr *(default: False)*&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_sleep_routine</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">skip_sleep_routine</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Whether to emulate sleeps routine or not *(default: False)*&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">smt_solver</span><span class="p">:</span> <span class="n">SmtSolver</span> <span class="o">=</span> <span class="n">smt_solver</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; SMT solver to perform queries solving &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">smt_timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">smt_timeout</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Timeout for a single SMT query in milliseconds *(default: 10)*&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">execution_timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">execution_timeout</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Timeout of a single execution. If it is triggered the associated</span>
+<span class="sd">        input file is marked as &#39;hanging&#39;. In seconds, 0 means unlimited *(default: 0)*&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">exploration_timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">exploration_timeout</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Overall timeout of the exploration in seconds. 0 means unlimited *(default: 0)* &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">exploration_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">exploration_limit</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Number of execution iterations. 0 means unlimited *(default: 0)*&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread_scheduling</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">thread_scheduling</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Number of instructions to execute before switching to the next thread.</span>
+<span class="sd">        At the moment all threads are scheduled in a round-robin manner *(default: 200)*&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">smt_queries_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">smt_queries_limit</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Limit of SMT queries to perform for a single execution *(default: 1200)*&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">smt_enumeration_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">smt_enumeration_limit</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Limit of model values retrieved when enumerating a dynamic jump or symbolic memory accesses&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">coverage_strategy</span><span class="p">:</span> <span class="n">CoverageStrategy</span> <span class="o">=</span> <span class="n">coverage_strategy</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Coverage strategy to apply for the whole exploration, default: :py:obj:`CoverageStrategy.BLOCK`&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">branch_solving_strategy</span><span class="p">:</span> <span class="n">BranchSolvingStrategy</span> <span class="o">=</span> <span class="n">branch_solving_strategy</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Branch solving strategy to apply for a single execution. For a given non-covered</span>
+<span class="sd">        branch allows changing whether we try to solve it at all occurrences or more seldomly.</span>
+<span class="sd">        default: :py:obj:`BranchSolvingStrategy.FIRST_LAST_NOT_COVERED`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">workspace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">workspace</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Workspace directory to use. *(default: &#39;workspace&#39;)* &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">workspace_reset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">workspace_reset</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; If True overwrites the existing workspace. &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">program_argv</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">program_argv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">program_argv</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Concrete program argument as given on the command line.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_inc_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">time_inc_coefficient</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Time increment coefficient at each instruction to provide a deterministic</span>
+<span class="sd">        behavior when calling time functions (e.g gettimeofday(), clock_gettime(), ...).</span>
+<span class="sd">        For example, if 0.0001 is defined, each instruction will increment the time representation</span>
+<span class="sd">        of the execution by 100us. *(default: 0.00001)*</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_unsupported_import</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">skip_unsupported_import</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Whether or not to stop the emulation when hitting a external</span>
+<span class="sd">        call to a function that is not supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_unsupported_instruction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">skip_unsupported_instruction</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Whether or not to stop the emulation when hitting an instruction</span>
+<span class="sd">        for which the semantic is not defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory_segmentation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">memory_segmentation</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; This option defines whether or not memory segmentation is enforced.</span>
+<span class="sd">        If activated all memory accesses must belong to a mapped memory area.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">custom</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Custom carrier field enabling user to add parameters of their own.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="mi">23</span><span class="p">)</span><span class="si">}</span><span class="s2">= </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Config.to_file">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.to_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the current configuration to a file</span>
+
+<span class="sd">        :param file: The path name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="Config.from_file">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.from_file">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Config&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a configuration from a file to a new instance of Config</span>
+
+<span class="sd">        :param file: The path name</span>
+<span class="sd">        :return: A fresh instance of Config</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Config</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Config.from_json">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.from_json">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Config&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a configuration from a json input to a new instance of Config</span>
+
+<span class="sd">        :param s: The JSON text</span>
+<span class="sd">        :return: A fresh instance of Config</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+                <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;coverage_strategy&quot;</span><span class="p">:</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="s2">&quot;smt_solver&quot;</span><span class="p">:</span> <span class="n">SmtSolver</span><span class="p">,</span>
+                           <span class="s2">&quot;seed_format&quot;</span><span class="p">:</span> <span class="n">SeedFormat</span><span class="p">}</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">v</span><span class="p">]</span>
+                <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;branch_solving_strategy&quot;</span><span class="p">:</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">acc</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">BranchSolvingStrategy</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">|</span> <span class="n">acc</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;config unknown parameter: </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">c</span></div>
+
+
+<div class="viewcode-block" id="Config.to_json">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.to_json">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the current configuration to a json output</span>
+
+<span class="sd">        :return: JSON text</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">to_str_list</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">BranchSolvingStrategy</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">IntFlag</span><span class="p">):</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_str_list</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Config.is_format_composite">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.is_format_composite">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_format_composite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return true if the seed format is composite&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed_format</span> <span class="o">==</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span></div>
+
+
+<div class="viewcode-block" id="Config.is_format_raw">
+<a class="viewcode-back" href="../../api/configuration.html#tritondse.Config.is_format_raw">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_format_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return true if the seed format is raw &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed_format</span> <span class="o">==</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">RAW</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Quarkslab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

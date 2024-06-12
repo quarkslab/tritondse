@@ -182,7 +182,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.seed.CompositeData.__bytes__">
-<span class="sig-name descname"><span class="pre">__bytes__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#CompositeData.__bytes__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.CompositeData.__bytes__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__bytes__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.12)"><span class="pre">bytes</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#CompositeData.__bytes__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.CompositeData.__bytes__" title="Link to this definition"></a></dt>
 <dd><p>Serialize data into a json string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -266,7 +266,7 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="tritondse.seed.CompositeData.files">
 <span class="sig-name descname"><span class="pre">files</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.12)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#tritondse.seed.CompositeData.files" title="Link to this definition"></a></dt>
-<dd><p>dictionnary of files and the associated content (stdin is one of them)</p>
+<dd><p>dictionary of files and the associated content (stdin is one of them)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -337,7 +337,7 @@ but also some metadata of code portions it is meant to cover.</p>
 <dt class="sig sig-object py" id="tritondse.seed.Seed.__hash__">
 <span class="sig-name descname"><span class="pre">__hash__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.__hash__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.__hash__" title="Link to this definition"></a></dt>
 <dd><p>Seed hash function overriden to base itself on content.
-That enable storing seed in dictionnaries directly based
+That enable storing seed in dictionaries directly based
 on their content to discriminate them.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -415,7 +415,7 @@ That does not mean the file exists or anything.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.seed.Seed.from_bytes">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><span class="pre">SeedStatus</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SeedStatus.NEW</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.from_bytes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.from_bytes" title="Link to this definition"></a></dt>
-<dd><p>Parse a seed from its byte representation. If its a composite one
+<dd><p>Parse a seed from its byte representation. If it’s a composite one
 it will parse the bytes as JSON and create the CompositeData accordingly.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -436,7 +436,7 @@ it will parse the bytes as JSON and create the CompositeData accordingly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.seed.Seed.from_file">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.12)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tritondse.seed.SeedStatus" title="tritondse.seed.SeedStatus"><span class="pre">SeedStatus</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">SeedStatus.NEW</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tritondse.seed.Seed" title="tritondse.seed.Seed"><span class="pre">Seed</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.from_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.from_file" title="Link to this definition"></a></dt>
-<dd><p>Read a seed from a file. The status can optionally given
+<dd><p>Read a seed from a file. The status can optionally be given
 as it cannot be determined from the file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -486,7 +486,7 @@ a composite seed.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.seed.Seed.is_bootstrap_seed">
 <span class="sig-name descname"><span class="pre">is_bootstrap_seed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.is_bootstrap_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.is_bootstrap_seed" title="Link to this definition"></a></dt>
-<dd><p>A bootstrap seed is an empty seed (b””). It will received a
+<dd><p>A bootstrap seed is an empty seed (b””). It will receive a
 specific processing in the engine as its size will be automatically
 adapted to the size read (in stdin for instance)</p>
 <dl class="field-list simple">
@@ -499,7 +499,7 @@ adapted to the size read (in stdin for instance)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.seed.Seed.is_composite">
 <span class="sig-name descname"><span class="pre">is_composite</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.is_composite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.is_composite" title="Link to this definition"></a></dt>
-<dd><p>Returns wether the seed is a composite seed or not.</p>
+<dd><p>Returns whether the seed is a composite seed or not.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -522,7 +522,7 @@ as it does not contain any coverage objectives.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="tritondse.seed.Seed.is_raw">
 <span class="sig-name descname"><span class="pre">is_raw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><span class="pre">bool</span></a></span></span><a class="reference internal" href="../_modules/tritondse/seed.html#Seed.is_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.seed.Seed.is_raw" title="Link to this definition"></a></dt>
-<dd><p>Returns wether the seed is a raw seed or not.</p>
+<dd><p>Returns whether the seed is a raw seed or not.</p>
 </dd></dl>
 
 <dl class="py method">

@@ -103,15 +103,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tritondse.arch</h1><div class="highlight"><pre>
-<span></span><span class="c1"># built-in modules</span>
+<span></span><span class="c1"># built-in imports</span>
 <span class="kn">import</span> <span class="nn">platform</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
 
-<span class="c1"># third-party module</span>
+<span class="c1"># third-party imports</span>
 <span class="kn">from</span> <span class="nn">triton</span> <span class="kn">import</span> <span class="n">OPCODE</span><span class="p">,</span> <span class="n">TritonContext</span>
 
 <span class="c1"># local imports</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Addr</span>
+<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Architecture</span>
 
 <span class="n">Arch</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Arch&quot;</span><span class="p">,</span> <span class="s2">&quot;ret_reg pc_reg bp_reg sp_reg sys_reg reg_args halt_inst syscall_inst&quot;</span><span class="p">)</span>
 
@@ -141,7 +141,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Thin wrapper on a TritonContext, to allow accessing</span>
 <span class="sd">    and modifying registers in a Pythonic way. It also</span>
-<span class="sd">    abstract base, stack, and program counter for architecture</span>
+<span class="sd">    abstracts base, stack, and program counter for architecture</span>
 <span class="sd">    agnostic operations. This class performs all actions</span>
 <span class="sd">    on the TritonContext, and does not hold any information.</span>
 <span class="sd">    It is just acting as a proxy</span>

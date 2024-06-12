@@ -103,16 +103,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tritondse.types</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-
+<span></span><span class="c1"># built-in imports</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">IntEnum</span><span class="p">,</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span><span class="p">,</span> <span class="n">IntFlag</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">triton</span> <span class="kn">import</span> <span class="n">ARCH</span><span class="p">,</span> <span class="n">SOLVER_STATE</span><span class="p">,</span> <span class="n">SOLVER</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">enum_tools.documentation</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="c1"># third-party imports</span>
+<span class="kn">from</span> <span class="nn">triton</span> <span class="kn">import</span> <span class="n">ARCH</span><span class="p">,</span> <span class="n">SOLVER_STATE</span><span class="p">,</span> <span class="n">SOLVER</span>
+
 
 <span class="n">PathLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span>
 <span class="sd">&quot;&quot;&quot;Type representing file either as a file, either as a Path object&quot;&quot;&quot;</span>
@@ -151,7 +154,7 @@
 <span class="sd">&quot;&quot;&quot; Symbolic Expression as returned by Triton (`SymbolicExpression &lt;https://triton.quarkslab.com/documentation/doxygen/py_SymbolicExpression_page.html&gt;`_) &quot;&quot;&quot;</span>
 
 <span class="n">SymbolicVariable</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;SymbolicVariable&#39;</span><span class="p">)</span>
-<span class="sd">&quot;&quot;&quot; Symbolic Variable as returned by Triton (`SymbolicExpression &lt;https://triton.quarkslab.com/documentation/doxygen/py_SymbolicVariable_page.html&gt;`_) &quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot; Symbolic Variable as returned by Triton (`SymbolicVariable &lt;https://triton.quarkslab.com/documentation/doxygen/py_SymbolicVariable_page.html&gt;`_) &quot;&quot;&quot;</span>
 
 <span class="n">Edge</span> <span class="o">=</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Addr</span><span class="p">,</span> <span class="n">Addr</span><span class="p">]</span>
 <span class="sd">&quot;&quot;&quot; Type representing a edge in the program &quot;&quot;&quot;</span>
@@ -165,7 +168,7 @@
 <span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
 <span class="k">class</span> <span class="nc">SymExType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Symobolic Expression type enum. (internal usage only)</span>
+<span class="sd">    Symbolic Expression type enum. (internal usage only)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">CONDITIONAL_JMP</span> <span class="o">=</span> <span class="s1">&#39;cond-jcc&#39;</span>  <span class="c1"># doc: symbolic expression is a conditional jump</span>
@@ -182,7 +185,7 @@
 <a class="viewcode-back" href="../../api/types.html#tritondse.types.PathBranch">[docs]</a>
     <span class="k">class</span> <span class="nc">PathBranch</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Typed dictionnary describing the branch information</span>
+<span class="sd">        Typed dictionary describing the branch information</span>
 <span class="sd">        returned by Triton (with getBranchConstraints())</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">isTaken</span><span class="p">:</span> <span class="nb">bool</span>
@@ -193,7 +196,7 @@
 <span class="k">else</span><span class="p">:</span>
     <span class="n">PathBranch</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;PathBranch&#39;</span><span class="p">)</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; PathBranchobject as returned by Triton.</span>
-<span class="sd">    Thus it is a dictionnary with the keys:</span>
+<span class="sd">    Thus it is a dictionary with the keys:</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 
@@ -211,13 +214,14 @@
     <span class="n">X86_64</span> <span class="o">=</span> <span class="n">ARCH</span><span class="o">.</span><span class="n">X86_64</span>    <span class="c1"># doc: x86-64 architecture (64 bits)</span></div>
 
 
+
 <div class="viewcode-block" id="ArchMode">
 <a class="viewcode-back" href="../../api/types.html#tritondse.types.ArchMode">[docs]</a>
 <span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
 <span class="k">class</span> <span class="nc">ArchMode</span><span class="p">(</span><span class="n">IntFlag</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Various architecture specific modes that can be enabled or disabledd.</span>
-<span class="sd">    (meant to be fullfilled)</span>
+<span class="sd">    Various architecture specific modes that can be enabled or disabled.</span>
+<span class="sd">    (meant to be fulfilled)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">THUMB</span> <span class="o">=</span> <span class="mi">1</span>   <span class="c1"># doc: set thumb mode for ARM32 architecture</span></div>
 
@@ -235,6 +239,7 @@
     <span class="n">MACOS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>    <span class="c1"># doc: Mac OS platform</span>
     <span class="n">ANDROID</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>  <span class="c1"># doc: Android platform</span>
     <span class="n">IOS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>      <span class="c1"># doc: IOS platform</span></div>
+
 
 
 <div class="viewcode-block" id="SmtSolver">
@@ -282,7 +287,7 @@
 <span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
 <span class="k">class</span> <span class="nc">Endian</span><span class="p">(</span><span class="n">IntEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Endianess of the binary.</span>
+<span class="sd">    Endianness of the binary.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">LITTLE</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># doc: Little-endian</span>
     <span class="n">BIG</span> <span class="o">=</span> <span class="mi">2</span>     <span class="c1"># doc: Big-endian</span></div>

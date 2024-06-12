@@ -103,15 +103,18 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tritondse.seed</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">hashlib</span>
+<span></span><span class="c1"># built-in imports</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
 <span class="kn">import</span> <span class="nn">base64</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">SymExType</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">import</span> <span class="nn">enum_tools.documentation</span>
+
+<span class="c1"># local imports</span>
+<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">PathLike</span>
 
 
 <div class="viewcode-block" id="SeedStatus">
@@ -139,7 +142,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Seed format enum</span>
 <span class="sd">    Raw seeds are just bytes Seed(b&quot;AAAAA\x00BBBBB&quot;)</span>
-<span class="sd">    Composite can describe how to inject the input more precisely </span>
+<span class="sd">    Composite can describe how to inject the input more precisely</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">RAW</span> <span class="o">=</span> <span class="mi">0</span>        <span class="c1"># doc: plain bytes input seed</span>
     <span class="n">COMPOSITE</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># doc: complex input object</span></div>
@@ -153,7 +156,7 @@
     <span class="n">argv</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
     <span class="s2">&quot;list of argv values&quot;</span>
     <span class="n">files</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
-    <span class="s2">&quot;dictionnary of files and the associated content (stdin is one of them)&quot;</span>
+    <span class="s2">&quot;dictionary of files and the associated content (stdin is one of them)&quot;</span>
     <span class="n">variables</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="s2">&quot;user defined variables, that the use must take care to inject at right location&quot;</span>
 
@@ -167,7 +170,7 @@
 
 <div class="viewcode-block" id="CompositeData.__bytes__">
 <a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.CompositeData.__bytes__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__bytes__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__bytes__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serialize data into a json string.</span>
 
@@ -228,14 +231,14 @@
 <div class="viewcode-block" id="Seed.is_composite">
 <a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_composite">[docs]</a>
     <span class="k">def</span> <span class="nf">is_composite</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns wether the seed is a composite seed or not. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns whether the seed is a composite seed or not. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span></div>
 
 
 <div class="viewcode-block" id="Seed.is_raw">
 <a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_raw">[docs]</a>
     <span class="k">def</span> <span class="nf">is_raw</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns wether the seed is a raw seed or not. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns whether the seed is a raw seed or not. &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">==</span> <span class="n">SeedFormat</span><span class="o">.</span><span class="n">RAW</span></div>
 
 
@@ -243,7 +246,7 @@
 <a class="viewcode-back" href="../../api/seeds.html#tritondse.seed.Seed.is_bootstrap_seed">[docs]</a>
     <span class="k">def</span> <span class="nf">is_bootstrap_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A bootstrap seed is an empty seed (b&quot;&quot;). It will received a</span>
+<span class="sd">        A bootstrap seed is an empty seed (b&quot;&quot;). It will receive a</span>
 <span class="sd">        specific processing in the engine as its size will be automatically</span>
 <span class="sd">        adapted to the size read (in stdin for instance)</span>
 
@@ -337,7 +340,7 @@
     <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Seed hash function overriden to base itself on content.</span>
-<span class="sd">        That enable storing seed in dictionnaries directly based</span>
+<span class="sd">        That enable storing seed in dictionaries directly based</span>
 <span class="sd">        on their content to discriminate them.</span>
 
 <span class="sd">        :rtype: int</span>
@@ -380,7 +383,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_bytes</span><span class="p">(</span><span class="n">raw_seed</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">SeedStatus</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">NEW</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Seed&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Parse a seed from its byte representation. If its a composite one</span>
+<span class="sd">        Parse a seed from its byte representation. If it&#39;s a composite one</span>
 <span class="sd">        it will parse the bytes as JSON and create the CompositeData accordingly.</span>
 
 <span class="sd">        :param raw_seed: bytes: raw bytes of the seed</span>
@@ -409,7 +412,7 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">SeedStatus</span> <span class="o">=</span> <span class="n">SeedStatus</span><span class="o">.</span><span class="n">NEW</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Seed&#39;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Read a seed from a file. The status can optionally given</span>
+<span class="sd">        Read a seed from a file. The status can optionally be given</span>
 <span class="sd">        as it cannot be determined from the file.</span>
 
 <span class="sd">        :param path: seed path</span>
