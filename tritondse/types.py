@@ -162,6 +162,16 @@ class Endian(IntEnum):
     BIG = 2     # doc: Big-endian
 
 
+@enum_tools.documentation.document_enum
+class Format(IntEnum):
+    """
+    Executable File Format
+    """
+    ELF = auto()    # doc: ELF file format
+    PE = auto()     # doc: PE file format
+    MACHO = auto()  # doc: Mach-O file format
+
+
 @dataclass
 class FileDesc:
     """
