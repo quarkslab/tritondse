@@ -6,31 +6,12 @@ from typing import Optional, Generator, Tuple
 # third-party imports
 import lief
 
-try:
-    # LIEF <= v0.13.2
-    EXE_FORMATS = lief.EXE_FORMATS
-except AttributeError:
-    # LIEF >= v0.14.0
-    EXE_FORMATS = lief.Binary.FORMATS
-
 # local imports
-from tritondse.types import PathLike, Addr, Architecture, Platform, ArchMode, Perm, Endian
+from tritondse.types import PathLike, Addr, Architecture, Platform, ArchMode, Perm, Endian, Format
 from tritondse.loaders.loader import Loader, LoadableSegment
 import tritondse.logging
 
 logger = tritondse.logging.get("loader")
-
-_arch_mapper = {
-    lief.ARCHITECTURES.ARM:   Architecture.ARM32,
-    lief.ARCHITECTURES.ARM64: Architecture.AARCH64,
-    lief.ARCHITECTURES.X86:   Architecture.X86
-}
-
-_plfm_mapper = {
-    EXE_FORMATS.ELF: Platform.LINUX,
-    EXE_FORMATS.PE: Platform.WINDOWS,
-    EXE_FORMATS.MACHO: Platform.MACOS
-}
 
 
 class Program(Loader):
@@ -55,6 +36,25 @@ class Program(Loader):
                                   or in the wrong architecture
         """
         super(Program, self).__init__(path)
+
+        self._arch_mapper = {
+            lief.ARCHITECTURES.ARM:   Architecture.ARM32,
+            lief.ARCHITECTURES.ARM64: Architecture.AARCH64,
+            lief.ARCHITECTURES.X86:   Architecture.X86
+        }
+
+        self._plfm_mapper = {
+            lief.Binary.FORMATS.ELF: Platform.LINUX,
+            lief.Binary.FORMATS.PE: Platform.WINDOWS,
+            lief.Binary.FORMATS.MACHO: Platform.MACOS
+        }
+
+        self._format_mapper = {
+            lief.Binary.FORMATS.ELF: Format.ELF,
+            lief.Binary.FORMATS.PE: Format.PE,
+            lief.Binary.FORMATS.MACHO: Format.MACHO
+        }
+
         self.path: Path = Path(path)  #: Binary file path
         if not self.path.is_file():
             raise FileNotFoundError(f"file {path} not found (or not a file)")
@@ -68,7 +68,7 @@ class Program(Loader):
             raise FileNotFoundError(f"binary {path} architecture unsupported {self._binary.abstract.header.architecture}")
 
         try:
-            self._plfm = _plfm_mapper[self._binary.format]
+            self._plfm = self._plfm_mapper[self._binary.format]
             # TODO: better refine for Android, iOS etc.
         except KeyError:
             self._plfm = None
@@ -114,13 +114,13 @@ class Program(Loader):
         return self._plfm
 
     @property
-    def format(self) -> EXE_FORMATS:
+    def format(self) -> Format:
         """
-        Binary format. Supported formats by lief are: ELF, PE, MachO
+        Binary format. Supported formats are: ELF, PE, MachO
 
-        :rtype: lief.EXE_FORMATS / lief.Binary.FORMATS
+        :rtype: Format
         """
-        return self._binary.format
+        return self._format_mapper[self._binary.format]
 
     def _load_arch(self) -> Optional[Architecture]:
         """
@@ -129,8 +129,8 @@ class Program(Loader):
         :return: Architecture or None if unsupported
         """
         arch = self._binary.abstract.header.architecture
-        if arch in _arch_mapper:
-            arch = _arch_mapper[arch]
+        if arch in self._arch_mapper:
+            arch = self._arch_mapper[arch]
             if arch == Architecture.X86:
                 arch = Architecture.X86 if self._binary.abstract.header.is_32 else Architecture.X86_64
             return arch
@@ -178,7 +178,7 @@ class Program(Loader):
         :return: Generator of tuples addrs and content
         :raise NotImplementedError: if the binary format cannot be loaded
         """
-        if self.format == EXE_FORMATS.ELF:
+        if self.format == Format.ELF:
             for i, seg in enumerate(self._binary.concrete.segments):
                 if seg.type == lief.ELF.SEGMENT_TYPES.LOAD:
                     content = bytearray(seg.content)
@@ -200,7 +200,7 @@ class Program(Loader):
 
         :return: Generator of tuples function name and relocation address
         """
-        if self.format == EXE_FORMATS.ELF:
+        if self.format == Format.ELF:
             try:
                 # Iterate functions imported through PLT
                 for rel in self._binary.concrete.pltgot_relocations:
@@ -223,7 +223,7 @@ class Program(Loader):
 
         :return: Generator of tuples with symbol name, relocation address
         """
-        if self.format == EXE_FORMATS.ELF:
+        if self.format == Format.ELF:
             rel_enum = self.relocation_enum
             # Iterate imported symbols
             for rel in self._binary.dynamic_relocations:

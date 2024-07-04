@@ -7,17 +7,10 @@ import quokka
 import networkx
 import lief
 
-try:
-    # LIEF <= v0.13.2
-    EXE_FORMATS = lief.EXE_FORMATS
-except AttributeError:
-    # LIEF >= v0.14.0
-    EXE_FORMATS = lief.Binary.FORMATS
-
 # local imports
 from tritondse.loaders import Program, LoadableSegment
 from tritondse.coverage import CoverageSingleRun
-from tritondse.types import Addr, Architecture, Platform, Endian
+from tritondse.types import Addr, Architecture, Platform, Endian, Format
 
 
 class QuokkaProgram(quokka.Program):
@@ -107,8 +100,8 @@ class QuokkaProgram(quokka.Program):
         return self.program.endianness
 
     @property
-    def format(self) -> EXE_FORMATS:
-        return self.program.format
+    def format(self) -> Format:
+        return self._format_mapper[self.program.format]
 
     @property
     def relocation_enum(self):
