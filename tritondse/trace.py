@@ -2,6 +2,7 @@
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 from typing import List, Union
 from collections import Counter
@@ -130,7 +131,7 @@ class QBDITrace(Trace):
 
         args = [] if not args else args
 
-        cmdlne = f'timeout {timeout} python -m pyqbdipreload {QBDITrace.QBDI_SCRIPT_FILEPATH}'.split(' ') + [binary_path] + args
+        cmdlne = f'timeout {timeout} {sys.executable} -m pyqbdipreload {QBDITrace.QBDI_SCRIPT_FILEPATH}'.split(' ') + [binary_path] + args
         cmdlne = " ".join(cmdlne)
 
         logger.debug(f'Command line: {cmdlne}')
