@@ -112,17 +112,10 @@
 <span class="kn">import</span> <span class="nn">networkx</span>
 <span class="kn">import</span> <span class="nn">lief</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="c1"># LIEF &lt;= v0.13.2</span>
-    <span class="n">EXE_FORMATS</span> <span class="o">=</span> <span class="n">lief</span><span class="o">.</span><span class="n">EXE_FORMATS</span>
-<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-    <span class="c1"># LIEF &gt;= v0.14.0</span>
-    <span class="n">EXE_FORMATS</span> <span class="o">=</span> <span class="n">lief</span><span class="o">.</span><span class="n">Binary</span><span class="o">.</span><span class="n">FORMATS</span>
-
 <span class="c1"># local imports</span>
 <span class="kn">from</span> <span class="nn">tritondse.loaders</span> <span class="kn">import</span> <span class="n">Program</span><span class="p">,</span> <span class="n">LoadableSegment</span>
 <span class="kn">from</span> <span class="nn">tritondse.coverage</span> <span class="kn">import</span> <span class="n">CoverageSingleRun</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">Endian</span>
+<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">Endian</span><span class="p">,</span> <span class="n">Format</span>
 
 
 <div class="viewcode-block" id="QuokkaProgram">
@@ -226,8 +219,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">endianness</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EXE_FORMATS</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">format</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Format</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">relocation_enum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

@@ -111,31 +111,12 @@
 <span class="c1"># third-party imports</span>
 <span class="kn">import</span> <span class="nn">lief</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="c1"># LIEF &lt;= v0.13.2</span>
-    <span class="n">EXE_FORMATS</span> <span class="o">=</span> <span class="n">lief</span><span class="o">.</span><span class="n">EXE_FORMATS</span>
-<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-    <span class="c1"># LIEF &gt;= v0.14.0</span>
-    <span class="n">EXE_FORMATS</span> <span class="o">=</span> <span class="n">lief</span><span class="o">.</span><span class="n">Binary</span><span class="o">.</span><span class="n">FORMATS</span>
-
 <span class="c1"># local imports</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">ArchMode</span><span class="p">,</span> <span class="n">Perm</span><span class="p">,</span> <span class="n">Endian</span>
+<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">ArchMode</span><span class="p">,</span> <span class="n">Perm</span><span class="p">,</span> <span class="n">Endian</span><span class="p">,</span> <span class="n">Format</span>
 <span class="kn">from</span> <span class="nn">tritondse.loaders.loader</span> <span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">LoadableSegment</span>
 <span class="kn">import</span> <span class="nn">tritondse.logging</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;loader&quot;</span><span class="p">)</span>
-
-<span class="n">_arch_mapper</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">lief</span><span class="o">.</span><span class="n">ARCHITECTURES</span><span class="o">.</span><span class="n">ARM</span><span class="p">:</span>   <span class="n">Architecture</span><span class="o">.</span><span class="n">ARM32</span><span class="p">,</span>
-    <span class="n">lief</span><span class="o">.</span><span class="n">ARCHITECTURES</span><span class="o">.</span><span class="n">ARM64</span><span class="p">:</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">AARCH64</span><span class="p">,</span>
-    <span class="n">lief</span><span class="o">.</span><span class="n">ARCHITECTURES</span><span class="o">.</span><span class="n">X86</span><span class="p">:</span>   <span class="n">Architecture</span><span class="o">.</span><span class="n">X86</span>
-<span class="p">}</span>
-
-<span class="n">_plfm_mapper</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">LINUX</span><span class="p">,</span>
-    <span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">PE</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">WINDOWS</span><span class="p">,</span>
-    <span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">MACHO</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">MACOS</span>
-<span class="p">}</span>
 
 
 <div class="viewcode-block" id="Program">
@@ -162,6 +143,25 @@
 <span class="sd">                                  or in the wrong architecture</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Program</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arch_mapper</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">ARCHITECTURES</span><span class="o">.</span><span class="n">ARM</span><span class="p">:</span>   <span class="n">Architecture</span><span class="o">.</span><span class="n">ARM32</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">ARCHITECTURES</span><span class="o">.</span><span class="n">ARM64</span><span class="p">:</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">AARCH64</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">ARCHITECTURES</span><span class="o">.</span><span class="n">X86</span><span class="p">:</span>   <span class="n">Architecture</span><span class="o">.</span><span class="n">X86</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plfm_mapper</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">Binary</span><span class="o">.</span><span class="n">FORMATS</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">LINUX</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">Binary</span><span class="o">.</span><span class="n">FORMATS</span><span class="o">.</span><span class="n">PE</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">WINDOWS</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">Binary</span><span class="o">.</span><span class="n">FORMATS</span><span class="o">.</span><span class="n">MACHO</span><span class="p">:</span> <span class="n">Platform</span><span class="o">.</span><span class="n">MACOS</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_format_mapper</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">Binary</span><span class="o">.</span><span class="n">FORMATS</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span> <span class="n">Format</span><span class="o">.</span><span class="n">ELF</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">Binary</span><span class="o">.</span><span class="n">FORMATS</span><span class="o">.</span><span class="n">PE</span><span class="p">:</span> <span class="n">Format</span><span class="o">.</span><span class="n">PE</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">Binary</span><span class="o">.</span><span class="n">FORMATS</span><span class="o">.</span><span class="n">MACHO</span><span class="p">:</span> <span class="n">Format</span><span class="o">.</span><span class="n">MACHO</span>
+        <span class="p">}</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1">#: Binary file path</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> not found (or not a file)&quot;</span><span class="p">)</span>
@@ -175,7 +175,7 @@
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;binary </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> architecture unsupported </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">abstract</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">architecture</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_plfm</span> <span class="o">=</span> <span class="n">_plfm_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_plfm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plfm_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>
             <span class="c1"># TODO: better refine for Android, iOS etc.</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_plfm</span> <span class="o">=</span> <span class="kc">None</span>
@@ -221,13 +221,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plfm</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EXE_FORMATS</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Format</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Binary format. Supported formats by lief are: ELF, PE, MachO</span>
+<span class="sd">        Binary format. Supported formats are: ELF, PE, MachO</span>
 
-<span class="sd">        :rtype: lief.EXE_FORMATS / lief.Binary.FORMATS</span>
+<span class="sd">        :rtype: Format</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">format</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_load_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Architecture</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -236,8 +236,8 @@
 <span class="sd">        :return: Architecture or None if unsupported</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">arch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">abstract</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">architecture</span>
-        <span class="k">if</span> <span class="n">arch</span> <span class="ow">in</span> <span class="n">_arch_mapper</span><span class="p">:</span>
-            <span class="n">arch</span> <span class="o">=</span> <span class="n">_arch_mapper</span><span class="p">[</span><span class="n">arch</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">arch</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arch_mapper</span><span class="p">:</span>
+            <span class="n">arch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arch_mapper</span><span class="p">[</span><span class="n">arch</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">arch</span> <span class="o">==</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">X86</span><span class="p">:</span>
                 <span class="n">arch</span> <span class="o">=</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">X86</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">abstract</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">is_32</span> <span class="k">else</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">X86_64</span>
             <span class="k">return</span> <span class="n">arch</span>
@@ -287,7 +287,7 @@
 <span class="sd">        :return: Generator of tuples addrs and content</span>
 <span class="sd">        :raise NotImplementedError: if the binary format cannot be loaded</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">segments</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">SEGMENT_TYPES</span><span class="o">.</span><span class="n">LOAD</span><span class="p">:</span>
                     <span class="n">content</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
@@ -312,7 +312,7 @@
 
 <span class="sd">        :return: Generator of tuples function name and relocation address</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># Iterate functions imported through PLT</span>
                 <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">pltgot_relocations</span><span class="p">:</span>
@@ -338,7 +338,7 @@
 
 <span class="sd">        :return: Generator of tuples with symbol name, relocation address</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">EXE_FORMATS</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span>
             <span class="n">rel_enum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relocation_enum</span>
             <span class="c1"># Iterate imported symbols</span>
             <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">dynamic_relocations</span><span class="p">:</span>
