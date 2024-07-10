@@ -22,6 +22,7 @@ _arch_mapper = {
 }
 
 _plfm_mapper = {
+    "UNIX - Linux": Platform.LINUX,
     "UNIX - System V": Platform.LINUX,
     "windows": Platform.WINDOWS,
     "macos": Platform.MACOS
