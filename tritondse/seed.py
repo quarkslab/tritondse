@@ -234,16 +234,19 @@ class Seed(object):
         :rtype: Seed
         """
         try:
-            data = json.loads(raw_seed)
+            if raw_seed.startswith(b"{"):
+                data = json.loads(raw_seed)
 
-            if not isinstance(data, dict):  # it might happen that files contains only digit which is a valid JSON
-                return Seed(raw_seed, status)
-
-            if 'files' in data and 'argv' in data:
-                return Seed(CompositeData.from_dict(data), status)
-            else:  # Else still consider file as raw bytes
+                # Check that it contains the expected keys
+                if 'files' in data and 'argv' in data:
+                    return Seed(CompositeData.from_dict(data), status)
+                else:  # Else still consider file as raw bytes
+                    return Seed(raw_seed, status)
+            else:
                 return Seed(raw_seed, status)
         except (json.JSONDecodeError, UnicodeDecodeError):
+            return Seed(raw_seed, status)
+        except ValueError:  # JSON parser might raise value error
             return Seed(raw_seed, status)
 
     @staticmethod
