@@ -547,7 +547,9 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
             if len(data_no_trail) == size:  # if `size` limited the fgets its an indirect constraint
                 pstate.push_constraint(size_ast.getAst() == size)
 
-            se.inject_symbolic_file_memory(buff, filedesc.name, data, offset)
+            # if read max_size remove trailing \x00 (not symbolic), same applies if terminating char was \n.
+            dd = data_no_trail if (len(data) == size+1 or data[-2:] == b"\n\x00") else data 
+            se.inject_symbolic_file_memory(buff, filedesc.name, dd, offset)
             logger.debug(f"fgets() in {filedesc.name} = {repr(data)}")
         else:
             pstate.concretize_argument(1)
