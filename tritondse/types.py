@@ -195,6 +195,10 @@ class FileDesc:
         return isinstance(self.fd, io.BytesIO)
 
     def fgets(self, max_size: int) -> bytes:
+        """
+        Performs a fgets on the file descriptor.
+        Warning: It does not add a trailing \x00 if reaching a \n or EOF.
+        """
         s = b""
         for i in range(max_size):
             c = self.fd.read(1)
@@ -202,12 +206,11 @@ class FileDesc:
                 break
             c = c if isinstance(c, bytes) else c.encode()
             s += c
-            if c == b"\x00":
+            if c in [b"\x00", b"\n"]:
                 return s
-            elif c == b"\n":
-                break
+
         # If get there read max_size
-        return s+b"\x00"
+        return s
 
     def read(self, size: int) -> bytes:
         data = self.fd.read(size)

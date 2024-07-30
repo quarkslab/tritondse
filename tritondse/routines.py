@@ -537,25 +537,26 @@ def rtn_fgets(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         filedesc = pstate.get_file_descriptor(fd)
         offset = filedesc.offset
         data = filedesc.fgets(size)
-        data_no_trail = data[:-1]  # not \x00 terminated
+        data_with_trail = data if data.endswith(b"\x00") else data+b"\x00" # add \x00 termination if needed
 
         if filedesc.is_input_fd():  # Reading into input
             # if we started from empty seed simulate reading `size` amount of data
-            if se.seed.is_raw() and se.seed.is_bootstrap_seed() and not data_no_trail:
+            if se.seed.is_raw() and se.seed.is_bootstrap_seed() and not data:
                 data = b'\x00' * size
 
-            if len(data_no_trail) == size:  # if `size` limited the fgets its an indirect constraint
+            if len(data) == size:  # if `size` limited the fgets its an indirect constraint
                 pstate.push_constraint(size_ast.getAst() == size)
 
             # if read max_size remove trailing \x00 (not symbolic), same applies if terminating char was \n.
-            dd = data_no_trail if (len(data) == size+1 or data[-2:] == b"\n\x00") else data 
-            se.inject_symbolic_file_memory(buff, filedesc.name, dd, offset)
-            logger.debug(f"fgets() in {filedesc.name} = {repr(data)}")
+            se.inject_symbolic_file_memory(buff, filedesc.name, data, offset)
+            if data != data_with_trail: # write the concrete trailing \x00 which is concrete but not symbolic!
+                 pstate.memory.write(buff+len(data), b"\x00")
+            logger.debug(f"fgets() in {filedesc.name} = {repr(data_with_trail)}")
         else:
             pstate.concretize_argument(1)
-            pstate.memory.write(buff, data)
+            pstate.memory.write(buff, data_with_trail)
 
-        return buff_ast if data_no_trail else NULL_PTR
+        return buff_ast if data else NULL_PTR
     else:
         logger.warning(f'File descriptor ({fd}) not found')
         return NULL_PTR
