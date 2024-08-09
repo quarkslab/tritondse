@@ -144,30 +144,33 @@ class Program(Loader):
         architecture of the binary.
 
         :return: LIEF relocation enum
-        :rtype: Union[lief.ELF.RELOCATION_AARCH64,
-                      lief.ELF.RELOCATION_ARM,
-                      lief.ELF.RELOCATION_PPC64,
-                      lief.ELF.RELOCATION_PPC,
-                      lief.ELF.RELOCATION_i386,
-                      lief.ELF.RELOCATION_X86_64]
+        :rtype: dict
         """
-        rel_map = {
-            lief.ELF.ARCH.AARCH64: lief.ELF.RELOCATION_AARCH64,
-            lief.ELF.ARCH.ARM:     lief.ELF.RELOCATION_ARM,
-            lief.ELF.ARCH.PPC64:   lief.ELF.RELOCATION_PPC64,
-            lief.ELF.ARCH.PPC:     lief.ELF.RELOCATION_PPC,
-            lief.ELF.ARCH.i386:    lief.ELF.RELOCATION_i386,
-            lief.ELF.ARCH.x86_64:  lief.ELF.RELOCATION_X86_64
+        arch_mapper = {
+            lief._lief.ELF.ARCH.AARCH64: "AARCH64",
+            lief._lief.ELF.ARCH.ARM: "ARM",
+            lief._lief.ELF.ARCH.I386: "I386",
+            lief._lief.ELF.ARCH.X86_64: "X86_64",
         }
-        return rel_map[self._binary.concrete.header.machine_type]
+
+        arch_str = arch_mapper[self._binary.concrete.header.machine_type]
+
+        rel_enum = {}
+        for attr_str in dir(lief.ELF.Relocation.TYPE):
+            if attr_str.startswith(arch_str):
+                attr_name = attr_str[len(arch_str) + 1:]
+                rel_enum[attr_name] = getattr(lief.ELF.Relocation.TYPE, attr_str)
+
+        return rel_enum
 
     def _is_glob_dat(self, rel: lief.ELF.Relocation) -> bool:
         """ Get whether the given relocation is of type GLOB_DAT.
         Used locally to find mandatory relocations
         """
         rel_enum = self.relocation_enum
-        if hasattr(rel_enum, "GLOB_DAT"):
-            return rel_enum(rel.type) == getattr(rel_enum, "GLOB_DAT")
+
+        if 'GLOB_DAT' in rel_enum:
+            return rel.type == rel_enum['GLOB_DAT']
         else:
             return False  # Not GLOB_DAT relocation for this architecture
 
@@ -180,7 +183,7 @@ class Program(Loader):
         """
         if self.format == Format.ELF:
             for i, seg in enumerate(self._binary.concrete.segments):
-                if seg.type == lief.ELF.SEGMENT_TYPES.LOAD:
+                if seg.type == lief.ELF.Segment.TYPE.LOAD:
                     content = bytearray(seg.content)
                     if seg.virtual_size != len(seg.content):  # pad with zeros (as it might be .bss)
                         content += bytearray([0]) * (seg.virtual_size - seg.physical_size)
