@@ -839,7 +839,7 @@ class SymbolicExecutor(object):
         if isinstance(value, int):
             self.pstate.write_register(reg, value)                         # write concrete value in register
             sym_var = self.pstate.symbolize_register(reg, f"{name}[{0}]")  # symbolize value
-            self.symbolic_seed.variables[name] = sym_var               # add the symbolic variables to symbolic seed
+            self.symbolic_seed.variables[name] = [sym_var]                 # add the symbolic variables to symbolic seed
         else:  # meant to be bytes
             logger.warning("variable injected in registers have to be integer values")
 
