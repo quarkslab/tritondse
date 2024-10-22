@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../../">
 <head>
@@ -5,19 +7,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.loaders.program &mdash; TritonDSE 0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -251,30 +249,33 @@
 <span class="sd">        architecture of the binary.</span>
 
 <span class="sd">        :return: LIEF relocation enum</span>
-<span class="sd">        :rtype: Union[lief.ELF.RELOCATION_AARCH64,</span>
-<span class="sd">                      lief.ELF.RELOCATION_ARM,</span>
-<span class="sd">                      lief.ELF.RELOCATION_PPC64,</span>
-<span class="sd">                      lief.ELF.RELOCATION_PPC,</span>
-<span class="sd">                      lief.ELF.RELOCATION_i386,</span>
-<span class="sd">                      lief.ELF.RELOCATION_X86_64]</span>
+<span class="sd">        :rtype: dict</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">rel_map</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">AARCH64</span><span class="p">:</span> <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_AARCH64</span><span class="p">,</span>
-            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">ARM</span><span class="p">:</span>     <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_ARM</span><span class="p">,</span>
-            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">PPC64</span><span class="p">:</span>   <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_PPC64</span><span class="p">,</span>
-            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">PPC</span><span class="p">:</span>     <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_PPC</span><span class="p">,</span>
-            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">i386</span><span class="p">:</span>    <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_i386</span><span class="p">,</span>
-            <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">x86_64</span><span class="p">:</span>  <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">RELOCATION_X86_64</span>
+        <span class="n">arch_mapper</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">_lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">AARCH64</span><span class="p">:</span> <span class="s2">&quot;AARCH64&quot;</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">_lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">ARM</span><span class="p">:</span> <span class="s2">&quot;ARM&quot;</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">_lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">I386</span><span class="p">:</span> <span class="s2">&quot;I386&quot;</span><span class="p">,</span>
+            <span class="n">lief</span><span class="o">.</span><span class="n">_lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">ARCH</span><span class="o">.</span><span class="n">X86_64</span><span class="p">:</span> <span class="s2">&quot;X86_64&quot;</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="k">return</span> <span class="n">rel_map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">machine_type</span><span class="p">]</span>
+
+        <span class="n">arch_str</span> <span class="o">=</span> <span class="n">arch_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">machine_type</span><span class="p">]</span>
+
+        <span class="n">rel_enum</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">attr_str</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">Relocation</span><span class="o">.</span><span class="n">TYPE</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">attr_str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">arch_str</span><span class="p">):</span>
+                <span class="n">attr_name</span> <span class="o">=</span> <span class="n">attr_str</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">arch_str</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+                <span class="n">rel_enum</span><span class="p">[</span><span class="n">attr_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">Relocation</span><span class="o">.</span><span class="n">TYPE</span><span class="p">,</span> <span class="n">attr_str</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rel_enum</span>
 
     <span class="k">def</span> <span class="nf">_is_glob_dat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">Relocation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Get whether the given relocation is of type GLOB_DAT.</span>
 <span class="sd">        Used locally to find mandatory relocations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rel_enum</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relocation_enum</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rel_enum</span><span class="p">,</span> <span class="s2">&quot;GLOB_DAT&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">rel_enum</span><span class="p">(</span><span class="n">rel</span><span class="o">.</span><span class="n">type</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rel_enum</span><span class="p">,</span> <span class="s2">&quot;GLOB_DAT&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;GLOB_DAT&#39;</span> <span class="ow">in</span> <span class="n">rel_enum</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">rel</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">rel_enum</span><span class="p">[</span><span class="s1">&#39;GLOB_DAT&#39;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Not GLOB_DAT relocation for this architecture</span>
 
@@ -289,7 +290,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="n">Format</span><span class="o">.</span><span class="n">ELF</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">segments</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">SEGMENT_TYPES</span><span class="o">.</span><span class="n">LOAD</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">Segment</span><span class="o">.</span><span class="n">TYPE</span><span class="o">.</span><span class="n">LOAD</span><span class="p">:</span>
                     <span class="n">content</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">virtual_size</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">content</span><span class="p">):</span>  <span class="c1"># pad with zeros (as it might be .bss)</span>
                         <span class="n">content</span> <span class="o">+=</span> <span class="nb">bytearray</span><span class="p">([</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">virtual_size</span> <span class="o">-</span> <span class="n">seg</span><span class="o">.</span><span class="n">physical_size</span><span class="p">)</span>

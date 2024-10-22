@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,19 +7,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.seed &mdash; TritonDSE 0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -394,16 +392,19 @@
 <span class="sd">        :rtype: Seed</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">raw_seed</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">raw_seed</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;{&quot;</span><span class="p">):</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">raw_seed</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>  <span class="c1"># it might happen that files contains only digit which is a valid JSON</span>
-                <span class="k">return</span> <span class="n">Seed</span><span class="p">(</span><span class="n">raw_seed</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="s1">&#39;files&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="s1">&#39;argv&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">status</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Else still consider file as raw bytes</span>
+                <span class="c1"># Check that it contains the expected keys</span>
+                <span class="k">if</span> <span class="s1">&#39;files&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="s1">&#39;argv&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">status</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># Else still consider file as raw bytes</span>
+                    <span class="k">return</span> <span class="n">Seed</span><span class="p">(</span><span class="n">raw_seed</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">Seed</span><span class="p">(</span><span class="n">raw_seed</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Seed</span><span class="p">(</span><span class="n">raw_seed</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>  <span class="c1"># JSON parser might raise value error</span>
             <span class="k">return</span> <span class="n">Seed</span><span class="p">(</span><span class="n">raw_seed</span><span class="p">,</span> <span class="n">status</span><span class="p">)</span></div>
 
 

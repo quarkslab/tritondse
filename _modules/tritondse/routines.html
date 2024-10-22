@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="../../">
 <head>
@@ -5,19 +7,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.routines &mdash; TritonDSE 0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=2709fde1"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -686,23 +684,26 @@
         <span class="n">filedesc</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_file_descriptor</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span>
         <span class="n">offset</span> <span class="o">=</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">offset</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">fgets</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
-        <span class="n">data_no_trail</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># not \x00 terminated</span>
+        <span class="n">data_with_trail</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">data</span><span class="o">+</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span> <span class="c1"># add \x00 termination if needed</span>
 
         <span class="k">if</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">is_input_fd</span><span class="p">():</span>  <span class="c1"># Reading into input</span>
             <span class="c1"># if we started from empty seed simulate reading `size` amount of data</span>
-            <span class="k">if</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_raw</span><span class="p">()</span> <span class="ow">and</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_bootstrap_seed</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data_no_trail</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_raw</span><span class="p">()</span> <span class="ow">and</span> <span class="n">se</span><span class="o">.</span><span class="n">seed</span><span class="o">.</span><span class="n">is_bootstrap_seed</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span> <span class="o">*</span> <span class="n">size</span>
 
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_no_trail</span><span class="p">)</span> <span class="o">==</span> <span class="n">size</span><span class="p">:</span>  <span class="c1"># if `size` limited the fgets its an indirect constraint</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">size</span><span class="p">:</span>  <span class="c1"># if `size` limited the fgets its an indirect constraint</span>
                 <span class="n">pstate</span><span class="o">.</span><span class="n">push_constraint</span><span class="p">(</span><span class="n">size_ast</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="o">==</span> <span class="n">size</span><span class="p">)</span>
 
+            <span class="c1"># if read max_size remove trailing \x00 (not symbolic), same applies if terminating char was \n.</span>
             <span class="n">se</span><span class="o">.</span><span class="n">inject_symbolic_file_memory</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fgets() in </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span> <span class="o">!=</span> <span class="n">data_with_trail</span><span class="p">:</span> <span class="c1"># write the concrete trailing \x00 which is concrete but not symbolic!</span>
+                 <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fgets() in </span><span class="si">{</span><span class="n">filedesc</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="nb">repr</span><span class="p">(</span><span class="n">data_with_trail</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">pstate</span><span class="o">.</span><span class="n">concretize_argument</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="n">pstate</span><span class="o">.</span><span class="n">memory</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buff</span><span class="p">,</span> <span class="n">data_with_trail</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">buff_ast</span> <span class="k">if</span> <span class="n">data_no_trail</span> <span class="k">else</span> <span class="n">NULL_PTR</span>
+        <span class="k">return</span> <span class="n">buff_ast</span> <span class="k">if</span> <span class="n">data</span> <span class="k">else</span> <span class="n">NULL_PTR</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File descriptor (</span><span class="si">{</span><span class="n">fd</span><span class="si">}</span><span class="s1">) not found&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">NULL_PTR</span></div>
