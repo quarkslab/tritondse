@@ -159,7 +159,9 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # WARNING: Dirty trick to make sure to jump on main after
     # the emulation of that stub
     if pstate.architecture == Architecture.AARCH64:
-        pstate.cpu.x30 = main
+        pass
+    elif pstate.architecture == Architecture.ARM32:
+        pass
     elif pstate.architecture in [Architecture.X86_64, Architecture.X86]:
         # Push the return value to jump into the main() function
         pstate.push_stack_value(main)
@@ -224,6 +226,10 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         pstate.write_argument_value(1 + 1, b_argv)
     else:
         pstate.write_argument_value(1, b_argv)
+
+    # Return to the main function.
+    pstate.rtn_redirect_addr = main
+
     return None
 
 
