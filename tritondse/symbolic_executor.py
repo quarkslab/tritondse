@@ -232,7 +232,9 @@ class SymbolicExecutor(object):
         if len(threads_list) == 1:  # If there is only one thread no need to schedule another thread
             return
 
-        if self.pstate.current_thread.count > self.config.thread_scheduling:
+        if self.pstate.current_thread.count > self.config.thread_scheduling or \
+           self.pstate.current_thread.is_waiting_to_join() or \
+           not self.pstate.current_thread.is_running():
             # Select the next thread to execute
             next_th = self._fetch_next_thread(threads_list)
 
@@ -286,6 +288,17 @@ class SymbolicExecutor(object):
 
             # Fetch program counter (of the thread selected), at this point the current thread should be running!
             self.current_pc = self.pstate.cpu.program_counter  # should normally be already set but still.
+
+            if self.current_pc == 0xcafecafe:
+                logger.debug(f"Schedule thread ({self.pstate.current_thread.tid}) finished running")
+                self.pstate.current_thread.kill()
+
+                # Check whether the main thread was waiting for the schedule thread to join.
+                if self.pstate._threads[0]._join_th_id == self.pstate.current_thread.tid:
+                    logger.debug(f"Set main thread state to RUNNING")
+                    self.pstate._threads[0]._join_th_id = None
+                    self.pstate._threads[0].state = ThreadState.RUNNING
+                return True
 
             if self.current_pc == self._run_to_target:  # Hit the location we wanted to reach
                 return False

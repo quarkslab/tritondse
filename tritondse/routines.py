@@ -1219,9 +1219,12 @@ def rtn_pthread_join(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     arg0 = pstate.get_argument_value(0)
     arg1 = pstate.get_argument_value(1)
 
-    if arg0 in pstate.threads:
+    if arg0 in pstate._threads:
+        # This will change the state of the current thread from RUNNING to
+        # JOINING. Therefore, it will not run until the joining thread
+        # finishes.
         pstate.current_thread.join_thread(arg0)
-        logger.info(f"Thread id {pstate.current_thread.tid} joined thread id {arg0}")
+        logger.info(f"Thread id {pstate.current_thread.tid} is waiting thread id {arg0} to join")
     else:
         pstate.current_thread.cancel_join()
         logger.debug(f"Thread id {arg0} already destroyed")

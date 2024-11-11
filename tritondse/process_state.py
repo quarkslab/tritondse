@@ -193,7 +193,12 @@ class ProcessState(object):
         thread.save(self.tt_ctx)
 
         # Concretize pc, bp, sp, and first (argument)
-        regs = [self.program_counter_register, self.stack_pointer_register, self.base_pointer_register, self._get_argument_register(0)]
+        regs = [
+            self.program_counter_register,
+            self.stack_pointer_register,
+            self.base_pointer_register,
+            self._get_argument_register(0)
+        ]
         for reg in regs:
             if reg.getId() in thread.sregs:
                 del thread.sregs[reg.getId()]
@@ -201,8 +206,16 @@ class ProcessState(object):
         thread.cregs[self.program_counter_register.getId()] = new_pc  # set new pc
         thread.cregs[self._get_argument_register(0).getId()] = args   # set args pointer
         stack = self.memory.map_from_name(self.STACK_SEG)
-        thread.cregs[self.base_pointer_register.getId()] = ((stack.start+stack.size) - ((1 << 28) * tid))
-        thread.cregs[self.stack_pointer_register.getId()] = ((stack.start+stack.size) - ((1 << 28) * tid))
+        stack_base_addr = ((stack.start + stack.size - self.ptr_size) - ((1 << 28) * tid))
+        thread.cregs[self.base_pointer_register.getId()] = stack_base_addr
+        thread.cregs[self.stack_pointer_register.getId()] = stack_base_addr
+
+        if self.architecture == Architecture.AARCH64:
+            thread.cregs[getattr(self.registers, 'x30').getId()] = 0xcafecafe
+        elif self.architecture == Architecture.ARM32:
+            thread.cregs[getattr(self.registers, 'r14').getId()] = 0xcafecafe
+        elif self.architecture in [Architecture.X86, Architecture.X86_64]:
+            self.memory.write_ptr(stack_base_addr, 0xcafecafe)
 
         # Add the thread in the pool of threads
         self._threads[tid] = thread
