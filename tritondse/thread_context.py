@@ -5,6 +5,11 @@ import enum_tools.documentation
 # third-party imports
 from triton import TritonContext
 
+# local imports
+import tritondse.logging
+
+logger = tritondse.logging.get("thread_context")
+
 
 @enum_tools.documentation.document_enum
 class ThreadState(Enum):
