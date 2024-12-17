@@ -25,6 +25,7 @@ from tritondse.heap_allocator import AllocatorException
 from tritondse.thread_context import ThreadContext
 from tritondse.exception import AbortExecutionException, SkipInstructionException, StopExplorationException, ProbeException
 from tritondse.memory import MemoryAccessViolation, Perm
+from tritondse.thread_context import ThreadState
 import tritondse.logging
 
 logger = tritondse.logging.get("executor")
@@ -492,14 +493,24 @@ class SymbolicExecutor(object):
                 self.pstate.current_thread.count = self.config.thread_scheduling+1
                 return
 
-            if self.pstate.architecture == Architecture.AARCH64:
+            # If an return address was set, return to that address.
+            if self.pstate.rtn_redirect_addr != None:
                 # Get the return address
-                ret_addr = self.pstate.read_register('x30')
-            elif self.pstate.architecture in [Architecture.X86, Architecture.X86_64]:
-                # Get the return address and restore RSP (simulate RET)
-                ret_addr = self.pstate.pop_stack_value()
+                ret_addr = self.pstate.rtn_redirect_addr
+                # Clear rtn_redirect_addr.
+                self.pstate.rtn_redirect_addr = None
             else:
-                raise Exception("Architecture not supported")
+                if self.pstate.architecture == Architecture.AARCH64:
+                    # Get the return address.
+                    ret_addr = self.pstate.read_register('x30')
+                elif self.pstate.architecture == Architecture.ARM32:
+                    # Get the return address.
+                    ret_addr = self.pstate.read_register('r14')
+                elif self.pstate.architecture in [Architecture.X86, Architecture.X86_64]:
+                    # Get the return address and restore RSP (simulate RET).
+                    ret_addr = self.pstate.pop_stack_value()
+                else:
+                    raise Exception("Architecture not supported")
 
             # Hijack RIP to skip the call
             self.pstate.cpu.program_counter = ret_addr

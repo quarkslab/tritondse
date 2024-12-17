@@ -126,6 +126,9 @@ class ProcessState(object):
         # The memory mapping of the program ({vaddr_s : vaddr_e})
         self.__program_segments_mapping = {}
 
+        # Address to return to from a routine hook.
+        self.rtn_redirect_addr = None
+
     @property
     def threads(self) -> List[ThreadContext]:
         """
