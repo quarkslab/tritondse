@@ -38,9 +38,10 @@ class Program(Loader):
         super(Program, self).__init__(path)
 
         self._arch_mapper = {
-            lief.ARCHITECTURES.ARM:   Architecture.ARM32,
-            lief.ARCHITECTURES.ARM64: Architecture.AARCH64,
-            lief.ARCHITECTURES.X86:   Architecture.X86
+            lief.Header.ARCHITECTURES.ARM:   Architecture.ARM32,
+            lief.Header.ARCHITECTURES.ARM64: Architecture.AARCH64,
+            lief.Header.ARCHITECTURES.X86:   Architecture.X86,
+            lief.Header.ARCHITECTURES.X86_64:   Architecture.X86_64
         }
 
         self._plfm_mapper = {
@@ -82,8 +83,8 @@ class Program(Loader):
 
     @property
     def endianness(self) -> Endian:
-        return {lief.ENDIANNESS.LITTLE: Endian.LITTLE,
-                lief.ENDIANNESS.BIG: Endian.BIG}[self._binary.abstract.header.endianness]
+        return {lief.Header.ENDIANNESS.LITTLE: Endian.LITTLE,
+                lief.Header.ENDIANNESS.BIG: Endian.BIG}[self._binary.abstract.header.endianness]
 
     @property
     def entry_point(self) -> Addr:
