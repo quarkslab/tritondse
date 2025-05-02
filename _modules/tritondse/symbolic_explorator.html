@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.symbolic_explorator &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -101,27 +101,27 @@
            <div itemprop="articleBody">
              
   <h1>Source code for tritondse.symbolic_explorator</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">import</span> <span class="nn">gc</span>
-<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">import</span> <span class="nn">stat</span>
-<span class="kn">import</span> <span class="nn">enum_tools.documentation</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">gc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">stat</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum_tools.documentation</span>
 
-<span class="kn">from</span> <span class="nn">tritondse.config</span>            <span class="kn">import</span> <span class="n">Config</span>
-<span class="kn">from</span> <span class="nn">tritondse.process_state</span>     <span class="kn">import</span> <span class="n">ProcessState</span>
-<span class="kn">from</span> <span class="nn">tritondse.loaders.loader</span>    <span class="kn">import</span> <span class="n">Loader</span>
-<span class="kn">from</span> <span class="nn">tritondse.seed</span>              <span class="kn">import</span> <span class="n">Seed</span>
-<span class="kn">from</span> <span class="nn">tritondse.symbolic_executor</span> <span class="kn">import</span> <span class="n">SymbolicExecutor</span>
-<span class="kn">from</span> <span class="nn">tritondse.workspace</span>         <span class="kn">import</span> <span class="n">Workspace</span>
-<span class="kn">from</span> <span class="nn">tritondse.coverage</span>          <span class="kn">import</span> <span class="n">GlobalCoverage</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span>             <span class="kn">import</span> <span class="n">Addr</span>
-<span class="kn">from</span> <span class="nn">tritondse.exception</span>         <span class="kn">import</span> <span class="n">StopExplorationException</span>
-<span class="kn">from</span> <span class="nn">tritondse.seed_manager</span> <span class="kn">import</span> <span class="n">SeedManager</span>
-<span class="kn">from</span> <span class="nn">tritondse.seed_scheduler</span> <span class="kn">import</span> <span class="n">SeedScheduler</span>
-<span class="kn">from</span> <span class="nn">tritondse.callbacks</span> <span class="kn">import</span> <span class="n">CallbackManager</span>
-<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.config</span><span class="w">            </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.process_state</span><span class="w">     </span><span class="kn">import</span> <span class="n">ProcessState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.loaders.loader</span><span class="w">    </span><span class="kn">import</span> <span class="n">Loader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.seed</span><span class="w">              </span><span class="kn">import</span> <span class="n">Seed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.symbolic_executor</span><span class="w"> </span><span class="kn">import</span> <span class="n">SymbolicExecutor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.workspace</span><span class="w">         </span><span class="kn">import</span> <span class="n">Workspace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.coverage</span><span class="w">          </span><span class="kn">import</span> <span class="n">GlobalCoverage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.types</span><span class="w">             </span><span class="kn">import</span> <span class="n">Addr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.exception</span><span class="w">         </span><span class="kn">import</span> <span class="n">StopExplorationException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.seed_manager</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeedManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.seed_scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeedScheduler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.callbacks</span><span class="w"> </span><span class="kn">import</span> <span class="n">CallbackManager</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tritondse.logging</span>
 
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;explorator&quot;</span><span class="p">)</span>
@@ -130,7 +130,7 @@
 <div class="viewcode-block" id="ExplorationStatus">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.ExplorationStatus">[docs]</a>
 <span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
-<span class="k">class</span> <span class="nc">ExplorationStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExplorationStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Enum representing the current state of the exploration &quot;&quot;&quot;</span>
     <span class="n">NOT_RUNNING</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># doc: The explorator has not been started yet</span>
     <span class="n">RUNNING</span>     <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># doc: The explorator is running and performing exploration</span>
@@ -142,13 +142,13 @@
 
 <div class="viewcode-block" id="SymbolicExplorator">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.SymbolicExplorator">[docs]</a>
-<span class="k">class</span> <span class="nc">SymbolicExplorator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SymbolicExplorator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Symbolic Exploration. This class is in charge of iterating</span>
 <span class="sd">    executions with the different seeds available in the workspace</span>
 <span class="sd">    and generated along the way.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">loader</span><span class="p">:</span> <span class="n">Loader</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="n">Workspace</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">executor_stop_at</span><span class="p">:</span> <span class="n">Addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed_scheduler_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">SeedScheduler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">loader</span><span class="p">:</span> <span class="n">Loader</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="n">Workspace</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">executor_stop_at</span><span class="p">:</span> <span class="n">Addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed_scheduler_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">SeedScheduler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loader</span><span class="p">:</span> <span class="n">Loader</span> <span class="o">=</span> <span class="n">loader</span>  <span class="c1">#: Program being analyzed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span> <span class="o">=</span> <span class="n">config</span>  <span class="c1">#: Configuration file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cbm</span><span class="p">:</span> <span class="n">CallbackManager</span> <span class="o">=</span> <span class="n">CallbackManager</span><span class="p">()</span>  <span class="c1">#: CallbackManager to register callbacks</span>
@@ -201,13 +201,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_total_emulation_time</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">total_emulation_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">total_emulation_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Represent total emulation time. This includes all callbacks execution</span>
 <span class="sd">        but not the SMT solving time (performed at the end). &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_emulation_time</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">callback_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackManager</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">callback_manager</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CallbackManager</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        CallbackManager global instance that will be transmitted to</span>
 <span class="sd">        all :py:obj:`SymbolicExecutor`.</span>
@@ -217,7 +217,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cbm</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">execution_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">execution_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the number of execution performed.</span>
 
@@ -226,10 +226,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exec_count</span>
 
-    <span class="k">def</span> <span class="nf">__time_delta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__time_delta</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ts</span>
 
-    <span class="k">def</span> <span class="nf">_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">uid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">uid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Worker thread &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Pick-up seed: </span><span class="si">{</span><span class="n">seed</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s1"> (fresh: </span><span class="si">{</span><span class="n">seed</span><span class="o">.</span><span class="n">is_fresh</span><span class="p">()</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
 
@@ -272,7 +272,7 @@
 
 <div class="viewcode-block" id="SymbolicExplorator.step">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.SymbolicExplorator.step">[docs]</a>
-    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Perform a single exploration step. That means it execute</span>
 <span class="sd">        a single :py:obj:`SymbolicExecutor`. Then it gives the hand</span>
@@ -309,7 +309,7 @@
 
 <div class="viewcode-block" id="SymbolicExplorator.explore">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.SymbolicExplorator.explore">[docs]</a>
-    <span class="k">def</span> <span class="nf">explore</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExplorationStatus</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">explore</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExplorationStatus</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Start the symbolic exploration. That function</span>
 <span class="sd">        holds until the exploration is interrupted or finished.</span>
@@ -346,7 +346,7 @@
 
 <div class="viewcode-block" id="SymbolicExplorator.add_input_seed">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.SymbolicExplorator.add_input_seed">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_input_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">Seed</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_input_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="n">Seed</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add the given bytes or Seed object as input for the exploration.</span>
 
@@ -359,7 +359,7 @@
 
 <div class="viewcode-block" id="SymbolicExplorator.stop_exploration">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.SymbolicExplorator.stop_exploration">[docs]</a>
-    <span class="k">def</span> <span class="nf">stop_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Interrupt the exploration &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">ExplorationStatus</span><span class="o">.</span><span class="n">STOPPED</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="kc">True</span></div>
@@ -367,21 +367,21 @@
 
 <div class="viewcode-block" id="SymbolicExplorator.terminate_exploration">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.SymbolicExplorator.terminate_exploration">[docs]</a>
-    <span class="k">def</span> <span class="nf">terminate_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">terminate_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Terminate exploration with status terminated (normal shutdown) &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">ExplorationStatus</span><span class="o">.</span><span class="n">TERMINATED</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_fmt_secs</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fmt_secs</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">m</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
         <span class="n">h</span><span class="p">,</span> <span class="n">m</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">h</span><span class="p">)</span><span class="si">}</span><span class="s2">h&quot;</span> <span class="k">if</span> <span class="n">h</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">+</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="si">}</span><span class="s2">m</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="si">}</span><span class="s2">s&quot;</span>
 
 <div class="viewcode-block" id="SymbolicExplorator.post_exploration">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.SymbolicExplorator.post_exploration">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Perform  all calls to post exploration functions&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seeds_manager</span><span class="o">.</span><span class="n">post_exploration</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coverage</span><span class="o">.</span><span class="n">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workspace</span><span class="p">)</span></div>

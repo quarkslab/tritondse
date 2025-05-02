@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.exception &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -103,7 +103,7 @@
   <h1>Source code for tritondse.exception</h1><div class="highlight"><pre>
 <div class="viewcode-block" id="SkipInstructionException">
 <a class="viewcode-back" href="../../api/exception.html#tritondse.exception.SkipInstructionException">[docs]</a>
-<span></span><span class="k">class</span> <span class="nc">SkipInstructionException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span></span><span class="k">class</span><span class="w"> </span><span class="nc">SkipInstructionException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception to raise in a PRE callback to skip the evaluation</span>
 <span class="sd">    of the current instruction. It will thus force a SymbolicExecutor</span>
@@ -116,7 +116,7 @@
 
 <div class="viewcode-block" id="AbortExecutionException">
 <a class="viewcode-back" href="../../api/exception.html#tritondse.exception.AbortExecutionException">[docs]</a>
-<span class="k">class</span> <span class="nc">AbortExecutionException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbortExecutionException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception to rais in a callback to stop current SymbolicExecutor.</span>
 <span class="sd">    The user should be careful to set the status of the current seed</span>
@@ -128,7 +128,7 @@
 
 <div class="viewcode-block" id="StopExplorationException">
 <a class="viewcode-back" href="../../api/exception.html#tritondse.exception.StopExplorationException">[docs]</a>
-<span class="k">class</span> <span class="nc">StopExplorationException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StopExplorationException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception to raise in a callback to stop the whole exploration of</span>
 <span class="sd">    the program. It is caught by SymbolicExplorator.</span>
@@ -139,7 +139,7 @@
 
 <div class="viewcode-block" id="AllocatorException">
 <a class="viewcode-back" href="../../api/process.html#tritondse.exception.AllocatorException">[docs]</a>
-<span class="k">class</span> <span class="nc">AllocatorException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AllocatorException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class used to represent a heap allocator exception.</span>
 <span class="sd">    This exception can be raised in the following conditions:</span>
@@ -148,19 +148,19 @@
 <span class="sd">    * trying to free a pointer already freed</span>
 <span class="sd">    * trying to free a non-allocated pointer</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="ProbeException">
 <a class="viewcode-back" href="../../api/exception.html#tritondse.exception.ProbeException">[docs]</a>
-<span class="k">class</span> <span class="nc">ProbeException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProbeException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exception to raise in a probe to stop the current exception.</span>
 <span class="sd">    It is caught by SymbolicExplorator.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="ne">Exception</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
 
 </pre></div>

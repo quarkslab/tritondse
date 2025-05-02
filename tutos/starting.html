@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Getting Started &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
 
@@ -141,7 +141,7 @@ features and the API is subject to changes.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[119]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">Program</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tritondse</span><span class="w"> </span><span class="kn">import</span> <span class="n">Program</span>
 
 <span class="n">p</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="s2">&quot;crackme_xor&quot;</span><span class="p">)</span>
 
@@ -207,7 +207,7 @@ Architecture.X86_64 ENDIANNESS.LITTLE
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[123]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">CompositeData</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tritondse</span><span class="w"> </span><span class="kn">import</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">CompositeData</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
 <span class="n">seed</span> <span class="o">=</span> <span class="n">Seed</span><span class="p">(</span><span class="n">CompositeData</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="sa">b</span><span class="s2">&quot;Hello&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&quot;world&quot;</span><span class="p">]))</span>
@@ -288,7 +288,7 @@ WARNING:root:symbol __gmon_start__ imported but unsupported
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[127]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Architecture</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Architecture</span>
 </pre></div>
 </div>
 </div>
@@ -568,7 +568,7 @@ b&#39;1\xedI\x89\xd1^H\x89\xe2H&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[140]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SeedFormat</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tritondse</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeedFormat</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
 <span class="n">c</span><span class="o">.</span><span class="n">seed_format</span><span class="o">=</span><span class="n">SeedFormat</span><span class="o">.</span><span class="n">COMPOSITE</span>
 </pre></div>
@@ -582,10 +582,10 @@ b&#39;1\xedI\x89\xd1^H\x89\xe2H&#39;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[141]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tritondse</span> <span class="kn">import</span> <span class="n">SymbolicExplorator</span><span class="p">,</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">SeedFormat</span><span class="p">,</span> <span class="n">CompositeData</span>
-<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tritondse</span><span class="w"> </span><span class="kn">import</span> <span class="n">SymbolicExplorator</span><span class="p">,</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">ProcessState</span><span class="p">,</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">CoverageStrategy</span><span class="p">,</span> <span class="n">Program</span><span class="p">,</span> <span class="n">SeedFormat</span><span class="p">,</span> <span class="n">CompositeData</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tritondse.logging</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
 <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">enable</span><span class="p">()</span> <span class="c1"># enable tritondse to print log info</span>
 

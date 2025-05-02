@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.loaders.quokkaprogram &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,31 +102,31 @@
              
   <h1>Source code for tritondse.loaders.quokkaprogram</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Built-in imports</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
 
 <span class="c1"># third-party imports</span>
-<span class="kn">import</span> <span class="nn">quokka</span>
-<span class="kn">import</span> <span class="nn">networkx</span>
-<span class="kn">import</span> <span class="nn">lief</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">quokka</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">lief</span>
 
 <span class="c1"># local imports</span>
-<span class="kn">from</span> <span class="nn">tritondse.loaders</span> <span class="kn">import</span> <span class="n">Program</span><span class="p">,</span> <span class="n">LoadableSegment</span>
-<span class="kn">from</span> <span class="nn">tritondse.coverage</span> <span class="kn">import</span> <span class="n">CoverageSingleRun</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">Endian</span><span class="p">,</span> <span class="n">Format</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.loaders</span><span class="w"> </span><span class="kn">import</span> <span class="n">Program</span><span class="p">,</span> <span class="n">LoadableSegment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.coverage</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoverageSingleRun</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">Endian</span><span class="p">,</span> <span class="n">Format</span>
 
 
 <div class="viewcode-block" id="QuokkaProgram">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram">[docs]</a>
-<span class="k">class</span> <span class="nc">QuokkaProgram</span><span class="p">(</span><span class="n">quokka</span><span class="o">.</span><span class="n">Program</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">exec_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">QuokkaProgram</span><span class="p">(</span><span class="n">quokka</span><span class="o">.</span><span class="n">Program</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">export_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">exec_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">QuokkaProgram</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">export_file</span><span class="p">,</span> <span class="n">exec_path</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">program</span> <span class="o">=</span> <span class="n">Program</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">executable</span><span class="o">.</span><span class="n">exec_file</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
 
 <div class="viewcode-block" id="QuokkaProgram.get_call_graph">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.get_call_graph">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_call_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backedge_on_ret</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">networkx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_call_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backedge_on_ret</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">networkx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the call graph of the program.</span>
 
@@ -144,7 +144,7 @@
 <div class="viewcode-block" id="QuokkaProgram.get_slice">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.get_slice">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_slice</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">networkx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">frm</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">networkx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_slice</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">networkx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">,</span> <span class="n">frm</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">to</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">networkx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the slice between the two nodes on the given graph.</span>
 <span class="sd">        The slice is the intersection of reachable node (of ``frm``) and</span>
@@ -162,17 +162,17 @@
 
 <div class="viewcode-block" id="QuokkaProgram.merge">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.merge">[docs]</a>
-    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">CoverageSingleRun</span><span class="p">):</span>
         <span class="c1"># TODO: To implement</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">export_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">  funs:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">&gt;&quot;</span>
 
 <div class="viewcode-block" id="QuokkaProgram.get_caller_instructions">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.get_caller_instructions">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_caller_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">quokka</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_caller_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">quokka</span><span class="o">.</span><span class="n">Function</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of instructions calling `target`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -193,64 +193,64 @@
 
     <span class="c1"># ============== Methods for interoperability with Program object ==============</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">path</span>
 
     <span class="nd">@path</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">entry_point</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Architecture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Architecture</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">architecture</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">platform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Platform</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">platform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Platform</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">platform</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">endianness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Endian</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">endianness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Endian</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">endianness</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Format</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Format</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">relocation_enum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">relocation_enum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">relocation_enum</span>
 
 <div class="viewcode-block" id="QuokkaProgram.memory_segments">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.memory_segments">[docs]</a>
-    <span class="k">def</span> <span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">memory_segments</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="QuokkaProgram.imported_functions_relocations">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.imported_functions_relocations">[docs]</a>
-    <span class="k">def</span> <span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">imported_functions_relocations</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="QuokkaProgram.imported_variable_symbols_relocations">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.imported_variable_symbols_relocations">[docs]</a>
-    <span class="k">def</span> <span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">imported_variable_symbols_relocations</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="QuokkaProgram.find_function_addr">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.find_function_addr">[docs]</a>
-    <span class="k">def</span> <span class="nf">find_function_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Addr</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_function_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Addr</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">program</span><span class="o">.</span><span class="n">find_function_addr</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="QuokkaProgram.find_function_from_addr">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.QuokkaProgram.find_function_from_addr">[docs]</a>
-    <span class="k">def</span> <span class="nf">find_function_from_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">quokka</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">Function</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_function_from_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">quokka</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">Function</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">in_func</span><span class="p">(</span><span class="n">address</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">f</span></div>

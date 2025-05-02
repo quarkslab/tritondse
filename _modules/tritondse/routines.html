@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.routines &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,18 +102,18 @@
              
   <h1>Source code for tritondse.routines</h1><div class="highlight"><pre>
 <span></span><span class="c1"># built-in imports</span>
-<span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
 <span class="c1"># local imports</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Architecture</span>
-<span class="kn">from</span> <span class="nn">tritondse.seed</span> <span class="kn">import</span> <span class="n">SeedStatus</span>
-<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Architecture</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.seed</span><span class="w"> </span><span class="kn">import</span> <span class="n">SeedStatus</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tritondse.logging</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;routines&quot;</span><span class="p">)</span>
 
@@ -122,7 +122,7 @@
 
 <div class="viewcode-block" id="rtn_ctype_b_loc">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_ctype_b_loc">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_ctype_b_loc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_ctype_b_loc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __ctype_b_loc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -186,7 +186,7 @@
 
 <div class="viewcode-block" id="rtn_ctype_toupper_loc">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_ctype_toupper_loc">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_ctype_toupper_loc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_ctype_toupper_loc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
     <span class="c1"># FIXME: Not sure about the array and where to place the pointer</span>
     <span class="c1"># https://codebrowser.dev/glibc/glibc/locale/C-ctype.c.html</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -238,7 +238,7 @@
 
 <div class="viewcode-block" id="rtn_errno_location">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_errno_location">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_errno_location</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_errno_location</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __errno_location behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -261,7 +261,7 @@
 
 <div class="viewcode-block" id="rtn_libc_start_main">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_libc_start_main">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_libc_start_main</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_libc_start_main</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __libc_start_main behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -344,7 +344,7 @@
 
 <div class="viewcode-block" id="rtn_stack_chk_fail">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_stack_chk_fail">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_stack_chk_fail</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_stack_chk_fail</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __stack_chk_fail behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -358,7 +358,7 @@
 <span class="c1"># int __xstat(int ver, const char* path, struct stat* stat_buf);</span>
 <div class="viewcode-block" id="rtn_xstat">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_xstat">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_xstat</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_xstat</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __xstat behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -399,7 +399,7 @@
 
 <div class="viewcode-block" id="rtn_abort">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_abort">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_abort</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_abort</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;::</span>
 
 <span class="sd">        void abort(void);</span>
@@ -417,7 +417,7 @@
 <span class="c1"># int atoi(const char *nptr);</span>
 <div class="viewcode-block" id="rtn_atoi">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_atoi">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_atoi</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_atoi</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;::</span>
 
 <span class="sd">        int atoi(const char *nptr);</span>
@@ -453,7 +453,7 @@
     <span class="c1"># &quot;-123123&quot;</span>
     <span class="c1"># &quot;18273213&quot;</span>
 
-    <span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="n">ast</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">multiply</span><span class="p">(</span><span class="n">ast</span><span class="p">,</span> <span class="n">cells</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">bv</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
             <span class="n">n</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">+</span> <span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">zx</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="n">cells</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="mh">0x30</span><span class="p">)</span>
@@ -509,7 +509,7 @@
 <span class="c1"># void *calloc(size_t nmemb, size_t size);</span>
 <div class="viewcode-block" id="rtn_calloc">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_calloc">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_calloc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_calloc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The calloc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -539,7 +539,7 @@
 <span class="c1"># int clock_gettime(clockid_t clockid, struct timespec *tp);</span>
 <div class="viewcode-block" id="rtn_clock_gettime">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_clock_gettime">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_clock_gettime</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_clock_gettime</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The clock_gettime behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -571,7 +571,7 @@
 
 <div class="viewcode-block" id="rtn_exit">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_exit">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_exit</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_exit</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The exit behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -584,7 +584,7 @@
 
 <div class="viewcode-block" id="rtn_fclose">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_fclose">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_fclose</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_fclose</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fclose behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -608,7 +608,7 @@
 
 <div class="viewcode-block" id="rtn_fseek">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_fseek">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_fseek</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_fseek</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fseek behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -643,7 +643,7 @@
 
 <div class="viewcode-block" id="rtn_ftell">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_ftell">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_ftell</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_ftell</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The ftell behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -667,7 +667,7 @@
 <span class="c1"># char *fgets(char *s, int size, FILE *stream);</span>
 <div class="viewcode-block" id="rtn_fgets">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_fgets">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_fgets</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_fgets</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fgets behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -713,7 +713,7 @@
 <span class="c1"># fopen(const char *pathname, const char *mode);</span>
 <div class="viewcode-block" id="rtn_fopen">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_fopen">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_fopen</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_fopen</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fopen behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -751,7 +751,7 @@
 
 <div class="viewcode-block" id="rtn_fprintf">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_fprintf">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_fprintf</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_fprintf</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fprintf behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -789,7 +789,7 @@
 
 <div class="viewcode-block" id="rtn___fprintf_chk">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn___fprintf_chk">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn___fprintf_chk</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn___fprintf_chk</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __fprintf_chk behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -829,7 +829,7 @@
 <span class="c1"># fputc(int c, FILE *stream);</span>
 <div class="viewcode-block" id="rtn_fputc">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_fputc">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_fputc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_fputc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fputc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -859,7 +859,7 @@
 
 <div class="viewcode-block" id="rtn_fputs">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_fputs">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_fputs</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_fputs</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fputs behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -900,7 +900,7 @@
 
 <div class="viewcode-block" id="rtn_fread">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_fread">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_fread</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_fread</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fread behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -943,7 +943,7 @@
 
 <div class="viewcode-block" id="rtn_free">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_free">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_free</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_free</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The free behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -961,7 +961,7 @@
 
 <div class="viewcode-block" id="rtn_fwrite">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_fwrite">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_fwrite</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_fwrite</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The fwrite behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -999,7 +999,7 @@
 
 <div class="viewcode-block" id="rtn_write">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_write">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_write</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_write</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The write behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1035,7 +1035,7 @@
 
 <div class="viewcode-block" id="rtn_gettimeofday">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_gettimeofday">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_gettimeofday</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_gettimeofday</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The gettimeofday behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1064,7 +1064,7 @@
 
 <div class="viewcode-block" id="rtn_malloc">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_malloc">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_malloc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_malloc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The malloc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1081,7 +1081,7 @@
 
 <div class="viewcode-block" id="rtn_open">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_open">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_open</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_open</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The open behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1136,7 +1136,7 @@
 
 <div class="viewcode-block" id="rtn_realloc">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_realloc">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_realloc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_realloc</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The realloc behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1179,7 +1179,7 @@
 
 <div class="viewcode-block" id="rtn_memcmp">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_memcmp">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_memcmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_memcmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The memcmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1212,7 +1212,7 @@
 
 <div class="viewcode-block" id="rtn_memcpy">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_memcpy">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_memcpy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_memcpy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The memcpy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1236,7 +1236,7 @@
 
 <div class="viewcode-block" id="rtn_mempcpy">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_mempcpy">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_mempcpy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_mempcpy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The mempcpy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1260,7 +1260,7 @@
 
 <div class="viewcode-block" id="rtn_memmem">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_memmem">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_memmem</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_memmem</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The memmem behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1293,7 +1293,7 @@
 
 <div class="viewcode-block" id="rtn_memmove">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_memmove">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_memmove</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_memmove</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The memmove behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1318,7 +1318,7 @@
 
 <div class="viewcode-block" id="rtn_memset">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_memset">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_memset</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_memset</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The memset behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1343,7 +1343,7 @@
 
 <div class="viewcode-block" id="rtn_printf">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_printf">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_printf</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_printf</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The printf behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1373,7 +1373,7 @@
 
 <div class="viewcode-block" id="rtn_pthread_create">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_pthread_create">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_pthread_create</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_pthread_create</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_create behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1397,7 +1397,7 @@
 
 <div class="viewcode-block" id="rtn_pthread_exit">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_pthread_exit">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_pthread_exit</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_pthread_exit</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_exit behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1419,7 +1419,7 @@
 
 <div class="viewcode-block" id="rtn_pthread_join">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_pthread_join">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_pthread_join</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_pthread_join</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_join behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1443,7 +1443,7 @@
 
 <div class="viewcode-block" id="rtn_pthread_mutex_destroy">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_pthread_mutex_destroy">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_pthread_mutex_destroy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_pthread_mutex_destroy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_mutex_destroy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1459,7 +1459,7 @@
 
 <div class="viewcode-block" id="rtn_pthread_mutex_init">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_pthread_mutex_init">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_pthread_mutex_init</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_pthread_mutex_init</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_mutex_init behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1477,7 +1477,7 @@
 
 <div class="viewcode-block" id="rtn_pthread_mutex_lock">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_pthread_mutex_lock">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_pthread_mutex_lock</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_pthread_mutex_lock</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_mutex_lock behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1504,7 +1504,7 @@
 
 <div class="viewcode-block" id="rtn_pthread_mutex_unlock">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_pthread_mutex_unlock">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_pthread_mutex_unlock</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_pthread_mutex_unlock</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The pthread_mutex_unlock behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1522,7 +1522,7 @@
 
 <div class="viewcode-block" id="rtn_puts">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_puts">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_puts</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_puts</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The puts behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1542,7 +1542,7 @@
 
 <div class="viewcode-block" id="rtn_rand">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_rand">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_rand</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_rand</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The rand behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1553,7 +1553,7 @@
 
 <div class="viewcode-block" id="rtn_read">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_read">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_read</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_read</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The read behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1597,7 +1597,7 @@
 
 <div class="viewcode-block" id="rtn_getchar">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_getchar">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_getchar</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_getchar</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The getchar behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1622,7 +1622,7 @@
 
 <div class="viewcode-block" id="rtn_sem_destroy">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_sem_destroy">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_sem_destroy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_sem_destroy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_destroy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1641,7 +1641,7 @@
 
 <div class="viewcode-block" id="rtn_sem_getvalue">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_sem_getvalue">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_sem_getvalue</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_sem_getvalue</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_getvalue behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1663,7 +1663,7 @@
 
 <div class="viewcode-block" id="rtn_sem_init">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_sem_init">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_sem_init</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_sem_init</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_init behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1684,7 +1684,7 @@
 
 <div class="viewcode-block" id="rtn_sem_post">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_sem_post">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_sem_post</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_sem_post</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_post behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1703,7 +1703,7 @@
 
 <div class="viewcode-block" id="rtn_sem_timedwait">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_sem_timedwait">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_sem_timedwait</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_sem_timedwait</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_timedwait behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1747,7 +1747,7 @@
 
 <div class="viewcode-block" id="rtn_sem_trywait">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_sem_trywait">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_sem_trywait</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_sem_trywait</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_trywait behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1786,7 +1786,7 @@
 
 <div class="viewcode-block" id="rtn_sem_wait">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_sem_wait">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_sem_wait</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_sem_wait</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sem_wait behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1815,7 +1815,7 @@
 
 <div class="viewcode-block" id="rtn_sleep">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_sleep">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_sleep</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_sleep</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sleep behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1833,7 +1833,7 @@
 
 <div class="viewcode-block" id="rtn_sprintf">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_sprintf">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_sprintf</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_sprintf</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The sprintf behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1871,7 +1871,7 @@
 
 <div class="viewcode-block" id="rtn_strcasecmp">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strcasecmp">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strcasecmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strcasecmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strcasecmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1907,7 +1907,7 @@
 
 <div class="viewcode-block" id="rtn_strchr">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strchr">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strchr</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strchr</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strchr behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1918,7 +1918,7 @@
     <span class="n">ast</span>    <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">actx</span>
     <span class="n">ptr_bit_size</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">ptr_bit_size</span>
 
-    <span class="k">def</span> <span class="nf">rec</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">deep</span><span class="p">,</span> <span class="n">maxdeep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rec</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">deep</span><span class="p">,</span> <span class="n">maxdeep</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">deep</span> <span class="o">==</span> <span class="n">maxdeep</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">res</span>
         <span class="n">cell</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">read_symbolic_memory_byte</span><span class="p">(</span><span class="n">string</span> <span class="o">+</span> <span class="n">deep</span><span class="p">)</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span>
@@ -1938,7 +1938,7 @@
 
 <div class="viewcode-block" id="rtn_strcmp">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strcmp">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strcmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strcmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strcmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1962,7 +1962,7 @@
 
 <div class="viewcode-block" id="rtn_strcpy">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strcpy">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strcpy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strcpy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strcpy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1989,7 +1989,7 @@
 
 <div class="viewcode-block" id="rtn_strdup">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strdup">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strdup</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strdup</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strdup behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2020,7 +2020,7 @@
 
 <div class="viewcode-block" id="rtn_strerror">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strerror">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strerror</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strerror</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strerror behavior.</span>
 
@@ -2185,7 +2185,7 @@
 
 <div class="viewcode-block" id="rtn_strlen">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strlen">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strlen</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strlen</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strlen behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2198,7 +2198,7 @@
     <span class="n">ast</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">actx</span>
 
     <span class="c1"># FIXME: Not so sure its is really the strlen semantic</span>
-    <span class="k">def</span> <span class="nf">rec</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">deep</span><span class="p">,</span> <span class="n">maxdeep</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rec</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">deep</span><span class="p">,</span> <span class="n">maxdeep</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">deep</span> <span class="o">==</span> <span class="n">maxdeep</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">res</span>
         <span class="n">cell</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">read_symbolic_memory_byte</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="n">deep</span><span class="p">)</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span>
@@ -2222,7 +2222,7 @@
 
 <div class="viewcode-block" id="rtn_strncasecmp">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strncasecmp">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strncasecmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strncasecmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strncasecmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2250,7 +2250,7 @@
 
 <div class="viewcode-block" id="rtn_strncmp">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strncmp">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strncmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strncmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strncmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2276,7 +2276,7 @@
 
 <div class="viewcode-block" id="rtn_strncpy">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strncpy">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strncpy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strncpy</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strncpy behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2304,7 +2304,7 @@
 
 <div class="viewcode-block" id="rtn_strtok_r">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strtok_r">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strtok_r</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strtok_r</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strtok_r behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2352,7 +2352,7 @@
 
 <div class="viewcode-block" id="rtn_strtoul">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_strtoul">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_strtoul</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_strtoul</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The strtoul behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2377,7 +2377,7 @@
 
 <div class="viewcode-block" id="rtn_getenv">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_getenv">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_getenv</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_getenv</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The getenv behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2406,7 +2406,7 @@
 
 <div class="viewcode-block" id="rtn_isspace">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_isspace">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_isspace</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_isspace</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The isspace behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2426,7 +2426,7 @@
 
 <div class="viewcode-block" id="rtn_assert_fail">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_assert_fail">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_assert_fail</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_assert_fail</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The __assert_fail behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2443,7 +2443,7 @@
 
 <div class="viewcode-block" id="rtn_setlocale">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_setlocale">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_setlocale</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_setlocale</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The setlocale behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2476,7 +2476,7 @@
 
 <div class="viewcode-block" id="rtn__setjmp">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn__setjmp">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn__setjmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn__setjmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The _setjmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2488,7 +2488,7 @@
 
 <div class="viewcode-block" id="rtn_longjmp">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_longjmp">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_longjmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_longjmp</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The longjmp behavior.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -2502,7 +2502,7 @@
 
 <div class="viewcode-block" id="rtn_atexit">
 <a class="viewcode-back" href="../../dev_doc/routines.html#tritondse.routines.rtn_atexit">[docs]</a>
-<span class="k">def</span> <span class="nf">rtn_atexit</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">rtn_atexit</span><span class="p">(</span><span class="n">se</span><span class="p">:</span> <span class="s1">&#39;SymbolicExecutor&#39;</span><span class="p">,</span> <span class="n">pstate</span><span class="p">:</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">):</span>
     <span class="k">return</span> <span class="mi">0</span></div>
 
 

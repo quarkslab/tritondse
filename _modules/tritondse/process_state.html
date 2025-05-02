@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.process_state &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,33 +102,33 @@
              
   <h1>Source code for tritondse.process_state</h1><div class="highlight"><pre>
 <span></span><span class="c1"># built-ins imports</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">import</span> <span class="nn">io</span>
-<span class="kn">import</span> <span class="nn">struct</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">struct</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span>
 
 <span class="c1"># third-party imports</span>
 <span class="c1"># import z3  # For direct value enumeration</span>
-<span class="kn">from</span> <span class="nn">triton</span> <span class="kn">import</span> <span class="n">TritonContext</span><span class="p">,</span> <span class="n">MemoryAccess</span><span class="p">,</span> <span class="n">CALLBACK</span><span class="p">,</span> <span class="n">CPUSIZE</span><span class="p">,</span> <span class="n">Instruction</span><span class="p">,</span> <span class="n">MODE</span><span class="p">,</span> <span class="n">AST_NODE</span><span class="p">,</span> <span class="n">SOLVER</span><span class="p">,</span> <span class="n">EXCEPTION</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">triton</span><span class="w"> </span><span class="kn">import</span> <span class="n">TritonContext</span><span class="p">,</span> <span class="n">MemoryAccess</span><span class="p">,</span> <span class="n">CALLBACK</span><span class="p">,</span> <span class="n">CPUSIZE</span><span class="p">,</span> <span class="n">Instruction</span><span class="p">,</span> <span class="n">MODE</span><span class="p">,</span> <span class="n">AST_NODE</span><span class="p">,</span> <span class="n">SOLVER</span><span class="p">,</span> <span class="n">EXCEPTION</span>
 
 <span class="c1"># local imports</span>
-<span class="kn">from</span> <span class="nn">tritondse.thread_context</span> <span class="kn">import</span> <span class="n">ThreadContext</span>
-<span class="kn">from</span> <span class="nn">tritondse.heap_allocator</span> <span class="kn">import</span> <span class="n">HeapAllocator</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">ByteSize</span><span class="p">,</span> <span class="n">BitSize</span><span class="p">,</span> <span class="n">PathConstraint</span><span class="p">,</span> <span class="n">Register</span><span class="p">,</span> <span class="n">Expression</span><span class="p">,</span> \
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.thread_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.heap_allocator</span><span class="w"> </span><span class="kn">import</span> <span class="n">HeapAllocator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">ByteSize</span><span class="p">,</span> <span class="n">BitSize</span><span class="p">,</span> <span class="n">PathConstraint</span><span class="p">,</span> <span class="n">Register</span><span class="p">,</span> <span class="n">Expression</span><span class="p">,</span> \
                             <span class="n">AstNode</span><span class="p">,</span> <span class="n">Registers</span><span class="p">,</span> <span class="n">SolverStatus</span><span class="p">,</span> <span class="n">Model</span><span class="p">,</span> <span class="n">SymbolicVariable</span><span class="p">,</span> <span class="n">ArchMode</span><span class="p">,</span> <span class="n">Perm</span><span class="p">,</span> <span class="n">FileDesc</span><span class="p">,</span> <span class="n">Endian</span>
-<span class="kn">from</span> <span class="nn">tritondse.arch</span> <span class="kn">import</span> <span class="n">ARCHS</span><span class="p">,</span> <span class="n">CpuState</span>
-<span class="kn">from</span> <span class="nn">tritondse.loaders.loader</span> <span class="kn">import</span> <span class="n">Loader</span>
-<span class="kn">from</span> <span class="nn">tritondse.memory</span> <span class="kn">import</span> <span class="n">Memory</span><span class="p">,</span> <span class="n">MemoryAccessViolation</span>
-<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.arch</span><span class="w"> </span><span class="kn">import</span> <span class="n">ARCHS</span><span class="p">,</span> <span class="n">CpuState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.loaders.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Loader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">Memory</span><span class="p">,</span> <span class="n">MemoryAccessViolation</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tritondse.logging</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;processstate&#39;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ProcessState">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState">[docs]</a>
-<span class="k">class</span> <span class="nc">ProcessState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProcessState</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Current process state. This class keeps all the runtime related to a running</span>
 <span class="sd">    process, namely current, instruction, thread, memory maps, file descriptors etc.</span>
@@ -140,7 +140,7 @@
     <span class="n">STACK_SEG</span> <span class="o">=</span> <span class="s2">&quot;[stack]&quot;</span>
     <span class="n">EXTERN_SEG</span> <span class="o">=</span> <span class="s2">&quot;[extern]&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endianness</span><span class="p">:</span> <span class="n">Endian</span> <span class="o">=</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span><span class="p">,</span> <span class="n">time_inc_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0001</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endianness</span><span class="p">:</span> <span class="n">Endian</span> <span class="o">=</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span><span class="p">,</span> <span class="n">time_inc_coefficient</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0001</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param endianness: Endianness to consider</span>
 <span class="sd">        :param time_inc_coefficient: Time coefficient to represent execution time of an</span>
@@ -232,7 +232,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__program_segments_mapping</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">threads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ThreadContext</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">threads</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ThreadContext</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gives a list of all threads currently active.</span>
 
@@ -241,7 +241,7 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_threads</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">current_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadContext</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">current_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadContext</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gives the current thread selected.</span>
 
@@ -252,7 +252,7 @@
 
 <div class="viewcode-block" id="ProcessState.switch_thread">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.switch_thread">[docs]</a>
-    <span class="k">def</span> <span class="nf">switch_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">switch_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Change the current thread to the one given in parameter.</span>
 <span class="sd">        Thus save the current context, and restore the one of the</span>
@@ -286,7 +286,7 @@
 
 <div class="viewcode-block" id="ProcessState.spawn_new_thread">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.spawn_new_thread">[docs]</a>
-    <span class="k">def</span> <span class="nf">spawn_new_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_pc</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadContext</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spawn_new_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_pc</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadContext</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new thread in the process state. Parameters are the</span>
 <span class="sd">        new program counter and a pointer to arguments to provide the thread.</span>
@@ -318,7 +318,7 @@
 
 <div class="viewcode-block" id="ProcessState.set_triton_mode">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.set_triton_mode">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_triton_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">MODE</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_triton_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">MODE</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the given mode in the TritonContext.</span>
 
@@ -330,7 +330,7 @@
 
 <div class="viewcode-block" id="ProcessState.set_thumb">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.set_thumb">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_thumb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_thumb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set thumb mode activated in the TritonContext. The mode will automatically</span>
 <span class="sd">        be switched during execution, but at initialization this method enable</span>
@@ -343,7 +343,7 @@
 
 <div class="viewcode-block" id="ProcessState.set_solver_timeout">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.set_solver_timeout">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_solver_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_solver_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the timeout for all subsequent queries.</span>
 
@@ -354,7 +354,7 @@
 
 <div class="viewcode-block" id="ProcessState.set_solver">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.set_solver">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SOLVER</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solver</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SOLVER</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the SMT solver to use in the background.</span>
 
@@ -365,7 +365,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tt_ctx</span><span class="o">.</span><span class="n">setSolver</span><span class="p">(</span><span class="n">solver</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_unique_thread_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_unique_thread_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a new unique thread id. Used by thread related functions when spawning a new thread.</span>
 
@@ -376,7 +376,7 @@
 
 <div class="viewcode-block" id="ProcessState.create_file_descriptor">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.create_file_descriptor">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_file_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">IOBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileDesc</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_file_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">io</span><span class="o">.</span><span class="n">IOBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileDesc</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new file descriptor out of a name.</span>
 
@@ -393,7 +393,7 @@
 
 <div class="viewcode-block" id="ProcessState.close_file_descriptor">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.close_file_descriptor">[docs]</a>
-    <span class="k">def</span> <span class="nf">close_file_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close_file_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fd_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Close the given file descriptor id.</span>
 
@@ -407,7 +407,7 @@
 
 <div class="viewcode-block" id="ProcessState.get_file_descriptor">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.get_file_descriptor">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_file_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileDesc</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_file_descriptor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileDesc</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the given file descriptor.</span>
 
@@ -420,7 +420,7 @@
 
 <div class="viewcode-block" id="ProcessState.file_descriptor_exists">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.file_descriptor_exists">[docs]</a>
-    <span class="k">def</span> <span class="nf">file_descriptor_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">file_descriptor_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns whether the file descriptor has been defined or not.</span>
 
@@ -431,7 +431,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Architecture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Architecture</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Architecture of the current process state</span>
 
@@ -440,7 +440,7 @@
         <span class="k">return</span> <span class="n">Architecture</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tt_ctx</span><span class="o">.</span><span class="n">getArchitecture</span><span class="p">())</span>
 
     <span class="nd">@architecture</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">Architecture</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">Architecture</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the architecture of the process state.</span>
 <span class="sd">        Internal set it in the TritonContext</span>
@@ -450,7 +450,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tt_ctx</span><span class="o">.</span><span class="n">setArchitecture</span><span class="p">(</span><span class="n">arch</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ptr_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ByteSize</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ptr_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ByteSize</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Size of a pointer in bytes</span>
 
@@ -459,7 +459,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tt_ctx</span><span class="o">.</span><span class="n">getGprSize</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ptr_bit_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BitSize</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ptr_bit_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BitSize</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Size of a pointer in bits</span>
 
@@ -468,7 +468,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tt_ctx</span><span class="o">.</span><span class="n">getGprBitSize</span><span class="p">()</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">minus_one</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">minus_one</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Value -1 according to the architecture size (32 or 64 bits)</span>
 
@@ -477,7 +477,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptr_bit_size</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">registers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Registers</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">registers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Registers</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        All registers according to the current architecture defined.</span>
 <span class="sd">        The object returned is the TritonContext.register object.</span>
@@ -487,7 +487,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tt_ctx</span><span class="o">.</span><span class="n">registers</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">return_register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">return_register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the appropriate return register according to the arch.</span>
 
@@ -496,7 +496,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archinfo</span><span class="o">.</span><span class="n">ret_reg</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">program_counter_register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">program_counter_register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the appropriate pc register according to the arch.</span>
 
@@ -505,7 +505,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archinfo</span><span class="o">.</span><span class="n">pc_reg</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">base_pointer_register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">base_pointer_register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the appropriate base pointer register according to the arch.</span>
 
@@ -514,7 +514,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archinfo</span><span class="o">.</span><span class="n">bp_reg</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">stack_pointer_register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stack_pointer_register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the appropriate stack pointer register according to the arch.</span>
 
@@ -523,11 +523,11 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archinfo</span><span class="o">.</span><span class="n">sp_reg</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_syscall_register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_syscall_register</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the appropriate syscall id register according to the arch &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_archinfo</span><span class="o">.</span><span class="n">sys_reg</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_argument_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_argument_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Register</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the appropriate register according to the arch.</span>
 
@@ -538,7 +538,7 @@
 
 <div class="viewcode-block" id="ProcessState.initialize_context">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.initialize_context">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">Architecture</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arch</span><span class="p">:</span> <span class="n">Architecture</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the context with the given architecture</span>
 
@@ -555,7 +555,7 @@
 
 <div class="viewcode-block" id="ProcessState.unpack_integer">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.unpack_integer">[docs]</a>
-    <span class="k">def</span> <span class="nf">unpack_integer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unpack_integer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Unpack the given bytes into into integer value respecting</span>
 <span class="sd">        size given and endianness.</span>
@@ -572,7 +572,7 @@
 
 <div class="viewcode-block" id="ProcessState.pack_integer">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.pack_integer">[docs]</a>
-    <span class="k">def</span> <span class="nf">pack_integer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pack_integer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Unpack the given bytes into into integer value respecting</span>
 <span class="sd">        size given and endianness.</span>
@@ -589,7 +589,7 @@
 
 <div class="viewcode-block" id="ProcessState.read_register">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.read_register">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the current concrete value of the given register.</span>
 
@@ -603,7 +603,7 @@
 
 <div class="viewcode-block" id="ProcessState.write_register">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.write_register">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the current concrete value of the given register.</span>
 
@@ -618,7 +618,7 @@
 
 <div class="viewcode-block" id="ProcessState.register_triton_callback">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.register_triton_callback">[docs]</a>
-    <span class="k">def</span> <span class="nf">register_triton_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_type</span><span class="p">:</span> <span class="n">CALLBACK</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_triton_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_type</span><span class="p">:</span> <span class="n">CALLBACK</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Register the given ``callback`` as triton callback to hook memory/registers</span>
 <span class="sd">        read/writes.</span>
@@ -632,7 +632,7 @@
 
 <div class="viewcode-block" id="ProcessState.clear_triton_callbacks">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.clear_triton_callbacks">[docs]</a>
-    <span class="k">def</span> <span class="nf">clear_triton_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_triton_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Remove all registered callbacks in triton.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -641,7 +641,7 @@
 
 <div class="viewcode-block" id="ProcessState.is_heap_ptr">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.is_heap_ptr">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_heap_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_heap_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether a given address is pointing in the heap area.</span>
 
@@ -656,7 +656,7 @@
 
 <div class="viewcode-block" id="ProcessState.is_syscall">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.is_syscall">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_syscall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_syscall</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether the current instruction fetched is a syscall or not.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -665,7 +665,7 @@
 
 <div class="viewcode-block" id="ProcessState.fetch_instruction">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.fetch_instruction">[docs]</a>
-    <span class="k">def</span> <span class="nf">fetch_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">set_as_current</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">disable_callbacks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="n">Addr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">set_as_current</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">disable_callbacks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Fetch the instruction at the given address. If no address</span>
 <span class="sd">        is specified the current program counter one is used.</span>
@@ -699,7 +699,7 @@
 
 <div class="viewcode-block" id="ProcessState.process_instruction">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.process_instruction">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instruction</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instruction</span><span class="p">:</span> <span class="n">Instruction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Process the given triton instruction on this process state.</span>
 
@@ -729,7 +729,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">path_predicate_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_predicate_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the size of the path predicate (conjunction</span>
 <span class="sd">        of all branches and additional constraints added)</span>
@@ -740,13 +740,13 @@
 
 <div class="viewcode-block" id="ProcessState.is_path_predicate_updated">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.is_path_predicate_updated">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_path_predicate_updated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_path_predicate_updated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Return whether the path predicate has been updated &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__pcs_updated</span></div>
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">last_branch_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathConstraint</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">last_branch_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PathConstraint</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the last PathConstraint object added in the path predicate.</span>
 <span class="sd">        Should be called after :py:meth:`is_path_predicate_updated`.</span>
@@ -758,7 +758,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tt_ctx</span><span class="o">.</span><span class="n">getPathConstraints</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">current_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">current_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Instruction</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The current instruction being executed. *(None if not set yet)*</span>
 
@@ -768,7 +768,7 @@
 
 <div class="viewcode-block" id="ProcessState.is_register_symbolic">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.is_register_symbolic">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_register_symbolic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_register_symbolic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check whether the register is symbolic or not.</span>
 
@@ -782,7 +782,7 @@
 
 <div class="viewcode-block" id="ProcessState.read_symbolic_register">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.read_symbolic_register">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_symbolic_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Expression</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_symbolic_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Expression</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the symbolic expression associated with the given register.</span>
 
@@ -802,7 +802,7 @@
 
 <div class="viewcode-block" id="ProcessState.write_symbolic_register">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.write_symbolic_register">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_symbolic_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">],</span> <span class="n">expr</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">],</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_symbolic_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">],</span> <span class="n">expr</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">],</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign the given symbolic expression to the register. The given expression can either be an SMT AST node</span>
 <span class="sd">        or directly an Expression (SymbolicExpression).</span>
@@ -822,7 +822,7 @@
 
 <div class="viewcode-block" id="ProcessState.read_symbolic_memory_int">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.read_symbolic_memory_int">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_symbolic_memory_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Expression</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_symbolic_memory_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Expression</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a new Symbolic Expression representing the whole memory range given in parameter.</span>
 <span class="sd">        That function should not be used on big memory chunks.</span>
@@ -846,7 +846,7 @@
 
 <div class="viewcode-block" id="ProcessState.read_symbolic_memory_byte">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.read_symbolic_memory_byte">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_symbolic_memory_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Expression</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_symbolic_memory_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Expression</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Thin wrapper to retrieve the symbolic expression of a single bytes in memory.</span>
 
@@ -864,7 +864,7 @@
 
 <div class="viewcode-block" id="ProcessState.read_symbolic_memory_bytes">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.read_symbolic_memory_bytes">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_symbolic_memory_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Expression</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_symbolic_memory_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Expression</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return a new Symbolic Expression representing the whole memory range given in parameter.</span>
 <span class="sd">        That function should not be used on big memory chunks.</span>
@@ -886,7 +886,7 @@
 
 <div class="viewcode-block" id="ProcessState.write_symbolic_memory_int">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.write_symbolic_memory_int">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_symbolic_memory_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">,</span> <span class="n">expr</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_symbolic_memory_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">,</span> <span class="n">expr</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Assign the given symbolic expression representing an integer to the given address.</span>
 <span class="sd">        That function should not be used on big memory chunks.</span>
@@ -909,7 +909,7 @@
 
 <div class="viewcode-block" id="ProcessState.write_symbolic_memory_byte">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.write_symbolic_memory_byte">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_symbolic_memory_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">expr</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_symbolic_memory_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">expr</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set a single bytes symbolic at the given address</span>
 
@@ -931,7 +931,7 @@
 
 <div class="viewcode-block" id="ProcessState.is_memory_symbolic">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.is_memory_symbolic">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_memory_symbolic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_memory_symbolic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Iterate the symbolic memory and returns whether at least one byte of the buffer</span>
 <span class="sd">        is symbolic</span>
@@ -950,7 +950,7 @@
 
 <div class="viewcode-block" id="ProcessState.push_constraint">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.push_constraint">[docs]</a>
-    <span class="k">def</span> <span class="nf">push_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="n">AstNode</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">push_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="n">AstNode</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Thin wrapper on the triton context underneath to add a path constraint.</span>
 
@@ -964,7 +964,7 @@
 
 <div class="viewcode-block" id="ProcessState.get_path_constraints">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.get_path_constraints">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_path_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PathConstraint</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_path_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PathConstraint</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the list of all path constraints set in the Triton context.</span>
 
@@ -975,7 +975,7 @@
 
 <div class="viewcode-block" id="ProcessState.concretize_register">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.concretize_register">[docs]</a>
-    <span class="k">def</span> <span class="nf">concretize_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">concretize_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Concretize the given register with its current concrete value.</span>
 <span class="sd">        **This operation is sound** as it will also add a path constraint</span>
@@ -994,7 +994,7 @@
 
 <div class="viewcode-block" id="ProcessState.concretize_memory_bytes">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.concretize_memory_bytes">[docs]</a>
-    <span class="k">def</span> <span class="nf">concretize_memory_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">concretize_memory_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Concretize the given memory with its current concrete value.</span>
 <span class="sd">        **This operation is sound** and allows restraining the memory</span>
@@ -1017,7 +1017,7 @@
 
 <div class="viewcode-block" id="ProcessState.concretize_memory_int">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.concretize_memory_int">[docs]</a>
-    <span class="k">def</span> <span class="nf">concretize_memory_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">concretize_memory_int</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Concretize the given memory with its current concrete value.</span>
 <span class="sd">        **This operation is sound** and allows restraining the memory</span>
@@ -1036,7 +1036,7 @@
 
 <div class="viewcode-block" id="ProcessState.concretize_argument">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.concretize_argument">[docs]</a>
-    <span class="k">def</span> <span class="nf">concretize_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">concretize_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Concretize the given function parameter following the calling convention</span>
 <span class="sd">        of the architecture.</span>
@@ -1054,7 +1054,7 @@
 
 <div class="viewcode-block" id="ProcessState.write_argument_value">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.write_argument_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_argument_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_argument_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the parameter index with the given value. It will take in account</span>
 <span class="sd">        whether the argument is in a register or the stack.</span>
@@ -1072,7 +1072,7 @@
 
 <div class="viewcode-block" id="ProcessState.get_argument_value">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.get_argument_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_argument_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_argument_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the integer value of parameters following the call convention.</span>
 <span class="sd">        The value originate either from a register or the stack depending</span>
@@ -1092,7 +1092,7 @@
 
 <div class="viewcode-block" id="ProcessState.get_argument_symbolic">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.get_argument_symbolic">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_argument_symbolic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Expression</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_argument_symbolic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Expression</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the symbolic expression associated with the given ith parameter.</span>
 
@@ -1110,7 +1110,7 @@
 
 <div class="viewcode-block" id="ProcessState.get_full_argument">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.get_full_argument">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_full_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Expression</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_full_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Expression</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get both the concrete argument value along with its symbolic expression.</span>
 
@@ -1121,7 +1121,7 @@
 
 <div class="viewcode-block" id="ProcessState.get_string_argument">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.get_string_argument">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_string_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_string_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read a string for which address is a function parameter.</span>
 <span class="sd">        The function first get the argument value, and then dereference</span>
 <span class="sd">        the string located at that address.</span>
@@ -1136,7 +1136,7 @@
 
 <div class="viewcode-block" id="ProcessState.get_format_string">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.get_format_string">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_format_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_format_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a formatted string in Python format from a format string</span>
 <span class="sd">        located in memory at ``addr``.</span>
@@ -1157,7 +1157,7 @@
 
 <div class="viewcode-block" id="ProcessState.get_format_arguments">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.get_format_arguments">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_format_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt_addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_format_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt_addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read the format string at ``fmt_addr``. For each format item</span>
 <span class="sd">        which are strings, dereference that associated string and replaces it</span>
@@ -1180,7 +1180,7 @@
 
 <div class="viewcode-block" id="ProcessState.get_stack_value">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.get_stack_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_stack_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stack_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the value at the ith position further in the stack</span>
 
@@ -1198,7 +1198,7 @@
 
 <div class="viewcode-block" id="ProcessState.write_stack_value">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.write_stack_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_stack_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_stack_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write the given value on the stack at the given index relative to the current</span>
 <span class="sd">        stack pointer. The index value can be positive to write further down the stack</span>
@@ -1219,7 +1219,7 @@
 
 <div class="viewcode-block" id="ProcessState.pop_stack_value">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.pop_stack_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">pop_stack_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pop_stack_value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pop a stack value, and the re-increment the stack pointer value.</span>
 <span class="sd">        This operation is fully concrete.</span>
@@ -1233,7 +1233,7 @@
 
 <div class="viewcode-block" id="ProcessState.push_stack_value">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.push_stack_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">push_stack_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">push_stack_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Push a stack value. It then decreases the stack pointer value.</span>
 
@@ -1245,7 +1245,7 @@
 
 <div class="viewcode-block" id="ProcessState.is_halt_instruction">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.is_halt_instruction">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_halt_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_halt_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if the current instruction is corresponding to an &#39;halt&#39; instruction</span>
 <span class="sd">        in the target architecture.</span>
@@ -1258,7 +1258,7 @@
 
 <div class="viewcode-block" id="ProcessState.solve">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.solve">[docs]</a>
-    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">AstNode</span><span class="p">]],</span> <span class="n">with_pp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SolverStatus</span><span class="p">,</span> <span class="n">Model</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">AstNode</span><span class="p">]],</span> <span class="n">with_pp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SolverStatus</span><span class="p">,</span> <span class="n">Model</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solve the given constraint one the current symbolic state and returns both</span>
 <span class="sd">        a Solver status and a model. If not SAT the model returned is empty. Argument</span>
@@ -1280,7 +1280,7 @@
 
 <div class="viewcode-block" id="ProcessState.solve_no_pp">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.solve_no_pp">[docs]</a>
-    <span class="k">def</span> <span class="nf">solve_no_pp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">AstNode</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SolverStatus</span><span class="p">,</span> <span class="n">Model</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve_no_pp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constraint</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">AstNode</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">SolverStatus</span><span class="p">,</span> <span class="n">Model</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Helper function that solve a constraint forcing not to use</span>
 <span class="sd">        the path predicate.</span>
@@ -1296,7 +1296,7 @@
 
 <div class="viewcode-block" id="ProcessState.symbolize_register">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.symbolize_register">[docs]</a>
-    <span class="k">def</span> <span class="nf">symbolize_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">],</span> <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SymbolicVariable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">symbolize_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">register</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Register</span><span class="p">],</span> <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SymbolicVariable</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Symbolize the given register. This a proxy for the symbolizeRegister</span>
 <span class="sd">        Triton function.</span>
@@ -1317,7 +1317,7 @@
 
 <div class="viewcode-block" id="ProcessState.symbolize_memory_byte">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.symbolize_memory_byte">[docs]</a>
-    <span class="k">def</span> <span class="nf">symbolize_memory_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SymbolicVariable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">symbolize_memory_byte</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">alias</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SymbolicVariable</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Symbolize the given memory cell. Returns the associated</span>
 <span class="sd">        SymbolicVariable</span>
@@ -1336,7 +1336,7 @@
 
 <div class="viewcode-block" id="ProcessState.symbolize_memory_bytes">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.symbolize_memory_bytes">[docs]</a>
-    <span class="k">def</span> <span class="nf">symbolize_memory_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">,</span> <span class="n">alias_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SymbolicVariable</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">symbolize_memory_bytes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">:</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="n">ByteSize</span><span class="p">,</span> <span class="n">alias_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">SymbolicVariable</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Symbolize a range of memory addresses. Can optionally provide an alias</span>
 <span class="sd">        prefix.</span>
@@ -1360,7 +1360,7 @@
 
 <div class="viewcode-block" id="ProcessState.get_expression_variable_values_model">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.get_expression_variable_values_model">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_expression_variable_values_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">],</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SymbolicVariable</span><span class="p">:</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_expression_variable_values_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">],</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="n">SymbolicVariable</span><span class="p">:</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Given a symbolic expression and a model, returns the valuation</span>
 <span class="sd">        of all variables involved in the expression.</span>
@@ -1383,7 +1383,7 @@
 
 <div class="viewcode-block" id="ProcessState.evaluate_expression_model">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.evaluate_expression_model">[docs]</a>
-    <span class="k">def</span> <span class="nf">evaluate_expression_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">],</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_expression_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">],</span> <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Evaluate the given expression on the given model. The value returned is the</span>
 <span class="sd">        integer value corresponding to the bitvector evaluation of the expression.</span>
@@ -1431,7 +1431,7 @@
 
 <div class="viewcode-block" id="ProcessState.solve_enumerate_expression">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.solve_enumerate_expression">[docs]</a>
-    <span class="k">def</span> <span class="nf">solve_enumerate_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">],</span> <span class="n">constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AstNode</span><span class="p">],</span> <span class="n">values_blacklist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Model</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve_enumerate_expression</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AstNode</span><span class="p">,</span> <span class="n">Expression</span><span class="p">],</span> <span class="n">constraints</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AstNode</span><span class="p">],</span> <span class="n">values_blacklist</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Model</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
         <span class="c1"># Written for when it will work</span>
         <span class="n">ast</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">getAst</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="s2">&quot;getAst&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">exp</span>
 
@@ -1453,7 +1453,7 @@
 <div class="viewcode-block" id="ProcessState.from_loader">
 <a class="viewcode-back" href="../../api/process.html#tritondse.ProcessState.from_loader">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">from_loader</span><span class="p">(</span><span class="n">loader</span><span class="p">:</span> <span class="n">Loader</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_loader</span><span class="p">(</span><span class="n">loader</span><span class="p">:</span> <span class="n">Loader</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ProcessState&#39;</span><span class="p">:</span>
         <span class="n">pstate</span> <span class="o">=</span> <span class="n">ProcessState</span><span class="p">(</span><span class="n">loader</span><span class="o">.</span><span class="n">endianness</span><span class="p">)</span>
 
         <span class="c1"># Initialize the architecture of the process state</span>

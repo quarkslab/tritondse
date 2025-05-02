@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.loaders.program &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,24 +102,24 @@
              
   <h1>Source code for tritondse.loaders.program</h1><div class="highlight"><pre>
 <span></span><span class="c1"># built-in imports</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="c1"># third-party imports</span>
-<span class="kn">import</span> <span class="nn">lief</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">lief</span>
 
 <span class="c1"># local imports</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span> <span class="kn">import</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">ArchMode</span><span class="p">,</span> <span class="n">Perm</span><span class="p">,</span> <span class="n">Endian</span><span class="p">,</span> <span class="n">Format</span>
-<span class="kn">from</span> <span class="nn">tritondse.loaders.loader</span> <span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">LoadableSegment</span>
-<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">Addr</span><span class="p">,</span> <span class="n">Architecture</span><span class="p">,</span> <span class="n">Platform</span><span class="p">,</span> <span class="n">ArchMode</span><span class="p">,</span> <span class="n">Perm</span><span class="p">,</span> <span class="n">Endian</span><span class="p">,</span> <span class="n">Format</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.loaders.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">LoadableSegment</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tritondse.logging</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;loader&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Program">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program">[docs]</a>
-<span class="k">class</span> <span class="nc">Program</span><span class="p">(</span><span class="n">Loader</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Program</span><span class="p">(</span><span class="n">Loader</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Representation of a program (loaded in memory). This class is wrapping</span>
 <span class="sd">    `LIEF &lt;https://lief.quarkslab.com/doc/latest&gt;`_ to represent a program</span>
@@ -133,7 +133,7 @@
     <span class="n">BASE_STACK</span> <span class="o">=</span> <span class="mh">0xf0000000</span>
     <span class="n">END_STACK</span>  <span class="o">=</span> <span class="mh">0x70000000</span>     <span class="c1"># This is inclusive</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param path: Program path</span>
 <span class="sd">        :type path: :py:obj:`tritondse.types.PathLike`</span>
@@ -181,17 +181,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_funs</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">concrete</span><span class="o">.</span><span class="n">functions</span><span class="p">}</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Name of the loader&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Program(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">)&quot;</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">endianness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Endian</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">endianness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Endian</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">lief</span><span class="o">.</span><span class="n">ENDIANNESS</span><span class="o">.</span><span class="n">LITTLE</span><span class="p">:</span> <span class="n">Endian</span><span class="o">.</span><span class="n">LITTLE</span><span class="p">,</span>
                 <span class="n">lief</span><span class="o">.</span><span class="n">ENDIANNESS</span><span class="o">.</span><span class="n">BIG</span><span class="p">:</span> <span class="n">Endian</span><span class="o">.</span><span class="n">BIG</span><span class="p">}[</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">abstract</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">endianness</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Addr</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Program entrypoint address as defined in the binary headers</span>
 
@@ -200,7 +200,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">entrypoint</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Architecture</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">architecture</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Architecture</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Architecture enum representing program architecture.</span>
 
@@ -209,7 +209,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arch</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">platform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Platform</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">platform</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Platform</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Platform of the binary. It&#39;s solely based on the format</span>
 <span class="sd">        of the file ELF, PE etc..</span>
@@ -219,7 +219,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plfm</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Format</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Format</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Binary format. Supported formats are: ELF, PE, MachO</span>
 
@@ -227,7 +227,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_mapper</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_binary</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_load_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Architecture</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_arch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Architecture</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load architecture as an Architecture object.</span>
 
@@ -243,7 +243,7 @@
             <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">relocation_enum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">relocation_enum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        LIEF relocation enum associated with the current</span>
 <span class="sd">        architecture of the binary.</span>
@@ -268,7 +268,7 @@
 
         <span class="k">return</span> <span class="n">rel_enum</span>
 
-    <span class="k">def</span> <span class="nf">_is_glob_dat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">Relocation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_glob_dat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="n">lief</span><span class="o">.</span><span class="n">ELF</span><span class="o">.</span><span class="n">Relocation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Get whether the given relocation is of type GLOB_DAT.</span>
 <span class="sd">        Used locally to find mandatory relocations</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -281,7 +281,7 @@
 
 <div class="viewcode-block" id="Program.memory_segments">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program.memory_segments">[docs]</a>
-    <span class="k">def</span> <span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">memory_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">LoadableSegment</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Iterate over all memory segments of the program as loaded in memory.</span>
 
@@ -305,7 +305,7 @@
 
 <div class="viewcode-block" id="Program.imported_functions_relocations">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program.imported_functions_relocations">[docs]</a>
-    <span class="k">def</span> <span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">imported_functions_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Iterate over all imported functions by the program. This function</span>
 <span class="sd">        is a generator of tuples associating the function and its relocation</span>
@@ -332,7 +332,7 @@
 
 <div class="viewcode-block" id="Program.imported_variable_symbols_relocations">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program.imported_variable_symbols_relocations">[docs]</a>
-    <span class="k">def</span> <span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">imported_variable_symbols_relocations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Addr</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Iterate over all imported variable symbols. Yield for each of them the name and</span>
 <span class="sd">        the relocation address in the binary.</span>
@@ -353,7 +353,7 @@
 
 <div class="viewcode-block" id="Program.find_function_addr">
 <a class="viewcode-back" href="../../../api/loaders.html#tritondse.Program.find_function_addr">[docs]</a>
-    <span class="k">def</span> <span class="nf">find_function_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Addr</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_function_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Addr</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Search for the function name in functions of the binary.</span>
 
@@ -367,7 +367,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">arch_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArchMode</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">arch_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArchMode</span><span class="p">:</span>
         <span class="k">pass</span>  <span class="c1"># TODO: Richard</span></div>
 
 </pre></div>

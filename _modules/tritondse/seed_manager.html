@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>tritondse.seed_manager &mdash; TritonDSE 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -102,27 +102,27 @@
              
   <h1>Source code for tritondse.seed_manager</h1><div class="highlight"><pre>
 <span></span><span class="c1"># built-in imports</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Generator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
 
 <span class="c1"># local imports</span>
-<span class="kn">from</span> <span class="nn">tritondse.seed</span>              <span class="kn">import</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">SeedStatus</span>
-<span class="kn">from</span> <span class="nn">tritondse.callbacks</span>         <span class="kn">import</span> <span class="n">CallbackManager</span>
-<span class="kn">from</span> <span class="nn">tritondse.coverage</span>          <span class="kn">import</span> <span class="n">GlobalCoverage</span><span class="p">,</span> <span class="n">CovItem</span>
-<span class="kn">from</span> <span class="nn">tritondse.seed_scheduler</span>    <span class="kn">import</span> <span class="n">FreshSeedPrioritizerWorklist</span><span class="p">,</span> <span class="n">SeedScheduler</span>
-<span class="kn">from</span> <span class="nn">tritondse.workspace</span>         <span class="kn">import</span> <span class="n">Workspace</span>
-<span class="kn">from</span> <span class="nn">tritondse.symbolic_executor</span> <span class="kn">import</span> <span class="n">SymbolicExecutor</span>
-<span class="kn">from</span> <span class="nn">tritondse.types</span>             <span class="kn">import</span> <span class="n">SolverStatus</span><span class="p">,</span> <span class="n">SymExType</span>
-<span class="kn">import</span> <span class="nn">tritondse.logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.seed</span><span class="w">              </span><span class="kn">import</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">SeedStatus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.callbacks</span><span class="w">         </span><span class="kn">import</span> <span class="n">CallbackManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.coverage</span><span class="w">          </span><span class="kn">import</span> <span class="n">GlobalCoverage</span><span class="p">,</span> <span class="n">CovItem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.seed_scheduler</span><span class="w">    </span><span class="kn">import</span> <span class="n">FreshSeedPrioritizerWorklist</span><span class="p">,</span> <span class="n">SeedScheduler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.workspace</span><span class="w">         </span><span class="kn">import</span> <span class="n">Workspace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.symbolic_executor</span><span class="w"> </span><span class="kn">import</span> <span class="n">SymbolicExecutor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tritondse.types</span><span class="w">             </span><span class="kn">import</span> <span class="n">SolverStatus</span><span class="p">,</span> <span class="n">SymExType</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tritondse.logging</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;seedmanager&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="SeedManager">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager">[docs]</a>
-<span class="k">class</span> <span class="nc">SeedManager</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SeedManager</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Seed Manager.</span>
 <span class="sd">    This class is in charge of providing the next seed to execute by prioritizing</span>
@@ -136,7 +136,7 @@
 <span class="sd">    * seed consumed (corpus, crash, hangs) which are seeds not meant to be re-executed</span>
 <span class="sd">      as they cannot lead to new paths, all candidate paths are UNSAT etc.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="n">Workspace</span><span class="p">,</span> <span class="n">smt_queries_limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">callback_manager</span><span class="p">:</span> <span class="n">CallbackManager</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed_scheduler_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">SeedScheduler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coverage</span><span class="p">:</span> <span class="n">GlobalCoverage</span><span class="p">,</span> <span class="n">workspace</span><span class="p">:</span> <span class="n">Workspace</span><span class="p">,</span> <span class="n">smt_queries_limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">callback_manager</span><span class="p">:</span> <span class="n">CallbackManager</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">seed_scheduler_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">SeedScheduler</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param coverage: global coverage object. The instance will be updated by the seed manager</span>
 <span class="sd">        :type coverage: GlobalCoverage</span>
@@ -171,10 +171,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_solv_time</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">total_solving_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">total_solving_time</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solv_time_sum</span>
 
-    <span class="k">def</span> <span class="nf">__load_seed_workspace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__load_seed_workspace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Load seed from the workspace &quot;&quot;&quot;</span>
         <span class="c1"># Load seed from the corpus</span>
         <span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workspace</span><span class="o">.</span><span class="n">iter_corpus</span><span class="p">():</span>
@@ -194,7 +194,7 @@
 
 <div class="viewcode-block" id="SeedManager.is_new_seed">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager.is_new_seed">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_new_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_new_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if a seed is a new one (not into corpus, crash, hangs and fails)</span>
 
@@ -210,7 +210,7 @@
 
 <div class="viewcode-block" id="SeedManager.add_seed_queue">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager.add_seed_queue">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_seed_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_seed_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a seed to the appropriate internal queue depending</span>
 <span class="sd">        on its status. If it is new it is added in pending seed,</span>
@@ -237,7 +237,7 @@
 
 <div class="viewcode-block" id="SeedManager.post_execution">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager.post_execution">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">solve_new_path</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_execution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">solve_new_path</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function called after each execution. It updates the global</span>
 <span class="sd">        code coverage object, and tries to generate new paths through</span>
@@ -308,7 +308,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_solv_time</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_generate_new_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_new_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">):</span>
         <span class="c1"># Generate new inputs</span>
         <span class="k">for</span> <span class="n">new_input</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__iter_new_inputs</span><span class="p">(</span><span class="n">execution</span><span class="p">):</span>
             <span class="c1"># Check if we already have executed this new seed</span>
@@ -319,7 +319,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;New seed </span><span class="si">{</span><span class="n">new_input</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> has already been generated&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__iter_new_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Seed</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__iter_new_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution</span><span class="p">:</span> <span class="n">SymbolicExecutor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">Seed</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
         <span class="c1"># Get the astContext</span>
         <span class="n">actx</span> <span class="o">=</span> <span class="n">execution</span><span class="o">.</span><span class="n">pstate</span><span class="o">.</span><span class="n">actx</span>
 
@@ -416,7 +416,7 @@
         <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>  <span class="c1"># We have iterated the whole path generator</span>
             <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">_update_solve_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covitem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CovItem</span><span class="p">],</span> <span class="n">status</span><span class="p">:</span> <span class="n">SolverStatus</span><span class="p">,</span> <span class="n">solving_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_solve_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covitem</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CovItem</span><span class="p">],</span> <span class="n">status</span><span class="p">:</span> <span class="n">SolverStatus</span><span class="p">,</span> <span class="n">solving_time</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solv_count</span> <span class="o">+=</span> <span class="n">count</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solv_time_sum</span> <span class="o">+=</span> <span class="n">solving_time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_current_solv_time</span> <span class="o">+=</span> <span class="n">solving_time</span>
@@ -433,7 +433,7 @@
 
 <div class="viewcode-block" id="SeedManager.pick_seed">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager.pick_seed">[docs]</a>
-    <span class="k">def</span> <span class="nf">pick_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Seed</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pick_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Seed</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get the next seed to be executed by querying it</span>
 <span class="sd">        in the seed scheduler.</span>
@@ -446,7 +446,7 @@
 
 <div class="viewcode-block" id="SeedManager.seeds_available">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager.seeds_available">[docs]</a>
-    <span class="k">def</span> <span class="nf">seeds_available</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seeds_available</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks whether there is still pending seeds to process.</span>
 
@@ -457,7 +457,7 @@
 
 <div class="viewcode-block" id="SeedManager.add_new_seed">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager.add_new_seed">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_new_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_new_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add the given seed in the manager.</span>
 <span class="sd">        The function uses its type to know where to add the seed.</span>
@@ -472,14 +472,14 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;seed </span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s2"> is already known (not adding it)&quot;</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_add_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add the seed in both internal queues but also workspace &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_seed_queue</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">workspace</span><span class="o">.</span><span class="n">save_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SeedManager.drop_seed">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager.drop_seed">[docs]</a>
-    <span class="k">def</span> <span class="nf">drop_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">drop_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Drop a seed that is not of interest anymore.</span>
 <span class="sd">        The function thus switch its status to ``OK_DONE``</span>
@@ -494,7 +494,7 @@
 
 <div class="viewcode-block" id="SeedManager.archive_seed">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager.archive_seed">[docs]</a>
-    <span class="k">def</span> <span class="nf">archive_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">SeedStatus</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">archive_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="n">Seed</span><span class="p">,</span> <span class="n">status</span><span class="p">:</span> <span class="n">SeedStatus</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Send a seed in the corpus. As such, the seed</span>
 <span class="sd">        is not meant to be used anymore (for finding</span>
@@ -513,7 +513,7 @@
 
 <div class="viewcode-block" id="SeedManager.post_exploration">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager.post_exploration">[docs]</a>
-    <span class="k">def</span> <span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">post_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function called at the end of exploration. It performs</span>
 <span class="sd">        some stats printing, but would also perform any clean</span>
@@ -536,14 +536,14 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_pp_smt_status</span><span class="p">(</span><span class="n">status</span><span class="p">:</span> <span class="n">SolverStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pp_smt_status</span><span class="p">(</span><span class="n">status</span><span class="p">:</span> <span class="n">SolverStatus</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; The pretty print function of the solver status &quot;&quot;&quot;</span>
         <span class="n">mapper</span> <span class="o">=</span> <span class="p">{</span><span class="n">SolverStatus</span><span class="o">.</span><span class="n">SAT</span><span class="p">:</span> <span class="mi">92</span><span class="p">,</span> <span class="n">SolverStatus</span><span class="o">.</span><span class="n">UNSAT</span><span class="p">:</span> <span class="mi">91</span><span class="p">,</span> <span class="n">SolverStatus</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">:</span> <span class="mi">93</span><span class="p">,</span> <span class="n">SolverStatus</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">:</span> <span class="mi">95</span><span class="p">}</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[</span><span class="si">{</span><span class="n">mapper</span><span class="p">[</span><span class="n">status</span><span class="p">]</span><span class="si">}</span><span class="s2">m</span><span class="si">{</span><span class="n">status</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
 
 <div class="viewcode-block" id="SeedManager.pp_meta_filename">
 <a class="viewcode-back" href="../../api/explorator.html#tritondse.seed_manager.SeedManager.pp_meta_filename">[docs]</a>
-    <span class="k">def</span> <span class="nf">pp_meta_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covitem</span><span class="p">:</span> <span class="n">CovItem</span><span class="p">,</span> <span class="n">typ</span><span class="p">:</span> <span class="n">SymExType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pp_meta_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covitem</span><span class="p">:</span> <span class="n">CovItem</span><span class="p">,</span> <span class="n">typ</span><span class="p">:</span> <span class="n">SymExType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;pretty-print a covitem&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">typ</span> <span class="o">==</span> <span class="n">SymExType</span><span class="o">.</span><span class="n">CONDITIONAL_JMP</span><span class="p">:</span>
             <span class="n">pp_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage</span><span class="o">.</span><span class="n">pp_item</span><span class="p">(</span><span class="n">covitem</span><span class="p">)</span>
