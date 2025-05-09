@@ -28,7 +28,7 @@ setup(
     install_requires=[
         "cle",
         "enum_tools",
-        "lief>=v0.15.0",
+        "lief>=v0.16.0",
         "networkx",
         "pyQBDI",
         "quokka-project",
