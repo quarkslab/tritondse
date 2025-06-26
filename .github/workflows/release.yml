@@ -20,7 +20,7 @@ jobs:
         run: pip wheel -w wheels .
       - uses: actions/upload-artifact@v4
         with:
-          name: artifact
+          name: artifact-whl
           path: ./wheels/tritondse*.whl
 
   build_sdist:
@@ -34,7 +34,7 @@ jobs:
         run: python setup.py sdist
       - uses: actions/upload-artifact@v4
         with:
-          name: artifact
+          name: artifact-dist
           path: dist/*.tar.gz
 
   upload_pypi:
