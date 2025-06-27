@@ -273,7 +273,9 @@
     <span class="c1"># WARNING: Dirty trick to make sure to jump on main after</span>
     <span class="c1"># the emulation of that stub</span>
     <span class="k">if</span> <span class="n">pstate</span><span class="o">.</span><span class="n">architecture</span> <span class="o">==</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">AARCH64</span><span class="p">:</span>
-        <span class="n">pstate</span><span class="o">.</span><span class="n">cpu</span><span class="o">.</span><span class="n">x30</span> <span class="o">=</span> <span class="n">main</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">pstate</span><span class="o">.</span><span class="n">architecture</span> <span class="o">==</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">ARM32</span><span class="p">:</span>
+        <span class="k">pass</span>
     <span class="k">elif</span> <span class="n">pstate</span><span class="o">.</span><span class="n">architecture</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Architecture</span><span class="o">.</span><span class="n">X86_64</span><span class="p">,</span> <span class="n">Architecture</span><span class="o">.</span><span class="n">X86</span><span class="p">]:</span>
         <span class="c1"># Push the return value to jump into the main() function</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">push_stack_value</span><span class="p">(</span><span class="n">main</span><span class="p">)</span>
@@ -338,6 +340,10 @@
         <span class="n">pstate</span><span class="o">.</span><span class="n">write_argument_value</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b_argv</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">write_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">b_argv</span><span class="p">)</span>
+
+    <span class="c1"># Return to the main function.</span>
+    <span class="n">pstate</span><span class="o">.</span><span class="n">rtn_redirect_addr</span> <span class="o">=</span> <span class="n">main</span>
+
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
@@ -1429,9 +1435,12 @@
     <span class="n">arg0</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">arg1</span> <span class="o">=</span> <span class="n">pstate</span><span class="o">.</span><span class="n">get_argument_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">arg0</span> <span class="ow">in</span> <span class="n">pstate</span><span class="o">.</span><span class="n">threads</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">arg0</span> <span class="ow">in</span> <span class="n">pstate</span><span class="o">.</span><span class="n">_threads</span><span class="p">:</span>
+        <span class="c1"># This will change the state of the current thread from RUNNING to</span>
+        <span class="c1"># JOINING. Therefore, it will not run until the joining thread</span>
+        <span class="c1"># finishes.</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">join_thread</span><span class="p">(</span><span class="n">arg0</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Thread id </span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">tid</span><span class="si">}</span><span class="s2"> joined thread id </span><span class="si">{</span><span class="n">arg0</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Thread id </span><span class="si">{</span><span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">tid</span><span class="si">}</span><span class="s2"> is waiting thread id </span><span class="si">{</span><span class="n">arg0</span><span class="si">}</span><span class="s2"> to join&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">pstate</span><span class="o">.</span><span class="n">current_thread</span><span class="o">.</span><span class="n">cancel_join</span><span class="p">()</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Thread id </span><span class="si">{</span><span class="n">arg0</span><span class="si">}</span><span class="s2"> already destroyed&quot;</span><span class="p">)</span>

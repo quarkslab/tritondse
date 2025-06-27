@@ -108,6 +108,11 @@
 <span class="c1"># third-party imports</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">triton</span><span class="w"> </span><span class="kn">import</span> <span class="n">TritonContext</span>
 
+<span class="c1"># local imports</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tritondse.logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">tritondse</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;thread_context&quot;</span><span class="p">)</span>
+
 
 <span class="nd">@enum_tools</span><span class="o">.</span><span class="n">documentation</span><span class="o">.</span><span class="n">document_enum</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ThreadState</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
