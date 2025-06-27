@@ -104,7 +104,8 @@ def hook_sscanf4(se: SymbolicExecutor, pstate: ProcessState, rtn_name: str, addr
 
 prog = Program("./bin/1")
 
-config = Config(skip_unsupported_import=True,
+config = Config(pipe_stdout=True,
+                skip_unsupported_import=True,
                 seed_format=SeedFormat.COMPOSITE)
 
 dse = SymbolicExplorator(config, prog)

@@ -28,7 +28,8 @@ def post_exec_hook(se: SymbolicExecutor, pstate: ProcessState):
 
 prog = Program("./bin/0")
 
-config = Config(skip_unsupported_import=True,
+config = Config(pipe_stdout=True,
+                skip_unsupported_import=True,
                 seed_format=SeedFormat.COMPOSITE)
 
 dse = SymbolicExplorator(config, prog)

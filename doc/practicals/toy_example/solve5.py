@@ -102,7 +102,8 @@ def hook_alert_placeholder(se: SymbolicExecutor, pstate: ProcessState, address: 
 
 prog = Program("./bin/5")
 
-config = Config(skip_unsupported_import=True)
+config = Config(pipe_stdout=True,
+                skip_unsupported_import=True)
 
 alert_placeholder_addr = prog.find_function_addr("__alert_placeholder")
 

@@ -89,7 +89,8 @@ def memory_read_callback(se: SymbolicExecutor, pstate: ProcessState, maccess: Me
 
 prog = Program("./bin/2")
 
-config = Config(skip_unsupported_import=True,
+config = Config(pipe_stdout=True,
+                skip_unsupported_import=True,
                 seed_format=SeedFormat.COMPOSITE)
 
 dse = SymbolicExplorator(config, prog)

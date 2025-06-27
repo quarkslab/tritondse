@@ -5,7 +5,7 @@
 #define MAX_ARG_LEN 256
 
 
-int  entry(const char* s) {
+int entry(const char* s) {
   uint32_t *nullptr = NULL;
 
   if (strlen(s) == 3) {

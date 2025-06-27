@@ -46,7 +46,8 @@ def memory_read_callback(se: SymbolicExecutor, pstate: ProcessState, maccess: Me
 
         rax_sym = pstate.read_symbolic_register(pstate.registers.rax)
 
-        # Get address of the array item that will be compared.
+        # Get address of the array item (that is, the address of current
+        # accessed item) that will be compared.
         rax = pstate.read_register(pstate.registers.rax)
         rbp = pstate.read_register(pstate.registers.rbp)
         target = rbp + rax * 4 - 0x80
@@ -55,9 +56,11 @@ def memory_read_callback(se: SymbolicExecutor, pstate: ProcessState, maccess: Me
         if lea_ast is None:
             return
 
-        logging.debug(f"argv[1] = {se.seed.content.argv[1]} Target = {target:x}")
+        logging.debug(f"Target address = {target:x}")
 
-        # Generate model to get an array item different from the current one.
+        # Generate a model to get an array item different from the current one.
+        # That is, a different address (therefore, a different item in the
+        # array) from the current one.
         constraint = lea_ast != target
         status, model = pstate.solve(constraint)
 
@@ -103,22 +106,21 @@ def memory_write_callback(se: SymbolicExecutor, pstate: ProcessState, maccess: M
 
         rax_sym = pstate.read_symbolic_register(pstate.registers.rax)
 
-        # Get address of the array item that will be compared.
+        # Get address of the array item (that is, the address of current
+        # accessed item) that will be compared.
         rax = pstate.read_register(pstate.registers.rax)
         rbp = pstate.read_register(pstate.registers.rbp)
         target = rbp + rax * 4 - 0x80
 
-        if not pstate.is_register_symbolic(pstate.registers.rax):
-            print("rax not symbolic")
-            return
-
-        print(f"argv[1] = {se.seed.content} Target = {target:x}")
+        logging.debug(f"Target address = {target:x}")
 
         lea_ast = maccess.getLeaAst()
         if lea_ast is None:
             return
 
-        # Generate model to get an array item different from the current one.
+        # Generate a model to get an array item different from the current one.
+        # That is, a different address (therefore, a different item in the
+        # array) from the current one.
         constraint = lea_ast != target
         status, model = pstate.solve(constraint)
 
@@ -150,7 +152,8 @@ def memory_write_callback(se: SymbolicExecutor, pstate: ProcessState, maccess: M
 
 prog = Program("./bin/3")
 
-config = Config(skip_unsupported_import=True,
+config = Config(pipe_stdout=True,
+                skip_unsupported_import=True,
                 seed_format=SeedFormat.COMPOSITE)
 
 dse = SymbolicExplorator(config, prog)
