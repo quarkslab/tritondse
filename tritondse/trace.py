@@ -122,7 +122,7 @@ class QBDITrace(Trace):
         self.modules = {}
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, dump_trace: bool = False, stdin_file=None, timeout=None, cwd=None) -> bool:
+    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, dump_trace: bool = False, stdin_file=None, timeout:=None, cwd=None) -> bool:
         if not Path(binary_path).exists():
             raise FileNotFoundError()
 
@@ -131,7 +131,9 @@ class QBDITrace(Trace):
 
         args = [] if not args else args
 
-        cmdlne = f'timeout {timeout} {sys.executable} -m pyqbdipreload {QBDITrace.QBDI_SCRIPT_FILEPATH}'.split(' ') + [binary_path] + args
+        cmdlne = [sys.executable, '-m', 'pyqbdipreload', QBDITrace.QBDI_SCRIPT_FILEPATH, binary_path] + args
+        if timeout is not None:
+            cmdline.insert(0, f"timeout {timeout}")
         cmdlne = " ".join(cmdlne)
 
         logger.debug(f'Command line: {cmdlne}')
