@@ -156,18 +156,6 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     # Get arguments
     main = pstate.get_argument_value(0)
 
-    # WARNING: Dirty trick to make sure to jump on main after
-    # the emulation of that stub
-    if pstate.architecture == Architecture.AARCH64:
-        pass
-    elif pstate.architecture == Architecture.ARM32:
-        pass
-    elif pstate.architecture in [Architecture.X86_64, Architecture.X86]:
-        # Push the return value to jump into the main() function
-        pstate.push_stack_value(main)
-    else:
-        assert False
-
     # Define concrete value of argc (from either the seed or the program_argv)
     if se.config.is_format_raw():
         # Cannot provide argv in RAW seeds
@@ -175,12 +163,8 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
     else:   # SeedFormat.COMPOSITE
         argc = len(se.seed.content.argv) if se.seed.content.argv else len(se.config.program_argv)
 
-    if pstate.architecture == Architecture.X86:
-        # Because of the "Dirty trick" described above, we RET to main instead of CALLing it.
-        # Because of that, the arguments end up 1 slot off on the stack
-        pstate.write_argument_value(0 + 1, argc)
-    else:
-        pstate.write_argument_value(0, argc)
+    pstate.write_argument_value(0, argc)
+
     logger.debug(f"argc = {argc}")
 
     # Define argv
@@ -220,12 +204,7 @@ def rtn_libc_start_main(se: 'SymbolicExecutor', pstate: 'ProcessState'):
         base += pstate.ptr_size
 
     # Concrete value
-    if pstate.architecture == Architecture.X86:
-        # Because of the "Dirty trick" described above, we RET to main instead of CALLing it.
-        # Because of that, the arguments end up 1 slot off on the stack
-        pstate.write_argument_value(1 + 1, b_argv)
-    else:
-        pstate.write_argument_value(1, b_argv)
+    pstate.write_argument_value(1, b_argv)
 
     # Return to the main function.
     pstate.rtn_redirect_addr = main
