@@ -11,6 +11,8 @@ from collections import Counter
 import tritondse    # NOTE We need this import so we can use it to determine the path of this file.
 from tritondse import Config, Program, SymbolicExecutor, CoverageStrategy, CoverageSingleRun
 import tritondse.logging
+from tritondse.types import PathLike
+
 
 logger = tritondse.logging.get("trace")
 
@@ -24,7 +26,15 @@ class Trace:
         pass
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, dump_trace: bool = False, stdin_file=None) -> bool:
+    def run(strategy: CoverageStrategy,
+            binary_path: PathLike,
+            args: List[str],
+            output_path: PathLike,
+            dump_trace: bool = False,
+            stdin_file: PathLike | None = None,
+            timeout: int | None = None,
+            cwd: PathLike | None = None,
+            env: dict[str, str] | None = None) -> bool:
         """Run the binary passed as argument and return the coverage.
 
         :param strategy: Coverage strategy.
@@ -36,7 +46,13 @@ class Trace:
         :type output_path: File where to store trace
         :param dump_trace: Enable gather the trace
         :param stdin_file: Path to the file that will act as stdin.
-        :type args: :py:obj:`str`.
+        :type stdin_file: :py:obj:`str`
+        :param timeout: Timeout for the execution.
+        :type timeout: :py:obj:`int`
+        :param cwd: Current working directory.
+        :type cwd: :py:obj:`str`
+        :param env: Environment variables to set.
+        :type env: :py:obj:`dict[str, str]`
         """
         raise NotImplementedError()
 
@@ -45,7 +61,7 @@ class Trace:
         raise NotImplementedError()
 
     @staticmethod
-    def from_file(file: Union[str, Path]) -> 'QBDITrace':
+    def from_file(coverage_file: PathLike) -> 'QBDITrace':
         raise NotImplementedError()
 
     @property
@@ -83,7 +99,15 @@ class TritonTrace(Trace):
         self._coverage = None
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, dump_trace: bool = False, stdin_file=None) -> bool:
+    def run(strategy: CoverageStrategy,
+            binary_path: PathLike,
+            args: List[str],
+            output_path: PathLike,
+            dump_trace: bool = False,
+            stdin_file: PathLike | None = None,
+            timeout: int | None = None,
+            cwd: PathLike | None = None,
+            env: dict[str, str] | None = None) -> bool:
         # Override stdin with the input file.
         if stdin_file:
             os.dup2(os.open(stdin_file, os.O_RDONLY), 0)
@@ -102,18 +126,19 @@ class TritonTrace(Trace):
         return True
 
     @staticmethod
-    def from_file(file: Union[str, Path]) -> 'QBDITrace':
+    def from_file(coverage_file: PathLike) -> 'QBDITrace':
         # FIXME: Reading coverage file from a file
-        pass
+        raise NotImplementedError("TritonTrace.from_file is not implemented")
 
     @property
     def coverage(self) -> CoverageSingleRun:
         return self._coverage
 
 
+
 class QBDITrace(Trace):
 
-    QBDI_SCRIPT_FILEPATH = Path(tritondse.__file__).parent / 'qbdi_trace.py'
+    QBDI_SCRIPT_FILEPATH = (Path(tritondse.__file__).parent / 'qbdi_trace.py').absolute()
 
     def __init__(self):
         super().__init__()
@@ -122,8 +147,18 @@ class QBDITrace(Trace):
         self.modules = {}
 
     @staticmethod
-    def run(strategy: CoverageStrategy, binary_path: str, args: List[str], output_path: str, dump_trace: bool = False, stdin_file=None, timeout:=None, cwd=None) -> bool:
-        if not Path(binary_path).exists():
+    def run(strategy: CoverageStrategy,
+            binary_path: PathLike,
+            args: List[str],
+            output_path: PathLike,
+            dump_trace: bool = False,
+            stdin_file: PathLike | None = None,
+            timeout: int | None = None,
+            cwd: PathLike | None = None,
+            env: dict[str, str] | None = None) -> bool:
+        
+        binary_path = Path(binary_path).absolute()
+        if not binary_path.exists():
             raise FileNotFoundError()
 
         if stdin_file and not Path(stdin_file).exists():
@@ -131,27 +166,29 @@ class QBDITrace(Trace):
 
         args = [] if not args else args
 
-        cmdlne = [sys.executable, '-m', 'pyqbdipreload', QBDITrace.QBDI_SCRIPT_FILEPATH, binary_path] + args
+        cmdline = ['python3', '-m', 'pyqbdipreload', str(QBDITrace.QBDI_SCRIPT_FILEPATH), str(binary_path)] + args
         if timeout is not None:
             cmdline.insert(0, f"timeout {timeout}")
-        cmdlne = " ".join(cmdlne)
+        cmdline = " ".join(cmdline)
 
-        logger.debug(f'Command line: {cmdlne}')
+        logger.debug(f'Command line: {cmdline}')
 
         # Set environment variables.
         environ = {
             'PYQBDIPRELOAD_COVERAGE_STRATEGY': strategy.name,
-            'PYQBDIPRELOAD_OUTPUT_FILEPATH': output_path,
+            'PYQBDIPRELOAD_OUTPUT_FILEPATH': str(Path(output_path).absolute()),
             'PYQBDIPRELOAD_DUMP_TRACE': str(dump_trace),
             'LD_BIND_NOW': '1',
         }
+        if env:  # Update with environment variables if provided
+            environ.update(env)
         environ.update(os.environ)
 
         # Open stdin file if it is present.
         stdin_fp = open(stdin_file, 'rb') if stdin_file else None
 
         # Run QBDI tool.
-        process = subprocess.Popen(cmdlne,
+        process = subprocess.Popen(cmdline,
                                    shell=True,
                                    stdin=stdin_fp,
                                    stdout=subprocess.DEVNULL,
@@ -175,7 +212,7 @@ class QBDITrace(Trace):
         return Path(output_path).exists()
 
     @staticmethod
-    def from_file(coverage_path: str) -> 'QBDITrace':
+    def from_file(coverage_file: PathLike) -> 'QBDITrace':
         """Load coverage from a file.
 
         :param coverage_path: Path to the coverage file.
@@ -183,8 +220,8 @@ class QBDITrace(Trace):
         """
         trace = QBDITrace()
 
-        logger.debug(f'Loading coverage file: {coverage_path}')
-        with open(coverage_path, 'rb') as fd:
+        logger.debug(f'Loading coverage file: {coverage_file}')
+        with open(coverage_file, 'rb') as fd:
             data = json.load(fd)
 
         cov = CoverageSingleRun(CoverageStrategy[data["coverage_strategy"]])
@@ -221,7 +258,7 @@ class QBDITrace(Trace):
 
         :return: list of addresses
         """
-        return self._trace
+        return self._trace if self._trace else []
 
 
 if __name__ == "__main__":
