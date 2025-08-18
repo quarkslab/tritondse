@@ -359,7 +359,10 @@ def rtn_atoi(se: 'SymbolicExecutor', pstate: 'ProcessState'):
                   )
               )
           )
-    res = ast.sx(32, res)
+
+    # Return a 64-bit value if in a 64 bits architecture.
+    if pstate.architecture in [Architecture.AARCH64, Architecture.X86_64]:
+        res = ast.sx(32, res)
 
     return res
 
