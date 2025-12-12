@@ -114,7 +114,7 @@
 <span id="exception"></span><h1>Exception<a class="headerlink" href="#module-tritondse.exception" title="Link to this heading"></a></h1>
 <dl class="py exception">
 <dt class="sig sig-object py" id="tritondse.exception.AbortExecutionException">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">AbortExecutionException</span></span><a class="reference internal" href="../_modules/tritondse/exception.html#AbortExecutionException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.AbortExecutionException" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">AbortExecutionException</span></span><a class="reference internal" href="../_modules/tritondse/exception.html#AbortExecutionException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.AbortExecutionException" title="Link to this definition"></a></dt>
 <dd><p>Exception to rais in a callback to stop current SymbolicExecutor.
 The user should be careful to set the status of the current seed
 being executed.</p>
@@ -122,7 +122,7 @@ being executed.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="tritondse.exception.AllocatorException">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">AllocatorException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/exception.html#AllocatorException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.AllocatorException" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">AllocatorException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/exception.html#AllocatorException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.AllocatorException" title="Link to this definition"></a></dt>
 <dd><p>Class used to represent a heap allocator exception.
 This exception can be raised in the following conditions:</p>
 <ul class="simple">
@@ -134,14 +134,14 @@ This exception can be raised in the following conditions:</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="tritondse.exception.ProbeException">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">ProbeException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/exception.html#ProbeException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.ProbeException" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">ProbeException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tritondse/exception.html#ProbeException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.ProbeException" title="Link to this definition"></a></dt>
 <dd><p>Exception to raise in a probe to stop the current exception.
 It is caught by SymbolicExplorator.</p>
 </dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="tritondse.exception.SkipInstructionException">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">SkipInstructionException</span></span><a class="reference internal" href="../_modules/tritondse/exception.html#SkipInstructionException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.SkipInstructionException" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">SkipInstructionException</span></span><a class="reference internal" href="../_modules/tritondse/exception.html#SkipInstructionException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.SkipInstructionException" title="Link to this definition"></a></dt>
 <dd><p>Exception to raise in a PRE callback to skip the evaluation
 of the current instruction. It will thus force a SymbolicExecutor
 to fetch the next instruction. Thus, the user have to update the
@@ -150,7 +150,7 @@ RIP of the ProcessState currently being executed.</p>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="tritondse.exception.StopExplorationException">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">StopExplorationException</span></span><a class="reference internal" href="../_modules/tritondse/exception.html#StopExplorationException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.StopExplorationException" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">tritondse.exception.</span></span><span class="sig-name descname"><span class="pre">StopExplorationException</span></span><a class="reference internal" href="../_modules/tritondse/exception.html#StopExplorationException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tritondse.exception.StopExplorationException" title="Link to this definition"></a></dt>
 <dd><p>Exception to raise in a callback to stop the whole exploration of
 the program. It is caught by SymbolicExplorator.</p>
 </dd></dl>
