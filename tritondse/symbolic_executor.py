@@ -441,6 +441,8 @@ class SymbolicExecutor(object):
             return False
         except ProbeException:
             return False
+        except StopExplorationException:
+            raise  # We want to catch it in the explorator and not here
         except Exception as e:
             logger.warning(f"Execution interrupted: {e}")
             self.seed.status = SeedStatus.FAIL
